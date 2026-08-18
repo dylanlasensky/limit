@@ -1,0 +1,5 @@
+import React from 'react';
+import {Link} from 'react-router-dom';
+import {ChevronRight} from 'lucide-react';
+import BodyMap from '@/components/limit/BodyMap';
+export default function MuscleRatingPreview({rating}){const high=Object.values(rating.muscles).filter(x=>['Advanced','Elite'].includes(x.level)).length;return <Link to="/progress" className="mt-7 flex items-center rounded-2xl border border-zinc-800 bg-[#121217] p-5 transition-colors active:bg-zinc-900"><div className="min-w-0 flex-1"><p className="text-xs font-bold tracking-[.16em] text-blue-500">MUSCLE RATING</p><h2 className="mt-2 text-2xl font-black">{rating.overallLevel.toUpperCase()}</h2><p className="mt-1 text-sm text-zinc-400">{rating.hasData?`${high} advanced muscle${high===1?'':'s'}`:'More data needed'}</p><span className="mt-4 flex items-center text-sm font-bold text-blue-500">VIEW DETAILS <ChevronRight className="h-4 w-4"/></span></div><div className="flex -space-x-8"><BodyMap rating={rating} view="front" compact/><BodyMap rating={rating} view="back" compact/></div></Link>}

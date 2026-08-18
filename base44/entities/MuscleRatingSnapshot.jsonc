@@ -1,0 +1,56 @@
+{
+  "name": "MuscleRatingSnapshot",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "workoutSessionId": {
+      "type": "string"
+    },
+    "overallLevel": {
+      "type": "string",
+      "enum": [
+        "Beginner",
+        "Intermediate",
+        "Advanced",
+        "Elite"
+      ]
+    },
+    "overallScore": {
+      "type": "number"
+    },
+    "muscleScores": {
+      "type": "object"
+    },
+    "muscleLevels": {
+      "type": "object"
+    },
+    "confidence": {
+      "type": "object"
+    },
+    "details": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "date",
+    "overallLevel",
+    "overallScore"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}
