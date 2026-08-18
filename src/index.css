@@ -93,5 +93,13 @@
   }
 
   button, a, input, select { touch-action: manipulation; }
+  button, nav, section, article, label, header, svg, [role="button"] {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  input, textarea, [contenteditable="true"], pre, code, .select-text {
+    user-select: text;
+    -webkit-user-select: text;
+  }
   label { @apply text-sm font-medium; }
 }

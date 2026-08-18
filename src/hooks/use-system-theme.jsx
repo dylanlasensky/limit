@@ -1,0 +1,2 @@
+import {useEffect,useState} from 'react';
+export default function useSystemTheme(){const[getDark,setDark]=useState(()=>typeof window!=='undefined'&&window.matchMedia('(prefers-color-scheme: dark)').matches);useEffect(()=>{const media=window.matchMedia('(prefers-color-scheme: dark)'),apply=event=>{const dark=event.matches;setDark(dark);document.documentElement.classList.toggle('dark',dark)};apply(media);media.addEventListener('change',apply);return()=>media.removeEventListener('change',apply)},[]);return getDark}

@@ -1,5 +1,7 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import {Outlet,useLocation} from 'react-router-dom';
+import {AnimatePresence,motion} from 'framer-motion';
 import BottomNav from '@/components/limit/BottomNav';
 import CoachButton from '@/components/limit/CoachButton';
-export default function LimitShell(){return <div className="dark min-h-screen bg-[#09090B] text-[#F8FAFC]"><main className="mx-auto min-h-screen max-w-md px-4 pb-28 pt-[max(1rem,env(safe-area-inset-top))]"><Outlet/></main><CoachButton/><BottomNav/></div>}
+import useSystemTheme from '@/hooks/use-system-theme';
+export default function LimitShell(){const dark=useSystemTheme(),location=useLocation();return <div className={`${dark?'dark':''} min-h-screen bg-background text-foreground`}><main className="mx-auto min-h-screen max-w-md overflow-hidden px-4 pb-28 pt-[max(1rem,env(safe-area-inset-top))]"><AnimatePresence mode="wait" initial={false}><motion.div key={location.pathname} initial={{x:24,opacity:0}} animate={{x:0,opacity:1}} exit={{x:-18,opacity:0}} transition={{duration:.2,ease:'easeOut'}}><Outlet/></motion.div></AnimatePresence></main><CoachButton/><BottomNav/></div>}
