@@ -15,6 +15,12 @@
     "heightCm": {
       "type": "number"
     },
+    "heightFeet": {
+      "type": "number"
+    },
+    "heightInches": {
+      "type": "number"
+    },
     "currentWeight": {
       "type": "number"
     },
@@ -57,12 +63,23 @@
     "fatTarget": {
       "type": "number"
     },
+    "targetsCustomized": {
+      "type": "boolean",
+      "default": false
+    },
+    "targetExplanation": {
+      "type": "string"
+    },
+    "measurementSystemVersion": {
+      "type": "string"
+    },
     "units": {
       "type": "string",
       "enum": [
         "imperial",
         "metric"
-      ]
+      ],
+      "default": "imperial"
     },
     "onboardingComplete": {
       "type": "boolean",

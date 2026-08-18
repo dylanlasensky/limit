@@ -25,7 +25,8 @@
       "type": "number"
     },
     "unit": {
-      "type": "string"
+      "type": "string",
+      "default": "in"
     }
   },
   "required": [

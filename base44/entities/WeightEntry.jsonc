@@ -14,7 +14,8 @@
       "enum": [
         "lb",
         "kg"
-      ]
+      ],
+      "default": "lb"
     }
   },
   "required": [

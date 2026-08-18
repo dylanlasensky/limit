@@ -1,7 +1,7 @@
 import { format, startOfWeek, addDays } from 'date-fns';
+export {calcTargets} from '@/components/limit/nutritionTargets';
 export const today=()=>format(new Date(),'yyyy-MM-dd');
 export const weekStart=()=>startOfWeek(new Date(),{weekStartsOn:1});
-export const calcTargets=p=>{const parsedAge=new Date().getFullYear()-new Date(p.birthDate).getFullYear();const age=Number.isFinite(parsedAge)?Math.max(18,parsedAge):30;const bmr=10*(p.weightKg||70)+6.25*(p.heightCm||170)-5*age+(p.sex==='male'?5:-161);const mult={low:1.25,moderate:1.45,high:1.65}[p.activityLevel]||1.45;const adjust=p.fitnessGoal?.includes('gain')?250:p.fitnessGoal?.includes('lose')?-350:0;const calories=Math.round((bmr*mult+adjust)/10)*10;const protein=Math.round((p.weightKg||70)*(p.fitnessGoal?.includes('lose')?2:1.8));const fat=Math.round(calories*.27/9);return{calorieTarget:calories,proteinTarget:protein,fatTarget:fat,carbTarget:Math.round((calories-protein*4-fat*9)/4)}};
 const meals=[
 ['Berry protein oats','Breakfast',['Oats','Greek yogurt','Berries','Chia seeds'],520,38,67,12],['Egg and avocado toast','Breakfast',['Eggs','Whole wheat bread','Avocado'],510,29,48,22],['Tofu breakfast scramble','Breakfast',['Tofu','Potatoes','Spinach','Olive oil'],500,31,58,18],
 ['Chicken rice bowl','Lunch',['Chicken breast','Rice','Bell pepper','Salsa'],690,52,78,17],['Lentil quinoa bowl','Lunch',['Lentils','Quinoa','Cucumber','Tahini'],650,31,86,20],['Tuna potato salad','Lunch',['Tuna','Potatoes','Green beans','Olive oil'],620,48,64,18],
