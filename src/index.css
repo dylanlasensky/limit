@@ -101,5 +101,10 @@
     user-select: text;
     -webkit-user-select: text;
   }
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
   label { @apply text-sm font-medium; }
 }
