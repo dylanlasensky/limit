@@ -1,0 +1,74 @@
+{
+  "name": "DietaryProfile",
+  "type": "object",
+  "properties": {
+    "allergies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "intolerances": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "foodsToAvoid": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dietaryPreferences": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "likedFoods": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dislikedFoods": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "preferredProteinSources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "cookingSkill": {
+      "type": "string"
+    },
+    "maxCookingTime": {
+      "type": "string"
+    },
+    "budgetFriendly": {
+      "type": "boolean"
+    },
+    "mealPrepPreference": {
+      "type": "boolean"
+    }
+  },
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "name": "FoodEntry",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "mealType": {
+      "type": "string",
+      "enum": [
+        "Breakfast",
+        "Lunch",
+        "Dinner",
+        "Snacks"
+      ]
+    },
+    "foodName": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number"
+    },
+    "unit": {
+      "type": "string"
+    },
+    "calories": {
+      "type": "number"
+    },
+    "protein": {
+      "type": "number"
+    },
+    "carbs": {
+      "type": "number"
+    },
+    "fat": {
+      "type": "number"
+    },
+    "fiber": {
+      "type": "number"
+    },
+    "sugar": {
+      "type": "number"
+    },
+    "sodium": {
+      "type": "number"
+    },
+    "entryMethod": {
+      "type": "string"
+    },
+    "estimated": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "date",
+    "mealType",
+    "foodName"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

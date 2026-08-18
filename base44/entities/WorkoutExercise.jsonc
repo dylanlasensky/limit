@@ -1,0 +1,51 @@
+{
+  "name": "WorkoutExercise",
+  "type": "object",
+  "properties": {
+    "workoutDayId": {
+      "type": "string"
+    },
+    "exerciseId": {
+      "type": "string"
+    },
+    "exerciseName": {
+      "type": "string"
+    },
+    "order": {
+      "type": "number"
+    },
+    "sets": {
+      "type": "number"
+    },
+    "repMin": {
+      "type": "number"
+    },
+    "repMax": {
+      "type": "number"
+    },
+    "restSeconds": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "workoutDayId",
+    "exerciseName"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

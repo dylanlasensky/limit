@@ -1,0 +1,42 @@
+{
+  "name": "WorkoutDay",
+  "type": "object",
+  "properties": {
+    "planId": {
+      "type": "string"
+    },
+    "weekday": {
+      "type": "number"
+    },
+    "name": {
+      "type": "string"
+    },
+    "targetMuscles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "isRest": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "weekday",
+    "name"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

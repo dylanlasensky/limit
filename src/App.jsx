@@ -6,6 +6,21 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
+import { Navigate } from 'react-router-dom';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
+import Entry from '@/pages/Entry';
+import Onboarding from '@/pages/Onboarding';
+import Home from '@/pages/Home';
+import Workout from '@/pages/Workout';
+import LiveWorkout from '@/pages/LiveWorkout';
+import Nutrition from '@/pages/Nutrition';
+import Progress from '@/pages/Progress';
+import Profile from '@/pages/Profile';
+import LimitShell from '@/components/limit/LimitShell';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -34,7 +49,22 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route path="/" element={<Entry />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/live-workout" element={<LiveWorkout />} />
+        <Route element={<LimitShell />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/workout" element={<Workout />} />
+          <Route path="/nutrition" element={<Nutrition />} />
+          <Route path="/progress" element={<Progress />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+      </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

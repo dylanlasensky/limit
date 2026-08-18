@@ -1,0 +1,48 @@
+{
+  "name": "BodyMeasurement",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "waist": {
+      "type": "number"
+    },
+    "chest": {
+      "type": "number"
+    },
+    "arms": {
+      "type": "number"
+    },
+    "thighs": {
+      "type": "number"
+    },
+    "hips": {
+      "type": "number"
+    },
+    "shoulders": {
+      "type": "number"
+    },
+    "unit": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "date"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

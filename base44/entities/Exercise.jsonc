@@ -1,0 +1,52 @@
+{
+  "name": "Exercise",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "primaryMuscle": {
+      "type": "string"
+    },
+    "secondaryMuscles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "equipment": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "repMin": {
+      "type": "number"
+    },
+    "repMax": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "name",
+    "primaryMuscle"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

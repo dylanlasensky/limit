@@ -1,0 +1,53 @@
+{
+  "name": "ExerciseSet",
+  "type": "object",
+  "properties": {
+    "workoutSessionId": {
+      "type": "string"
+    },
+    "exerciseId": {
+      "type": "string"
+    },
+    "exerciseName": {
+      "type": "string"
+    },
+    "primaryMuscle": {
+      "type": "string"
+    },
+    "setNumber": {
+      "type": "number"
+    },
+    "weight": {
+      "type": "number"
+    },
+    "reps": {
+      "type": "number"
+    },
+    "completed": {
+      "type": "boolean"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "workoutSessionId",
+    "exerciseName",
+    "setNumber"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

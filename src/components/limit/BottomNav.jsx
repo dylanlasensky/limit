@@ -1,0 +1,5 @@
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { House, Dumbbell, Apple, TrendingUp, UserRound } from 'lucide-react';
+const items=[['Home','/home',House],['Workout','/workout',Dumbbell],['Nutrition','/nutrition',Apple],['Progress','/progress',TrendingUp],['Profile','/profile',UserRound]];
+export default function BottomNav(){return <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md border-t border-zinc-200/80 bg-white/90 px-2 pb-[max(.45rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-950/90"><div className="flex justify-around">{items.map(([label,to,Icon])=><NavLink key={to} to={to} className={({isActive})=>`flex min-h-12 min-w-14 flex-col items-center justify-center gap-1 rounded-2xl text-[10px] font-semibold ${isActive?'text-lime-600 dark:text-lime-400':'text-zinc-500'}`}><Icon className="h-5 w-5"/>{label}</NavLink>)}</div></nav>}

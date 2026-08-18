@@ -1,0 +1,73 @@
+{
+  "name": "MealRecommendation",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "mealType": {
+      "type": "string"
+    },
+    "ingredients": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "servingSize": {
+      "type": "string"
+    },
+    "servings": {
+      "type": "number"
+    },
+    "calories": {
+      "type": "number"
+    },
+    "protein": {
+      "type": "number"
+    },
+    "carbs": {
+      "type": "number"
+    },
+    "fat": {
+      "type": "number"
+    },
+    "instructions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "prepMinutes": {
+      "type": "number"
+    },
+    "estimatedNutrition": {
+      "type": "boolean"
+    },
+    "generatedForDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "selected": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "name",
+    "mealType"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

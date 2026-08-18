@@ -1,0 +1,89 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "birthDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "sex": {
+      "type": "string"
+    },
+    "heightCm": {
+      "type": "number"
+    },
+    "currentWeight": {
+      "type": "number"
+    },
+    "goalWeight": {
+      "type": "number"
+    },
+    "activityLevel": {
+      "type": "string"
+    },
+    "fitnessGoal": {
+      "type": "string"
+    },
+    "experienceLevel": {
+      "type": "string"
+    },
+    "trainingDays": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "equipment": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "workoutSplit": {
+      "type": "string"
+    },
+    "calorieTarget": {
+      "type": "number"
+    },
+    "proteinTarget": {
+      "type": "number"
+    },
+    "carbTarget": {
+      "type": "number"
+    },
+    "fatTarget": {
+      "type": "number"
+    },
+    "units": {
+      "type": "string",
+      "enum": [
+        "imperial",
+        "metric"
+      ]
+    },
+    "onboardingComplete": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

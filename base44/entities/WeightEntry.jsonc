@@ -1,0 +1,38 @@
+{
+  "name": "WeightEntry",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "weight": {
+      "type": "number"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "lb",
+        "kg"
+      ]
+    }
+  },
+  "required": [
+    "date",
+    "weight"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}
