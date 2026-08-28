@@ -2,6 +2,9 @@
   "name": "PersonalRecord",
   "type": "object",
   "properties": {
+    "exerciseId": {
+      "type": "string"
+    },
     "exerciseName": {
       "type": "string"
     },

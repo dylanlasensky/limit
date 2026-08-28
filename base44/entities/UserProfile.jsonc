@@ -42,6 +42,21 @@
         "type": "string"
       }
     },
+    "availableDays": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sessionLength": {
+      "type": "number"
+    },
+    "priorityMuscles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "equipment": {
       "type": "array",
       "items": {

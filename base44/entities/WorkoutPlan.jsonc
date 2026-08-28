@@ -14,6 +14,18 @@
     "daysPerWeek": {
       "type": "number"
     },
+    "programType": {
+      "type": "string"
+    },
+    "sessionDurationTarget": {
+      "type": "number"
+    },
+    "priorityMuscles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "recommended": {
       "type": "boolean"
     },

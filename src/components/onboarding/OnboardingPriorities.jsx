@@ -1,0 +1,24 @@
+import React from 'react';
+const areas = ['Chest', 'Back', 'Shoulders', 'Arms', 'Quads', 'Hamstrings', 'Glutes', 'Calves', 'Core'];
+export default function OnboardingPriorities({ data, set }) {
+  const picked = data.priorityMuscles || [];
+  const toggle = m => {
+    if (picked.includes(m)) return set('priorityMuscles', picked.filter(x => x !== m));
+    if (picked.length >= 3) return;
+    set('priorityMuscles', [...picked, m]);
+  };
+  return (
+    <div>
+      <p className="text-sm text-muted-foreground">Optional. Pick up to 3 areas you want to emphasize — they'll get extra volume in your program.</p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {areas.map(m => (
+          <button key={m} type="button" onClick={() => toggle(m)}
+            className={`min-h-11 rounded-full border px-4 text-sm font-semibold transition-colors ${picked.includes(m) ? 'border-blue-600 bg-blue-600/10 text-blue-500' : 'border-border'}`}>
+            {m}
+          </button>
+        ))}
+      </div>
+      {picked.length > 0 && <p className="mt-4 text-sm text-blue-500">{picked.join(' · ')}</p>}
+    </div>
+  );
+}

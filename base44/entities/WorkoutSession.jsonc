@@ -5,6 +5,9 @@
     "workoutDayId": {
       "type": "string"
     },
+    "planId": {
+      "type": "string"
+    },
     "name": {
       "type": "string"
     },
@@ -41,6 +44,12 @@
       "type": "string"
     },
     "totalVolume": {
+      "type": "number"
+    },
+    "setCount": {
+      "type": "number"
+    },
+    "prCount": {
       "type": "number"
     }
   },

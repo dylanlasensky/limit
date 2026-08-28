@@ -1,0 +1,40 @@
+// Deterministic strength math. No AI.
+export const epley = (weight, reps) => (reps > 0 && weight > 0 ? weight * (1 + Math.min(reps, 12) / 30) : 0);
+export const roundLoad = w => Math.max(0, Math.round(w / 5) * 5);
+
+// Progressive overload suggestion from the most recent completed sets of an exercise.
+export const suggestProgression = (previousSets, repMin = 6, repMax = 10) => {
+  const done = (previousSets || []).filter(s => +s.reps > 0 && (s.setType || 'working') === 'working');
+  if (!done.length) return null;
+  const top = Math.max(...done.map(s => +s.weight || 0));
+  const atTop = done.filter(s => (+s.weight || 0) === top);
+  const worstReps = Math.min(...atTop.map(s => +s.reps));
+  const comfortable = atTop.every(s => s.rir == null || +s.rir >= 1);
+  if (worstReps >= repMax && comfortable) return { weight: roundLoad(top + 5), note: 'All sets hit the top of the range — add weight.' };
+  if (worstReps < repMin) return { weight: top, note: 'Hold this weight and build back into the range.' };
+  return { weight: top, note: `Try +1 total rep at ${top} lb.` };
+};
+
+// Detect PRs from this session's completed rows vs existing PersonalRecord list.
+// Returns [{exerciseName, exerciseId, type, value, weight, reps, existingId, previous}]
+export const detectPRs = (completedRows, records) => {
+  const prs = [];
+  const byExercise = {};
+  completedRows.forEach(r => {
+    if ((r.setType || 'working') !== 'working') return;
+    (byExercise[r.exerciseName] = byExercise[r.exerciseName] || []).push(r);
+  });
+  Object.entries(byExercise).forEach(([name, rows]) => {
+    const best = rows.reduce((a, r) => (epley(+r.weight, +r.reps) > epley(+a.weight, +a.reps) ? r : a), rows[0]);
+    const bestE1rm = Math.round(epley(+best.weight, +best.reps));
+    const heaviest = rows.reduce((a, r) => Math.max(a, +r.weight || 0), 0);
+    if (bestE1rm <= 0) return;
+    const find = type => records.find(x => x.type === type && (x.exerciseId && best.exerciseId ? x.exerciseId === best.exerciseId : x.exerciseName === name));
+    const e1rmRec = find('e1rm');
+    if (!e1rmRec || bestE1rm > e1rmRec.value) prs.push({ exerciseName: name, exerciseId: best.exerciseId, type: 'e1rm', value: bestE1rm, weight: +best.weight, reps: +best.reps, existingId: e1rmRec?.id, previous: e1rmRec?.value });
+    const weightRec = find('weight');
+    const heavyRow = rows.find(r => +r.weight === heaviest);
+    if (heaviest > 0 && (!weightRec || heaviest > weightRec.value)) prs.push({ exerciseName: name, exerciseId: best.exerciseId, type: 'weight', value: heaviest, weight: heaviest, reps: +heavyRow.reps, existingId: weightRec?.id, previous: weightRec?.value });
+  });
+  return prs;
+};

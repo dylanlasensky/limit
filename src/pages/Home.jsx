@@ -1,11 +1,92 @@
 import React from 'react';
-import {useQuery} from '@tanstack/react-query';
-import {base44} from '@/api/base44Client';
-import {today,sumMacros} from '@/components/limit/data';
-import {calculateMuscleRating,emptyRating} from '@/components/limit/muscleRating';
-import {profileWeightLb} from '@/components/limit/nutritionTargets';
+import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
+import { base44 } from '@/api/base44Client';
+import { today, sumMacros } from '@/components/limit/data';
+import { calculateMuscleRating, emptyRating } from '@/components/limit/muscleRating';
+import { profileWeightLb } from '@/components/limit/nutritionTargets';
+import useActivePlan, { todayWeekday } from '@/hooks/use-active-plan';
 import HomeWorkout from '@/components/limit/HomeWorkout';
 import MacroCard from '@/components/limit/MacroCard';
 import MuscleRatingPreview from '@/components/limit/MuscleRatingPreview';
 import PullToRefresh from '@/components/limit/PullToRefresh';
-export default function Home(){const date=today();const profile=useQuery({queryKey:['userProfile'],queryFn:()=>base44.entities.UserProfile.list(),staleTime:30000}),foodsQuery=useQuery({queryKey:['foodEntries',date],queryFn:()=>base44.entities.FoodEntry.filter({date}),staleTime:30000}),daysQuery=useQuery({queryKey:['workoutDays'],queryFn:()=>base44.entities.WorkoutDay.list('weekday'),staleTime:30000}),weightsQuery=useQuery({queryKey:['weightEntries'],queryFn:()=>base44.entities.WeightEntry.list('date',30),staleTime:30000}),workoutExercises=useQuery({queryKey:['workoutExercises'],queryFn:()=>base44.entities.WorkoutExercise.list(),staleTime:30000}),ratingData=useQuery({queryKey:['muscleRatingData'],queryFn:async()=>{const[sets,exercises,sessions]=await Promise.all([base44.entities.ExerciseSet.list('-timestamp',500),base44.entities.Exercise.list(),base44.entities.WorkoutSession.list('-date',100)]);return{sets,exercises,sessions}},staleTime:30000});const p=profile.data?.[0]||{},foods=foodsQuery.data||[],days=daysQuery.data||[],weights=weightsQuery.data||[],data=ratingData.data,rating=data?calculateMuscleRating({...data,profile:p,weights}):emptyRating(),m=sumMacros(foods),weekday=(new Date().getDay()+6)%7,day=days.find(x=>x.weekday===weekday),count=(workoutExercises.data||[]).filter(x=>x.workoutDayId===day?.id).length;const refresh=()=>Promise.all([profile.refetch(),foodsQuery.refetch(),daysQuery.refetch(),weightsQuery.refetch(),workoutExercises.refetch(),ratingData.refetch()]);return <PullToRefresh onRefresh={refresh}><div><header className="mb-6"><p className="text-xs font-bold uppercase tracking-[.18em] text-blue-500">{new Intl.DateTimeFormat('en-US',{weekday:'long'}).format(new Date())}</p><h1 className="mt-2 text-3xl font-black tracking-tight">Ready, {p.name?.split(' ')[0]||'athlete'}?</h1></header><HomeWorkout day={day} exerciseCount={count}/><h2 className="mb-3 mt-7 text-sm font-black tracking-[.16em] text-zinc-400">NUTRITION</h2><div className="grid grid-cols-2 gap-3"><MacroCard label="CALORIES" value={m.calories} goal={p.calorieTarget||2200} unit=""/><MacroCard label="PROTEIN" value={m.protein} goal={p.proteinTarget||150}/><MacroCard label="Carbs" value={m.carbs} goal={p.carbTarget||250} color="bg-blue-500"/><MacroCard label="Fat" value={m.fat} goal={p.fatTarget||70} color="bg-blue-400"/></div><MuscleRatingPreview rating={rating}/><section className="mt-7 rounded-2xl border border-zinc-800 bg-[#121217] p-5"><p className="text-xs font-bold uppercase tracking-[.16em] text-zinc-500">Progress snapshot</p><div className="mt-3 flex items-end justify-between"><div><b className="text-3xl">{weights.at(-1)?Math.round((weights.at(-1).unit==='kg'?weights.at(-1).weight*2.20462:weights.at(-1).weight)*10)/10:Math.round(profileWeightLb(p)*10)/10||'—'}</b><span className="ml-1 text-sm text-zinc-500">lb</span></div><p className="text-sm text-zinc-500">Goal {p.goalWeight||'—'}</p></div></section></div></PullToRefresh>}
+
+const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; };
+
+export default function Home() {
+  const date = today();
+  const profile = useQuery({ queryKey: ['userProfile'], queryFn: () => base44.entities.UserProfile.list(), staleTime: 30000 });
+  const foodsQuery = useQuery({ queryKey: ['foodEntries', date], queryFn: () => base44.entities.FoodEntry.filter({ date }), staleTime: 30000 });
+  const planQuery = useActivePlan();
+  const weightsQuery = useQuery({ queryKey: ['weightEntries'], queryFn: () => base44.entities.WeightEntry.list('date', 30), staleTime: 30000 });
+  const workoutExercises = useQuery({ queryKey: ['workoutExercises'], queryFn: () => base44.entities.WorkoutExercise.list(null, 500), staleTime: 60000 });
+  const sessionsQuery = useQuery({ queryKey: ['todaySession'], queryFn: () => base44.entities.WorkoutSession.filter({ date }), staleTime: 15000 });
+  const ratingData = useQuery({
+    queryKey: ['muscleRatingData'], staleTime: 30000,
+    queryFn: async () => {
+      const [sets, exercises, sessions] = await Promise.all([
+        base44.entities.ExerciseSet.list('-timestamp', 500),
+        base44.entities.Exercise.list(null, 500),
+        base44.entities.WorkoutSession.list('-date', 100)
+      ]);
+      return { sets, exercises, sessions };
+    }
+  });
+
+  const p = profile.data?.[0] || {};
+  const foods = foodsQuery.data || [];
+  const { days = [] } = planQuery.data || {};
+  const weights = weightsQuery.data || [];
+  const data = ratingData.data;
+  const rating = data ? calculateMuscleRating({ ...data, profile: p, weights }) : emptyRating();
+  const m = sumMacros(foods);
+  const weekday = todayWeekday();
+  const day = days.find(x => x.weekday === weekday);
+  const dayExercises = (workoutExercises.data || []).filter(x => x.workoutDayId === day?.id);
+  const todaySessions = sessionsQuery.data || [];
+  const activeSession = todaySessions.find(s => s.status === 'active' && s.workoutDayId === day?.id);
+  const completedSession = todaySessions.find(s => s.status === 'completed' && s.workoutDayId === day?.id);
+  const heroLine = completedSession ? 'Session done. Recover well.' : activeSession ? 'Finish what you started.' : day && !day.isRest ? 'Beat last week.' : days.length ? 'Recovery day.' : '';
+  const latestWeight = weights.at(-1) ? Math.round((weights.at(-1).unit === 'kg' ? weights.at(-1).weight * 2.20462 : weights.at(-1).weight) * 10) / 10 : Math.round(profileWeightLb(p) * 10) / 10 || null;
+  const hasTargets = !!p.calorieTarget;
+
+  const refresh = () => Promise.all([profile.refetch(), foodsQuery.refetch(), planQuery.refetch(), weightsQuery.refetch(), workoutExercises.refetch(), sessionsQuery.refetch(), ratingData.refetch()]);
+
+  return (
+    <PullToRefresh onRefresh={refresh}>
+      <div>
+        <header className="mb-6">
+          <p className="text-xs font-bold uppercase tracking-[.18em] text-blue-500">{format(new Date(), 'EEEE, MMM d')}</p>
+          <h1 className="mt-2 text-3xl font-black tracking-tight">{greeting()}{p.name ? `, ${p.name.split(' ')[0]}` : ''}</h1>
+          {heroLine && <p className="mt-1 text-sm font-semibold text-zinc-500">{heroLine}</p>}
+        </header>
+        <HomeWorkout day={day} exercises={dayExercises} activeSession={activeSession} completedSession={completedSession} />
+        <h2 className="mb-3 mt-7 text-xs font-black tracking-[.16em] text-zinc-500">NUTRITION</h2>
+        {hasTargets ? (
+          <div className="grid grid-cols-2 gap-3">
+            <MacroCard label="Calories" value={m.calories} goal={p.calorieTarget} unit="" />
+            <MacroCard label="Protein" value={m.protein} goal={p.proteinTarget} />
+            <MacroCard label="Carbs" value={m.carbs} goal={p.carbTarget} />
+            <MacroCard label="Fat" value={m.fat} goal={p.fatTarget} />
+          </div>
+        ) : profile.isLoading ? (
+          <div className="grid grid-cols-2 gap-3">{[0, 1, 2, 3].map(i => <div key={i} className="h-24 animate-pulse rounded-2xl bg-zinc-900/70" />)}</div>
+        ) : (
+          <p className="rounded-2xl border border-zinc-800 bg-[#121217] p-4 text-sm text-zinc-500">Set your nutrition targets in Profile to track macros here.</p>
+        )}
+        <MuscleRatingPreview rating={rating} />
+        <section className="mt-7 rounded-2xl border border-zinc-800 bg-[#121217] p-5">
+          <p className="text-xs font-bold uppercase tracking-[.16em] text-zinc-500">Body</p>
+          {latestWeight ? (
+            <div className="mt-3 flex items-end justify-between">
+              <div><b className="text-3xl tabular-nums">{latestWeight}</b><span className="ml-1 text-sm text-zinc-500">lb</span></div>
+              {p.goalWeight ? <p className="text-sm tabular-nums text-zinc-500">Goal {p.goalWeight}</p> : null}
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-zinc-500">Log your first weigh-in from Progress.</p>
+          )}
+        </section>
+      </div>
+    </PullToRefresh>
+  );
+}

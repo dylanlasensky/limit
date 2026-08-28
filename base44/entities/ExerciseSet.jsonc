@@ -17,10 +17,23 @@
     "setNumber": {
       "type": "number"
     },
+    "setType": {
+      "type": "string",
+      "enum": [
+        "working",
+        "warmup",
+        "drop",
+        "failure"
+      ],
+      "default": "working"
+    },
     "weight": {
       "type": "number"
     },
     "reps": {
+      "type": "number"
+    },
+    "rir": {
       "type": "number"
     },
     "completed": {
