@@ -1,31 +1,6 @@
 import { base44 } from '@/api/base44Client';
 
 const uid = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
-const responseSchema = {
-  type: 'object',
-  properties: {
-    name: { type: 'string' },
-    notes: { type: 'string' },
-    days: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' }, weekday: { type: 'number' }, coachMandated: { type: 'boolean' }, fixedSchedule: { type: 'boolean' },
-          exercises: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                name: { type: 'string' }, sets: { type: 'number' }, repMin: { type: 'number' }, repMax: { type: 'number' }, restSeconds: { type: 'number' }, notes: { type: 'string' }, progressionNotes: { type: 'string' }, coachMandated: { type: 'boolean' }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-};
 const clean = value => (value || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\b(barbell|dumbbell|machine|cable)\b/g, '').replace(/\s+/g, ' ').trim();
 const score = (a, b) => {
   const x = clean(a), y = clean(b);
@@ -60,15 +35,10 @@ export function matchRegimen(raw, catalog) {
 }
 
 export async function parseRegimen({ text, file }) {
-  let file_urls;
-  if (file) {
-    const { file_uri } = await base44.integrations.Core.UploadPrivateFile({ file });
-    const { signed_url } = await base44.integrations.Core.CreateFileSignedUrl({ file_uri, expires_in: 900 });
-    file_urls = [signed_url];
-  }
-  const prompt = `Parse the supplied workout regimen into a faithful structured plan. Preserve coach intent and day order. Extract day names, weekday where explicit (Monday=0), exercise names, sets, minimum and maximum reps, rest in seconds, notes, and progression instructions. Never invent missing exercises. Use 3 sets, 8-12 reps, and 120 seconds only when a field is genuinely absent. Mark fixed or coach-mandated work when the source says so. ${text ? `SOURCE TEXT:\n${text}` : 'Read the attached regimen file.'}`;
-  const parsed = await base44.integrations.Core.InvokeLLM({ prompt, file_urls, response_json_schema: responseSchema });
-  return shape(parsed);
+  let fileUri;
+  if (file) ({ file_uri: fileUri } = await base44.integrations.Core.UploadPrivateFile({ file }));
+  const { data } = await base44.functions.invoke('parseWorkoutRegimen', { text, fileUri });
+  return shape(data);
 }
 
 export async function loadImportedPlan(planId, catalog) {
