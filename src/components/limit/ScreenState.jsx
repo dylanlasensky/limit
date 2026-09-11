@@ -1,0 +1,6 @@
+import React from 'react';
+import { ArrowUpRight, RotateCcw } from 'lucide-react';
+export default function ScreenState({ loading, title, description, action, onAction }) {
+  if (loading) return <div role="status" aria-label="Loading" className="space-y-4 py-4"><div className="h-4 w-24 animate-pulse rounded bg-secondary"/><div className="h-10 w-3/4 animate-pulse rounded-lg bg-secondary"/><div className="h-56 animate-pulse rounded-3xl bg-card"/><div className="grid grid-cols-2 gap-3"><div className="h-24 animate-pulse rounded-2xl bg-card"/><div className="h-24 animate-pulse rounded-2xl bg-card"/></div></div>;
+  return <section className="rounded-3xl border border-border bg-card p-7"><div className="mb-5 h-1 w-8 bg-primary"/><h2 className="font-heading text-xl font-bold tracking-tight">{title}</h2><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>{onAction && <button onClick={onAction} className="mt-5 flex min-h-12 items-center gap-2 font-semibold text-primary">{action || 'Try again'}{action ? <ArrowUpRight className="h-4 w-4"/> : <RotateCcw className="h-4 w-4"/>}</button>}</section>;
+}

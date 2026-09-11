@@ -3,7 +3,8 @@ import { epley } from '@/lib/training/e1rm';
 
 // Compact, structured coach context. Small targeted queries — never raw record dumps.
 export async function buildCoachContext() {
-  const date = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const date = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   const [profiles, plans, foods, sessions, records, snapshots, weights, diets] = await Promise.all([
     base44.entities.UserProfile.list(),
     base44.entities.WorkoutPlan.filter({ active: true }, '-created_date', 1),

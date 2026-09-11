@@ -1,16 +1,16 @@
 // Deterministic strength math. No AI.
-export const epley = (weight, reps) => (reps > 0 && weight > 0 ? weight * (1 + Math.min(reps, 12) / 30) : 0);
+export const epley = (weight, reps) => (Number.isFinite(+weight) && +weight > 0 && Number.isInteger(+reps) && +reps >= 1 && +reps <= 12 ? +weight * (+reps === 1 ? 1 : 1 + +reps / 30) : 0);
 export const roundLoad = w => Math.max(0, Math.round(w / 5) * 5);
 
 // Progressive overload suggestion from the most recent completed sets of an exercise.
 export const suggestProgression = (previousSets, repMin = 6, repMax = 10) => {
-  const done = (previousSets || []).filter(s => +s.reps > 0 && (s.setType || 'working') === 'working');
+  const done = (previousSets || []).filter(s => s.completed !== false && +s.reps > 0 && Number.isFinite(+s.weight) && (s.setType || 'working') === 'working');
   if (!done.length) return null;
   const top = Math.max(...done.map(s => +s.weight || 0));
   const atTop = done.filter(s => (+s.weight || 0) === top);
   const worstReps = Math.min(...atTop.map(s => +s.reps));
   const comfortable = atTop.every(s => s.rir == null || +s.rir >= 1);
-  if (worstReps >= repMax && comfortable) return { weight: roundLoad(top + 5), note: 'All sets hit the top of the range — add weight.' };
+  if (top > 0 && atTop.length >= 2 && atTop.length === done.length && worstReps >= repMax && comfortable) return { weight: roundLoad(top + 5), note: 'Every working set reached the top of the range. Try +5 lb if form stays controlled.' };
   if (worstReps < repMin) return { weight: top, note: 'Hold this weight and build back into the range.' };
   return { weight: top, note: `Try +1 total rep at ${top} lb.` };
 };

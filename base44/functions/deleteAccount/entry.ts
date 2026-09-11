@@ -9,10 +9,10 @@ export default async function(req) {
     if (payload.dryRun === true) return Response.json({ ok: true, authenticated: true });
     if (payload.confirm !== true) return Response.json({ error: 'Confirmation required' }, { status: 400 });
     const entityNames = ['UserProfile','WorkoutPlan','WorkoutDay','WorkoutExercise','WorkoutSession','ExerciseSet','FoodEntry','DietaryProfile','MealRecommendation','WeeklyMealPlan','GroceryList','PersonalRecord','WeightEntry','BodyMeasurement','MuscleRatingSnapshot'];
-    await Promise.all(entityNames.map((name) => base44.entities[name].deleteMany({})));
+    await Promise.all(entityNames.map((name) => base44.asServiceRole.entities[name].deleteMany({ $or: [{ created_by_id: user.id }, { ownerId: user.id }] })));
     await base44.asServiceRole.entities.User.delete(user.id);
     return Response.json({ ok: true });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Account deletion did not finish. Please retry before signing out.' }, { status: 500 });
   }
 }

@@ -44,11 +44,11 @@
   }
 
   .dark {
-    --background: 240 10% 4%;
+    --background: 240 10% 3.9%;
     --foreground: 210 40% 98%;
-    --card: 240 12% 8%;
+    --card: 240 12.2% 8%;
     --card-foreground: 210 40% 98%;
-    --popover: 240 12% 8%;
+    --popover: 240 12.2% 8%;
     --popover-foreground: 210 40% 98%;
     --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 0 0% 100%;
@@ -107,4 +107,14 @@
   }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   label { @apply text-sm font-medium; }
+  html { color-scheme: light; }
+  html.dark { color-scheme: dark; }
+  #root { min-height: 100dvh; }
+  input, textarea, select { min-width: 0; font-size: max(16px, 1em); }
+  button, a { -webkit-tap-highlight-color: transparent; }
+  button:not(:disabled):active { transform: scale(.98); }
+  :focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  }
 }
