@@ -54,9 +54,9 @@ export default function Workout() {
   return (
     <PullToRefresh onRefresh={refresh}>
       <div>
-        <header className="flex items-end justify-between">
-          <h1 className="text-3xl font-black tracking-tight">Workout</h1>
-          {plan && <p className="text-xs font-bold text-zinc-500">THIS WEEK <span className="text-blue-500">{completedWeekdays.size} / {trainingDays.length}</span></p>}
+        <header className="limit-hero flex items-end justify-between rounded-[2rem] p-5">
+          <div className="relative z-10"><p className="limit-kicker">Training block</p><h1 className="mt-2 text-4xl font-black italic tracking-[-.04em]">WORKOUT</h1></div>
+          {plan && <div className="relative z-10 text-right"><p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">This week</p><p className="mt-1 text-2xl font-black tabular-nums text-primary">{completedWeekdays.size}<span className="text-sm text-muted-foreground"> / {trainingDays.length}</span></p></div>}
         </header>
         <SegmentedTabs options={['Schedule','Exercises','History']} value={tab} onChange={setTab} label="Workout sections" />
 
@@ -79,7 +79,7 @@ export default function Workout() {
             <p className="mb-2 mt-7 text-xs font-black tracking-[.16em] text-zinc-500">{plan.name.toUpperCase()} · {plan.daysPerWeek} DAYS</p>
             <div className="space-y-2">
               {days.map(d => (
-                <div key={d.id} className={`flex items-center justify-between rounded-2xl border p-4 ${d.weekday === weekday ? 'border-blue-900/60 bg-[#121217]' : 'border-zinc-800/70 bg-[#101014]'}`}>
+                <div key={d.id} className={`flex items-center justify-between rounded-2xl border p-4 transition-all ${d.weekday === weekday ? 'border-primary/40 bg-primary/[.07] shadow-[inset_3px_0_0_hsl(var(--primary))]' : 'border-border/50 bg-card/60'}`}>
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">{WEEKDAY_LABELS[d.weekday]}</p>
                     <b className={d.isRest ? 'text-zinc-600' : ''}>{d.name}</b>

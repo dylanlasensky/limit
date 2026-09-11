@@ -109,7 +109,8 @@
   label { @apply text-sm font-medium; }
   html { color-scheme: light; }
   html.dark { color-scheme: dark; }
-  #root { min-height: 100dvh; }
+  #root { min-height: 100dvh; isolation: isolate; }
+  body { background-image: radial-gradient(circle at 50% -10%, hsl(var(--primary) / .1), transparent 30rem); }
   input, textarea, select { min-width: 0; font-size: max(16px, 1em); }
   button, a { -webkit-tap-highlight-color: transparent; }
   button:not(:disabled):active { transform: scale(.98); }
@@ -118,3 +119,24 @@
     *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   }
 }
+
+@layer components {
+  .limit-kicker { @apply text-[10px] font-black uppercase tracking-[.24em] text-primary; }
+  .limit-surface { @apply border border-border/70 bg-card; box-shadow: inset 0 1px 0 hsl(var(--foreground) / .035), 0 18px 50px hsl(240 20% 1% / .22); }
+  .limit-hero { @apply relative overflow-hidden border border-primary/20 bg-card; box-shadow: inset 0 1px 0 hsl(var(--foreground) / .06), 0 24px 60px hsl(var(--primary) / .09); }
+  .limit-hero::after { content: ''; @apply pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-primary/15 blur-3xl; }
+  .limit-button { @apply relative overflow-hidden bg-primary text-primary-foreground duration-200; box-shadow: 0 12px 35px hsl(var(--primary) / .28); transition: transform .2s, filter .2s, box-shadow .2s; }
+  .limit-button:active { transform: scale(.975); filter: brightness(1.1); }
+  .limit-chip { @apply border border-border/70 bg-secondary/70 text-muted-foreground transition-all duration-200; }
+  .limit-chip-active { @apply border-primary/50 bg-primary/15 text-primary; box-shadow: inset 0 0 18px hsl(var(--primary) / .08); }
+  .limit-grid { background-image: linear-gradient(hsl(var(--border)/.22) 1px, transparent 1px), linear-gradient(90deg,hsl(var(--border)/.22) 1px,transparent 1px); background-size: 22px 22px; }
+  .limit-shimmer { background: linear-gradient(105deg,hsl(var(--card)) 35%,hsl(var(--secondary)) 50%,hsl(var(--card)) 65%); background-size: 200% 100%; animation: limit-shimmer 1.5s ease-in-out infinite; }
+  .tier-beginner { color: hsl(154 70% 48%); }
+  .tier-intermediate { color: hsl(var(--primary)); }
+  .tier-advanced { color: hsl(268 86% 67%); }
+  .tier-elite { color: hsl(202 100% 72%); }
+}
+
+@keyframes limit-shimmer { to { background-position-x: -200%; } }
+@keyframes limit-aura { 50% { opacity: .82; transform: scale(1.035); } }
+.limit-aura { animation: limit-aura 3.6s ease-in-out infinite; transform-origin: center; }

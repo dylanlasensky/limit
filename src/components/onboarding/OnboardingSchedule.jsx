@@ -13,7 +13,7 @@ export default function OnboardingSchedule({ data, set }) {
       <div className="mt-4 grid grid-cols-1 gap-2">
         {WEEKDAYS.map(d => (
           <button key={d} type="button" onClick={() => toggle(d)}
-            className={`flex min-h-12 w-full items-center py-3 justify-between rounded-xl border px-4 font-semibold transition-colors ${days.includes(d) ? 'border-blue-600 bg-blue-600/10 text-blue-500' : 'border-border'}`}>
+            className={`limit-surface flex min-h-14 w-full items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all ${days.includes(d) ? 'border-primary/60 bg-primary/10 text-primary shadow-[inset_3px_0_0_hsl(var(--primary))]' : ''}`}>
             {d}
             <span className={`grid h-6 w-6 place-items-center rounded-full border text-xs ${days.includes(d) ? 'border-blue-600 bg-blue-600 text-white' : 'border-border text-transparent'}`}>✓</span>
           </button>

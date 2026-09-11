@@ -58,10 +58,13 @@ export default function Home() {
   return (
     <PullToRefresh onRefresh={refresh}>
       <div>
-        <header className="mb-6">
-          <p className="text-xs font-bold uppercase tracking-[.18em] text-blue-500">{format(new Date(), 'EEEE, MMM d')}</p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight">{greeting()}{p.name ? `, ${p.name.split(' ')[0]}` : ''}</h1>
-          {heroLine && <p className="mt-1 text-sm font-semibold text-zinc-500">{heroLine}</p>}
+        <header className="limit-hero mb-7 rounded-[2rem] px-5 py-6">
+          <span className="pointer-events-none absolute -bottom-5 right-1 text-[5.5rem] font-black italic leading-none tracking-[-.08em] text-foreground/[.025]">LIMIT</span>
+          <div className="relative z-10">
+            <p className="limit-kicker">{format(new Date(), 'EEEE, MMM d')}</p>
+            <h1 className="mt-3 text-4xl font-black tracking-[-.045em]">{greeting()}{p.name ? `, ${p.name.split(' ')[0]}` : ''}</h1>
+            {heroLine && <p className="mt-2 text-sm font-semibold text-muted-foreground">{heroLine}</p>}
+          </div>
         </header>
         <HomeWorkout day={activeDay||day} exercises={activeDay?(workoutExercises.data||[]).filter(x=>x.workoutDayId===activeDay.id):dayExercises} activeSession={activeSession} completedSession={activeDay?null:completedSession} />
         <SectionHeading label="Today" title="Nutrition" to="/nutrition" action="Log food" />
@@ -79,9 +82,9 @@ export default function Home() {
         )}
         <MuscleRatingPreview rating={rating} />
         <SectionHeading label="Latest signal" title="Recent performance" to="/progress" />
-        {data?.records?.length ? <section className="rounded-2xl border border-border bg-card p-5"><p className="text-xs font-bold uppercase tracking-widest text-primary">Personal record</p><div className="mt-3 flex items-end justify-between gap-3"><div><b className="text-lg">{data.records[0].exerciseName}</b><p className="mt-1 text-sm text-muted-foreground">{data.records[0].date}</p></div><b className="text-right tabular-nums">{data.records[0].type==='e1rm'?`${data.records[0].value} lb e1RM`:`${data.records[0].value} lb`}</b></div></section> : <p className="rounded-2xl border border-dashed border-border p-5 text-sm text-muted-foreground">Complete a workout to unlock progression insights and personal records.</p>}
-        <section className="mt-7 rounded-2xl border border-zinc-800 bg-[#121217] p-5">
-          <p className="text-xs font-bold uppercase tracking-[.16em] text-zinc-500">Body</p>
+        {data?.records?.length ? <section className="limit-surface relative overflow-hidden rounded-3xl p-5"><div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-primary/10 blur-2xl"/><p className="limit-kicker">Personal record</p><div className="relative mt-4 flex items-end justify-between gap-3"><div><b className="text-lg">{data.records[0].exerciseName}</b><p className="mt-1 text-sm text-muted-foreground">{data.records[0].date}</p></div><b className="text-right tabular-nums">{data.records[0].type==='e1rm'?`${data.records[0].value} lb e1RM`:`${data.records[0].value} lb`}</b></div></section> : <p className="rounded-2xl border border-dashed border-border p-5 text-sm text-muted-foreground">Complete a workout to unlock progression insights and personal records.</p>}
+        <section className="limit-surface mt-7 rounded-3xl p-5">
+          <p className="limit-kicker text-muted-foreground">Body signal</p>
           {latestWeight ? (
             <div className="mt-3 flex items-end justify-between">
               <div><b className="text-3xl tabular-nums">{latestWeight}</b><span className="ml-1 text-sm text-zinc-500">lb</span></div>

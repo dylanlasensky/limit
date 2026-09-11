@@ -1,4 +1,5 @@
 import React from 'react';
-export default function SegmentedTabs({ options, value, onChange, label = 'View' }) {
-  return <div role="tablist" aria-label={label} className="my-5 flex rounded-2xl border border-border bg-card p-1">{options.map(option => <button key={option} role="tab" aria-selected={value===option} onClick={()=>onChange(option)} className={`min-h-11 min-w-0 flex-1 rounded-xl px-2 text-xs font-bold transition-colors ${value===option?'bg-secondary text-foreground shadow-sm':'text-muted-foreground'}`}>{option}</button>)}</div>;
+import {motion} from 'framer-motion';
+export default function SegmentedTabs({options,value,onChange,label='View'}){
+  return <div role="tablist" aria-label={label} className="my-6 flex rounded-2xl border border-border/60 bg-secondary/45 p-1.5 shadow-inner">{options.map(option=><button key={option} role="tab" aria-selected={value===option} onClick={()=>onChange(option)} className={`relative min-h-10 min-w-0 flex-1 rounded-xl px-2 text-[11px] font-bold transition-colors ${value===option?'text-foreground':'text-muted-foreground'}`}>{value===option&&<motion.span layoutId={`tab-${label}`} className="absolute inset-0 rounded-xl border border-border/60 bg-card shadow-lg" transition={{type:'spring',stiffness:450,damping:35}}/>}<span className="relative z-10">{option}</span></button>)}</div>;
 }

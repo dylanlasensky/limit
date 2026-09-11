@@ -12,7 +12,7 @@ export default function OnboardingGoal({ data, set }) {
     <div className="space-y-3">
       {goals.map(([label, value, hint]) => (
         <button key={value} type="button" onClick={() => set('fitnessGoal', value)}
-          className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition-colors ${data.fitnessGoal === value ? 'border-blue-600 bg-blue-600/10' : 'border-border'}`}>
+          className={`limit-surface flex w-full items-center justify-between rounded-3xl p-5 text-left transition-all ${data.fitnessGoal === value ? 'border-primary/60 bg-primary/10 shadow-[inset_3px_0_0_hsl(var(--primary)),0_14px_35px_hsl(var(--primary)/.08)]' : 'hover:border-primary/20'}`}>
           <span><b className="block">{label}</b><span className="text-sm text-muted-foreground">{hint}</span></span>
           {data.fitnessGoal === value && <Check className="h-5 w-5 shrink-0 text-blue-500" />}
         </button>

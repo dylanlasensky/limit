@@ -17,7 +17,7 @@ const localDate = () => {
 };
 
 export default function Progress() {
-  const [tab, setTab] = useState('Overview');
+  const [tab, setTab] = useState('Muscle Rating');
   const [range, setRange] = useState('3');
   const client = useQueryClient();
   const query = useQuery({
@@ -60,9 +60,8 @@ export default function Progress() {
   return (
     <PullToRefresh onRefresh={() => query.refetch()}>
       <div>
-        <header>
-          <p className="text-[10px] font-bold uppercase tracking-[.2em] text-primary">Your trajectory</p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight">Progress</h1>
+        <header className="limit-hero rounded-[2rem] p-5">
+          <div className="relative z-10"><p className="limit-kicker">Evolution log</p><h1 className="mt-2 text-4xl font-black italic tracking-[-.04em]">PROGRESS</h1><p className="mt-2 text-sm text-muted-foreground">Proof of the work, signal by signal.</p></div>
         </header>
         <div className="no-scrollbar mt-5 flex gap-2 overflow-x-auto">
           {Object.keys(ranges).map(option => (

@@ -1,4 +1,21 @@
 import React from 'react';
-const colors={Beginner:'#22c55e',Intermediate:'#2563EB',Advanced:'#7c3aed',Elite:'#050507'};
-const regions={front:[['Shoulders','M40 54 L23 68 27 89 43 79ZM80 54 L97 68 93 89 77 79Z'],['Chest','M43 58 Q60 48 60 74 Q45 82 42 68ZM60 74 Q60 48 77 58 L78 68 Q75 82 60 74Z'],['Biceps','M27 88 L41 80 38 124 25 120ZM93 88 L79 80 82 124 95 120Z'],['Core','M44 78 Q60 84 76 78 L74 145 Q60 153 46 145Z'],['Quads','M46 148 L59 153 56 218 38 214ZM61 153 L74 148 82 214 64 218Z'],['Calves','M39 217 L56 221 52 273 39 271ZM64 221 L81 217 81 271 68 273Z']],back:[['Shoulders','M40 55 L23 68 27 90 43 78ZM80 55 L97 68 93 90 77 78Z'],['Back','M43 58 Q60 72 77 58 L75 135 Q60 148 45 135Z'],['Triceps','M27 90 L41 80 38 126 25 121ZM93 90 L79 80 82 126 95 121Z'],['Glutes','M46 136 Q60 146 74 136 L76 165 Q60 176 44 165Z'],['Hamstrings','M44 166 L59 174 56 220 38 215ZM61 174 L76 166 82 215 64 220Z'],['Calves','M39 219 L56 222 52 273 39 271ZM64 222 L81 219 81 271 68 273Z']]};
-export default function BodyMap({rating,view='front',compact=false,onSelect}){return <svg viewBox="0 0 120 290" className={compact?'h-36 w-28':'mx-auto h-[360px] w-44'} aria-label={`${view} muscle rating map`}><circle cx="60" cy="28" r="18" fill="#27272A" stroke="#52525b"/><path d="M42 48 Q60 43 78 48 L91 65 100 125 88 130 78 91 77 147 84 218 80 278 67 278 60 221 53 278 40 278 36 218 43 147 42 91 32 130 20 125 29 65Z" fill="#18181F" stroke="#52525b" strokeWidth="2"/>{regions[view].map(([muscle,path],i)=>{const level=rating?.muscles?.[muscle]?.level||'Beginner';return <path key={`${muscle}-${i}`} d={path} fill={colors[level]} stroke={level==='Elite'?'#60a5fa':'#09090B'} strokeWidth={level==='Elite'?2:1} role="button" tabIndex="0" aria-label={`${muscle}: ${level}`} onClick={()=>onSelect?.(muscle)} onKeyDown={e=>['Enter',' '].includes(e.key)&&onSelect?.(muscle)} className="cursor-pointer transition-all duration-200 hover:brightness-125"/>})}</svg>}
+
+const tier = {
+  Beginner: { fill: 'fill-emerald-500', edge: 'stroke-emerald-200', glow: 'drop-shadow-[0_0_5px_rgba(16,185,129,.35)]' },
+  Intermediate: { fill: 'fill-blue-600', edge: 'stroke-blue-200', glow: 'drop-shadow-[0_0_8px_rgba(37,99,235,.55)]' },
+  Advanced: { fill: 'fill-violet-500', edge: 'stroke-violet-200', glow: 'drop-shadow-[0_0_10px_rgba(139,92,246,.65)]' },
+  Elite: { fill: 'fill-zinc-950', edge: 'stroke-cyan-300', glow: 'drop-shadow-[0_0_14px_rgba(103,232,249,.85)]' }
+};
+const regions = {
+  front: [['Shoulders','M39 58 22 69 27 91 43 81 47 65Zm42 0 17 11-5 22-16-10-4-16Z'],['Chest','M45 62Q60 52 60 78 45 84 42 70Zm15 16Q60 52 75 62l3 8Q75 84 60 78Z'],['Biceps','M27 91 42 81l-4 46-14-4Zm66 0-15-10 4 46 14-4Z'],['Core','M45 82q15 7 30 0l-2 66q-13 10-26 0Z'],['Quads','M46 151l13 5-3 65-18-5Zm15 5 13-5 8 65-18 5Z'],['Calves','M39 220l17 4-4 54-14-3Zm25 4 17-4 1 55-14 3Z']],
+  back: [['Shoulders','M39 58 22 69l5 22 16-10 4-16Zm42 0 17 11-5 22-16-10-4-16Z'],['Back','M44 62q16 15 32 0l-3 78q-13 11-26 0Z'],['Triceps','M27 92 42 81l-4 46-14-4Zm66 0-15-11 4 46 14-4Z'],['Glutes','M46 142q14 10 28 0l3 25q-17 13-34 0Z'],['Hamstrings','M43 169l16 7-3 46-18-6Zm18 7 16-7 5 47-18 6Z'],['Calves','M39 220l17 4-4 54-14-3Zm25 4 17-4 1 55-14 3Z']]
+};
+export default function BodyMap({ rating, view='front', compact=false, selected, onSelect }) {
+  return <svg viewBox="0 0 120 292" className={compact?'h-40 w-24':'mx-auto h-[390px] w-48 max-w-full'} aria-label={`${view} muscle rating map`}>
+    <defs><radialGradient id={`aura-${view}`}><stop stopColor="currentColor" stopOpacity=".28"/><stop offset="1" stopColor="currentColor" stopOpacity="0"/></radialGradient><linearGradient id={`body-${view}`} x1="0" y1="0" x2="1" y2="1"><stop stopColor="hsl(var(--secondary))"/><stop offset="1" stopColor="hsl(var(--background))"/></linearGradient></defs>
+    <ellipse className="limit-aura text-primary" cx="60" cy="153" rx="55" ry="138" fill={`url(#aura-${view})`}/>
+    <circle cx="60" cy="28" r="17" fill={`url(#body-${view})`} stroke="hsl(var(--border))" strokeWidth="1.2"/><path d="M42 48q18-6 36 0l13 17 10 61-13 5-10-40-1 57 7 72-4 60H67l-7-58-7 58H40l-4-60 7-72-1-57-10 40-13-5 10-61Z" fill={`url(#body-${view})`} stroke="hsl(var(--border))" strokeWidth="1.5"/>
+    <path d="M60 49v170" stroke="hsl(var(--foreground))" strokeOpacity=".08" strokeDasharray="2 5"/>
+    {regions[view].map(([muscle,path])=>{const level=rating?.muscles?.[muscle]?.level||'Beginner', active=selected===muscle, style=tier[level]||tier.Beginner;return <path key={muscle} d={path} role="button" tabIndex="0" aria-label={`${muscle}: ${level}`} onClick={()=>onSelect?.(muscle)} onKeyDown={e=>['Enter',' '].includes(e.key)&&onSelect?.(muscle)} className={`cursor-pointer transition-all duration-300 ${style.fill} ${style.edge} ${style.glow} ${active?'opacity-100 stroke-[2.5]':'opacity-75 stroke-[1.2] hover:opacity-100'}`}/>})}
+  </svg>;
+}

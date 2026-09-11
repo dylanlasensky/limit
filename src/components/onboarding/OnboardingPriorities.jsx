@@ -13,7 +13,7 @@ export default function OnboardingPriorities({ data, set }) {
       <div className="mt-4 flex flex-wrap gap-2">
         {areas.map(m => (
           <button key={m} type="button" onClick={() => toggle(m)}
-            className={`min-h-11 rounded-full border px-4 text-sm font-semibold transition-colors ${picked.includes(m) ? 'border-blue-600 bg-blue-600/10 text-blue-500' : 'border-border'}`}>
+            className={`min-h-11 rounded-full px-4 text-sm font-bold ${picked.includes(m) ? 'limit-chip-active' : 'limit-chip'}`}>
             {m}
           </button>
         ))}
