@@ -5,7 +5,7 @@ export function readDraft(key) {
   catch { return null; }
 }
 export function writeDraft(key, state, rows) {
-  localStorage.setItem(key, JSON.stringify({ day: state.day, workoutExercises: state.workoutExercises, exercisesById: state.exercisesById, previousByExercise: state.previousByExercise, session: state.session, rows }));
+  localStorage.setItem(key, JSON.stringify({ day: state.day, plan: state.plan, workoutExercises: state.workoutExercises, exercisesById: state.exercisesById, previousByExercise: state.previousByExercise, session: state.session, rows }));
 }
 export function initialRows(workoutExercises, exercisesById, savedSets, draftRows = []) {
   const rows = [];

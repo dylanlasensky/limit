@@ -53,8 +53,8 @@ export default function Onboarding() {
       if(profiles[0])await base44.entities.UserProfile.update(profiles[0].id,profile);else await base44.entities.UserProfile.create(profile);
       const diet={allergies:data.allergies,intolerances:[],foodsToAvoid:(data.avoidText||'').split(',').map(x=>x.trim()).filter(Boolean),dietaryPreferences:data.dietaryPreferences,cookingSkill:'beginner',maxCookingTime:'Under 30 minutes',budgetFriendly:true,mealPrepPreference:true};
       if(diets[0])await base44.entities.DietaryProfile.update(diets[0].id,diet);else await base44.entities.DietaryProfile.create(diet);
-      if(!activePlans.some(plan=>plan.name===rec.name&&plan.daysPerWeek===days))await createPersonalizedPlan({...profile,days},rec);
-      nav('/home');
+      if(!data.importAfterOnboarding&&!activePlans.some(plan=>plan.name===rec.name&&plan.daysPerWeek===days))await createPersonalizedPlan({...profile,days},rec);
+      nav(data.importAfterOnboarding?'/workout/import':'/home');
     } catch (e) {
       setSaving(false); setError(true);
     }

@@ -59,6 +59,7 @@ export default function Workout() {
           {plan && <div className="relative z-10 text-right"><p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">This week</p><p className="mt-1 text-2xl font-black tabular-nums text-primary">{completedWeekdays.size}<span className="text-sm text-muted-foreground"> / {trainingDays.length}</span></p></div>}
         </header>
         <SegmentedTabs options={['Schedule','Exercises','History']} value={tab} onChange={setTab} label="Workout sections" />
+        {tab === 'Schedule' && <div className="mb-5 grid grid-cols-2 gap-2"><button onClick={()=>nav('/workout/import')} className="limit-surface min-h-12 rounded-2xl text-xs font-black text-primary">IMPORT PROGRAM</button><button onClick={()=>plan&&nav(`/workout/import?plan=${plan.id}`)} disabled={!plan} className="min-h-12 rounded-2xl bg-secondary text-xs font-black text-muted-foreground disabled:opacity-40">MANAGE CURRENT</button></div>}
 
         {tab === 'Schedule' && (planQuery.isLoading ? (
           <div className="space-y-3">{[0, 1, 2].map(i => <div key={i} className="h-24 animate-pulse rounded-2xl bg-zinc-900/70" />)}</div>
@@ -82,7 +83,7 @@ export default function Workout() {
                 <div key={d.id} className={`flex items-center justify-between rounded-2xl border p-4 transition-all ${d.weekday === weekday ? 'border-primary/40 bg-primary/[.07] shadow-[inset_3px_0_0_hsl(var(--primary))]' : 'border-border/50 bg-card/60'}`}>
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">{WEEKDAY_LABELS[d.weekday]}</p>
-                    <b className={d.isRest ? 'text-zinc-600' : ''}>{d.name}</b>
+                    <div className="flex items-center gap-2"><b className={d.isRest ? 'text-zinc-600' : ''}>{d.name}</b>{d.coachMandated&&<span className="rounded-full bg-primary/10 px-2 py-0.5 text-[8px] font-black tracking-wider text-primary">COACH</span>}{d.fixedSchedule&&<span className="rounded-full bg-secondary px-2 py-0.5 text-[8px] font-black tracking-wider text-muted-foreground">FIXED</span>}</div>
                     {!d.isRest && <p className="text-xs text-zinc-500">{(weQuery.data || []).filter(x => x.workoutDayId === d.id).length} exercises</p>}
                   </div>
                   {!d.isRest && (

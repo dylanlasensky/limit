@@ -13,6 +13,7 @@ export default function useLiveWorkout(workoutDayId) {
     (async()=>{const draft=readDraft(key);try{
       setState(s=>({...s,loading:true,error:null}));
       const [day,templates,exercises,profiles]=await Promise.all([base44.entities.WorkoutDay.get(workoutDayId),base44.entities.WorkoutExercise.filter({workoutDayId}),base44.entities.Exercise.list(null,500),base44.entities.UserProfile.list()]);
+      const plan=await base44.entities.WorkoutPlan.get(day.planId);
       const {data}=await base44.functions.invoke('workoutCommand',{action:'start',workoutDayId,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone});
       const session=data.session;
       if(data.redirectWorkoutDayId&&data.redirectWorkoutDayId!==workoutDayId){window.location.replace(`/live-workout/${data.redirectWorkoutDayId}`);return}
@@ -24,13 +25,14 @@ export default function useLiveWorkout(workoutDayId) {
       const previousByExercise={};workoutExercises.forEach(we=>{const previous=completedSessions.find(s=>s.id!==session.id&&recentSets.some(r=>r.workoutSessionId===s.id&&r.exerciseName===we.exerciseName));previousByExercise[we.exerciseName]=recentSets.filter(r=>r.workoutSessionId===previous?.id&&r.exerciseName===we.exerciseName).sort((a,b)=>a.setNumber-b.setNumber)});
       if(cancelled)return;
       rowState.setRows(initialRows(workoutExercises,exercisesById,savedSets,draft?.session?.id===session.id?draft.rows:[]));
-      setState({loading:false,day,workoutExercises,exercisesById,allExercises:exercises,profile:profiles[0]||{},previousByExercise,session,error:null});
+      setState({loading:false,day,plan,workoutExercises,exercisesById,allExercises:exercises,profile:profiles[0]||{},previousByExercise,session,error:null});
     }catch(e){if(cancelled)return;if(draft?.session?.status==='active'){rowState.setRows(draft.rows);setState({...draft,loading:false,error:null,offline:true})}else setState(s=>({...s,loading:false,error:e?.response?.data?.error||'Couldn’t load this workout.'}))}})();
     return()=>{cancelled=true};
   },[key,workoutDayId,attempt]);
   const invalidateAll=()=>['activePlan','workoutHistory','activeSession','todaySession','muscleRatingData','progressRatingData','workoutExercises','personalRecords','workoutDetail'].forEach(k=>client.invalidateQueries({queryKey:[k]}));
   const replaceExercise=(we,exercise)=>{setState(s=>({...s,workoutExercises:s.workoutExercises.map(x=>x.id===we.id?{...x,exerciseId:exercise.id,exerciseName:exercise.name}:x)}));rowState.setRows(rs=>rs.map(r=>r.workoutExerciseId===we.id?{...r,exerciseId:exercise.id,exerciseName:exercise.name,primaryMuscle:exercise.primaryMuscle,weight:'',reps:'',completed:false}:r))};
   const skipExercise=we=>setState(s=>({...s,workoutExercises:s.workoutExercises.map(x=>x.id===we.id?{...x,skipped:!x.skipped}:x)}));
+  const addAccessory=async exercise=>{const template=await base44.entities.WorkoutExercise.create({workoutDayId,exerciseId:exercise.id,exerciseName:exercise.name,primaryMuscle:exercise.primaryMuscle,category:exercise.category,equipment:exercise.equipment,order:state.workoutExercises.length+1,sets:3,repMin:exercise.repMin||10,repMax:exercise.repMax||15,restSeconds:75,notes:'Optional LIMIT accessory',matchConfidence:100,coachMandated:false});setState(s=>({...s,workoutExercises:[...s.workoutExercises,template],exercisesById:{...s.exercisesById,[exercise.id]:exercise}}));rowState.setRows(rows=>[...rows,...initialRows([template],{...state.exercisesById,[exercise.id]:exercise},[],[])]);return template};
   useEffect(()=>{if(key&&state.session)rowState.setRows(rs=>rs)},[state.workoutExercises]);
-  return {...state,...rowState,replaceExercise,skipExercise,retry:()=>retry(n=>n+1),clearDraft:()=>key&&localStorage.removeItem(key),invalidateAll};
+  return {...state,...rowState,replaceExercise,skipExercise,addAccessory,retry:()=>retry(n=>n+1),clearDraft:()=>key&&localStorage.removeItem(key),invalidateAll};
 }

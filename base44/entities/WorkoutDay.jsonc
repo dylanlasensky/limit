@@ -19,6 +19,12 @@
     },
     "isRest": {
       "type": "boolean"
+    },
+    "coachMandated": {
+      "type": "boolean"
+    },
+    "fixedSchedule": {
+      "type": "boolean"
     }
   },
   "required": [

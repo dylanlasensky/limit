@@ -18,6 +18,7 @@ import Home from '@/pages/Home';
 import Workout from '@/pages/Workout';
 import LiveWorkout from '@/pages/LiveWorkout';
 import WorkoutDetail from '@/pages/WorkoutDetail';
+import ImportWorkout from '@/pages/ImportWorkout';
 import Nutrition from '@/pages/Nutrition';
 import Progress from '@/pages/Progress';
 import Profile from '@/pages/Profile';
@@ -62,6 +63,7 @@ const AuthenticatedApp = () => {
         <Route element={<LimitShell />}>
           <Route path="/home" element={<Home />} />
           <Route path="/workout" element={<Workout />} />
+          <Route path="/workout/import" element={<ImportWorkout />} />
           <Route path="/nutrition" element={<Nutrition />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/workout/history/:id" element={<WorkoutDetail />} />

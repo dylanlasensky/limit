@@ -31,6 +31,44 @@
     },
     "active": {
       "type": "boolean"
+    },
+    "sourceType": {
+      "type": "string",
+      "enum": [
+        "limit_generated",
+        "pasted_text",
+        "uploaded_file",
+        "manual"
+      ]
+    },
+    "sport": {
+      "type": "string"
+    },
+    "seasonPhase": {
+      "type": "string",
+      "enum": [
+        "in_season",
+        "off_season",
+        "pre_season",
+        "not_applicable"
+      ]
+    },
+    "coachProvided": {
+      "type": "boolean"
+    },
+    "athleteMode": {
+      "type": "string",
+      "enum": [
+        "track_only",
+        "smart_progression",
+        "accessory_suggestions"
+      ]
+    },
+    "structureLocked": {
+      "type": "boolean"
+    },
+    "importNotes": {
+      "type": "string"
     }
   },
   "required": [

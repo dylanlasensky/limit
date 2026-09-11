@@ -39,10 +39,13 @@ export default async function(req) {
         if (!row || typeof row.workoutExerciseId !== 'string' || !Number.isInteger(row.setNumber) || row.setNumber < 1 || row.setNumber > 30 || typeof row.operationId !== 'string' || row.operationId.length > 100) fail('Invalid set.');
         const we = await db.WorkoutExercise.get(row.workoutExerciseId);
         if (!owned(we,user.id) || we.workoutDayId !== session.workoutDayId) fail('Exercise does not belong to this workout.',403);
-        const exercise = await db.Exercise.get(row.exerciseId || we.exerciseId);
-        const original = await db.Exercise.get(we.exerciseId);
-        if (exercise.id !== original.id && (exercise.primaryMuscle !== original.primaryMuscle || exercise.category !== original.category)) fail('Choose a replacement with the same muscle and movement category.');
-        if (exercise.id !== original.id && profile.equipment?.length && !profile.equipment.some(e=>/full|commercial|gym/i.test(e)) && exercise.equipment !== 'Bodyweight' && !profile.equipment.some(e=>e.toLowerCase().includes(exercise.equipment.toLowerCase()))) fail('This replacement requires equipment outside your profile.');
+        const plan = await db.WorkoutPlan.get(session.planId);
+        const locked = plan.structureLocked || plan.athleteMode === 'track_only' || we.coachMandated;
+        if (locked && row.exerciseId && row.exerciseId !== we.exerciseId) fail('This exercise is locked by your imported program.',409);
+        const original = we.exerciseId ? await db.Exercise.get(we.exerciseId) : null;
+        const exercise = row.exerciseId ? await db.Exercise.get(row.exerciseId) : original || {id:'',name:we.exerciseName,primaryMuscle:we.primaryMuscle||'Other',category:we.category||'Imported',equipment:we.equipment||'Coach program'};
+        if (original && exercise.id !== original.id && (exercise.primaryMuscle !== original.primaryMuscle || exercise.category !== original.category)) fail('Choose a replacement with the same muscle and movement category.');
+        if (original && exercise.id !== original.id && profile.equipment?.length && !profile.equipment.some(e=>/full|commercial|gym/i.test(e)) && exercise.equipment !== 'Bodyweight' && !profile.equipment.some(e=>e.toLowerCase().includes(exercise.equipment.toLowerCase()))) fail('This replacement requires equipment outside your profile.');
         if (typeof row.completed !== 'boolean' || !validSet({...row,completed:true})) fail('Use a weight from 0–2,500 lb and whole reps from 1–100.');
         if (row.rir !== '' && row.rir != null && (!Number.isInteger(+row.rir) || +row.rir < 0 || +row.rir > 10)) fail('RIR must be from 0–10.');
         const rowKey = `${we.id}:${row.setNumber}`;
@@ -50,7 +53,7 @@ export default async function(req) {
         const existing = all.find(s=>s.rowKey===rowKey || (!s.rowKey && s.exerciseName===we.exerciseName && s.setNumber===row.setNumber));
         if (existing?.revision === row.operationId) return { set:existing };
         if (existing && (existing.revision || '') !== (row.revision || '')) fail('This set changed on another screen. Refresh to load the saved version before editing it.',409);
-        const payload = {ownerId:user.id,workoutSessionId:session.id,workoutExerciseId:we.id,rowKey,revision:row.operationId,exerciseId:exercise.id,exerciseName:exercise.name,primaryMuscle:exercise.primaryMuscle,setNumber:row.setNumber,setType:'working',weight:+row.weight,reps:+row.reps,completed:row.completed,timestamp:new Date().toISOString(),...(row.rir === '' || row.rir == null ? {} : {rir:+row.rir})};
+        const payload = {ownerId:user.id,workoutSessionId:session.id,workoutExerciseId:we.id,rowKey,revision:row.operationId,exerciseId:exercise.id||'',exerciseName:exercise.name,primaryMuscle:exercise.primaryMuscle,setNumber:row.setNumber,setType:'working',weight:+row.weight,reps:+row.reps,completed:row.completed,timestamp:new Date().toISOString(),...(row.rir === '' || row.rir == null ? {} : {rir:+row.rir})};
         await assertLock();
         const saved = existing ? await db.ExerciseSet.update(existing.id,payload) : await db.ExerciseSet.create(payload);
         return { set:saved };

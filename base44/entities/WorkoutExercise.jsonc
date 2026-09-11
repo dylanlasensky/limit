@@ -11,6 +11,15 @@
     "exerciseName": {
       "type": "string"
     },
+    "primaryMuscle": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "equipment": {
+      "type": "string"
+    },
     "order": {
       "type": "number"
     },
@@ -28,6 +37,18 @@
     },
     "notes": {
       "type": "string"
+    },
+    "progressionNotes": {
+      "type": "string"
+    },
+    "importedName": {
+      "type": "string"
+    },
+    "matchConfidence": {
+      "type": "number"
+    },
+    "coachMandated": {
+      "type": "boolean"
     }
   },
   "required": [
