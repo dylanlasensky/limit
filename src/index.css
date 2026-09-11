@@ -139,4 +139,6 @@
 
 @keyframes limit-shimmer { to { background-position-x: -200%; } }
 @keyframes limit-aura { 50% { opacity: .82; transform: scale(1.035); } }
+@keyframes body-scan { 0% { transform: translateY(52px); opacity: 0; } 12%, 88% { opacity: .75; } 100% { transform: translateY(278px); opacity: 0; } }
 .limit-aura { animation: limit-aura 3.6s ease-in-out infinite; transform-origin: center; }
+.body-scan-line { animation: body-scan 4.8s ease-in-out infinite; }
