@@ -10,6 +10,7 @@ import { format, startOfWeek } from 'date-fns';
 import useActivePlan, { todayWeekday } from '@/hooks/use-active-plan';
 import WeekStrip from '@/components/workout/WeekStrip';
 import TodayWorkoutHero from '@/components/workout/TodayWorkoutHero';
+import PlanOptions from '@/components/workout/PlanOptions';
 import PullToRefresh from '@/components/limit/PullToRefresh';
 
 const WEEKDAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -59,15 +60,14 @@ export default function Workout() {
           {plan && <div className="relative z-10 text-right"><p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">This week</p><p className="mt-1 text-2xl font-black tabular-nums text-primary">{completedWeekdays.size}<span className="text-sm text-muted-foreground"> / {trainingDays.length}</span></p></div>}
         </header>
         <SegmentedTabs options={['Schedule','Exercises','History']} value={tab} onChange={setTab} label="Workout sections" />
-        {tab === 'Schedule' && <div className="mb-5 grid grid-cols-2 gap-2"><button onClick={()=>nav('/workout/import')} className="limit-surface min-h-12 rounded-2xl text-xs font-black text-primary">IMPORT PROGRAM</button><button onClick={()=>plan&&nav(`/workout/import?plan=${plan.id}`)} disabled={!plan} className="min-h-12 rounded-2xl bg-secondary text-xs font-black text-muted-foreground disabled:opacity-40">MANAGE CURRENT</button></div>}
-
         {tab === 'Schedule' && (planQuery.isLoading ? (
           <div className="space-y-3">{[0, 1, 2].map(i => <div key={i} className="h-24 animate-pulse rounded-2xl bg-zinc-900/70" />)}</div>
         ) : !plan ? (
           <section className="rounded-3xl border border-zinc-800 bg-[#121217] p-8 text-center">
             <h2 className="text-xl font-black">No workout plan</h2>
-            <p className="mt-2 text-sm text-zinc-500">Build your training plan and LIMIT will schedule your week.</p>
-            <button onClick={() => nav('/onboarding')} className="mt-5 h-12 rounded-xl bg-blue-600 px-6 font-bold text-white">CREATE PLAN</button>
+            <p className="mt-2 text-sm text-zinc-500">Answer a few questions and LIMIT will build and schedule your training week.</p>
+            <button onClick={() => nav('/onboarding')} className="limit-button mt-5 h-12 rounded-xl px-6 font-bold">BUILD MY LIMIT PLAN</button>
+            <button onClick={() => nav('/workout/import')} className="mt-3 min-h-11 w-full text-xs font-bold text-muted-foreground">Already have a program? Use your own</button>
           </section>
         ) : (
           <>
@@ -95,6 +95,7 @@ export default function Workout() {
                 </div>
               ))}
             </div>
+            <PlanOptions plan={plan} onGenerate={()=>nav('/profile')} onImport={()=>nav('/workout/import')} onEdit={()=>nav(`/workout/import?plan=${plan.id}`)}/>
           </>
         ))}
 
