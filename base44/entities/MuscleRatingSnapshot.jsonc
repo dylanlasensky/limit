@@ -2,6 +2,9 @@
   "name": "MuscleRatingSnapshot",
   "type": "object",
   "properties": {
+    "ownerId": {
+      "type": "string"
+    },
     "date": {
       "type": "string",
       "format": "date-time"
@@ -41,16 +44,29 @@
   ],
   "rls": {
     "read": {
-      "created_by_id": "{{user.id}}"
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.ownerId": "{{user.id}}"
+        }
+      ]
     },
     "create": {
-      "created_by_id": "{{user.id}}"
+      "user_condition": {
+        "role": "admin"
+      }
     },
     "update": {
-      "created_by_id": "{{user.id}}"
+      "user_condition": {
+        "role": "admin"
+      }
     },
     "delete": {
-      "created_by_id": "{{user.id}}"
+      "user_condition": {
+        "role": "admin"
+      }
     }
   }
 }
