@@ -17,6 +17,7 @@ import Onboarding from '@/pages/Onboarding';
 import Home from '@/pages/Home';
 import Workout from '@/pages/Workout';
 import LiveWorkout from '@/pages/LiveWorkout';
+import WorkoutDetail from '@/pages/WorkoutDetail';
 import Nutrition from '@/pages/Nutrition';
 import Progress from '@/pages/Progress';
 import Profile from '@/pages/Profile';
@@ -63,6 +64,7 @@ const AuthenticatedApp = () => {
           <Route path="/workout" element={<Workout />} />
           <Route path="/nutrition" element={<Nutrition />} />
           <Route path="/progress" element={<Progress />} />
+          <Route path="/workout/history/:id" element={<WorkoutDetail />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>

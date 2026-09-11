@@ -1,9 +1,98 @@
-import React,{useState} from 'react';
-import {useMutation,useQuery,useQueryClient} from '@tanstack/react-query';
-import {base44} from '@/api/base44Client';
-import {LineChart,Line,XAxis,YAxis,ResponsiveContainer,Tooltip} from 'recharts';
-import {calculateMuscleRating,emptyRating} from '@/components/limit/muscleRating';
+import React, { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { calculateMuscleRating, emptyRating } from '@/components/limit/muscleRating';
 import MuscleRatingPanel from '@/components/limit/MuscleRatingPanel';
-import {profileWeightLb} from '@/components/limit/nutritionTargets';
+import ProgressOverview from '@/components/limit/ProgressOverview';
+import WeightProgress from '@/components/limit/WeightProgress';
+import SegmentedTabs from '@/components/limit/SegmentedTabs';
+import ScreenState from '@/components/limit/ScreenState';
 import PullToRefresh from '@/components/limit/PullToRefresh';
-export default function Progress(){const[value,setValue]=useState(''),client=useQueryClient(),weightsQuery=useQuery({queryKey:['weightEntries'],queryFn:()=>base44.entities.WeightEntry.list('date',30),staleTime:30000}),profileQuery=useQuery({queryKey:['userProfile'],queryFn:()=>base44.entities.UserProfile.list(),staleTime:30000}),ratingQuery=useQuery({queryKey:['progressRatingData'],queryFn:async()=>{const[sets,exercises,sessions,snapshots]=await Promise.all([base44.entities.ExerciseSet.list('-timestamp',500),base44.entities.Exercise.list(),base44.entities.WorkoutSession.list('-date',100),base44.entities.MuscleRatingSnapshot.list('-date',50)]);return{sets,exercises,sessions,snapshots}},staleTime:30000});const raw=weightsQuery.data||[],w=raw.map(x=>({...x,weight:x.unit==='kg'?Math.round(x.weight*2.20462*10)/10:x.weight,unit:'lb'})),p=profileQuery.data?.[0]||{},data=ratingQuery.data,rating=data?calculateMuscleRating({...data,profile:p,weights:raw}):emptyRating(),snapshots=data?.snapshots||[];const addWeight=useMutation({mutationFn:item=>base44.entities.WeightEntry.create(item),onMutate:async item=>{await client.cancelQueries({queryKey:['weightEntries']});const previous=client.getQueryData(['weightEntries'])||[],optimistic={...item,id:`pending-${Date.now()}`};client.setQueryData(['weightEntries'],[...previous,optimistic]);setValue('');return{previous,optimistic}},onError:(_e,_item,ctx)=>client.setQueryData(['weightEntries'],ctx.previous),onSuccess:(saved,_item,ctx)=>client.setQueryData(['weightEntries'],old=>(old||[]).map(x=>x.id===ctx.optimistic.id?saved:x))});const add=()=>{if(!value)return;addWeight.mutate({date:new Date().toISOString().slice(0,10),weight:+value,unit:'lb'})},avg=w.length?w.slice(-7).reduce((a,x)=>a+x.weight,0)/Math.min(7,w.length):0,refresh=()=>Promise.all([weightsQuery.refetch(),profileQuery.refetch(),ratingQuery.refetch()]);return <PullToRefresh onRefresh={refresh}><div><header className="mb-5"><p className="text-xs font-bold tracking-[.18em] text-blue-500">PERFORMANCE</p><h1 className="mt-2 text-3xl font-black">Progress</h1></header><MuscleRatingPanel rating={rating} snapshots={snapshots}/><section className="mt-5 rounded-2xl border border-zinc-800 bg-[#121217] p-5"><p className="text-xs font-bold tracking-[.16em] text-zinc-500">CURRENT WEIGHT</p><p className="mt-2 text-4xl font-black">{w.at(-1)?.weight||Math.round(profileWeightLb(p)*10)/10||'—'} <span className="text-base text-zinc-400">lb</span></p><p className="mt-2 text-sm text-blue-500">7-day average {avg?avg.toFixed(1):'—'}</p></section><section className="mt-4 h-56 rounded-2xl border border-zinc-800 bg-[#121217] p-3"><ResponsiveContainer width="100%" height="100%"><LineChart data={w}><XAxis dataKey="date" hide/><YAxis domain={['dataMin - 2','dataMax + 2']} hide/><Tooltip contentStyle={{background:'#121217',border:'1px solid #27272A'}}/><Line type="monotone" dataKey="weight" stroke="#2563EB" strokeWidth={3} dot={false}/></LineChart></ResponsiveContainer></section><div className="mt-4 flex gap-2"><input type="number" inputMode="decimal" value={value} onChange={e=>setValue(e.target.value)} placeholder="Today’s weight" className="h-12 min-w-0 flex-1 rounded-xl border border-zinc-800 bg-[#121217] px-3"/><button disabled={!value||addWeight.isPending} onClick={add} className="rounded-xl bg-blue-600 px-5 font-bold text-white active:scale-[.98]">LOG</button></div>{(()=>{const current=w.at(-1)?.weight,goal=+p.goalWeight,start=w[0]?.weight;if(!current||!goal)return null;const base=start??current;const pct=Math.abs(base-goal)<0.5?(Math.abs(current-goal)<=1?100:0):Math.round(Math.max(0,Math.min(1,(base-current)/(base-goal)))*100);return <section className="mt-5 rounded-2xl border border-zinc-800 bg-[#121217] p-5"><p className="text-xs font-bold tracking-[.16em] text-zinc-500">GOAL PROGRESS</p><div className="mt-3 h-2 rounded-full bg-zinc-800"><div className="h-2 rounded-full bg-blue-600" style={{width:`${pct}%`}}/></div><p className="mt-2 text-sm tabular-nums text-zinc-500">{current} → {goal} lb · {pct}% there · Trends use rolling averages, not single weigh-ins.</p></section>})()}</div></PullToRefresh>}
+import { profileWeightLb } from '@/components/limit/nutritionTargets';
+
+const ranges = { 1: 30, 3: 90, 6: 180, 12: 365, ALL: Infinity };
+const localDate = () => {
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+};
+
+export default function Progress() {
+  const [tab, setTab] = useState('Overview');
+  const [range, setRange] = useState('3');
+  const client = useQueryClient();
+  const query = useQuery({
+    queryKey: ['progressData'],
+    queryFn: async () => {
+      const [weights, profiles, sets, exercises, sessions, snapshots, records] = await Promise.all([
+        base44.entities.WeightEntry.list('date', 500),
+        base44.entities.UserProfile.list(),
+        base44.entities.ExerciseSet.list('-timestamp', 2000),
+        base44.entities.Exercise.list(null, 500),
+        base44.entities.WorkoutSession.filter({ status: 'completed' }, '-date', 500),
+        base44.entities.MuscleRatingSnapshot.list('-date', 100),
+        base44.entities.PersonalRecord.list('-date', 500)
+      ]);
+      return { weights, profile: profiles[0] || {}, sets, exercises, sessions, snapshots, records };
+    }
+  });
+  const addWeight = useMutation({
+    mutationFn: weight => base44.entities.WeightEntry.create({ date: localDate(), weight, unit: 'lb' }),
+    onSuccess: () => client.invalidateQueries({ queryKey: ['progressData'] })
+  });
+
+  if (query.isLoading) return <ScreenState loading />;
+  if (query.error) return <ScreenState title="Couldn’t load progress" description="Your history is safe. Try loading it again." onAction={() => query.refetch()} />;
+
+  const data = query.data;
+  const cutoff = ranges[range] === Infinity ? '0000-00-00' : new Date(Date.now() - ranges[range] * 86400000).toISOString().slice(0, 10);
+  const sessions = data.sessions.filter(item => item.date >= cutoff);
+  const records = data.records.filter(item => item.date >= cutoff);
+  const sets = data.sets.filter(item => sessions.some(session => session.id === item.workoutSessionId));
+  const weights = data.weights.filter(item => item.date >= cutoff).map(item => ({
+    ...item,
+    weight: item.unit === 'kg' ? Math.round(item.weight * 2.20462 * 10) / 10 : item.weight,
+    unit: 'lb'
+  }));
+  const rating = calculateMuscleRating({ ...data, profile: data.profile });
+  const current = weights.at(-1)?.weight || Math.round(profileWeightLb(data.profile) * 10) / 10 || null;
+  const average = weights.length ? weights.slice(-7).reduce((sum, item) => sum + item.weight, 0) / Math.min(7, weights.length) : 0;
+
+  return (
+    <PullToRefresh onRefresh={() => query.refetch()}>
+      <div>
+        <header>
+          <p className="text-[10px] font-bold uppercase tracking-[.2em] text-primary">Your trajectory</p>
+          <h1 className="mt-2 text-3xl font-black tracking-tight">Progress</h1>
+        </header>
+        <div className="no-scrollbar mt-5 flex gap-2 overflow-x-auto">
+          {Object.keys(ranges).map(option => (
+            <button key={option} onClick={() => setRange(option)} className={`min-h-10 min-w-12 rounded-full px-3 text-xs font-bold ${range === option ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>
+              {option === 'ALL' ? 'ALL' : `${option}M`}
+            </button>
+          ))}
+        </div>
+        <SegmentedTabs options={['Overview', 'Muscle Rating', 'Strength', 'Weight']} value={tab} onChange={setTab} label="Progress sections" />
+
+        {tab === 'Overview' && (
+          <>
+            {sessions.length ? <ProgressOverview sessions={sessions} records={records} sets={sets} /> : <ScreenState title="Your progress starts with one workout" description="Complete your first session and LIMIT will begin tracking consistency, volume, strength, and records." />}
+            <h2 className="mb-3 mt-7 text-xs font-bold uppercase tracking-widest text-muted-foreground">Recent records</h2>
+            {records.length ? records.slice(0, 5).map(record => (
+              <div key={record.id} className="mb-2 flex justify-between rounded-2xl border border-border bg-card p-4 text-sm">
+                <div><b>{record.exerciseName}</b><p className="mt-1 text-xs text-muted-foreground">{record.date}</p></div>
+                <b className="text-primary">{record.type === 'e1rm' ? `${record.value} lb e1RM` : `${record.value} lb`}</b>
+              </div>
+            )) : <p className="rounded-2xl border border-dashed border-border p-5 text-sm text-muted-foreground">PRs appear after completed working sets beat your previous best.</p>}
+          </>
+        )}
+        {tab === 'Muscle Rating' && <MuscleRatingPanel rating={rating || emptyRating()} snapshots={data.snapshots} />}
+        {tab === 'Strength' && (records.length ? (
+          <div className="space-y-2">
+            {records.map(record => <div key={record.id} className="rounded-2xl border border-border bg-card p-4"><b>{record.exerciseName}</b><p className="mt-1 text-sm text-muted-foreground">{record.type === 'e1rm' ? 'Estimated max' : 'Heaviest set'} · {record.value} lb · {record.date}</p></div>)}
+          </div>
+        ) : <ScreenState title="No strength trend yet" description="Complete working sets in Live Workout. LIMIT uses valid logged lifts—not random estimates—to build this view." />)}
+        {tab === 'Weight' && <WeightProgress weights={weights} current={current} average={average} goal={data.profile.goalWeight} saving={addWeight.isPending} onLog={value => addWeight.mutate(value)} />}
+      </div>
+    </PullToRefresh>
+  );
+}

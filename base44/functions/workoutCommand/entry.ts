@@ -19,8 +19,8 @@ export default async function(req) {
         const plan = await db.WorkoutPlan.get(day.planId);
         if (!owned(plan,user.id)) fail('Workout not found.',404);
         const date = localDate(input.timezone);
-        const active = await db.WorkoutSession.filter({...filter,workoutDayId:day.id,status:'active'},'created_date',100);
-        if (active.length) return { session:active[0] };
+        const active = await db.WorkoutSession.filter({...filter,status:'active'},'created_date',100);
+        if (active.length) return { session:active[0], ...(active[0].workoutDayId !== day.id ? { redirectWorkoutDayId:active[0].workoutDayId } : {}) };
         const finished = await db.WorkoutSession.filter({...filter,workoutDayId:day.id,date,status:'completed'},'created_date',1);
         if (finished.length) return { session:finished[0] };
         if (!plan.active) fail('This program is no longer active. Open your current schedule.',409);

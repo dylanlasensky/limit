@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 
 export default function WorkoutComplete({ summary, onDone }) {
   useEffect(() => {
-    if (summary.prs.length) confetti({ particleCount: 70, spread: 65, origin: { y: .35 }, colors: ['#2563EB', '#60A5FA', '#F8FAFC'] });
+    if (summary.prs?.length) confetti({ particleCount: 48, spread: 55, origin: { y: .35 }, colors: ['#2563EB', '#F8FAFC'] });
   }, []);
   const mm = Math.floor(summary.durationMinutes / 60), rem = summary.durationMinutes % 60;
   return (
@@ -14,14 +14,14 @@ export default function WorkoutComplete({ summary, onDone }) {
       <h1 className="mt-2 text-4xl font-black uppercase tracking-tight">{summary.name}</h1>
       <p className="mt-1 font-mono text-lg tabular-nums text-zinc-400">{mm > 0 ? `${mm}h ${String(rem).padStart(2, '0')}m` : `${rem} min`}</p>
       <div className="mt-8 grid grid-cols-3 gap-3">
-        {[[summary.workingSets, 'WORKING SETS'], [`${summary.volume.toLocaleString()}`, 'LB VOLUME'], [summary.prs.length, 'PRs']].map(([v, l]) => (
+        {[[summary.workingSets, 'WORKING SETS'], [`${summary.volume.toLocaleString()}`, 'LB VOLUME'], [summary.prs?.length||0, 'PRs']].map(([v, l]) => (
           <div key={l} className="rounded-2xl border border-zinc-800 bg-[#121217] p-4 text-center">
             <p className="text-2xl font-black tabular-nums">{v}</p>
             <p className="mt-1 text-[10px] font-bold tracking-widest text-zinc-500">{l}</p>
           </div>
         ))}
       </div>
-      {summary.prs.length > 0 && (
+      {summary.prs?.length > 0 && (
         <section className="mt-6">
           <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Personal records</p>
           {summary.prs.map((pr, i) => (
@@ -36,7 +36,7 @@ export default function WorkoutComplete({ summary, onDone }) {
           ))}
         </section>
       )}
-      {summary.ratingChanges.length > 0 && (
+      {summary.ratingChanges?.length > 0 && (
         <section className="mt-6">
           <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Muscle rating</p>
           <div className="mt-2 space-y-1.5">
@@ -49,7 +49,7 @@ export default function WorkoutComplete({ summary, onDone }) {
           </div>
         </section>
       )}
-      <div className="mt-auto pt-8">
+      {summary.bestLift&&<section className="mt-6 rounded-2xl border border-zinc-800 bg-[#121217] p-4"><p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Best lift</p><p className="mt-2 font-bold">{summary.bestLift.name}</p><p className="text-sm text-zinc-400">{summary.bestLift.weight} lb × {summary.bestLift.reps}</p>{summary.previousVolume!=null&&<p className="mt-2 text-xs text-blue-400">{summary.volume>=summary.previousVolume?'+':''}{Math.round(summary.volume-summary.previousVolume).toLocaleString()} lb vs previous session</p>}</section>}{summary.analyticsPending&&<p className="mt-5 text-xs text-zinc-500">Workout saved. PR and Muscle Rating analysis will retry when this summary is opened again.</p>}<div className="mt-auto pt-8">
         <button onClick={onDone} className="h-14 w-full rounded-2xl bg-blue-600 font-bold text-white">DONE</button>
       </div>
     </motion.main>

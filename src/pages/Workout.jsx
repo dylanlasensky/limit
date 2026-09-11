@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
-import { Search, ChevronRight } from 'lucide-react';
+import { Search, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import SegmentedTabs from '@/components/limit/SegmentedTabs';
+import ScreenState from '@/components/limit/ScreenState';
+import ExerciseDetails from '@/components/workout/ExerciseDetails';
 import { format, startOfWeek } from 'date-fns';
 import useActivePlan, { todayWeekday } from '@/hooks/use-active-plan';
 import WeekStrip from '@/components/workout/WeekStrip';
@@ -14,6 +17,9 @@ const WEEKDAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 
 export default function Workout() {
   const [tab, setTab] = useState('Schedule');
   const [q, setQ] = useState('');
+  const [muscle, setMuscle] = useState('All');
+  const [equipment, setEquipment] = useState('All');
+  const [detail, setDetail] = useState(null);
   const nav = useNavigate();
   const planQuery = useActivePlan();
   const exQuery = useQuery({ queryKey: ['exercises'], queryFn: () => base44.entities.Exercise.list(null, 500), staleTime: 60000 });
@@ -32,7 +38,8 @@ export default function Workout() {
     .map(i => days[i].weekday));
   const trainingDays = days.filter(d => !d.isRest);
   const todayStr = format(new Date(), 'yyyy-MM-dd');
-  const activeSession = (activeQuery.data || []).find(s => s.date === todayStr && days.some(d => d.id === s.workoutDayId));
+  const activeSession = (activeQuery.data || []).find(s => days.some(d => d.id === s.workoutDayId));
+  const activeDay = days.find(d => d.id === activeSession?.workoutDayId);
   const completedToday = history.find(s => s.workoutDayId === today?.id && s.date === todayStr);
   const nextDay = today?.isRest ? (() => {
     for (let i = 1; i <= 7; i++) {
@@ -51,11 +58,7 @@ export default function Workout() {
           <h1 className="text-3xl font-black tracking-tight">Workout</h1>
           {plan && <p className="text-xs font-bold text-zinc-500">THIS WEEK <span className="text-blue-500">{completedWeekdays.size} / {trainingDays.length}</span></p>}
         </header>
-        <div className="no-scrollbar my-5 grid grid-cols-3 rounded-xl bg-zinc-200/60 p-1 dark:bg-zinc-800">
-          {['Schedule', 'Exercises', 'History'].map(x => (
-            <button key={x} onClick={() => setTab(x)} className={`h-10 rounded-lg text-sm font-bold transition-colors ${tab === x ? 'bg-white dark:bg-zinc-700' : 'text-zinc-500'}`}>{x}</button>
-          ))}
-        </div>
+        <SegmentedTabs options={['Schedule','Exercises','History']} value={tab} onChange={setTab} label="Workout sections" />
 
         {tab === 'Schedule' && (planQuery.isLoading ? (
           <div className="space-y-3">{[0, 1, 2].map(i => <div key={i} className="h-24 animate-pulse rounded-2xl bg-zinc-900/70" />)}</div>
@@ -68,8 +71,8 @@ export default function Workout() {
         ) : (
           <>
             <WeekStrip days={days} completedWeekdays={completedWeekdays} />
-            <TodayWorkoutHero day={nextDay} exercises={(weQuery.data || []).filter(x => x.workoutDayId === today?.id)}
-              activeSession={activeSession} completedSession={completedToday} />
+            <TodayWorkoutHero day={activeDay || nextDay} exercises={(weQuery.data || []).filter(x => x.workoutDayId === (activeDay?.id || today?.id))}
+              activeSession={activeSession} completedSession={activeDay ? null : completedToday} />
             {activeSession && activeSession.workoutDayId !== today?.id && (
               <p className="mt-3 rounded-xl border border-amber-900/60 bg-amber-950/30 p-3 text-xs text-amber-300">You have a workout in progress from another day. Resume it from its schedule row or it will stay open.</p>
             )}
@@ -94,27 +97,14 @@ export default function Workout() {
           </>
         ))}
 
-        {tab === 'Exercises' && (
-          <>
-            <div className="relative">
-              <Search className="absolute left-3 top-3.5 h-5 w-5 text-zinc-500" />
-              <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search exercises"
-                className="h-12 w-full rounded-xl border border-zinc-800 bg-[#121217] pl-10" />
-            </div>
-            {exercises.filter(x => x.name.toLowerCase().includes(q.toLowerCase())).map(x => (
-              <div key={x.id} className="mt-2 flex items-center justify-between rounded-xl border border-zinc-800/70 bg-[#121217] p-3.5">
-                <div>
-                  <b className="text-sm">{x.name}</b>
-                  <p className="text-xs text-zinc-500">{x.primaryMuscle} · {x.equipment}{x.repMin ? ` · ${x.repMin}–${x.repMax} reps` : ''}</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-zinc-700" />
-              </div>
-            ))}
-          </>
-        )}
+        {tab === 'Exercises' && (() => {
+          const muscles=['All',...new Set(exercises.map(x=>x.primaryMuscle).filter(Boolean))], equipmentOptions=['All',...new Set(exercises.map(x=>x.equipment).filter(Boolean))];
+          const filtered=exercises.filter(x=>x.name.toLowerCase().includes(q.toLowerCase())&&(muscle==='All'||x.primaryMuscle===muscle)&&(equipment==='All'||x.equipment===equipment));
+          return <><div className="relative"><Search className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground"/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search exercises" className="h-12 w-full rounded-xl border border-border bg-card pl-10 pr-3"/></div><div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto pb-1"><SlidersHorizontal className="mt-2.5 h-4 w-4 shrink-0 text-muted-foreground"/>{muscles.map(x=><button key={x} onClick={()=>setMuscle(x)} className={`min-h-9 shrink-0 rounded-full px-3 text-xs font-bold ${muscle===x?'bg-primary text-primary-foreground':'bg-secondary text-muted-foreground'}`}>{x}</button>)}</div><div className="no-scrollbar mt-2 flex gap-2 overflow-x-auto pb-2">{equipmentOptions.map(x=><button key={x} onClick={()=>setEquipment(x)} className={`min-h-9 shrink-0 rounded-full border px-3 text-xs font-bold ${equipment===x?'border-primary text-primary':'border-border text-muted-foreground'}`}>{x}</button>)}</div>{filtered.length?filtered.map(x=><button key={x.id} onClick={()=>setDetail(x)} className="mt-2 flex min-h-16 w-full items-center justify-between rounded-2xl border border-border bg-card p-4 text-left"><div><b className="text-sm">{x.name}</b><p className="mt-1 text-xs text-muted-foreground">{x.primaryMuscle} · {x.equipment}{x.repMin?` · ${x.repMin}–${x.repMax} reps`:''}</p></div><ChevronRight className="h-4 w-4 text-muted-foreground"/></button>):<ScreenState title="No exercises found" description="Try another muscle, equipment filter, or search term."/>}<ExerciseDetails exercise={detail} open={Boolean(detail)} onOpenChange={o=>!o&&setDetail(null)}/></>;
+        })()}
 
         {tab === 'History' && (history.length ? history.map(x => (
-          <div key={x.id} className="mt-3 rounded-2xl border border-zinc-800/70 bg-[#121217] p-4">
+          <button key={x.id} onClick={()=>nav(`/workout/history/${x.id}`)} className="mt-3 w-full rounded-2xl border border-border bg-card p-4 text-left transition-colors active:bg-secondary">
             <div className="flex justify-between">
               <b>{x.name}</b>
               <span className="text-xs tabular-nums text-zinc-500">{format(new Date(`${x.date}T12:00:00`), 'MMM d').toUpperCase()}</span>
@@ -122,7 +112,7 @@ export default function Workout() {
             <p className="mt-1 text-sm tabular-nums text-zinc-500">
               {x.durationMinutes ? `${x.durationMinutes} min · ` : ''}{x.setCount ? `${x.setCount} sets · ` : ''}{Math.round(x.totalVolume || 0).toLocaleString()} lb{x.prCount ? ` · ${x.prCount} PR${x.prCount > 1 ? 's' : ''}` : ''}
             </p>
-          </div>
+          </button>
         )) : (
           <section className="rounded-3xl border border-zinc-800 bg-[#121217] p-8 text-center">
             <h2 className="font-black">Your training history starts here.</h2>

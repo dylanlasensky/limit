@@ -21,7 +21,7 @@ export default function TodayWorkoutHero({ day, exercises, activeSession, comple
   if (completedSession) {
     const mm = Math.floor((completedSession.durationMinutes || 0) / 60), rem = (completedSession.durationMinutes || 0) % 60;
     return (
-      <section className="mt-5 rounded-3xl border border-blue-900/50 bg-gradient-to-b from-blue-950/30 to-[#121217] p-6">
+      <section className="mt-5 rounded-3xl border border-blue-900/50 bg-[#121217] p-6">
         <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.2em] text-blue-400"><CheckCircle2 className="h-3.5 w-3.5" /> Completed today</p>
         <h2 className="mt-2 text-3xl font-black uppercase tracking-tight">{day.name}</h2>
         <p className="mt-1 text-sm tabular-nums text-zinc-400">
@@ -34,7 +34,7 @@ export default function TodayWorkoutHero({ day, exercises, activeSession, comple
   if (activeSession) {
     const min = Math.max(1, Math.round((Date.now() - new Date(activeSession.startedAt)) / 60000));
     return (
-      <section className="mt-5 rounded-3xl border border-blue-800/60 bg-gradient-to-b from-blue-950/40 to-[#121217] p-6">
+      <section className="mt-5 rounded-3xl border border-blue-800/60 bg-[#121217] p-6">
         <p className="text-[10px] font-bold uppercase tracking-[.2em] text-blue-400">Workout in progress</p>
         <h2 className="mt-2 text-3xl font-black uppercase tracking-tight">{activeSession.name}</h2>
         <p className="mt-1 text-sm tabular-nums text-zinc-400">{min} min elapsed</p>

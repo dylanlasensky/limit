@@ -12,9 +12,11 @@ export default function useLiveWorkout(workoutDayId) {
   useEffect(()=>{if(!key)return;let cancelled=false;
     (async()=>{const draft=readDraft(key);try{
       setState(s=>({...s,loading:true,error:null}));
-      const [day,templates,exercises]=await Promise.all([base44.entities.WorkoutDay.get(workoutDayId),base44.entities.WorkoutExercise.filter({workoutDayId}),base44.entities.Exercise.list(null,500)]);
+      const [day,templates,exercises,profiles]=await Promise.all([base44.entities.WorkoutDay.get(workoutDayId),base44.entities.WorkoutExercise.filter({workoutDayId}),base44.entities.Exercise.list(null,500),base44.entities.UserProfile.list()]);
       const {data}=await base44.functions.invoke('workoutCommand',{action:'start',workoutDayId,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone});
       const session=data.session;
+      if(data.redirectWorkoutDayId&&data.redirectWorkoutDayId!==workoutDayId){window.location.replace(`/live-workout/${data.redirectWorkoutDayId}`);return}
+      if(session.status==='completed'){window.location.replace(`/workout/history/${session.id}`);return}
       const [savedSets,completedSessions]=await Promise.all([base44.entities.ExerciseSet.filter({workoutSessionId:session.id}),base44.entities.WorkoutSession.filter({status:'completed'},'-completedAt',30)]);
       const recentSets=completedSessions.length?await base44.entities.ExerciseSet.filter({workoutSessionId:{$in:completedSessions.map(s=>s.id)},completed:true},'-timestamp',1000):[];
       const exercisesById=Object.fromEntries(exercises.map(e=>[e.id,e]));
@@ -22,7 +24,7 @@ export default function useLiveWorkout(workoutDayId) {
       const previousByExercise={};workoutExercises.forEach(we=>{const previous=completedSessions.find(s=>s.id!==session.id&&recentSets.some(r=>r.workoutSessionId===s.id&&r.exerciseName===we.exerciseName));previousByExercise[we.exerciseName]=recentSets.filter(r=>r.workoutSessionId===previous?.id&&r.exerciseName===we.exerciseName).sort((a,b)=>a.setNumber-b.setNumber)});
       if(cancelled)return;
       rowState.setRows(initialRows(workoutExercises,exercisesById,savedSets,draft?.session?.id===session.id?draft.rows:[]));
-      setState({loading:false,day,workoutExercises,exercisesById,previousByExercise,session,error:null});
+      setState({loading:false,day,workoutExercises,exercisesById,allExercises:exercises,profile:profiles[0]||{},previousByExercise,session,error:null});
     }catch(e){if(cancelled)return;if(draft?.session?.status==='active'){rowState.setRows(draft.rows);setState({...draft,loading:false,error:null,offline:true})}else setState(s=>({...s,loading:false,error:e?.response?.data?.error||'Couldn’t load this workout.'}))}})();
     return()=>{cancelled=true};
   },[key,workoutDayId,attempt]);
