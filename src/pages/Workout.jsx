@@ -61,11 +61,11 @@ export default function Workout() {
         </header>
         <SegmentedTabs options={['Schedule','Exercises','History']} value={tab} onChange={setTab} label="Workout sections" />
         {tab === 'Schedule' && (planQuery.isLoading ? (
-          <div className="space-y-3">{[0, 1, 2].map(i => <div key={i} className="h-24 animate-pulse rounded-2xl bg-zinc-900/70" />)}</div>
+          <div className="space-y-3">{[0, 1, 2].map(i => <div key={i} className="h-24 animate-pulse rounded-2xl bg-card/70" />)}</div>
         ) : !plan ? (
-          <section className="rounded-3xl border border-zinc-800 bg-[#121217] p-8 text-center">
+          <section className="rounded-3xl border border-border bg-card p-8 text-center">
             <h2 className="text-xl font-black">No workout plan</h2>
-            <p className="mt-2 text-sm text-zinc-500">Answer a few questions and LIMIT will build and schedule your training week.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Answer a few questions and LIMIT will build and schedule your training week.</p>
             <button onClick={() => nav('/onboarding')} className="limit-button mt-5 h-12 rounded-xl px-6 font-bold">BUILD MY LIMIT PLAN</button>
             <button onClick={() => nav('/workout/import')} className="mt-3 min-h-11 w-full text-xs font-bold text-muted-foreground">Already have a program? Use your own</button>
           </section>
@@ -75,20 +75,20 @@ export default function Workout() {
             <TodayWorkoutHero day={activeDay || nextDay} exercises={(weQuery.data || []).filter(x => x.workoutDayId === (activeDay?.id || today?.id))}
               activeSession={activeSession} completedSession={activeDay ? null : completedToday} />
             {activeSession && activeSession.workoutDayId !== today?.id && (
-              <p className="mt-3 rounded-xl border border-amber-900/60 bg-amber-950/30 p-3 text-xs text-amber-300">You have a workout in progress from another day. Resume it from its schedule row or it will stay open.</p>
+              <p className="mt-3 rounded-xl border border-accent/40 bg-accent/10 p-3 text-xs text-accent">You have a workout in progress from another day. Resume it from its schedule row or it will stay open.</p>
             )}
-            <p className="mb-2 mt-7 text-xs font-black tracking-[.16em] text-zinc-500">{plan.name.toUpperCase()} · {plan.daysPerWeek} DAYS</p>
+            <p className="mb-2 mt-7 text-xs font-black tracking-[.16em] text-muted-foreground">{plan.name.toUpperCase()} · {plan.daysPerWeek} DAYS</p>
             <div className="space-y-2">
               {days.map(d => (
                 <div key={d.id} className={`flex items-center justify-between rounded-2xl border p-4 transition-all ${d.weekday === weekday ? 'border-primary/40 bg-primary/[.07] shadow-[inset_3px_0_0_hsl(var(--primary))]' : 'border-border/50 bg-card/60'}`}>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">{WEEKDAY_LABELS[d.weekday]}</p>
-                    <div className="flex items-center gap-2"><b className={d.isRest ? 'text-zinc-600' : ''}>{d.name}</b>{d.coachMandated&&<span className="rounded-full bg-primary/10 px-2 py-0.5 text-[8px] font-black tracking-wider text-primary">COACH</span>}{d.fixedSchedule&&<span className="rounded-full bg-secondary px-2 py-0.5 text-[8px] font-black tracking-wider text-muted-foreground">FIXED</span>}</div>
-                    {!d.isRest && <p className="text-xs text-zinc-500">{(weQuery.data || []).filter(x => x.workoutDayId === d.id).length} exercises</p>}
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{WEEKDAY_LABELS[d.weekday]}</p>
+                    <div className="flex items-center gap-2"><b className={d.isRest ? 'text-muted-foreground' : ''}>{d.name}</b>{d.coachMandated&&<span className="rounded-full bg-primary/10 px-2 py-0.5 text-[8px] font-black tracking-wider text-primary">COACH</span>}{d.fixedSchedule&&<span className="rounded-full bg-secondary px-2 py-0.5 text-[8px] font-black tracking-wider text-muted-foreground">FIXED</span>}</div>
+                    {!d.isRest && <p className="text-xs text-muted-foreground">{(weQuery.data || []).filter(x => x.workoutDayId === d.id).length} exercises</p>}
                   </div>
                   {!d.isRest && (
                     <button onClick={() => nav(`/live-workout/${d.id}`)}
-                      className={`rounded-xl px-4 py-2.5 text-sm font-bold ${activeSession?.workoutDayId === d.id ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-200'}`}>
+                      className={`rounded-xl px-4 py-2.5 text-sm font-bold ${activeSession?.workoutDayId === d.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}>
                       {activeSession?.workoutDayId === d.id ? 'Resume' : 'Start'}
                     </button>
                   )}
@@ -109,16 +109,16 @@ export default function Workout() {
           <button key={x.id} onClick={()=>nav(`/workout/history/${x.id}`)} className="mt-3 w-full rounded-2xl border border-border bg-card p-4 text-left transition-colors active:bg-secondary">
             <div className="flex justify-between">
               <b>{x.name}</b>
-              <span className="text-xs tabular-nums text-zinc-500">{format(new Date(`${x.date}T12:00:00`), 'MMM d').toUpperCase()}</span>
+              <span className="text-xs tabular-nums text-muted-foreground">{format(new Date(`${x.date}T12:00:00`), 'MMM d').toUpperCase()}</span>
             </div>
-            <p className="mt-1 text-sm tabular-nums text-zinc-500">
+            <p className="mt-1 text-sm tabular-nums text-muted-foreground">
               {x.durationMinutes ? `${x.durationMinutes} min · ` : ''}{x.setCount ? `${x.setCount} sets · ` : ''}{Math.round(x.totalVolume || 0).toLocaleString()} lb{x.prCount ? ` · ${x.prCount} PR${x.prCount > 1 ? 's' : ''}` : ''}
             </p>
           </button>
         )) : (
-          <section className="rounded-3xl border border-zinc-800 bg-[#121217] p-8 text-center">
+          <section className="rounded-3xl border border-border bg-card p-8 text-center">
             <h2 className="font-black">Your training history starts here.</h2>
-            <p className="mt-2 text-sm text-zinc-500">Finish your first workout and it will show up in History.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Finish your first workout and it will show up in History.</p>
           </section>
         ))}
       </div>

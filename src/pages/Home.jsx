@@ -76,9 +76,9 @@ export default function Home() {
             <MacroCard label="Fat" value={m.fat} goal={p.fatTarget} />
           </div>
         ) : profile.isLoading ? (
-          <div className="grid grid-cols-2 gap-3">{[0, 1, 2, 3].map(i => <div key={i} className="h-24 animate-pulse rounded-2xl bg-zinc-900/70" />)}</div>
+          <div className="grid grid-cols-2 gap-3">{[0, 1, 2, 3].map(i => <div key={i} className="h-24 animate-pulse rounded-2xl bg-card/70" />)}</div>
         ) : (
-          <p className="rounded-2xl border border-zinc-800 bg-[#121217] p-4 text-sm text-zinc-500">Set your nutrition targets in Profile to track macros here.</p>
+          <p className="rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground">Set your nutrition targets in Profile to track macros here.</p>
         )}
         <MuscleRatingPreview rating={rating} />
         <SectionHeading label="Latest signal" title="Recent performance" to="/progress" />
@@ -87,11 +87,11 @@ export default function Home() {
           <p className="limit-kicker text-muted-foreground">Body signal</p>
           {latestWeight ? (
             <div className="mt-3 flex items-end justify-between">
-              <div><b className="text-3xl tabular-nums">{latestWeight}</b><span className="ml-1 text-sm text-zinc-500">lb</span></div>
-              {p.goalWeight ? <p className="text-sm tabular-nums text-zinc-500">Goal {p.goalWeight}</p> : null}
+              <div><b className="text-3xl tabular-nums">{latestWeight}</b><span className="ml-1 text-sm text-muted-foreground">lb</span></div>
+              {p.goalWeight ? <p className="text-sm tabular-nums text-muted-foreground">Goal {p.goalWeight}</p> : null}
             </div>
           ) : (
-            <p className="mt-3 text-sm text-zinc-500">Log your first weigh-in from Progress.</p>
+            <p className="mt-3 text-sm text-muted-foreground">Log your first weigh-in from Progress.</p>
           )}
         </section>
       </div>

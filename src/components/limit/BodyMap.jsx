@@ -2,12 +2,12 @@ import React,{Fragment,useId} from 'react';
 import {BODY_VIEW_BOX,detailLines,headPath,regions,silhouette} from '@/components/limit/athleticBodyArtwork';
 
 const tiers={
-  Beginner:{color:'#359b78',deep:'#183d34',edge:'#78bca5',glow:.12},
-  Intermediate:{color:'#4778c7',deep:'#192b50',edge:'#8eafe4',glow:.16},
-  Advanced:{color:'#8067b8',deep:'#342850',edge:'#ad9bd3',glow:.18},
-  Elite:{color:'#438fa5',deep:'#183b46',edge:'#8ec3d0',glow:.2}
+  Beginner:{color:'hsl(var(--muted-foreground))',deep:'hsl(var(--secondary))',edge:'hsl(var(--foreground))',glow:.1},
+  Intermediate:{color:'hsl(var(--primary))',deep:'hsl(var(--secondary))',edge:'hsl(var(--accent))',glow:.14},
+  Advanced:{color:'hsl(var(--accent))',deep:'hsl(var(--primary))',edge:'hsl(var(--foreground))',glow:.16},
+  Elite:{color:'hsl(var(--foreground))',deep:'hsl(var(--accent))',edge:'hsl(var(--primary))',glow:.18}
 };
-const neutral={color:'#59616e',deep:'#292e37',edge:'#838b97',glow:0};
+const neutral={color:'hsl(var(--muted-foreground))',deep:'hsl(var(--secondary))',edge:'hsl(var(--foreground))',glow:0};
 
 export default function BodyMap({rating,view='front',compact=false,selected,onSelect}){
   const uid=useId().replace(/:/g,''),body=`body-${uid}`,clip=`clip-${uid}`,glow=`glow-${uid}`;

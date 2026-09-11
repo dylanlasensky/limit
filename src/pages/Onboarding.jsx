@@ -75,7 +75,7 @@ export default function Onboarding() {
           <View data={data} set={set} />
         </motion.div>
       </AnimatePresence>
-      {error && <p className="mt-4 rounded-xl border border-red-900 bg-red-950/40 p-3 text-sm text-red-300">Something went wrong building your plan. Try again.</p>}
+      {error && <p className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive-foreground">Something went wrong building your plan. Try again.</p>}
       <button disabled={saving || !canContinue} onClick={() => step < steps.length - 1 ? setStep(step + 1) : finish()}
         className={`mt-8 h-14 w-full rounded-2xl font-black tracking-wide transition-all ${canContinue&&!saving?'limit-button':'bg-secondary text-muted-foreground'}`}>
         {saving ? 'Building your LIMIT plan…' : step < steps.length - 1 ? 'Continue' : 'START MY LIMIT PLAN'}
