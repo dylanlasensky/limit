@@ -31,12 +31,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      # `tsc -p jsconfig.json` (checkJs) currently reports ~250 pre-existing
-      # errors in the JS sources, so it is advisory until the TypeScript
-      # migration lands. Remove `continue-on-error` to make it blocking.
       - name: Typecheck
         run: npm run typecheck
-        continue-on-error: true
+
+      - name: Format check
+        run: npm run format:check
 
   test:
     name: Test
