@@ -1,0 +1,98 @@
+import React, { useState } from "react";
+import { ClipboardPaste, FileUp, Keyboard, Loader2, Sparkles, type LucideIcon } from "lucide-react";
+import AthleteContext, { type ImportMeta } from "@/components/import/AthleteContext";
+export type ImportSourceType = "pasted_text" | "uploaded_file" | "manual";
+export interface ImportSourceInput {
+  type: ImportSourceType;
+  text: string;
+  file?: File;
+}
+interface ImportSourceProps {
+  meta: ImportMeta;
+  setMeta: (meta: ImportMeta) => void;
+  onBegin: (input: ImportSourceInput) => void;
+  busy?: boolean;
+  error?: string;
+}
+const methods: Array<[ImportSourceType, LucideIcon, string, string]> = [
+  ["pasted_text", ClipboardPaste, "Paste text", "Notes, messages, spreadsheets"],
+  ["uploaded_file", FileUp, "Upload file", "Image, PDF, CSV or spreadsheet"],
+  ["manual", Keyboard, "Build manually", "Start with a clean training day"],
+];
+export default function ImportSource({ meta, setMeta, onBegin, busy, error }: ImportSourceProps) {
+  const [type, setType] = useState<ImportSourceType>("pasted_text"),
+    [text, setText] = useState(""),
+    [file, setFile] = useState<File | undefined>();
+  return (
+    <div>
+      <header className="limit-hero rounded-[2rem] p-5">
+        <div className="relative z-10">
+          <p className="limit-kicker">Optional plan setup</p>
+          <h1 className="mt-2 text-4xl font-black italic tracking-[-.045em]">USE YOUR PROGRAM</h1>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            Bring an existing routine into the same LIMIT schedule, live logging, history, PR, and
+            Muscle Rating experience.
+          </p>
+        </div>
+      </header>
+      <div className="mt-5 grid grid-cols-3 gap-2">
+        {methods.map(([value, Icon, label, hint]) => (
+          <button
+            key={value}
+            onClick={() => setType(value)}
+            className={`min-h-28 rounded-2xl p-3 text-left ${type === value ? "limit-chip-active" : "limit-chip"}`}
+          >
+            <Icon className="h-5 w-5" />
+            <b className="mt-3 block text-xs">{label}</b>
+            <span className="mt-1 block text-[9px] leading-tight text-muted-foreground">
+              {hint}
+            </span>
+          </button>
+        ))}
+      </div>
+      {type === "pasted_text" && (
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={
+            "Paste a coach note, program, or table…\n\nMonday — Lower\nBack squat 4 × 5, rest 3 min"
+          }
+          className="limit-surface mt-4 min-h-52 w-full rounded-3xl p-4 text-sm leading-relaxed outline-none focus:border-primary/50"
+        />
+      )}
+      {type === "uploaded_file" && (
+        <label className="limit-grid limit-surface mt-4 flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-3xl p-6 text-center">
+          <FileUp className="h-8 w-8 text-primary" />
+          <b className="mt-4">{file?.name || "Choose regimen file"}</b>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Screenshot, photo, PDF, TXT, CSV, XLS, or XLSX
+          </p>
+          <input
+            type="file"
+            accept="image/*,.pdf,.txt,.csv,.xls,.xlsx"
+            onChange={(e) => setFile(e.target.files?.[0])}
+            className="hidden"
+          />
+        </label>
+      )}
+      <div className="mt-5">
+        <AthleteContext meta={meta} onChange={setMeta} />
+      </div>
+      {error && (
+        <p className="mt-4 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm">
+          {error}
+        </p>
+      )}
+      <button
+        disabled={
+          busy || (type === "pasted_text" && !text.trim()) || (type === "uploaded_file" && !file)
+        }
+        onClick={() => onBegin({ type, text, file })}
+        className="limit-button mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-black disabled:opacity-40"
+      >
+        {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
+        {type === "manual" ? "BUILD MY SPLIT" : "PARSE REGIMEN"}
+      </button>
+    </div>
+  );
+}

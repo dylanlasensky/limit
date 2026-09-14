@@ -1,0 +1,171 @@
+import React, { useEffect, useState } from "react";
+import { base44 } from "@/api/base44Client";
+import {
+  buildWeek,
+  sumMacros,
+  today,
+  weekStart,
+  type DietaryProfile,
+  type PlannedMeal,
+} from "@/components/limit/data";
+import { format } from "date-fns";
+import MealCard from "@/components/limit/MealCard";
+import MealDetail from "@/components/limit/MealDetail";
+import MealPrepCard from "@/components/limit/MealPrepCard";
+interface GroceryItem {
+  name: string;
+  qty: number;
+  unit: string;
+  category: string;
+  checked: boolean;
+}
+interface MealPlannerProps {
+  profile: Record<string, any>;
+  onLogged: () => void;
+  mode?: string;
+}
+export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProps) {
+  const [diet, setDiet] = useState<DietaryProfile>({}),
+    [week, setWeek] = useState<PlannedMeal[][]>([]),
+    [day, setDay] = useState(0),
+    [detail, setDetail] = useState<PlannedMeal | undefined>(),
+    [selected, setSelected] = useState<Array<PlannedMeal["key"]>>([]),
+    [list, setList] = useState<GroceryItem[]>([]);
+  useEffect(() => {
+    base44.entities.DietaryProfile.list().then((x: any[]) => {
+      setDiet(x[0] || {});
+      setWeek(buildWeek(profile, x[0] || {}));
+    });
+  }, [profile.calorieTarget]);
+  const add = async (m: PlannedMeal) => {
+    await base44.entities.FoodEntry.create({
+      date: today(),
+      mealType: m.mealType,
+      foodName: m.name,
+      quantity: 1,
+      unit: "serving",
+      calories: m.calories,
+      protein: m.protein,
+      carbs: m.carbs,
+      fat: m.fat,
+      entryMethod: "meal_plan",
+      estimated: true,
+    });
+    onLogged();
+  };
+  const swap = (m: PlannedMeal, i: number) => {
+    const nw = buildWeek(profile, diet);
+    setWeek((w) =>
+      w.map((d, di) => (di === day ? d.map((x, mi) => (mi === i ? nw[(day + 1) % 7][i] : x)) : d))
+    );
+  };
+  const groceries = async () => {
+    const meals = week.flat().filter((x) => selected.includes(x.key));
+    const all = meals.flatMap((x) => x.ingredients);
+    const map: Record<string, number> = {};
+    all.forEach((x) => {
+      map[x.name] = (map[x.name] || 0) + 1;
+    });
+    const items = Object.entries(map).map(([name, qty]) => ({
+      name,
+      qty,
+      unit: "serving",
+      category: all.find((x) => x.name === name)?.category || "Other",
+      checked: false,
+    }));
+    setList(items);
+    await base44.entities.GroceryList.create({
+      weekStart: format(weekStart(), "yyyy-MM-dd"),
+      sourceMealIds: selected,
+      items,
+    });
+  };
+  if (!week.length) return <p>Building allergy-aware ideas…</p>;
+  const totals = sumMacros(week[day]);
+  const saveWeek = async () => {
+    const records: any[] = await base44.entities.MealRecommendation.bulkCreate(
+      week.flat().map(({ key: _key, ...meal }) => meal)
+    );
+    await base44.entities.WeeklyMealPlan.create({
+      weekStart: format(weekStart(), "yyyy-MM-dd"),
+      mealIds: records.map((x) => x.id),
+      calorieTotalsByDay: Object.fromEntries(week.map((x, i) => [i, sumMacros(x).calories])),
+      macroTotalsByDay: Object.fromEntries(week.map((x, i) => [i, sumMacros(x)])),
+    });
+  };
+  return (
+    <div>
+      {mode === "Meal Plan" && (
+        <MealPrepCard
+          meal={week[day].find((x) => x.mealType === "Lunch")}
+          onAdd={(m) => setSelected((s) => [...new Set([...s, m.key])])}
+        />
+      )}
+      <div className="mb-4 flex gap-2 overflow-x-auto">
+        {week.map((_, i) => (
+          <button
+            onClick={() => setDay(i)}
+            className={`min-w-14 rounded-xl px-2 py-3 text-xs font-bold ${day === i ? "bg-zinc-950 text-white dark:bg-blue-600 dark:text-white" : "bg-white dark:bg-zinc-900"}`}
+          >
+            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]}
+          </button>
+        ))}
+      </div>
+      <div className="mb-4 rounded-2xl bg-blue-100 p-4 text-sm text-blue-950">
+        <b>Planned day</b>
+        <p>
+          {totals.calories} / {profile.calorieTarget || 2200} cal · {totals.protein} /{" "}
+          {profile.proteinTarget || 150}g protein
+        </p>
+      </div>
+      <p className="mb-4 text-xs text-zinc-500">
+        Flexible estimates designed around saved restrictions. Verify labels for serious allergies.
+      </p>
+      <div className="space-y-3">
+        {week[day].map((m, i) => (
+          <MealCard
+            meal={m}
+            selected={selected.includes(m.key)}
+            onSelect={() =>
+              setSelected((s) => (s.includes(m.key) ? s.filter((x) => x !== m.key) : [...s, m.key]))
+            }
+            onOpen={() => setDetail(m)}
+            onAdd={() => add(m)}
+            onSwap={() => swap(m, i)}
+          />
+        ))}
+      </div>
+      <div className="mt-5 grid grid-cols-2 gap-2">
+        <button
+          onClick={saveWeek}
+          className="h-12 rounded-xl bg-zinc-950 font-bold text-white dark:bg-blue-600 dark:text-white"
+        >
+          Save week
+        </button>
+        <button onClick={groceries} className="h-12 rounded-xl border font-bold">
+          Grocery list ({selected.length})
+        </button>
+      </div>
+      {list.length > 0 && (
+        <section className="mt-4 rounded-2xl bg-white p-4 dark:bg-zinc-900">
+          <h3 className="font-bold">Grocery list</h3>
+          {list.map((x, i) => (
+            <label className="mt-3 flex gap-3 text-sm">
+              <input
+                type="checkbox"
+                checked={x.checked}
+                onChange={() =>
+                  setList((l) => l.map((v, j) => (j === i ? { ...v, checked: !v.checked } : v)))
+                }
+              />
+              <span className={x.checked ? "line-through text-zinc-400" : ""}>
+                {x.name} × {x.qty}
+              </span>
+            </label>
+          ))}
+        </section>
+      )}
+      <MealDetail meal={detail} onClose={() => setDetail(undefined)} />
+    </div>
+  );
+}

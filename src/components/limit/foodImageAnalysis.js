@@ -1,4 +1,0 @@
-import {base44} from '@/api/base44Client';
-export async function uploadFoodImage(file){const{file_uri}=await base44.integrations.Core.UploadPrivateFile({file});return{fileUri:file_uri,previewUrl:URL.createObjectURL(file)}}
-export async function analyzeFoodImage({fileUri,scanMode,dietaryProfile,clarification}){const{data}=await base44.functions.invoke('analyzeFoodPhoto',{fileUri,scanMode,allergies:dietaryProfile?.allergies||[],clarification});return data}
-export function conflictsFor(result,dietaryProfile){const saved=(dietaryProfile?.allergies||[]).map(x=>x.toLowerCase());return(result.possibleAllergens||[]).filter(x=>saved.some(a=>x.toLowerCase().includes(a)||a.includes(x.toLowerCase())))}

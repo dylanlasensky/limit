@@ -1,0 +1,35 @@
+import React from "react";
+import { ArrowRight, Check, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+export default function ImportSuccess() {
+  const navigate = useNavigate();
+  return (
+    <main className="limit-grid flex min-h-[70dvh] flex-col justify-center">
+      <div className="grid h-16 w-16 place-items-center rounded-3xl bg-primary text-primary-foreground shadow-[0_0_45px_hsl(var(--primary)/.4)]">
+        <Check className="h-8 w-8" />
+      </div>
+      <p className="limit-kicker mt-8">Program online</p>
+      <h1 className="mt-3 text-5xl font-black italic leading-[.92] tracking-[-.055em]">
+        YOUR WORK.
+        <br />
+        LIMIT SIGNAL.
+      </h1>
+      <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">
+        Your regimen is now the active plan. Required structure stays intact while live logging,
+        records, progression, and Muscle Rating run on top.
+      </p>
+      <div className="limit-surface mt-7 flex items-center gap-3 rounded-2xl p-4">
+        <TrendingUp className="h-5 w-5 text-primary" />
+        <p className="text-xs text-muted-foreground">
+          Your first completed session begins the performance baseline.
+        </p>
+      </div>
+      <button
+        onClick={() => navigate("/workout", { replace: true })}
+        className="limit-button mt-6 flex h-14 items-center justify-center gap-2 rounded-2xl font-black"
+      >
+        OPEN WORKOUT <ArrowRight className="h-4 w-4" />
+      </button>
+    </main>
+  );
+}
