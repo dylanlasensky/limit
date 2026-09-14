@@ -1,6 +1,6 @@
-import React from 'react';
-import { Dumbbell } from 'lucide-react';
-import TodayWorkoutHero from '@/components/workout/TodayWorkoutHero';
+import React from "react";
+import { Dumbbell } from "lucide-react";
+import TodayWorkoutHero from "@/components/workout/TodayWorkoutHero";
 
 export default function HomeWorkout({ day, exercises = [], activeSession, completedSession }) {
   return (
@@ -10,7 +10,12 @@ export default function HomeWorkout({ day, exercises = [], activeSession, comple
         <span className="text-xs font-bold uppercase tracking-widest">Training</span>
       </div>
       <div className="-mt-3">
-        <TodayWorkoutHero day={day} exercises={exercises} activeSession={activeSession} completedSession={completedSession} />
+        <TodayWorkoutHero
+          day={day}
+          exercises={exercises}
+          activeSession={activeSession}
+          completedSession={completedSession}
+        />
       </div>
     </div>
   );
