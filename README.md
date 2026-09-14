@@ -85,12 +85,13 @@ GitHub Actions workflow: `.github/workflows/ci.yml`.
 
 **On every pull request and push to `main`:**
 
-- `quality` — `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`
+- `quality` — `npm ci`, `npm run lint`, `npm run typecheck`
+- `test` — `npm test` (vitest)
 - `build` — `npm run build` with `VITE_BASE44_APP_ID` / `VITE_BASE44_APP_BASE_URL` injected, uploads `dist/` as an artifact
 
-**On push to `main` (and manual `workflow_dispatch`):**
+**Only on `main` (push, or a manual `workflow_dispatch` of `main`):**
 
-- `deploy` — waits for `quality` and `build`, runs in the `production` environment (serialized via the `deploy-production` concurrency group), installs the Base44 CLI, downloads the built `dist/` and runs `base44 deploy --yes --no-build --json`. This pushes entities, functions, connectors, agents, auth config and the site from `base44/` and `dist/` to the app identified by `BASE44_APP_ID`.
+- `deploy` — waits for `quality`, `test` and `build`, runs in the `production` environment (serialized via the `deploy-production` concurrency group), installs the Base44 CLI, downloads the built `dist/` and runs `base44 deploy --yes --no-build --json`. This pushes entities, functions, connectors, agents, auth config and the site from `base44/` and `dist/` to the app identified by `BASE44_APP_ID`.
 
 ### One-time GitHub setup
 
