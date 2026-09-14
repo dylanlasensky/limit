@@ -60,13 +60,57 @@ VITE_BASE44_APP_BASE_URL=https://your-app.base44.app
 
 When you use `base44 dev`, the command injects the local Base44 values for you, so `.env.local` is mainly needed for frontend-only workflows.
 
+## Checks
+
+```bash
+npm run lint        # eslint
+npm run typecheck   # tsc (checkJs)
+npm test            # vitest (jsdom + Testing Library); `npm run test:watch` for watch mode
+npm run build       # vite build -> ./dist
+```
+
+Tests live in `src/__tests__/` and use the `@` alias configured in `vitest.config.js`.
+
 ## Publish Your Changes
 
-After pushing your changes to git, open the Base44 dashboard and publish the app:
+Merging to `main` deploys automatically (see [CI/CD](#cicd)). To publish manually, open the Base44 dashboard:
 
 ```bash
 base44 dashboard open
 ```
+
+## CI/CD
+
+GitHub Actions workflow: `.github/workflows/ci.yml`.
+
+**On every pull request and push to `main`:**
+
+- `quality` — `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`
+- `build` — `npm run build` with `VITE_BASE44_APP_ID` / `VITE_BASE44_APP_BASE_URL` injected, uploads `dist/` as an artifact
+
+**On push to `main` (and manual `workflow_dispatch`):**
+
+- `deploy` — waits for `quality` and `build`, runs in the `production` environment (serialized via the `deploy-production` concurrency group), installs the Base44 CLI, downloads the built `dist/` and runs `base44 deploy --yes --no-build --json`. This pushes entities, functions, connectors, agents, auth config and the site from `base44/` and `dist/` to the app identified by `BASE44_APP_ID`.
+
+### One-time GitHub setup
+
+1. Create an environment named **`production`** (Settings → Environments). Add required reviewers there if you want a manual approval gate before each deploy.
+2. Add these **secrets** (environment secrets on `production`, or repository secrets):
+
+   | Secret | Value |
+   | --- | --- |
+   | `BASE44_API_KEY` | Workspace API key (starts with `b44k_`). Base44 dashboard → Workspace settings → API keys. |
+   | `BASE44_APP_ID` | The Base44 app ID (same value as `VITE_BASE44_APP_ID` in `.env.local`). |
+
+3. Add this repository **variable** (Settings → Secrets and variables → Actions → Variables):
+
+   | Variable | Value |
+   | --- | --- |
+   | `BASE44_APP_BASE_URL` | Deployed app URL, e.g. `https://your-app.base44.app` (same as `VITE_BASE44_APP_BASE_URL`). |
+
+The deploy job fails fast with a clear error if `BASE44_API_KEY` or `BASE44_APP_ID` is missing. Pull requests never deploy; on PRs from forks the secrets are empty and the build still runs.
+
+Dependabot (`.github/dependabot.yml`) opens weekly PRs for npm packages and GitHub Actions. The project `.npmrc` enforces `min-release-age=7` for `npm install`; the CI job installs the Base44 CLI from outside the repo so that rule does not block the CLI's JSR dependency.
 
 ## Docs & Support
 
