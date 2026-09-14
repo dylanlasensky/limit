@@ -100,7 +100,8 @@ GitHub Actions workflow: `.github/workflows/ci.yml`.
 
    | Secret | Value |
    | --- | --- |
-   | `BASE44_API_KEY` | Workspace API key (starts with `b44k_`). Base44 dashboard → Workspace settings → API keys. |
+   | `BASE44_API_KEY` | **Option A.** Workspace API key (must start with `b44k_`; Business plan, owner/admin). Base44 dashboard → workspace name → Settings → Secrets → Create API Key. Personal `b44u_` keys are not accepted by the CLI. |
+   | `BASE44_ACCESS_TOKEN` + `BASE44_REFRESH_TOKEN` | **Option B** (if you can't create a workspace key). After `base44 login`, copy `accessToken` / `refreshToken` from `~/.base44/auth/auth.json`: `jq -r .refreshToken ~/.base44/auth/auth.json \| gh secret set BASE44_REFRESH_TOKEN` (same for `accessToken`). CI then deploys as that user. |
    | `BASE44_APP_ID` | The Base44 app ID (same value as `VITE_BASE44_APP_ID` in `.env.local`). |
 
 3. Add this repository **variable** (Settings → Secrets and variables → Actions → Variables):
@@ -109,7 +110,7 @@ GitHub Actions workflow: `.github/workflows/ci.yml`.
    | --- | --- |
    | `BASE44_APP_BASE_URL` | Deployed app URL, e.g. `https://your-app.base44.app` (same as `VITE_BASE44_APP_BASE_URL`). |
 
-The deploy job fails fast with a clear error if `BASE44_API_KEY` or `BASE44_APP_ID` is missing. Pull requests never deploy; on PRs from forks the secrets are empty and the build still runs.
+The deploy job fails fast with a clear error if neither auth option is configured, if `BASE44_API_KEY` has the wrong prefix, or if `BASE44_APP_ID` is missing. Pull requests never deploy; on PRs from forks the secrets are empty and the build still runs.
 
 Dependabot (`.github/dependabot.yml`) opens weekly PRs for npm packages and GitHub Actions. The project `.npmrc` enforces `min-release-age=7` for `npm install`; the CI job installs the Base44 CLI from outside the repo so that rule does not block the CLI's JSR dependency.
 
