@@ -1,8 +1,9 @@
 import React, { useCallback, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, X } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { today, sumMacros } from "@/components/limit/data";
+import { sumMacros } from "@/components/limit/data";
+import useLocalDate from "@/hooks/use-local-date";
 import MacroCard from "@/components/limit/MacroCard";
 import MealPlanner from "@/components/limit/MealPlanner";
 import AddFoodFlow from "@/components/limit/AddFoodFlow";
@@ -10,11 +11,14 @@ import SegmentedTabs from "@/components/limit/SegmentedTabs";
 import ScreenState from "@/components/limit/ScreenState";
 import PullToRefresh from "@/components/limit/PullToRefresh";
 import useModalHistory from "@/hooks/use-modal-history";
+import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 const meals = ["Breakfast", "Lunch", "Dinner", "Snacks"];
 export default function Nutrition() {
+  const queryClient = useQueryClient();
+  const [mealType, setMealType] = useState("Breakfast");
+  const date = useLocalDate();
   const [tab, setTab] = useState("Today"),
     [add, setAdd] = useState(false),
-    date = today(),
     foodsQuery = useQuery({
       queryKey: ["foodEntries", date],
       queryFn: () => base44.entities.FoodEntry.filter({ date }),
@@ -36,7 +40,7 @@ export default function Nutrition() {
     dismiss = useCallback(() => setAdd(false), []),
     closeAdd = useModalHistory(add, dismiss),
     m = sumMacros(foods),
-    remaining = Math.max(0, (p.calorieTarget || 0) - m.calories),
+    remaining = (p.calorieTarget || 0) - m.calories,
     refresh = () =>
       Promise.all([foodsQuery.refetch(), profileQuery.refetch(), dietQuery.refetch()]);
   if (profileQuery.isLoading || foodsQuery.isLoading) return <ScreenState loading />;
@@ -71,9 +75,11 @@ export default function Nutrition() {
             {p.calorieTarget ? (
               <section className="limit-surface relative mb-4 overflow-hidden rounded-[2rem] p-6">
                 <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />
-                <p className="limit-kicker text-muted-foreground">Calories remaining</p>
+                <p className="limit-kicker text-muted-foreground">
+                  {remaining < 0 ? "Calories above target" : "Calories remaining"}
+                </p>
                 <p className="relative mt-3 text-6xl font-black tracking-[-.06em] tabular-nums">
-                  {Math.round(remaining).toLocaleString()}
+                  {Math.abs(Math.round(remaining)).toLocaleString()}
                 </p>
                 <div className="mt-4 flex justify-between text-xs text-muted-foreground">
                   <span>{Math.round(m.calories).toLocaleString()} eaten</span>
@@ -117,7 +123,10 @@ export default function Nutrition() {
                   <div className="flex items-center justify-between">
                     <h3 className="font-bold">{type === "Snacks" ? "Snacks" : type}</h3>
                     <button
-                      onClick={() => setAdd(true)}
+                      onClick={() => {
+                        setMealType(type);
+                        setAdd(true);
+                      }}
                       aria-label={`Add ${type}`}
                       className="grid h-10 w-10 place-items-center rounded-xl bg-secondary text-primary"
                     >
@@ -160,8 +169,13 @@ export default function Nutrition() {
         ) : (
           <MealPlanner mode={tab} profile={p} onLogged={() => foodsQuery.refetch()} />
         )}{" "}
-        {add && (
-          <div className="fixed inset-0 z-50 flex items-end bg-background/60">
+        <Drawer
+          open={add}
+          onOpenChange={(value) => {
+            if (!value) closeAdd();
+          }}
+        >
+          <DrawerContent className="bg-card text-foreground">
             <div className="no-scrollbar mx-auto max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-[2rem] border-t border-border bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
               <button
                 onClick={closeAdd}
@@ -171,17 +185,24 @@ export default function Nutrition() {
                 <X />
               </button>
               <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Today</p>
-              <h2 className="mb-5 mt-1 text-2xl font-black">Add food</h2>
-              <AddFoodFlow
-                dietaryProfile={diet}
-                onDone={(optimistic?: boolean) => {
-                  closeAdd();
-                  if (!optimistic) foodsQuery.refetch();
-                }}
-              />
+              <DrawerTitle className="mt-1 text-2xl font-black">Add food</DrawerTitle>
+              <DrawerDescription className="mb-5 mt-1">
+                Log a meal, scan a label, or reuse a recent food.
+              </DrawerDescription>
+              {add && (
+                <AddFoodFlow
+                  initialMealType={mealType}
+                  dietaryProfile={diet}
+                  onDone={(optimistic?: boolean) => {
+                    closeAdd();
+                    if (!optimistic) foodsQuery.refetch();
+                    void queryClient.invalidateQueries({ queryKey: ["recentFoods"] });
+                  }}
+                />
+              )}
             </div>
-          </div>
-        )}
+          </DrawerContent>
+        </Drawer>
       </div>
     </PullToRefresh>
   );

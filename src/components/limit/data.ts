@@ -147,16 +147,18 @@ export const buildWeek = (profile: Record<string, any>, diet?: DietaryProfile | 
   Array.from({ length: 7 }, (_, day) => {
     const date = format(addDays(weekStart(), day), "yyyy-MM-dd");
     const pool = safeMeals(diet);
-    return (["Breakfast", "Lunch", "Dinner", "Snacks"] as MealType[]).map(
-      (type, i): PlannedMeal => ({
-        ...pool.filter((x) => x.mealType === type)[
-          day % Math.max(1, pool.filter((x) => x.mealType === type).length)
-        ],
-        generatedForDate: date,
-        mealType: type,
-        key: `${day}-${i}`,
-      })
-    );
+    return (["Breakfast", "Lunch", "Dinner", "Snacks"] as MealType[]).flatMap((type, i) => {
+      const candidates = pool.filter((x) => x.mealType === type);
+      if (!candidates.length) return []; // Never fabricate an empty meal after exclusions.
+      return [
+        {
+          ...candidates[day % candidates.length],
+          generatedForDate: date,
+          mealType: type,
+          key: `${day}-${i}`,
+        },
+      ];
+    });
   });
 export const sumMacros = (items: Array<Partial<MacroTotals>>): MacroTotals =>
   items.reduce<MacroTotals>(

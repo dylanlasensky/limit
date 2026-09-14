@@ -36,13 +36,13 @@ export default function NutritionTargetsEditor({
           ["carbTarget", "Carbs (g)"],
           ["fatTarget", "Fat (g)"],
         ].map(([k, l]) => (
-          <label className="text-xs text-zinc-500">
+          <label key={k} className="text-xs text-muted-foreground">
             {l}
             <input
               type="number"
               value={profile[k] || ""}
               onChange={(e) => onTargetsChange(k, +e.target.value)}
-              className="mt-1 h-11 w-full rounded-xl border border-zinc-700 bg-transparent px-3 text-base text-white"
+              className="mt-1 h-11 w-full rounded-xl border border-border bg-transparent px-3 text-base text-foreground"
             />
           </label>
         ))}

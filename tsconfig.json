@@ -20,6 +20,6 @@
     "allowJs": true,
     "types": ["vite/client", "node"]
   },
-  "include": ["src", "vite.config.ts"],
+  "include": ["src", "e2e", "playwright.config.ts", "vite.config.ts"],
   "exclude": ["node_modules", "dist", "base44"]
 }

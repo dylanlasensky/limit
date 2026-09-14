@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
+import { clearPrivateState } from "@/lib/storage";
 import {
   Drawer,
   DrawerContent,
@@ -9,6 +11,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 export default function AccountDeletion() {
+  const { user, logout } = useAuth();
   const [open, setOpen] = useState(false),
     [deleting, setDeleting] = useState(false),
     [error, setError] = useState("");
@@ -16,8 +19,10 @@ export default function AccountDeletion() {
     setDeleting(true);
     setError("");
     try {
-      await base44.functions.invoke("deleteAccount", { confirm: true });
-      await base44.auth.logout("/login");
+      const { data } = await base44.functions.invoke("deleteAccount", { confirm: true });
+      if (!data?.ok) throw new Error("Account deletion did not finish. Please retry.");
+      clearPrivateState(user?.id);
+      logout();
     } catch (e: any) {
       setError(e?.response?.data?.error || e.message || "Account deletion failed.");
       setDeleting(false);

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Camera,
-  Search,
   Utensils,
   Store,
   PenLine,
@@ -11,13 +10,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { createFoodEntry } from "@/lib/food-entry";
 import { today } from "@/components/limit/data";
 import ManualFood from "@/components/limit/ManualFood";
 import FoodPhotoScanner from "@/components/limit/FoodPhotoScanner";
 import type { DietaryProfile } from "@/components/limit/data";
 type AddFoodMode = "search" | "recent" | "food" | "meal" | "restaurant" | "manual";
 const options: Array<[string, LucideIcon, AddFoodMode, string]> = [
-  ["Search food", Search, "search", "Enter a food and its nutrition"],
   ["Recent foods", History, "recent", "Quick-add something you logged"],
   ["Nutrition label", Camera, "food", "Scan a label or package"],
   ["Plate photo", Utensils, "meal", "Estimate an editable full meal"],
@@ -27,8 +26,15 @@ const options: Array<[string, LucideIcon, AddFoodMode, string]> = [
 interface AddFoodFlowProps {
   dietaryProfile?: DietaryProfile | null;
   onDone: (saved?: boolean) => void;
+  initialMealType?: string;
 }
-export default function AddFoodFlow({ dietaryProfile, onDone }: AddFoodFlowProps) {
+export default function AddFoodFlow({
+  dietaryProfile,
+  onDone,
+  initialMealType = "Breakfast",
+}: AddFoodFlowProps) {
+  const [saving, setSaving] = useState(false),
+    [error, setError] = useState("");
   const [mode, setMode] = useState<AddFoodMode | undefined>(),
     recent = useQuery({
       queryKey: ["recentFoods"],
@@ -48,6 +54,7 @@ export default function AddFoodFlow({ dietaryProfile, onDone }: AddFoodFlowProps
         <h3 className="mb-4 text-lg font-black">{options.find((x) => x[2] === mode)?.[0]}</h3>
         {["food", "meal"].includes(mode) ? (
           <FoodPhotoScanner
+            initialMealType={initialMealType}
             mode={mode as "food" | "meal"}
             dietaryProfile={dietaryProfile}
             onDone={onDone}
@@ -63,38 +70,48 @@ export default function AddFoodFlow({ dietaryProfile, onDone }: AddFoodFlowProps
                 .map((x) => (
                   <button
                     key={x.foodName}
+                    disabled={saving}
                     onClick={async () => {
-                      const {
-                        mealType,
-                        foodName,
-                        quantity,
-                        unit,
-                        calories,
-                        protein,
-                        carbs,
-                        fat,
-                        fiber,
-                        sugar,
-                        sodium,
-                        estimated,
-                      } = x;
-                      await base44.entities.FoodEntry.create({
-                        mealType,
-                        foodName,
-                        quantity,
-                        unit,
-                        calories,
-                        protein,
-                        carbs,
-                        fat,
-                        fiber,
-                        sugar,
-                        sodium,
-                        estimated,
-                        date: today(),
-                        entryMethod: "recent",
-                      });
-                      onDone();
+                      if (saving) return;
+                      setSaving(true);
+                      setError("");
+                      try {
+                        const {
+                          mealType,
+                          foodName,
+                          quantity,
+                          unit,
+                          calories,
+                          protein,
+                          carbs,
+                          fat,
+                          fiber,
+                          sugar,
+                          sodium,
+                          estimated,
+                        } = x;
+                        await createFoodEntry({
+                          mealType: initialMealType,
+                          foodName,
+                          quantity,
+                          unit,
+                          calories,
+                          protein,
+                          carbs,
+                          fat,
+                          fiber,
+                          sugar,
+                          sodium,
+                          estimated,
+                          date: today(),
+                          entryMethod: "recent",
+                        });
+                        onDone();
+                      } catch {
+                        setError("Couldn’t add this food. Please try again.");
+                      } finally {
+                        setSaving(false);
+                      }
                     }}
                     className="flex min-h-14 w-full justify-between rounded-xl bg-secondary p-4 text-left text-sm"
                   >
@@ -103,6 +120,11 @@ export default function AddFoodFlow({ dietaryProfile, onDone }: AddFoodFlowProps
                   </button>
                 ))
             )}
+            {(error || recent.error) && (
+              <p role="alert" className="text-sm text-destructive">
+                {error || "Couldn’t load recent foods."}
+              </p>
+            )}
             {!recent.isLoading && !recent.data?.length && (
               <p className="rounded-xl border border-dashed border-border p-5 text-sm text-muted-foreground">
                 Foods you log will appear here for one-tap reuse.
@@ -110,7 +132,12 @@ export default function AddFoodFlow({ dietaryProfile, onDone }: AddFoodFlowProps
             )}
           </div>
         ) : (
-          <ManualFood entryMethod={mode} estimated={mode === "restaurant"} onDone={onDone} />
+          <ManualFood
+            initialMealType={initialMealType}
+            entryMethod={mode}
+            estimated={mode === "restaurant"}
+            onDone={onDone}
+          />
         )}
       </div>
     );

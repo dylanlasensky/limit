@@ -1,18 +1,21 @@
 import React, { useState } from "react";
 import NativeSelect from "@/components/limit/NativeSelect";
+import { storageGet, storageSet } from "@/lib/storage";
 export default function AppPreferences() {
   const [appearance, setAppearance] = useState(
-      () => localStorage.getItem("limit-appearance") || "dark"
+      () => storageGet("localStorage", "limit-appearance") || "dark"
     ),
-    [reminders, setReminders] = useState(() => localStorage.getItem("limit-reminders") === "on");
+    [reminders, setReminders] = useState(
+      () => storageGet("localStorage", "limit-reminders") === "on"
+    );
   const theme = (value: string) => {
     setAppearance(value);
-    localStorage.setItem("limit-appearance", value);
+    storageSet("localStorage", "limit-appearance", value);
     window.dispatchEvent(new Event("limit-theme"));
   };
   const reminder = (value: boolean) => {
     setReminders(value);
-    localStorage.setItem("limit-reminders", value ? "on" : "off");
+    storageSet("localStorage", "limit-reminders", value ? "on" : "off");
   };
   return (
     <section className="limit-surface mt-4 rounded-3xl p-5">

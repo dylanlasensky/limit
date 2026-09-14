@@ -30,7 +30,7 @@ export interface FoodScanResult {
 }
 
 export interface AnalyzeFoodImageParams {
-  fileUri?: string;
+  fileUri: string;
   scanMode: ScanMode;
   dietaryProfile?: DietaryProfile | null;
   clarification?: string;
@@ -39,6 +39,8 @@ export interface AnalyzeFoodImageParams {
 export async function uploadFoodImage(
   file: File
 ): Promise<{ fileUri: string; previewUrl: string }> {
+  if (!file.type.startsWith("image/")) throw new Error("Choose an image file.");
+  if (file.size > 10 * 1024 * 1024) throw new Error("Choose a photo smaller than 10 MB.");
   const { file_uri } = await base44.integrations.Core.UploadPrivateFile({ file });
   return { fileUri: file_uri, previewUrl: URL.createObjectURL(file) };
 }

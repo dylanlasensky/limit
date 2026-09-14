@@ -24,7 +24,7 @@ export default function Progress() {
     queryKey: ["progressData"],
     queryFn: async () => {
       const [weights, profiles, sets, exercises, sessions, snapshots, records] = await Promise.all([
-        base44.entities.WeightEntry.list("date", 500),
+        base44.entities.WeightEntry.list("-date", 500).then((rows) => rows.reverse()),
         base44.entities.UserProfile.list(),
         base44.entities.ExerciseSet.list("-timestamp", 2000),
         base44.entities.Exercise.list(null as any, 500),
@@ -38,7 +38,10 @@ export default function Progress() {
   const addWeight = useMutation({
     mutationFn: (weight: number) =>
       base44.entities.WeightEntry.create({ date: localDate(), weight, unit: "lb" }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["progressData"] }),
+    onSuccess: () => {
+      for (const key of ["progressData", "weightEntries", "muscleRatingData"])
+        void client.invalidateQueries({ queryKey: [key] });
+    },
   });
 
   if (query.isLoading) return <ScreenState loading />;
@@ -71,8 +74,14 @@ export default function Progress() {
   const rating = calculateMuscleRating({ ...(data as any), profile: data.profile });
   const current =
     weights.at(-1)?.weight || Math.round(profileWeightLb(data.profile) * 10) / 10 || null;
-  const average = weights.length
-    ? weights.slice(-7).reduce((sum, item) => sum + item.weight, 0) / Math.min(7, weights.length)
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  const cutoffDay = `${sevenDaysAgo.getFullYear()}-${String(sevenDaysAgo.getMonth() + 1).padStart(2, "0")}-${String(sevenDaysAgo.getDate()).padStart(2, "0")}`;
+  const recentWeights = weights.filter(
+    (item) => item.date >= cutoffDay && item.date <= localDate()
+  );
+  const average = recentWeights.length
+    ? recentWeights.reduce((sum, item) => sum + item.weight, 0) / recentWeights.length
     : 0;
 
   return (
@@ -169,7 +178,7 @@ export default function Progress() {
             average={average}
             goal={data.profile.goalWeight}
             saving={addWeight.isPending}
-            onLog={(value: number) => addWeight.mutate(value)}
+            onLog={(value: number) => addWeight.mutateAsync(value).then(() => undefined)}
           />
         )}
       </div>

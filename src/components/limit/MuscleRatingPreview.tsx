@@ -30,7 +30,7 @@ export default function MuscleRatingPreview({ rating }: MuscleRatingPreviewProps
               : "Train, log, evolve. Your strength map is calibrating."}
           </p>
           <span className="mt-5 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.18em] text-primary">
-            Open profile{" "}
+            View strength map{" "}
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         </div>

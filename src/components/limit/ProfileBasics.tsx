@@ -1,6 +1,6 @@
 import React from "react";
 import NativeSelect from "@/components/limit/NativeSelect";
-const input = "mt-1 h-11 w-full rounded-xl border border-zinc-700 bg-transparent px-3 text-base";
+const input = "mt-1 h-11 w-full rounded-xl border border-border bg-transparent px-3 text-base";
 interface ProfileBasicsProps {
   profile: Record<string, any>;
   onChange: (profile: Record<string, any>) => void;
@@ -12,7 +12,7 @@ export default function ProfileBasics({ profile, onChange }: ProfileBasicsProps)
       <p className="limit-kicker text-muted-foreground">Foundation</p>
       <h2 className="mt-2 text-xl font-black">Body & goal</h2>
       <div className="mt-3 grid grid-cols-2 gap-2">
-        <label className="text-xs text-zinc-400">
+        <label className="text-xs text-muted-foreground">
           Date of birth
           <input
             type="date"
@@ -21,7 +21,7 @@ export default function ProfileBasics({ profile, onChange }: ProfileBasicsProps)
             className={input}
           />
         </label>
-        <label className="text-xs text-zinc-400">
+        <label className="text-xs text-muted-foreground">
           Sex
           <NativeSelect
             className="mt-1"
@@ -35,7 +35,7 @@ export default function ProfileBasics({ profile, onChange }: ProfileBasicsProps)
             label="Sex"
           />
         </label>
-        <label className="text-xs text-zinc-400">
+        <label className="text-xs text-muted-foreground">
           Current weight (lb)
           <input
             type="number"
@@ -44,7 +44,7 @@ export default function ProfileBasics({ profile, onChange }: ProfileBasicsProps)
             className={input}
           />
         </label>
-        <label className="text-xs text-zinc-400">
+        <label className="text-xs text-muted-foreground">
           Goal weight (lb)
           <input
             type="number"
@@ -53,7 +53,7 @@ export default function ProfileBasics({ profile, onChange }: ProfileBasicsProps)
             className={input}
           />
         </label>
-        <label className="text-xs text-zinc-400">
+        <label className="text-xs text-muted-foreground">
           Height feet
           <input
             type="number"
@@ -64,7 +64,7 @@ export default function ProfileBasics({ profile, onChange }: ProfileBasicsProps)
             className={input}
           />
         </label>
-        <label className="text-xs text-zinc-400">
+        <label className="text-xs text-muted-foreground">
           Height inches
           <input
             type="number"
@@ -76,7 +76,7 @@ export default function ProfileBasics({ profile, onChange }: ProfileBasicsProps)
           />
         </label>
       </div>
-      <label className="mt-3 block text-xs text-zinc-400">
+      <label className="mt-3 block text-xs text-muted-foreground">
         Goal
         <NativeSelect
           className="mt-1"
@@ -92,7 +92,7 @@ export default function ProfileBasics({ profile, onChange }: ProfileBasicsProps)
           label="Goal"
         />
       </label>
-      <label className="mt-3 block text-xs text-zinc-400">
+      <label className="mt-3 block text-xs text-muted-foreground">
         Activity
         <NativeSelect
           className="mt-1"
@@ -106,7 +106,7 @@ export default function ProfileBasics({ profile, onChange }: ProfileBasicsProps)
           label="Activity"
         />
       </label>
-      <label className="mt-3 block text-xs text-zinc-400">
+      <label className="mt-3 block text-xs text-muted-foreground">
         Training days per week
         <input
           type="range"

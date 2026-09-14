@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { createFoodEntry, validateFoodEntry } from "@/lib/food-entry";
 import { today, sumMacros } from "@/components/limit/data";
 import NativeSelect from "@/components/limit/NativeSelect";
 import type { FoodScanResult, ScannedMealItem } from "@/components/limit/foodImageAnalysis";
@@ -10,11 +10,18 @@ interface ScannedMealEditorProps {
   result: FoodScanResult;
   conflicts: string[];
   onDone: () => void;
+  initialMealType?: string;
 }
-export default function ScannedMealEditor({ result, conflicts, onDone }: ScannedMealEditorProps) {
+export default function ScannedMealEditor({
+  result,
+  conflicts,
+  onDone,
+  initialMealType = "Dinner",
+}: ScannedMealEditorProps) {
   const [items, setItems] = useState<ScannedMealItem[]>(result.items || []),
-    [mealType, setMealType] = useState("Dinner"),
-    [saving, setSaving] = useState(false);
+    [mealType, setMealType] = useState(initialMealType),
+    [saving, setSaving] = useState(false),
+    [error, setError] = useState("");
   const totals = useMemo(() => sumMacros(items), [items]);
   const edit = (i: number, k: string, v: string) =>
     setItems((a) =>
@@ -27,7 +34,7 @@ export default function ScannedMealEditor({ result, conflicts, onDone }: Scanned
             ...x,
             amount: next,
             ...Object.fromEntries(
-              macroKeys.map((m) => [m, Math.round((x[m] || 0) * ratio * 10) / 10])
+              nutrientKeys.map((m) => [m, Math.round((x[m] || 0) * ratio * 10) / 10])
             ),
           };
         }
@@ -41,24 +48,34 @@ export default function ScannedMealEditor({ result, conflicts, onDone }: Scanned
       { name: "", amount: 1, unit: "serving", calories: 0, protein: 0, carbs: 0, fat: 0 },
     ]);
   const save = async () => {
+    if (saving) return;
     setSaving(true);
-    await base44.entities.FoodEntry.create({
-      date: today(),
-      mealType,
-      foodName:
-        items
-          .map((x) => x.name)
-          .filter(Boolean)
-          .join(", ") || "Scanned meal",
-      quantity: 1,
-      unit: "meal",
-      ...Object.fromEntries(
-        nutrientKeys.map((k) => [k, items.reduce((sum, x) => sum + (+x[k] || 0), 0)])
-      ),
-      entryMethod: "scan_meal",
-      estimated: true,
-    });
-    onDone();
+    setError("");
+    try {
+      for (const item of items)
+        validateFoodEntry({ ...item, foodName: item.name, quantity: item.amount, mealType });
+      await createFoodEntry({
+        date: today(),
+        mealType,
+        foodName:
+          items
+            .map((x) => x.name)
+            .filter(Boolean)
+            .join(", ") || "Scanned meal",
+        quantity: 1,
+        unit: "meal",
+        ...Object.fromEntries(
+          nutrientKeys.map((k) => [k, items.reduce((sum, x) => sum + (+x[k] || 0), 0)])
+        ),
+        entryMethod: "scan_meal",
+        estimated: true,
+      });
+      onDone();
+    } catch (e: any) {
+      setError(e.message || "Couldn’t save. Your meal is still here. Please retry.");
+    } finally {
+      setSaving(false);
+    }
   };
   return (
     <div className="space-y-4">
@@ -81,22 +98,25 @@ export default function ScannedMealEditor({ result, conflicts, onDone }: Scanned
         <div key={i} className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
           <div className="flex gap-2">
             <input
+              aria-label={`Food ${i + 1} name`}
               value={x.name}
               onChange={(e) => edit(i, "name", e.target.value)}
               className="h-10 min-w-0 flex-1 bg-transparent font-bold"
             />
-            <button onClick={() => remove(i)}>
+            <button aria-label={`Remove food ${i + 1}`} onClick={() => remove(i)}>
               <Trash2 className="h-4 w-4 text-zinc-500" />
             </button>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <input
+              aria-label={`Food ${i + 1} amount`}
               type="number"
               value={x.amount || ""}
               onChange={(e) => edit(i, "amount", e.target.value)}
               className="h-10 rounded-lg border border-zinc-700 bg-transparent px-2"
             />
             <input
+              aria-label={`Food ${i + 1} unit`}
               value={x.unit || ""}
               onChange={(e) => edit(i, "unit", e.target.value)}
               className="h-10 rounded-lg border border-zinc-700 bg-transparent px-2"
@@ -121,6 +141,11 @@ export default function ScannedMealEditor({ result, conflicts, onDone }: Scanned
         <Plus className="h-4 w-4" />
         Add missing food
       </button>
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
       <div className="rounded-xl border border-zinc-800 p-4">
         <p className="text-xs text-zinc-500">ESTIMATED TOTAL</p>
         <b className="text-2xl">{Math.round(totals.calories)} calories</b>

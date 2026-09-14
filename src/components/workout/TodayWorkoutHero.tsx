@@ -18,7 +18,23 @@ export default function TodayWorkoutHero({
   completedSession,
 }: TodayWorkoutHeroProps) {
   const nav = useNavigate();
-  if (!day || day.isRest) {
+  if (!day && !activeSession)
+    return (
+      <section className="limit-surface mt-5 rounded-3xl p-6">
+        <p className="limit-kicker">Your next step</p>
+        <h2 className="mt-3 text-2xl font-bold">Build your training week.</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          A plan that fits your goals, time, and equipment.
+        </p>
+        <button
+          onClick={() => nav("/workout")}
+          className="limit-button mt-5 min-h-12 w-full rounded-xl font-bold"
+        >
+          Set up my program
+        </button>
+      </section>
+    );
+  if (day?.isRest && !activeSession) {
     const next = day?.next;
     return (
       <section className="limit-hero mt-5 rounded-[2rem] p-6">
@@ -40,7 +56,7 @@ export default function TodayWorkoutHero({
         <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.2em] text-blue-400">
           <CheckCircle2 className="h-3.5 w-3.5" /> Completed today
         </p>
-        <h2 className="mt-2 text-3xl font-black uppercase tracking-tight">{day.name}</h2>
+        <h2 className="mt-2 text-3xl font-black uppercase tracking-tight">{day?.name}</h2>
         <p className="mt-1 text-sm tabular-nums text-zinc-400">
           {mm > 0 ? `${mm}h ${String(rem).padStart(2, "0")}m` : `${rem} min`} ·{" "}
           {completedSession.setCount || 0} sets ·{" "}
@@ -76,15 +92,15 @@ export default function TodayWorkoutHero({
   return (
     <section className="limit-hero mt-5 rounded-[2rem] p-6">
       <p className="text-[10px] font-bold uppercase tracking-[.2em] text-blue-500">Today</p>
-      <h2 className="mt-2 text-3xl font-black uppercase tracking-tight">{day.name}</h2>
-      <p className="mt-1 text-sm text-zinc-500">{(day.targetMuscles || []).join(" • ")}</p>
+      <h2 className="mt-2 text-3xl font-black uppercase tracking-tight">{day?.name}</h2>
+      <p className="mt-1 text-sm text-zinc-500">{(day?.targetMuscles || []).join(" • ")}</p>
       {exercises.length > 0 && (
         <p className="mt-3 text-xs font-bold tabular-nums text-zinc-500">
           {exercises.length} EXERCISES · {working} WORKING SETS · ~{minutes} MIN
         </p>
       )}
       <button
-        onClick={() => nav(`/live-workout/${day.id}`)}
+        onClick={() => nav(`/live-workout/${day!.id}`)}
         className="limit-button relative z-10 mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-black tracking-wide"
       >
         START WORKOUT <ArrowRight className="h-4 w-4" />

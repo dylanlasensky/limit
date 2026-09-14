@@ -19,10 +19,7 @@ export default function ProgressOverview({ sessions, records }: ProgressOverview
   return (
     <div className="grid grid-cols-2 gap-3">
       {items.map(([Icon, value, label, suffix], index) => (
-        <div
-          key={label}
-          className={`limit-surface relative overflow-hidden rounded-3xl p-4 ${index === 0 ? "col-span-2" : ""}`}
-        >
+        <div key={label} className="limit-surface relative overflow-hidden rounded-3xl p-4">
           <div className="flex items-start justify-between">
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">
               <Icon className="h-4 w-4" />

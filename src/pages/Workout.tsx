@@ -12,6 +12,7 @@ import WeekStrip from "@/components/workout/WeekStrip";
 import TodayWorkoutHero from "@/components/workout/TodayWorkoutHero";
 import PlanOptions from "@/components/workout/PlanOptions";
 import PullToRefresh from "@/components/limit/PullToRefresh";
+import useLocalDate from "@/hooks/use-local-date";
 
 const WEEKDAY_LABELS = [
   "Monday",
@@ -24,6 +25,7 @@ const WEEKDAY_LABELS = [
 ];
 
 export default function Workout() {
+  const currentDate = useLocalDate();
   const [tab, setTab] = useState("Schedule");
   const [q, setQ] = useState("");
   const [muscle, setMuscle] = useState("All");
@@ -37,8 +39,14 @@ export default function Workout() {
     staleTime: 60000,
   });
   const weQuery = useQuery({
-    queryKey: ["workoutExercises"],
-    queryFn: () => base44.entities.WorkoutExercise.list(null as any, 500),
+    queryKey: ["workoutExercises", planQuery.data?.plan?.id],
+    enabled: !!planQuery.data?.days?.length,
+    queryFn: () =>
+      base44.entities.WorkoutExercise.filter(
+        { workoutDayId: { $in: planQuery.data!.days.map((d) => d.id) } },
+        "order",
+        500
+      ),
     staleTime: 60000,
   });
   const historyQuery = useQuery({
@@ -66,10 +74,8 @@ export default function Workout() {
       .map((i): number => days[i].weekday)
   );
   const trainingDays = days.filter((d: any) => !d.isRest);
-  const todayStr = format(new Date(), "yyyy-MM-dd");
-  const activeSession = (activeQuery.data || []).find((s: any) =>
-    days.some((d: any) => d.id === s.workoutDayId)
-  );
+  const todayStr = currentDate;
+  const activeSession = activeQuery.data?.[0];
   const activeDay = days.find((d: any) => d.id === activeSession?.workoutDayId);
   const completedToday = history.find((s) => s.workoutDayId === today?.id && s.date === todayStr);
   const nextDay = today?.isRest
@@ -96,6 +102,15 @@ export default function Workout() {
       activeQuery.refetch(),
       weQuery.refetch(),
     ]);
+  if (planQuery.error || weQuery.error || historyQuery.error || activeQuery.error) {
+    return (
+      <ScreenState
+        title="Couldn’t load your workouts"
+        description="Your saved program hasn’t changed. Please try again."
+        onAction={() => void refresh()}
+      />
+    );
+  }
 
   return (
     <PullToRefresh onRefresh={refresh}>

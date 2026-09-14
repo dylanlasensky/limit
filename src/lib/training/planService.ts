@@ -62,12 +62,23 @@ export const estimateMinutes = (workoutExercises: any[]): number =>
     workoutExercises.reduce((a, x) => a + (x.sets || 3) * ((x.restSeconds || 120) + 45), 0) / 60
   ) + 6;
 
-// Creates the full plan → days → exercises graph. Deactivates any previous active plan. History untouched.
+// Build inactive, validate the entire graph, then activate on the server.
 export async function createPersonalizedPlan(profile: any, recommendation?: ProgramOption | null) {
+  const sessions = await base44.entities.WorkoutSession.filter(
+    { status: "active" },
+    "-created_date",
+    1
+  );
+  if (sessions.length)
+    throw new Error("Finish or discard your active workout before changing programs.");
   const exercises = await base44.entities.Exercise.list(null as any, 500);
   const rec: ProgramOption = recommendation || scoreProgramStructures(profile).best;
-  const old = await base44.entities.WorkoutPlan.filter({ active: true });
-  await Promise.all(old.map((p) => base44.entities.WorkoutPlan.update(p.id, { active: false })));
+  const templates = rec.dayNames.map((name) => buildDayExercises(name, profile, exercises));
+  if (!templates.length || templates.some((rows) => !rows.length)) {
+    throw new Error(
+      "No suitable exercises were found for your equipment. Your current program hasn’t changed."
+    );
+  }
   const plan = await base44.entities.WorkoutPlan.create({
     name: rec.name,
     description: rec.why,
@@ -77,13 +88,18 @@ export async function createPersonalizedPlan(profile: any, recommendation?: Prog
     sessionDurationTarget: +profile.sessionLength || 60,
     priorityMuscles: profile.priorityMuscles || [],
     recommended: true,
-    active: true,
+    active: false,
   });
-  const chosen = (
-    profile.availableDays?.length ? profile.availableDays : WEEKDAYS.slice(0, rec.dayNames.length)
-  )
-    .map((d: string) => WEEKDAYS.indexOf(d))
-    .filter((i: number) => i >= 0)
+  const chosen = [
+    ...new Set<number>(
+      (profile.availableDays?.length
+        ? profile.availableDays
+        : WEEKDAYS.slice(0, rec.dayNames.length)
+      )
+        .map((d: string) => WEEKDAYS.indexOf(d))
+        .filter((i: number) => i >= 0)
+    ),
+  ]
     .sort((a: number, b: number) => a - b)
     .slice(0, rec.dayNames.length);
   while (chosen.length < rec.dayNames.length) {
@@ -107,6 +123,14 @@ export async function createPersonalizedPlan(profile: any, recommendation?: Prog
       ? []
       : buildDayExercises(day.name, profile, exercises).map((x) => ({ ...x, workoutDayId: day.id }))
   );
-  if (workoutExercises.length) await base44.entities.WorkoutExercise.bulkCreate(workoutExercises);
-  return plan;
+  if (createdDays.length !== 7 || !workoutExercises.length)
+    throw new Error("The program did not finish saving. Your previous plan is still available.");
+  const savedRows = await base44.entities.WorkoutExercise.bulkCreate(workoutExercises);
+  if (savedRows.length !== workoutExercises.length)
+    throw new Error("Some exercises did not save. Your previous plan is still available.");
+  const { data } = await base44.functions.invoke("workoutCommand", {
+    action: "activatePlan",
+    planId: plan.id,
+  });
+  return data.plan;
 }

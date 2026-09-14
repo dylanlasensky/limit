@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { createFoodEntry } from "@/lib/food-entry";
 import { today } from "@/components/limit/data";
 import NativeSelect from "@/components/limit/NativeSelect";
 import type { FoodScanResult } from "@/components/limit/foodImageAnalysis";
@@ -7,32 +7,49 @@ const fields = ["calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium
 interface ScannedFoodEditorProps {
   result: FoodScanResult;
   onDone: () => void;
+  initialMealType?: string;
 }
-export default function ScannedFoodEditor({ result, onDone }: ScannedFoodEditorProps) {
+export default function ScannedFoodEditor({
+  result,
+  onDone,
+  initialMealType = "Breakfast",
+}: ScannedFoodEditorProps) {
   const [servings, setServings] = useState(1),
     [name, setName] = useState(result.title || "Scanned food"),
-    [mealType, setMealType] = useState("Breakfast"),
+    [mealType, setMealType] = useState(initialMealType),
     [n, setN] = useState<Record<string, number>>(result.nutrients || {}),
-    [saving, setSaving] = useState(false);
+    [saving, setSaving] = useState(false),
+    [error, setError] = useState("");
   const save = async () => {
+    if (saving) return;
     setSaving(true);
-    await base44.entities.FoodEntry.create({
-      date: today(),
-      mealType,
-      foodName: name,
-      quantity: servings,
-      unit: "servings",
-      ...Object.fromEntries(fields.map((k) => [k, Math.round((+n[k] || 0) * servings * 10) / 10])),
-      entryMethod: "scan_food",
-      estimated: !result.reliable,
-    });
-    onDone();
+    setError("");
+    try {
+      await createFoodEntry({
+        date: today(),
+        mealType,
+        foodName: name,
+        quantity: servings,
+        unit: "servings",
+        ...Object.fromEntries(
+          fields.map((k) => [k, Math.round((+n[k] || 0) * servings * 10) / 10])
+        ),
+        entryMethod: "scan_food",
+        estimated: !result.reliable,
+      });
+      onDone();
+    } catch (e: any) {
+      setError(e.message || "Couldn’t save. Your scan is still here. Please retry.");
+    } finally {
+      setSaving(false);
+    }
   };
   return (
     <div className="space-y-4">
       <div>
         <p className="text-xs font-bold text-blue-500">NUTRITION FOUND</p>
         <input
+          aria-label="Scanned food name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="mt-2 h-12 w-full rounded-xl border border-zinc-700 bg-transparent px-3 font-bold"
@@ -69,7 +86,7 @@ export default function ScannedFoodEditor({ result, onDone }: ScannedFoodEditorP
       </p>
       <div className="grid grid-cols-2 gap-2">
         {fields.slice(0, 4).map((k) => (
-          <label className="text-xs capitalize text-zinc-400">
+          <label key={k} className="text-xs capitalize text-zinc-400">
             {k}
             <input
               type="number"
@@ -106,6 +123,11 @@ export default function ScannedFoodEditor({ result, onDone }: ScannedFoodEditorP
       >
         {saving ? "ADDING…" : "ADD FOOD"}
       </button>
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

@@ -253,11 +253,9 @@ export async function saveImportedRegimen(
     }));
   });
   if (exerciseRows.length) await base44.entities.WorkoutExercise.bulkCreate(exerciseRows);
-  const activePlans = await base44.entities.WorkoutPlan.filter({ active: true });
-  await Promise.all(
-    activePlans.map((activePlan) =>
-      base44.entities.WorkoutPlan.update(activePlan.id, { active: false })
-    )
-  );
-  return base44.entities.WorkoutPlan.update(plan.id, { active: true });
+  const { data } = await base44.functions.invoke("workoutCommand", {
+    action: "activatePlan",
+    planId: plan.id,
+  });
+  return data.plan;
 }

@@ -29,6 +29,7 @@ export interface WorkoutRowsApi {
   setRows: (next: WorkoutRow[] | ((rows: WorkoutRow[]) => WorkoutRow[])) => void;
   savingIds: Set<string>;
   syncError: string;
+  conflict: boolean;
   flush: () => Promise<boolean>;
   edit: (key: string, field: string, value: any) => void;
   toggle: (key: string) => Promise<string | null>;
@@ -187,6 +188,7 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
       "todaySession",
       "muscleRatingData",
       "progressRatingData",
+      "progressData",
       "workoutExercises",
       "personalRecords",
       "workoutDetail",
@@ -230,7 +232,15 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
     replaceExercise,
     skipExercise,
     retry: () => retry((n: number) => n + 1),
-    clearDraft: () => key && localStorage.removeItem(key),
+    clearDraft: () => {
+      // A completed server save must not be reported as failed just because
+      // the browser cannot clear storage. Reload ignores completed drafts.
+      try {
+        if (key) localStorage.removeItem(key);
+      } catch {
+        /* Best effort. */
+      }
+    },
     invalidateAll,
   };
 }

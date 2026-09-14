@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { loadSavedMealWeek, saveMealWeek } from "@/lib/meal-plans";
+import { createFoodEntry } from "@/lib/food-entry";
 import {
   buildWeek,
   sumMacros,
@@ -26,19 +28,47 @@ interface MealPlannerProps {
 }
 export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProps) {
   const [diet, setDiet] = useState<DietaryProfile>({}),
+    [savedWeekId, setSavedWeekId] = useState<string>(),
     [week, setWeek] = useState<PlannedMeal[][]>([]),
     [day, setDay] = useState(0),
     [detail, setDetail] = useState<PlannedMeal | undefined>(),
     [selected, setSelected] = useState<Array<PlannedMeal["key"]>>([]),
-    [list, setList] = useState<GroceryItem[]>([]);
+    [list, setList] = useState<GroceryItem[]>([]),
+    [message, setMessage] = useState(""),
+    [busy, setBusy] = useState(false),
+    [loadError, setLoadError] = useState(false);
+  const run = async (action: () => Promise<void>, success: string) => {
+    if (busy) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      await action();
+      setMessage(success);
+    } catch {
+      setMessage("Couldn’t save this change. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
   useEffect(() => {
-    base44.entities.DietaryProfile.list().then((x: any[]) => {
-      setDiet(x[0] || {});
-      setWeek(buildWeek(profile, x[0] || {}));
-    });
+    let cancelled = false;
+    base44.entities.DietaryProfile.list()
+      .then(async (x: any[]) => {
+        const saved = await loadSavedMealWeek(x[0] || {});
+        if (cancelled) return;
+        setDiet(x[0] || {});
+        setSavedWeekId(saved?.id);
+        setWeek(saved?.week || buildWeek(profile, x[0] || {}));
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [profile.calorieTarget]);
   const add = async (m: PlannedMeal) => {
-    await base44.entities.FoodEntry.create({
+    await createFoodEntry({
       date: today(),
       mealType: m.mealType,
       foodName: m.name,
@@ -55,21 +85,31 @@ export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProp
   };
   const swap = (m: PlannedMeal, i: number) => {
     const nw = buildWeek(profile, diet);
-    setWeek((w) =>
-      w.map((d, di) => (di === day ? d.map((x, mi) => (mi === i ? nw[(day + 1) % 7][i] : x)) : d))
-    );
+    const replacement = nw[(day + 1) % 7].find((x) => x.mealType === m.mealType);
+    if (replacement)
+      setWeek((w) =>
+        w.map((d, di) =>
+          di === day
+            ? d.map((x, mi) =>
+                mi === i ? { ...replacement, key: x.key, generatedForDate: x.generatedForDate } : x
+              )
+            : d
+        )
+      );
   };
   const groceries = async () => {
     const meals = week.flat().filter((x) => selected.includes(x.key));
-    const all = meals.flatMap((x) => x.ingredients);
+    const all = meals.flatMap((x) =>
+      x.ingredients.map((ingredient) => ({ ...ingredient, portions: x.servings || 1 }))
+    );
     const map: Record<string, number> = {};
     all.forEach((x) => {
-      map[x.name] = (map[x.name] || 0) + 1;
+      map[x.name] = (map[x.name] || 0) + x.portions;
     });
     const items = Object.entries(map).map(([name, qty]) => ({
       name,
       qty,
-      unit: "serving",
+      unit: "recipe portion(s)",
       category: all.find((x) => x.name === name)?.category || "Other",
       checked: false,
     }));
@@ -80,91 +120,119 @@ export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProp
       items,
     });
   };
-  if (!week.length) return <p>Building allergy-aware ideas…</p>;
+  if (loadError)
+    return (
+      <p role="alert">
+        Couldn’t load your meal plan and dietary preferences. Reopen this section to retry.
+      </p>
+    );
+  if (!week.length) return <p role="status">Loading meal ideas…</p>;
   const totals = sumMacros(week[day]);
   const saveWeek = async () => {
-    const records: any[] = await base44.entities.MealRecommendation.bulkCreate(
-      week.flat().map(({ key: _key, ...meal }) => meal)
-    );
-    await base44.entities.WeeklyMealPlan.create({
-      weekStart: format(weekStart(), "yyyy-MM-dd"),
-      mealIds: records.map((x) => x.id),
-      calorieTotalsByDay: Object.fromEntries(week.map((x, i) => [i, sumMacros(x).calories])),
-      macroTotalsByDay: Object.fromEntries(week.map((x, i) => [i, sumMacros(x)])),
-    });
+    const saved = await saveMealWeek(week, savedWeekId);
+    setSavedWeekId(saved.id);
   };
   return (
     <div>
-      {mode === "Meal Plan" && (
-        <MealPrepCard
-          meal={week[day].find((x) => x.mealType === "Lunch")}
-          onAdd={(m) => setSelected((s) => [...new Set([...s, m.key])])}
-        />
-      )}
-      <div className="mb-4 flex gap-2 overflow-x-auto">
-        {week.map((_, i) => (
-          <button
-            onClick={() => setDay(i)}
-            className={`min-w-14 rounded-xl px-2 py-3 text-xs font-bold ${day === i ? "bg-zinc-950 text-white dark:bg-blue-600 dark:text-white" : "bg-white dark:bg-zinc-900"}`}
-          >
-            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]}
-          </button>
-        ))}
-      </div>
-      <div className="mb-4 rounded-2xl bg-blue-100 p-4 text-sm text-blue-950">
-        <b>Planned day</b>
-        <p>
-          {totals.calories} / {profile.calorieTarget || 2200} cal · {totals.protein} /{" "}
-          {profile.proteinTarget || 150}g protein
+      {message && (
+        <p role="status" className="mb-3 rounded-xl border border-border p-3 text-sm">
+          {message}
         </p>
-      </div>
-      <p className="mb-4 text-xs text-zinc-500">
-        Flexible estimates designed around saved restrictions. Verify labels for serious allergies.
-      </p>
-      <div className="space-y-3">
-        {week[day].map((m, i) => (
-          <MealCard
-            meal={m}
-            selected={selected.includes(m.key)}
-            onSelect={() =>
-              setSelected((s) => (s.includes(m.key) ? s.filter((x) => x !== m.key) : [...s, m.key]))
-            }
-            onOpen={() => setDetail(m)}
-            onAdd={() => add(m)}
-            onSwap={() => swap(m, i)}
-          />
-        ))}
-      </div>
-      <div className="mt-5 grid grid-cols-2 gap-2">
-        <button
-          onClick={saveWeek}
-          className="h-12 rounded-xl bg-zinc-950 font-bold text-white dark:bg-blue-600 dark:text-white"
-        >
-          Save week
-        </button>
-        <button onClick={groceries} className="h-12 rounded-xl border font-bold">
-          Grocery list ({selected.length})
-        </button>
-      </div>
-      {list.length > 0 && (
-        <section className="mt-4 rounded-2xl bg-white p-4 dark:bg-zinc-900">
-          <h3 className="font-bold">Grocery list</h3>
-          {list.map((x, i) => (
-            <label className="mt-3 flex gap-3 text-sm">
-              <input
-                type="checkbox"
-                checked={x.checked}
-                onChange={() =>
-                  setList((l) => l.map((v, j) => (j === i ? { ...v, checked: !v.checked } : v)))
-                }
-              />
-              <span className={x.checked ? "line-through text-zinc-400" : ""}>
-                {x.name} × {x.qty}
-              </span>
-            </label>
-          ))}
-        </section>
       )}
+      <fieldset disabled={busy} className="min-w-0">
+        {mode === "Meal Plan" && (
+          <MealPrepCard
+            meal={week[day].find((x) => x.mealType === "Lunch")}
+            onAdd={(m) => {
+              setSelected((s) => [...new Set([...s, m.key])]);
+              setWeek((w) => w.map((day) => day.map((meal) => (meal.key === m.key ? m : meal))));
+              setMessage(
+                `${m.servings} batch servings selected for groceries. Nutrition shown is per serving.`
+              );
+            }}
+          />
+        )}
+        <div className="mb-4 flex gap-2 overflow-x-auto">
+          {week.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setDay(i)}
+              className={`min-w-14 rounded-xl px-2 py-3 text-xs font-bold ${day === i ? "bg-zinc-950 text-white dark:bg-blue-600 dark:text-white" : "bg-white dark:bg-zinc-900"}`}
+            >
+              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]}
+            </button>
+          ))}
+        </div>
+        <div className="mb-4 rounded-2xl border border-primary/20 bg-primary/10 p-4 text-sm text-foreground">
+          <b>Planned day</b>
+          <p>
+            {totals.calories} cal · {totals.protein}g protein
+            {profile.calorieTarget ? ` · Your target: ${profile.calorieTarget} cal` : ""}
+          </p>
+        </div>
+        <p className="mb-4 text-xs text-zinc-500">
+          Estimated meal ideas filtered by your saved restrictions, not a complete nutrition
+          prescription. Check portions, labels, and ingredients.
+        </p>
+        <div className="space-y-3">
+          {week[day].length < 4 && (
+            <p className="rounded-xl border border-border p-4 text-sm text-muted-foreground">
+              Some meal slots have no matching ideas for your restrictions. Add your own food
+              without relaxing your exclusions.
+            </p>
+          )}
+          {week[day].map((m, i) => (
+            <MealCard
+              key={m.key}
+              meal={m}
+              selected={selected.includes(m.key)}
+              onSelect={() =>
+                setSelected((s) =>
+                  s.includes(m.key) ? s.filter((x) => x !== m.key) : [...s, m.key]
+                )
+              }
+              onOpen={() => setDetail(m)}
+              onAdd={() => void run(() => add(m), "Added to today’s food log.")}
+              onSwap={() => swap(m, i)}
+            />
+          ))}
+        </div>
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => void run(saveWeek, "Week saved.")}
+            disabled={!week.flat().length}
+            className="h-12 rounded-xl bg-zinc-950 font-bold text-white dark:bg-blue-600 dark:text-white"
+          >
+            Save week
+          </button>
+          <button
+            disabled={!selected.length}
+            onClick={() => void run(groceries, "Grocery list saved.")}
+            className="h-12 rounded-xl border font-bold disabled:opacity-40"
+          >
+            Grocery list ({selected.length})
+          </button>
+        </div>
+        {list.length > 0 && (
+          <section className="mt-4 rounded-2xl bg-white p-4 dark:bg-zinc-900">
+            <h3 className="font-bold">Grocery list</h3>
+            {list.map((x, i) => (
+              <label key={x.name} className="mt-3 flex gap-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={x.checked}
+                  onChange={() =>
+                    setList((l) => l.map((v, j) => (j === i ? { ...v, checked: !v.checked } : v)))
+                  }
+                />
+                <span className={x.checked ? "line-through text-zinc-400" : ""}>
+                  {x.name} × {x.qty}
+                </span>
+              </label>
+            ))}
+          </section>
+        )}
+      </fieldset>
       <MealDetail meal={detail} onClose={() => setDetail(undefined)} />
     </div>
   );

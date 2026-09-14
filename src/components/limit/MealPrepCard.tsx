@@ -16,13 +16,15 @@ export default function MealPrepCard({ meal, onAdd }: MealPrepCardProps) {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setServings(Math.max(2, servings - 1))}
+            aria-label="Fewer batch servings"
             className="h-9 w-9 rounded-lg bg-zinc-800"
           >
             −
           </button>
           <b>{servings}</b>
           <button
-            onClick={() => setServings(servings + 1)}
+            onClick={() => setServings(Math.min(30, servings + 1))}
+            aria-label="More batch servings"
             className="h-9 w-9 rounded-lg bg-zinc-800"
           >
             +

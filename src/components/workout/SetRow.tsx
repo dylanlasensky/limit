@@ -51,7 +51,7 @@ export default function SetRow({ row, previous, onEdit, onToggle, saving }: SetR
         value={row.rir ?? ""}
         placeholder="RIR"
         min="0"
-        max="9"
+        max="10"
         onChange={(e) => onEdit("rir", e.target.value)}
         className={`h-12 min-w-0 w-full rounded-xl border text-center text-sm tabular-nums outline-none transition-all ${done ? "border-primary/35 bg-primary/10 text-primary shadow-[inset_0_0_18px_hsl(var(--primary)/.08)]" : "border-border/50 bg-secondary/70 focus:border-primary/50"}`}
       />
