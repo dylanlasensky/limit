@@ -165,24 +165,23 @@ export default function useWorkoutRows(state: WorkoutDraftState, storageKey?: st
     commit((rs) => {
       const mine = rs.filter((r) => r.workoutExerciseId === we),
         last = mine.at(-1);
-      const number = Math.max(0, ...mine.map((r) => r.setNumber)) + 1;
+      const reusable = mine.find((r) => r.removed && !r.savedId && !r.pending);
+      const number = reusable?.setNumber ?? Math.max(0, ...mine.map((r) => r.setNumber)) + 1;
       if (!last || number > 30) return rs;
-      return [
-        ...rs,
-        {
-          ...last,
-          key: we + ":" + number,
-          setNumber: number,
-          reps: "",
-          rir: "",
-          completed: false,
-          savedId: null,
-          pending: false,
-          removed: false,
-          revision: "",
-          operationId: "",
-        },
-      ];
+      const next = {
+        ...last,
+        key: reusable?.key ?? we + ":" + number,
+        setNumber: number,
+        reps: "",
+        rir: "",
+        completed: false,
+        savedId: null,
+        pending: false,
+        removed: false,
+        revision: "",
+        operationId: "",
+      };
+      return reusable ? rs.map((r) => (r === reusable ? next : r)) : [...rs, next];
     });
   const removeSet = (key: string) =>
     commit((rs) =>

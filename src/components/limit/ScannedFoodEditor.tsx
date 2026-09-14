@@ -47,24 +47,24 @@ export default function ScannedFoodEditor({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-xs font-bold text-blue-500">NUTRITION FOUND</p>
+        <p className="text-xs font-bold text-primary">NUTRITION FOUND</p>
         <input
           aria-label="Scanned food name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-2 h-12 w-full rounded-xl border border-zinc-700 bg-transparent px-3 font-bold"
+          className="mt-2 h-12 w-full rounded-xl border border-border bg-transparent px-3 font-bold"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <label className="text-xs text-zinc-400">
+        <label className="text-xs text-muted-foreground">
           Serving size
           <input
             value={result.servingSize || "1 serving"}
             readOnly
-            className="mt-1 h-11 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3"
+            className="mt-1 h-11 w-full rounded-xl border border-border bg-secondary px-3 text-foreground"
           />
         </label>
-        <label className="text-xs text-zinc-400">
+        <label className="text-xs text-muted-foreground">
           Servings eaten
           <input
             type="number"
@@ -72,34 +72,34 @@ export default function ScannedFoodEditor({
             step=".25"
             value={servings}
             onChange={(e) => setServings(+e.target.value)}
-            className="mt-1 h-11 w-full rounded-xl border border-zinc-700 bg-transparent px-3"
+            className="mt-1 h-11 w-full rounded-xl border border-border bg-transparent px-3 text-foreground"
           />
         </label>
       </div>
       {(result.servingsPerContainer ?? 0) > 0 && (
-        <p className="text-xs text-zinc-400">
+        <p className="text-xs text-muted-foreground">
           {result.servingsPerContainer} servings per container
         </p>
       )}
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-muted-foreground">
         Values below are per serving. Consumed totals update automatically.
       </p>
       <div className="grid grid-cols-2 gap-2">
         {fields.slice(0, 4).map((k) => (
-          <label key={k} className="text-xs capitalize text-zinc-400">
+          <label key={k} className="text-xs capitalize text-muted-foreground">
             {k}
             <input
               type="number"
               value={n[k] || 0}
               onChange={(e) => setN({ ...n, [k]: +e.target.value })}
-              className="mt-1 h-11 w-full rounded-xl border border-zinc-700 bg-transparent px-3"
+              className="mt-1 h-11 w-full rounded-xl border border-border bg-transparent px-3 text-foreground"
             />
           </label>
         ))}
       </div>
-      <div className="rounded-xl bg-zinc-950 p-3 text-sm">
+      <div className="rounded-xl bg-secondary p-3 text-sm text-foreground">
         <b>Consumed total</b>
-        <p className="mt-1 text-zinc-400">
+        <p className="mt-1 text-muted-foreground">
           {Math.round((n.calories || 0) * servings)} cal · {Math.round((n.protein || 0) * servings)}
           g protein · {Math.round((n.carbs || 0) * servings)}g carbs ·{" "}
           {Math.round((n.fat || 0) * servings)}g fat
@@ -119,7 +119,7 @@ export default function ScannedFoodEditor({
       <button
         disabled={saving || !name}
         onClick={save}
-        className="h-12 w-full rounded-xl bg-blue-600 font-bold text-white"
+        className="h-12 w-full rounded-xl bg-primary font-bold text-primary-foreground"
       >
         {saving ? "ADDING…" : "ADD FOOD"}
       </button>

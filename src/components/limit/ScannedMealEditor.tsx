@@ -80,22 +80,22 @@ export default function ScannedMealEditor({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-xs font-bold text-blue-500">AI MEAL ESTIMATE</p>
-        <p className="mt-1 text-xs text-zinc-400">
+        <p className="text-xs font-bold text-primary">AI MEAL ESTIMATE</p>
+        <p className="mt-1 text-xs text-muted-foreground">
           Estimated nutrition — adjust any food or portion before logging.
         </p>
       </div>
       {conflicts.length > 0 && (
-        <div className="rounded-xl border border-red-500/60 bg-red-950/40 p-3">
-          <b className="text-red-300">Possible allergy conflict</b>
-          <p className="mt-1 text-xs text-red-200">
+        <div className="rounded-xl border border-destructive/60 bg-destructive/10 p-3">
+          <b className="text-destructive">Possible allergy conflict</b>
+          <p className="mt-1 text-xs text-foreground">
             This meal may contain {conflicts.join(", ")}. Verify ingredients before eating; visual
             AI cannot confirm allergens.
           </p>
         </div>
       )}
       {items.map((x, i) => (
-        <div key={i} className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
+        <div key={i} className="rounded-xl border border-border bg-secondary p-3 text-foreground">
           <div className="flex gap-2">
             <input
               aria-label={`Food ${i + 1} name`}
@@ -104,7 +104,7 @@ export default function ScannedMealEditor({
               className="h-10 min-w-0 flex-1 bg-transparent font-bold"
             />
             <button aria-label={`Remove food ${i + 1}`} onClick={() => remove(i)}>
-              <Trash2 className="h-4 w-4 text-zinc-500" />
+              <Trash2 className="h-4 w-4 text-muted-foreground" />
             </button>
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -113,31 +113,31 @@ export default function ScannedMealEditor({
               type="number"
               value={x.amount || ""}
               onChange={(e) => edit(i, "amount", e.target.value)}
-              className="h-10 rounded-lg border border-zinc-700 bg-transparent px-2"
+              className="h-10 rounded-lg border border-border bg-transparent px-2"
             />
             <input
               aria-label={`Food ${i + 1} unit`}
               value={x.unit || ""}
               onChange={(e) => edit(i, "unit", e.target.value)}
-              className="h-10 rounded-lg border border-zinc-700 bg-transparent px-2"
+              className="h-10 rounded-lg border border-border bg-transparent px-2"
             />
           </div>
           <div className="mt-2 grid grid-cols-4 gap-1">
             {macroKeys.map((k) => (
-              <label key={k} className="text-[10px] uppercase text-zinc-500">
+              <label key={k} className="text-[10px] uppercase text-muted-foreground">
                 {k === "calories" ? "cal" : k}
                 <input
                   type="number"
                   value={x[k] || 0}
                   onChange={(e) => edit(i, k, e.target.value)}
-                  className="mt-1 h-9 w-full rounded-lg border border-zinc-800 bg-transparent px-1 text-center text-xs text-white"
+                  className="mt-1 h-9 w-full rounded-lg border border-border bg-transparent px-1 text-center text-xs text-foreground"
                 />
               </label>
             ))}
           </div>
         </div>
       ))}
-      <button onClick={add} className="flex items-center gap-2 text-sm font-bold text-blue-500">
+      <button onClick={add} className="flex items-center gap-2 text-sm font-bold text-primary">
         <Plus className="h-4 w-4" />
         Add missing food
       </button>
@@ -146,10 +146,10 @@ export default function ScannedMealEditor({
           {error}
         </p>
       )}
-      <div className="rounded-xl border border-zinc-800 p-4">
-        <p className="text-xs text-zinc-500">ESTIMATED TOTAL</p>
+      <div className="rounded-xl border border-border p-4">
+        <p className="text-xs text-muted-foreground">ESTIMATED TOTAL</p>
         <b className="text-2xl">{Math.round(totals.calories)} calories</b>
-        <p className="mt-1 text-sm text-zinc-400">
+        <p className="mt-1 text-sm text-muted-foreground">
           {Math.round(totals.protein)}g protein · {Math.round(totals.carbs)}g carbs ·{" "}
           {Math.round(totals.fat)}g fat
         </p>
@@ -168,7 +168,7 @@ export default function ScannedMealEditor({
       <button
         disabled={saving || !items.length}
         onClick={save}
-        className="h-12 w-full rounded-xl bg-blue-600 font-bold text-white"
+        className="h-12 w-full rounded-xl bg-primary font-bold text-primary-foreground"
       >
         {saving ? "LOGGING…" : "LOG MEAL"}
       </button>

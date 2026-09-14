@@ -40,12 +40,15 @@ export default function Home() {
   const workoutExercises = useQuery({
     queryKey: ["workoutExercises", planQuery.data?.plan?.id],
     enabled: !!planQuery.data?.days?.length,
-    queryFn: () =>
-      base44.entities.WorkoutExercise.filter(
-        { workoutDayId: { $in: planQuery.data!.days.map((d) => d.id) } },
+    queryFn: () => {
+      const days = planQuery.data?.days;
+      if (!days?.length) return [];
+      return base44.entities.WorkoutExercise.filter(
+        { workoutDayId: { $in: days.map((d) => d.id) } },
         "order",
         500
-      ),
+      );
+    },
     staleTime: 60000,
   });
   const sessionsQuery = useQuery({

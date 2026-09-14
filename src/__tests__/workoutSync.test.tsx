@@ -114,4 +114,44 @@ describe("serialized set sync", () => {
     });
     expect(invoke).not.toHaveBeenCalled();
   });
+  it("reuses a removed unsaved slot after reaching 30 sets", () => {
+    const { result } = renderHook(() => useWorkoutRows({ session: { id: "session" } }, "draft"));
+    act(() =>
+      result.current.setRows([{ ...row("1"), key: "we:1", savedId: "saved-1", pending: false }])
+    );
+    act(() => {
+      for (let number = 2; number <= 30; number++) result.current.addSet("we");
+    });
+    const original = result.current.current.current;
+    expect(result.current.rows).toHaveLength(30);
+    act(() => result.current.removeSet("we:17"));
+    expect(result.current.rows).toHaveLength(29);
+    act(() => result.current.addSet("we"));
+    expect(result.current.rows).toHaveLength(30);
+    expect(result.current.rows.map((r) => r.key)).toEqual(original.map((r) => r.key));
+    expect(result.current.rows[16]).toMatchObject({
+      key: "we:17",
+      setNumber: 17,
+      reps: "",
+      completed: false,
+      savedId: null,
+      pending: false,
+      removed: false,
+    });
+    expect(result.current.rows.filter((r) => r.key !== "we:17")).toEqual(
+      original.filter((r) => r.key !== "we:17")
+    );
+    expect(JSON.parse(localStorage.getItem("draft")!).rows).toHaveLength(30);
+    expect(invoke).not.toHaveBeenCalled();
+  });
+  it.each([
+    { savedId: "saved-30", pending: false },
+    { savedId: null, pending: true },
+  ])("does not reuse a removed saved or pending slot: %j", (protectedState) => {
+    const { result } = renderHook(() => useWorkoutRows({ session: { id: "session" } }));
+    const protectedRow = { ...row("30"), removed: true, ...protectedState };
+    act(() => result.current.setRows([row("1"), protectedRow]));
+    act(() => result.current.addSet("we"));
+    expect(result.current.current.current).toEqual([row("1"), protectedRow]);
+  });
 });
