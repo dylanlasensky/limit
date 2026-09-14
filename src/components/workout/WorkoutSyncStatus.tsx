@@ -1,0 +1,43 @@
+import React from "react";
+import { CheckCircle2, CloudOff, Loader2 } from "lucide-react";
+interface WorkoutSyncStatusProps {
+  pending?: number;
+  syncing?: boolean;
+  error?: string;
+  onRetry: () => void;
+}
+export default function WorkoutSyncStatus({
+  pending,
+  syncing,
+  error,
+  onRetry,
+}: WorkoutSyncStatusProps) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className={`my-4 flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs ${pending || error ? "border border-border bg-secondary text-foreground" : "text-muted-foreground"}`}
+    >
+      {syncing ? (
+        <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+      ) : pending || error ? (
+        <CloudOff className="h-4 w-4 shrink-0" />
+      ) : (
+        <CheckCircle2 className="h-4 w-4 shrink-0" />
+      )}
+      <span className="flex-1">
+        {syncing
+          ? "Syncing your sets…"
+          : error ||
+            (pending
+              ? `${pending} unsynced change${pending === 1 ? "" : "s"} · kept on this device`
+              : "All completed sets synced")}
+      </span>
+      {!syncing && (pending || error) ? (
+        <button onClick={onRetry} className="min-h-9 shrink-0 px-2 font-bold text-primary">
+          Retry
+        </button>
+      ) : null}
+    </div>
+  );
+}

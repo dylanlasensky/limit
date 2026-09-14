@@ -1,0 +1,43 @@
+import React from "react";
+import { Pencil, RefreshCw, Upload } from "lucide-react";
+interface PlanOptionsProps {
+  plan?: Record<string, any> | null;
+  onGenerate: () => void;
+  onImport: () => void;
+  onEdit: () => void;
+}
+export default function PlanOptions({ plan, onGenerate, onImport, onEdit }: PlanOptionsProps) {
+  return (
+    <section className="mt-7 border-t border-border/60 pt-5">
+      <p className="limit-kicker">Plan options</p>
+      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+        LIMIT builds your training by default. Already follow a routine? Bring it in without
+        changing how workouts are logged.
+      </p>
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        <button
+          onClick={onGenerate}
+          className="limit-chip flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl px-2 text-[10px] font-black"
+        >
+          <RefreshCw className="h-4 w-4 text-primary" />
+          BUILD WITH LIMIT
+        </button>
+        <button
+          onClick={onImport}
+          className="limit-chip flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl px-2 text-[10px] font-black"
+        >
+          <Upload className="h-4 w-4" />
+          USE MY PROGRAM
+        </button>
+        <button
+          onClick={onEdit}
+          disabled={!plan}
+          className="limit-chip flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl px-2 text-[10px] font-black disabled:opacity-35"
+        >
+          <Pencil className="h-4 w-4" />
+          EDIT CURRENT
+        </button>
+      </div>
+    </section>
+  );
+}

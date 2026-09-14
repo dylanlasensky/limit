@@ -1,0 +1,67 @@
+import React, { useState } from "react";
+import { Trash2 } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+export default function AccountDeletion() {
+  const [open, setOpen] = useState(false),
+    [deleting, setDeleting] = useState(false),
+    [error, setError] = useState("");
+  const remove = async () => {
+    setDeleting(true);
+    setError("");
+    try {
+      await base44.functions.invoke("deleteAccount", { confirm: true });
+      await base44.auth.logout("/login");
+    } catch (e: any) {
+      setError(e?.response?.data?.error || e.message || "Account deletion failed.");
+      setDeleting(false);
+    }
+  };
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-red-900/70 text-sm font-bold text-red-500"
+      >
+        <Trash2 className="h-4 w-4" />
+        Delete account
+      </button>
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerContent>
+          <div className="mx-auto w-full max-w-md px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <DrawerHeader className="px-0">
+              <DrawerTitle>Delete your LIMIT account?</DrawerTitle>
+              <DrawerDescription>
+                This permanently removes your logged exercises, workout history, weights, dietary
+                metrics, meal data, and profile. This cannot be undone.
+              </DrawerDescription>
+            </DrawerHeader>
+            {error && (
+              <p className="mb-3 rounded-xl bg-red-950/40 p-3 text-sm text-red-400">{error}</p>
+            )}
+            <button
+              disabled={deleting}
+              onClick={remove}
+              className="h-12 w-full rounded-xl bg-red-600 font-bold text-white"
+            >
+              {deleting ? "Deleting account…" : "Permanently delete account"}
+            </button>
+            <button
+              disabled={deleting}
+              onClick={() => setOpen(false)}
+              className="mt-2 h-12 w-full font-bold"
+            >
+              Keep my account
+            </button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+    </>
+  );
+}
