@@ -3,8 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, RotateCcw, CheckCircle2 } from "lucide-react";
 import { estimateMinutes } from "@/lib/training/planService";
 
+interface TodayWorkoutHeroProps {
+  day?: Record<string, any> | null;
+  exercises: any[];
+  activeSession?: Record<string, any> | null;
+  completedSession?: Record<string, any> | null;
+}
+
 // States: rest | not started | active (resume) | completed
-export default function TodayWorkoutHero({ day, exercises, activeSession, completedSession }) {
+export default function TodayWorkoutHero({
+  day,
+  exercises,
+  activeSession,
+  completedSession,
+}: TodayWorkoutHeroProps) {
   const nav = useNavigate();
   if (!day || day.isRest) {
     const next = day?.next;
@@ -41,7 +53,10 @@ export default function TodayWorkoutHero({ day, exercises, activeSession, comple
     );
   }
   if (activeSession) {
-    const min = Math.max(1, Math.round((Date.now() - new Date(activeSession.startedAt)) / 60000));
+    const min = Math.max(
+      1,
+      Math.round((Date.now() - new Date(activeSession.startedAt).getTime()) / 60000)
+    );
     return (
       <section className="limit-hero mt-5 rounded-[2rem] border-primary/50 p-6 shadow-[0_20px_60px_hsl(var(--primary)/.14)]">
         <p className="text-[10px] font-bold uppercase tracking-[.2em] text-blue-400">

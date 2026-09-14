@@ -1,9 +1,62 @@
-import React,{useEffect,useState} from 'react';
-import {motion} from 'framer-motion';
-import {TimerReset} from 'lucide-react';
-export default function RestTimer({endsAt,onAdjust,onSkip}){
-  const[,tick]=useState(0);useEffect(()=>{const timer=setInterval(()=>tick(value=>value+1),500);return()=>clearInterval(timer)},[]);
-  const remaining=Math.max(0,Math.round((endsAt-Date.now())/1000));useEffect(()=>{if(remaining===0){const timer=setTimeout(onSkip,1200);return()=>clearTimeout(timer)}},[remaining===0]);
-  const mm=Math.floor(remaining/60),ss=String(remaining%60).padStart(2,'0');
-  return <motion.div initial={{y:80,opacity:0}} animate={{y:0,opacity:1}} className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-[26rem] rounded-[1.75rem] border border-primary/30 bg-background/90 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] shadow-[0_0_50px_hsl(var(--primary)/.16)] backdrop-blur-2xl"><div className="flex items-center justify-between gap-3"><div className="flex items-center gap-3"><div className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/15 text-primary"><TimerReset className="h-5 w-5"/></div><div><p className="limit-kicker">Rest phase</p><p className="font-mono text-2xl font-black tabular-nums">{mm}:{ss}</p></div></div><div className="flex gap-1.5"><button onClick={()=>onAdjust(-15)} className="h-10 rounded-xl bg-secondary px-3 text-xs font-black">−15</button><button onClick={()=>onAdjust(15)} className="h-10 rounded-xl bg-secondary px-3 text-xs font-black">+15</button><button onClick={onSkip} className="limit-button h-10 rounded-xl px-3 text-xs font-black">SKIP</button></div></div></motion.div>;
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { TimerReset } from "lucide-react";
+interface RestTimerProps {
+  endsAt: number;
+  onAdjust: (seconds: number) => void;
+  onSkip: () => void;
+}
+export default function RestTimer({ endsAt, onAdjust, onSkip }: RestTimerProps) {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => tick((value) => value + 1), 500);
+    return () => clearInterval(timer);
+  }, []);
+  const remaining = Math.max(0, Math.round((endsAt - Date.now()) / 1000));
+  useEffect(() => {
+    if (remaining === 0) {
+      const timer = setTimeout(onSkip, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [remaining === 0]);
+  const mm = Math.floor(remaining / 60),
+    ss = String(remaining % 60).padStart(2, "0");
+  return (
+    <motion.div
+      initial={{ y: 80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-[26rem] rounded-[1.75rem] border border-primary/30 bg-background/90 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] shadow-[0_0_50px_hsl(var(--primary)/.16)] backdrop-blur-2xl"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/15 text-primary">
+            <TimerReset className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="limit-kicker">Rest phase</p>
+            <p className="font-mono text-2xl font-black tabular-nums">
+              {mm}:{ss}
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-1.5">
+          <button
+            onClick={() => onAdjust(-15)}
+            className="h-10 rounded-xl bg-secondary px-3 text-xs font-black"
+          >
+            −15
+          </button>
+          <button
+            onClick={() => onAdjust(15)}
+            className="h-10 rounded-xl bg-secondary px-3 text-xs font-black"
+          >
+            +15
+          </button>
+          <button onClick={onSkip} className="limit-button h-10 rounded-xl px-3 text-xs font-black">
+            SKIP
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
 }

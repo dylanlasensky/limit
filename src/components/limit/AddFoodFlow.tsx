@@ -1,9 +1,136 @@
-import React,{useState} from 'react';
-import {useQuery} from '@tanstack/react-query';
-import {Camera,Search,Utensils,Store,PenLine,ChevronLeft,History} from 'lucide-react';
-import {base44} from '@/api/base44Client';
-import {today} from '@/components/limit/data';
-import ManualFood from '@/components/limit/ManualFood';
-import FoodPhotoScanner from '@/components/limit/FoodPhotoScanner';
-const options=[['Search food',Search,'search','Enter a food and its nutrition'],['Recent foods',History,'recent','Quick-add something you logged'],['Nutrition label',Camera,'food','Scan a label or package'],['Plate photo',Utensils,'meal','Estimate an editable full meal'],['Restaurant meal',Store,'restaurant','Log an estimated restaurant item'],['Manual entry',PenLine,'manual','Enter exact nutrition yourself']];
-export default function AddFoodFlow({dietaryProfile,onDone}){const[mode,setMode]=useState(),recent=useQuery({queryKey:['recentFoods'],queryFn:()=>base44.entities.FoodEntry.list('-created_date',30),enabled:mode==='recent'});if(mode)return <div><button onClick={()=>setMode()} className="mb-4 flex min-h-10 items-center gap-1 text-sm text-muted-foreground"><ChevronLeft className="h-4 w-4"/>All options</button><h3 className="mb-4 text-lg font-black">{options.find(x=>x[2]===mode)?.[0]}</h3>{['food','meal'].includes(mode)?<FoodPhotoScanner mode={mode} dietaryProfile={dietaryProfile} onDone={onDone} onManual={()=>setMode('manual')}/>:mode==='recent'?<div className="space-y-2">{recent.isLoading?<div className="h-24 animate-pulse rounded-2xl bg-secondary"/>:[...new Map((recent.data||[]).map(x=>[x.foodName,x])).values()].slice(0,12).map(x=><button key={x.foodName} onClick={async()=>{const {mealType,foodName,quantity,unit,calories,protein,carbs,fat,fiber,sugar,sodium,estimated}=x;await base44.entities.FoodEntry.create({mealType,foodName,quantity,unit,calories,protein,carbs,fat,fiber,sugar,sodium,estimated,date:today(),entryMethod:'recent'});onDone()}} className="flex min-h-14 w-full justify-between rounded-xl bg-secondary p-4 text-left text-sm"><b>{x.foodName}</b><span>{x.calories||0} cal</span></button>)}{!recent.isLoading&&!recent.data?.length&&<p className="rounded-xl border border-dashed border-border p-5 text-sm text-muted-foreground">Foods you log will appear here for one-tap reuse.</p>}</div>:<ManualFood entryMethod={mode} estimated={mode==='restaurant'} onDone={onDone}/>}</div>;return <div className="grid gap-2">{options.map(([label,Icon,value,description])=><button key={value} onClick={()=>setMode(value)} className="flex min-h-16 items-center gap-3 rounded-2xl border border-border bg-background px-4 text-left"><span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10"><Icon className="h-5 w-5 text-primary"/></span><span><b className="block text-sm">{label}</b><span className="text-xs text-muted-foreground">{description}</span></span></button>)}</div>}
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Camera,
+  Search,
+  Utensils,
+  Store,
+  PenLine,
+  ChevronLeft,
+  History,
+  type LucideIcon,
+} from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { today } from "@/components/limit/data";
+import ManualFood from "@/components/limit/ManualFood";
+import FoodPhotoScanner from "@/components/limit/FoodPhotoScanner";
+import type { DietaryProfile } from "@/components/limit/data";
+type AddFoodMode = "search" | "recent" | "food" | "meal" | "restaurant" | "manual";
+const options: Array<[string, LucideIcon, AddFoodMode, string]> = [
+  ["Search food", Search, "search", "Enter a food and its nutrition"],
+  ["Recent foods", History, "recent", "Quick-add something you logged"],
+  ["Nutrition label", Camera, "food", "Scan a label or package"],
+  ["Plate photo", Utensils, "meal", "Estimate an editable full meal"],
+  ["Restaurant meal", Store, "restaurant", "Log an estimated restaurant item"],
+  ["Manual entry", PenLine, "manual", "Enter exact nutrition yourself"],
+];
+interface AddFoodFlowProps {
+  dietaryProfile?: DietaryProfile | null;
+  onDone: (saved?: boolean) => void;
+}
+export default function AddFoodFlow({ dietaryProfile, onDone }: AddFoodFlowProps) {
+  const [mode, setMode] = useState<AddFoodMode | undefined>(),
+    recent = useQuery({
+      queryKey: ["recentFoods"],
+      queryFn: () => base44.entities.FoodEntry.list("-created_date", 30),
+      enabled: mode === "recent",
+    });
+  if (mode)
+    return (
+      <div>
+        <button
+          onClick={() => setMode(undefined)}
+          className="mb-4 flex min-h-10 items-center gap-1 text-sm text-muted-foreground"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          All options
+        </button>
+        <h3 className="mb-4 text-lg font-black">{options.find((x) => x[2] === mode)?.[0]}</h3>
+        {["food", "meal"].includes(mode) ? (
+          <FoodPhotoScanner
+            mode={mode as "food" | "meal"}
+            dietaryProfile={dietaryProfile}
+            onDone={onDone}
+            onManual={() => setMode("manual")}
+          />
+        ) : mode === "recent" ? (
+          <div className="space-y-2">
+            {recent.isLoading ? (
+              <div className="h-24 animate-pulse rounded-2xl bg-secondary" />
+            ) : (
+              [...new Map((recent.data || []).map((x: any) => [x.foodName, x])).values()]
+                .slice(0, 12)
+                .map((x) => (
+                  <button
+                    key={x.foodName}
+                    onClick={async () => {
+                      const {
+                        mealType,
+                        foodName,
+                        quantity,
+                        unit,
+                        calories,
+                        protein,
+                        carbs,
+                        fat,
+                        fiber,
+                        sugar,
+                        sodium,
+                        estimated,
+                      } = x;
+                      await base44.entities.FoodEntry.create({
+                        mealType,
+                        foodName,
+                        quantity,
+                        unit,
+                        calories,
+                        protein,
+                        carbs,
+                        fat,
+                        fiber,
+                        sugar,
+                        sodium,
+                        estimated,
+                        date: today(),
+                        entryMethod: "recent",
+                      });
+                      onDone();
+                    }}
+                    className="flex min-h-14 w-full justify-between rounded-xl bg-secondary p-4 text-left text-sm"
+                  >
+                    <b>{x.foodName}</b>
+                    <span>{x.calories || 0} cal</span>
+                  </button>
+                ))
+            )}
+            {!recent.isLoading && !recent.data?.length && (
+              <p className="rounded-xl border border-dashed border-border p-5 text-sm text-muted-foreground">
+                Foods you log will appear here for one-tap reuse.
+              </p>
+            )}
+          </div>
+        ) : (
+          <ManualFood entryMethod={mode} estimated={mode === "restaurant"} onDone={onDone} />
+        )}
+      </div>
+    );
+  return (
+    <div className="grid gap-2">
+      {options.map(([label, Icon, value, description]) => (
+        <button
+          key={value}
+          onClick={() => setMode(value)}
+          className="flex min-h-16 items-center gap-3 rounded-2xl border border-border bg-background px-4 text-left"
+        >
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10">
+            <Icon className="h-5 w-5 text-primary" />
+          </span>
+          <span>
+            <b className="block text-sm">{label}</b>
+            <span className="text-xs text-muted-foreground">{description}</span>
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}

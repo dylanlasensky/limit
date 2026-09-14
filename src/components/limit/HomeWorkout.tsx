@@ -2,7 +2,19 @@ import React from "react";
 import { Dumbbell } from "lucide-react";
 import TodayWorkoutHero from "@/components/workout/TodayWorkoutHero";
 
-export default function HomeWorkout({ day, exercises = [], activeSession, completedSession }) {
+interface HomeWorkoutProps {
+  day?: Record<string, any> | null;
+  exercises?: any[];
+  activeSession?: Record<string, any> | null;
+  completedSession?: Record<string, any> | null;
+}
+
+export default function HomeWorkout({
+  day,
+  exercises = [],
+  activeSession,
+  completedSession,
+}: HomeWorkoutProps) {
   return (
     <div>
       <div className="flex items-center gap-2 text-blue-500">

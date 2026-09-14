@@ -1,11 +1,14 @@
 import React, { useMemo } from "react";
 import { scoreProgramStructures, WEEKDAYS } from "@/lib/training/programEngine";
 import { calcTargets } from "@/components/limit/nutritionTargets";
-export default function OnboardingReveal({ data }) {
+interface OnboardingRevealProps {
+  data: Record<string, any>;
+}
+export default function OnboardingReveal({ data }: OnboardingRevealProps) {
   const rec = useMemo(() => scoreProgramStructures(data).best, [data]);
   const targets = useMemo(() => calcTargets({ ...data, days: data.availableDays?.length }), [data]);
   if (!rec) return null;
-  const chosen = data.availableDays || [];
+  const chosen: string[] = data.availableDays || [];
   return (
     <div>
       <section className="rounded-2xl border border-blue-900/60 bg-[#121217] p-5">

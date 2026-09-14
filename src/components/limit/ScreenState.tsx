@@ -1,6 +1,47 @@
-import React from 'react';
-import {ArrowUpRight,RotateCcw,Sparkles} from 'lucide-react';
-export default function ScreenState({loading,title,description,action,onAction}){
-  if(loading)return <div role="status" aria-label="Loading" className="space-y-4 py-4"><div className="limit-shimmer h-3 w-20 rounded-full"/><div className="limit-shimmer h-10 w-3/4 rounded-xl"/><div className="limit-shimmer h-60 rounded-[2rem]"/><div className="grid grid-cols-2 gap-3"><div className="limit-shimmer h-24 rounded-2xl"/><div className="limit-shimmer h-24 rounded-2xl"/></div></div>;
-  return <section className="limit-grid limit-surface relative overflow-hidden rounded-[2rem] p-7"><div className="grid h-11 w-11 place-items-center rounded-2xl border border-primary/30 bg-primary/10 text-primary shadow-[0_0_30px_hsl(var(--primary)/.12)]"><Sparkles className="h-5 w-5"/></div><h2 className="mt-6 text-xl font-black tracking-tight">{title}</h2><p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">{description}</p>{onAction&&<button onClick={onAction} className="mt-5 flex min-h-12 items-center gap-2 text-sm font-bold text-primary">{action||'Try again'}{action?<ArrowUpRight className="h-4 w-4"/>:<RotateCcw className="h-4 w-4"/>}</button>}</section>;
+import React from "react";
+import { ArrowUpRight, RotateCcw, Sparkles } from "lucide-react";
+interface ScreenStateProps {
+  loading?: boolean;
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  action?: React.ReactNode;
+  onAction?: () => void;
+}
+export default function ScreenState({
+  loading,
+  title,
+  description,
+  action,
+  onAction,
+}: ScreenStateProps) {
+  if (loading)
+    return (
+      <div role="status" aria-label="Loading" className="space-y-4 py-4">
+        <div className="limit-shimmer h-3 w-20 rounded-full" />
+        <div className="limit-shimmer h-10 w-3/4 rounded-xl" />
+        <div className="limit-shimmer h-60 rounded-[2rem]" />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="limit-shimmer h-24 rounded-2xl" />
+          <div className="limit-shimmer h-24 rounded-2xl" />
+        </div>
+      </div>
+    );
+  return (
+    <section className="limit-grid limit-surface relative overflow-hidden rounded-[2rem] p-7">
+      <div className="grid h-11 w-11 place-items-center rounded-2xl border border-primary/30 bg-primary/10 text-primary shadow-[0_0_30px_hsl(var(--primary)/.12)]">
+        <Sparkles className="h-5 w-5" />
+      </div>
+      <h2 className="mt-6 text-xl font-black tracking-tight">{title}</h2>
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">{description}</p>
+      {onAction && (
+        <button
+          onClick={onAction}
+          className="mt-5 flex min-h-12 items-center gap-2 text-sm font-bold text-primary"
+        >
+          {action || "Try again"}
+          {action ? <ArrowUpRight className="h-4 w-4" /> : <RotateCcw className="h-4 w-4" />}
+        </button>
+      )}
+    </section>
+  );
 }
