@@ -10,8 +10,8 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc -p tsconfig.json",
     "preview": "vite preview",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,css}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\""
   },
   "packageManager": "pnpm@12.4.1",
   "dependencies": {
