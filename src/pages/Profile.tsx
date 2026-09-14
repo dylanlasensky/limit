@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
+import { profilePayload } from "@/lib/profile-payload";
 import { calcTargets, toUSProfile } from "@/components/limit/nutritionTargets";
 import { createPersonalizedPlan } from "@/lib/training/planService";
 import { scoreProgramStructures } from "@/lib/training/programEngine";
@@ -24,11 +25,12 @@ const allergens = [
   "Sesame",
 ];
 export default function Profile() {
-  const { user } = useAuth(),
+  const { user, logout } = useAuth(),
     [p, setP] = useState<any>(),
     [d, setD] = useState<any>(),
     [error, setError] = useState(""),
     [saved, setSaved] = useState(false),
+    [saving, setSaving] = useState(false),
     [rebuilding, setRebuilding] = useState(false),
     [message, setMessage] = useState(""),
     [profileChanged, setProfileChanged] = useState(false),
@@ -63,26 +65,38 @@ export default function Profile() {
           : [...(v.allergies || []), x],
       }));
   const save = async () => {
+    if (saving) return;
+    setSaving(true);
     setError("");
     try {
-      const payload = {
+      const payload = profilePayload({
         ...p,
         heightCm: (+p.heightFeet * 12 + (+p.heightInches || 0)) * 2.54,
         units: "imperial",
         measurementSystemVersion: "us_v1",
-      };
-      await Promise.all([
-        p.id
-          ? base44.entities.UserProfile.update(p.id, payload)
-          : base44.entities.UserProfile.create(payload),
-        d.id
-          ? base44.entities.DietaryProfile.update(d.id, d)
-          : base44.entities.DietaryProfile.create(d),
-      ]);
+      });
+      // Persist returned IDs immediately, even if saving dietary preferences
+      // fails later. Retrying must update the same records, not create copies.
+      const savedProfile = await (p.id
+        ? base44.entities.UserProfile.update(p.id, payload)
+        : base44.entities.UserProfile.create(payload));
+      setP(savedProfile);
+      const savedDiet = await (d.id
+        ? base44.entities.DietaryProfile.update(d.id, d)
+        : base44.entities.DietaryProfile.create(d));
+      setD(savedDiet);
       setSaved(true);
-      client.invalidateQueries({ queryKey: ["userProfile"] });
-    } catch {
-      setError("Couldn’t save these changes. Try again.");
+      for (const key of ["userProfile", "dietaryProfile", "progressData", "muscleRatingData"]) {
+        void client.invalidateQueries({ queryKey: [key] });
+      }
+    } catch (e: any) {
+      setError(
+        e?.response
+          ? "Couldn’t save these changes. Try again."
+          : e.message || "Couldn’t save these changes. Try again."
+      );
+    } finally {
+      setSaving(false);
     }
   };
   const rebuild = async () => {
@@ -100,14 +114,20 @@ export default function Profile() {
         client.invalidateQueries({ queryKey: [k] })
       );
       setMessage(`New plan: ${rec.name}. History preserved.`);
-    } catch {
-      setMessage("Could not rebuild your program. Try again.");
+    } catch (e: any) {
+      setMessage(
+        e?.response?.data?.error || e.message || "Could not rebuild your program. Try again."
+      );
     }
     setRebuilding(false);
   };
   const reset = async () => {
-    await base44.auth.resetPasswordRequest(user!.email);
-    setMessage("Password reset instructions sent if this email is eligible.");
+    try {
+      await base44.auth.resetPasswordRequest(user!.email);
+      setMessage("Password reset instructions sent if this email is eligible.");
+    } catch {
+      setError("Couldn’t request a reset. Please try again.");
+    }
   };
   return (
     <div>
@@ -193,9 +213,10 @@ export default function Profile() {
       )}
       <button
         onClick={save}
+        disabled={saving}
         className="mt-5 h-14 w-full rounded-2xl bg-primary font-bold text-primary-foreground"
       >
-        {saved ? "SAVED" : "SAVE CHANGES"}
+        {saving ? "SAVING…" : saved ? "SAVED" : "SAVE CHANGES"}
       </button>
       <section className="mt-6 border-t border-border pt-6">
         <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
@@ -205,7 +226,7 @@ export default function Profile() {
           Change password
         </button>
         <button
-          onClick={() => base44.auth.logout("/login")}
+          onClick={() => logout()}
           className="mt-2 h-12 w-full rounded-xl bg-secondary text-sm font-bold"
         >
           Sign out

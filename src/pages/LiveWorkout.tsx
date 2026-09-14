@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { X } from "lucide-react";
 import { base44 } from "@/api/base44Client";
@@ -26,9 +26,11 @@ export default function LiveWorkout() {
     [rest, setRest] = useState<number | null>(null),
     [cancelOpen, setCancelOpen] = useState(false),
     [finishing, setFinishing] = useState(false),
+    [discarding, setDiscarding] = useState(false),
     [finishError, setFinishError] = useState(""),
     [inlineError, setInlineError] = useState(""),
     [summary, setSummary] = useState<any | null>(null);
+  const actionInFlight = useRef(false);
   if (live.loading)
     return (
       <main className="mx-auto min-h-screen max-w-md bg-background px-4 pt-8 text-foreground">
@@ -68,13 +70,19 @@ export default function LiveWorkout() {
     }
   };
   const finish = async () => {
-    if (finishing) return;
+    if (actionInFlight.current) return;
+    if (!live.current.current.some((r) => r.completed && !r.removed)) {
+      setFinishError("Complete at least one set before finishing.");
+      return;
+    }
+    actionInFlight.current = true;
     setFinishing(true);
     setFinishError("");
     const synced = await live.flush();
     if (!synced || live.current.current.some((r) => r.pending)) {
       setFinishError("Sync every completed set before finishing. Your entries are still safe.");
       setFinishing(false);
+      actionInFlight.current = false;
       return;
     }
     try {
@@ -94,10 +102,17 @@ export default function LiveWorkout() {
         e?.response?.data?.error || "Couldn’t finish this workout. Your sets are still safe."
       );
       setFinishing(false);
+      actionInFlight.current = false;
     }
   };
   const discard = async () => {
+    if (actionInFlight.current) return;
+    actionInFlight.current = true;
+    setDiscarding(true);
     try {
+      // Wait for any set currently being saved before changing session status.
+      if (syncing && !(await live.flush()))
+        throw new Error("Wait for your current save to finish before discarding.");
       await base44.functions.invoke("workoutCommand", {
         action: "discard",
         sessionId: live.session!.id,
@@ -106,7 +121,12 @@ export default function LiveWorkout() {
       live.invalidateAll();
       nav("/workout", { replace: true });
     } catch (e: any) {
-      setInlineError(e?.response?.data?.error || "Couldn’t discard this workout. Try again.");
+      setInlineError(
+        e?.response?.data?.error || e.message || "Couldn’t discard this workout. Try again."
+      );
+    } finally {
+      actionInFlight.current = false;
+      setDiscarding(false);
     }
   };
   return (
@@ -114,6 +134,7 @@ export default function LiveWorkout() {
       <header className="sticky top-0 z-30 -mx-4 flex items-center justify-between gap-3 border-b border-border/60 bg-background/85 px-4 py-3 shadow-[0_14px_35px_hsl(var(--background)/.8)] backdrop-blur-2xl">
         <div className="flex min-w-0 items-center gap-2">
           <button
+            disabled={finishing || discarding}
             onClick={() => setCancelOpen(true)}
             aria-label="Leave workout"
             className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-secondary"
@@ -129,7 +150,7 @@ export default function LiveWorkout() {
         </div>
         <button
           onClick={finish}
-          disabled={finishing}
+          disabled={finishing || discarding || !live.rows.some((r) => r.completed)}
           className="limit-button min-h-11 rounded-xl px-4 text-sm font-black disabled:opacity-50"
         >
           {finishing ? "Saving…" : "Finish"}
@@ -147,6 +168,22 @@ export default function LiveWorkout() {
         error={live.syncError}
         onRetry={live.flush}
       />
+      {live.conflict && (
+        <div role="alert" className="mb-4 rounded-xl border border-border p-4 text-sm">
+          Another screen saved a different version. Your local edits have not replaced it.
+          <button
+            className="mt-2 block min-h-11 font-bold text-primary"
+            onClick={() => {
+              if (window.confirm("Replace this device’s unsynced edits with the saved workout?")) {
+                live.clearDraft();
+                window.location.reload();
+              }
+            }}
+          >
+            Load saved version
+          </button>
+        </div>
+      )}
       {(inlineError || finishError) && (
         <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive-foreground">
           <b>{inlineError || finishError}</b>
@@ -157,25 +194,27 @@ export default function LiveWorkout() {
           )}
         </div>
       )}
-      {live.workoutExercises.map((we) => (
-        <ExerciseCard
-          key={we.id}
-          workoutExercise={we}
-          exercise={live.exercisesById[we.exerciseId]}
-          rows={live.rows.filter((r) => r.workoutExerciseId === we.id)}
-          previousSets={live.previousByExercise[we.exerciseName]}
-          savingIds={live.savingIds}
-          onEdit={live.edit}
-          onToggle={handleToggle}
-          onAddSet={() => live.addSet(we.id)}
-          onRemoveSet={live.removeSet}
-          allExercises={live.allExercises || Object.values(live.exercisesById)}
-          profile={live.profile}
-          plan={live.plan}
-          onReplace={(e: any) => live.replaceExercise(we, e)}
-          onSkip={() => live.skipExercise(we)}
-        />
-      ))}
+      <fieldset disabled={finishing || discarding} className="min-w-0">
+        {live.workoutExercises.map((we) => (
+          <ExerciseCard
+            key={we.id}
+            workoutExercise={we}
+            exercise={live.exercisesById[we.exerciseId]}
+            rows={live.rows.filter((r) => r.workoutExerciseId === we.id)}
+            previousSets={live.previousByExercise[we.exerciseName]}
+            savingIds={live.savingIds}
+            onEdit={live.edit}
+            onToggle={handleToggle}
+            onAddSet={() => live.addSet(we.id)}
+            onRemoveSet={live.removeSet}
+            allExercises={live.allExercises || Object.values(live.exercisesById)}
+            profile={live.profile}
+            plan={live.plan}
+            onReplace={(e: any) => live.replaceExercise(we, e)}
+            onSkip={() => live.skipExercise(we)}
+          />
+        ))}
+      </fieldset>
       {rest && (
         <RestTimer
           endsAt={rest}

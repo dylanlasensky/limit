@@ -7,10 +7,15 @@ import pluginUnusedImports from "eslint-plugin-unused-imports";
 
 export default tseslint.config(
   {
-    ignores: ["node_modules/**", "dist/**", "base44/**", "src/components/ui/**", "*.config.js", "postcss.config.js"],
+    ignores: ["node_modules/**", "dist/**", "base44/**", "playwright-report/**", "test-results/**", "src/components/ui/**", "*.config.js", "postcss.config.js"],
   },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
+  {
+    files: ["e2e/**/*.ts", "playwright.config.ts"],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    rules: { "@typescript-eslint/no-explicit-any": "off" },
+  },
   {
     files: ["src/**/*.{ts,tsx,js,jsx}", "vite.config.ts"],
     ...pluginReact.configs.flat.recommended,

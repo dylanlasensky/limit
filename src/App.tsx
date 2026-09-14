@@ -1,4 +1,8 @@
 import { Toaster } from "@/components/ui/toaster";
+import { lazy, Suspense } from "react";
+import { MotionConfig } from "framer-motion";
+import AppErrorBoundary from "@/components/AppErrorBoundary";
+import ScreenState from "@/components/limit/ScreenState";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClientInstance } from "@/lib/query-client";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -13,26 +17,27 @@ import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import Entry from "@/pages/Entry";
-import Onboarding from "@/pages/Onboarding";
-import Home from "@/pages/Home";
-import Workout from "@/pages/Workout";
-import LiveWorkout from "@/pages/LiveWorkout";
-import WorkoutDetail from "@/pages/WorkoutDetail";
-import ImportWorkout from "@/pages/ImportWorkout";
-import Nutrition from "@/pages/Nutrition";
-import Progress from "@/pages/Progress";
-import Profile from "@/pages/Profile";
+const Onboarding = lazy(() => import("@/pages/Onboarding"));
+const Home = lazy(() => import("@/pages/Home"));
+const Workout = lazy(() => import("@/pages/Workout"));
+const LiveWorkout = lazy(() => import("@/pages/LiveWorkout"));
+const WorkoutDetail = lazy(() => import("@/pages/WorkoutDetail"));
+const ImportWorkout = lazy(() => import("@/pages/ImportWorkout"));
+const Nutrition = lazy(() => import("@/pages/Nutrition"));
+const Progress = lazy(() => import("@/pages/Progress"));
+const Profile = lazy(() => import("@/pages/Profile"));
+const OAuthConsent = lazy(() => import("@/pages/OAuthConsent"));
 import LimitShell from "@/components/limit/LimitShell";
 // Add page imports here
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, checkAppState } = useAuth();
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+      <div className="mx-auto max-w-md px-4 pt-8">
+        <ScreenState loading />
       </div>
     );
   }
@@ -41,10 +46,16 @@ const AuthenticatedApp = () => {
   if (authError) {
     if (authError.type === "user_not_registered") {
       return <UserNotRegisteredError />;
-    } else if (authError.type === "auth_required") {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
+    } else if (authError.type !== "auth_required") {
+      return (
+        <div className="mx-auto max-w-md px-4 py-12">
+          <ScreenState
+            title="Couldn’t connect to LIMIT"
+            description="Check your connection and try again. Your saved data hasn’t been changed."
+            onAction={() => void checkAppState()}
+          />
+        </div>
+      );
     }
   }
 
@@ -55,6 +66,7 @@ const AuthenticatedApp = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/oauth-consent" element={<OAuthConsent />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/" element={<Entry />} />
         <Route path="/onboarding" element={<Onboarding />} />
@@ -77,15 +89,27 @@ const AuthenticatedApp = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <ScrollToTop />
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
-      </QueryClientProvider>
-    </AuthProvider>
+    <AppErrorBoundary>
+      <MotionConfig reducedMotion="user">
+        <AuthProvider>
+          <QueryClientProvider client={queryClientInstance}>
+            <Router>
+              <ScrollToTop />
+              <Suspense
+                fallback={
+                  <div className="mx-auto max-w-md px-4 pt-8">
+                    <ScreenState loading />
+                  </div>
+                }
+              >
+                <AuthenticatedApp />
+              </Suspense>
+            </Router>
+            <Toaster />
+          </QueryClientProvider>
+        </AuthProvider>
+      </MotionConfig>
+    </AppErrorBoundary>
   );
 }
 

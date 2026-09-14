@@ -110,7 +110,7 @@ export default function Onboarding() {
         units: "imperial",
         measurementSystemVersion: "us_v1",
         targetsCustomized: false,
-        onboardingComplete: true,
+        onboardingComplete: false,
         ...targets,
       };
       const [profiles, diets, activePlans] = await Promise.all([
@@ -118,8 +118,9 @@ export default function Onboarding() {
         base44.entities.DietaryProfile.list(),
         base44.entities.WorkoutPlan.filter({ active: true }),
       ]);
-      if (profiles[0]) await base44.entities.UserProfile.update(profiles[0].id, profile);
-      else await base44.entities.UserProfile.create(profile);
+      const savedProfile = profiles[0]
+        ? await base44.entities.UserProfile.update(profiles[0].id, profile)
+        : await base44.entities.UserProfile.create(profile);
       const diet = {
         allergies: data.allergies,
         intolerances: [],
@@ -140,7 +141,8 @@ export default function Onboarding() {
         !activePlans.some((plan: any) => plan.name === rec.name && plan.daysPerWeek === days)
       )
         await createPersonalizedPlan({ ...profile, days }, rec);
-      nav(data.importAfterOnboarding ? "/workout/import" : "/home");
+      await base44.entities.UserProfile.update(savedProfile.id, { onboardingComplete: true });
+      nav(data.importAfterOnboarding ? "/workout/import" : "/home", { replace: true });
     } catch {
       setSaving(false);
       setError(true);

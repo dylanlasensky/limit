@@ -3,6 +3,8 @@ import type { User } from "@base44/sdk";
 import { base44 } from "@/api/base44Client";
 import { appParams } from "@/lib/app-params";
 import { createAxiosClient } from "@base44/sdk/dist/utils/axios-client";
+import { queryClientInstance } from "@/lib/query-client";
+import { clearPrivateState } from "@/lib/storage";
 
 export interface AuthError {
   type: string;
@@ -61,17 +63,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setAppPublicSettings(publicSettings);
 
         // If we got the app public settings successfully, check if user is authenticated
-        if (appParams.token) {
-          await checkUserAuth();
-        } else {
-          setIsLoadingAuth(false);
-          setIsAuthenticated(false);
-          setAuthChecked(true);
-        }
+        // A valid cookie-backed session may not have a localStorage token.
+        await checkUserAuth();
         setIsLoadingPublicSettings(false);
       } catch (appError: any) {
-        console.error("App state check failed:", appError);
-
         // Handle app-level errors
         if (appError.status === 403 && appError.data?.extra_data?.reason) {
           const reason = appError.data.extra_data.reason;
@@ -99,15 +94,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
         setIsLoadingPublicSettings(false);
         setIsLoadingAuth(false);
+        setAuthChecked(true);
       }
     } catch (error: any) {
-      console.error("Unexpected error:", error);
       setAuthError({
         type: "unknown",
         message: error.message || "An unexpected error occurred",
       });
       setIsLoadingPublicSettings(false);
       setIsLoadingAuth(false);
+      setAuthChecked(true);
     }
   };
 
@@ -116,33 +112,50 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Now check if the user is authenticated
       setIsLoadingAuth(true);
       const currentUser = await base44.auth.me();
+      if (user?.id !== currentUser.id) {
+        void queryClientInstance.cancelQueries();
+        queryClientInstance.clear();
+      }
       setUser(currentUser);
+      setAuthError(null);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
       setAuthChecked(true);
     } catch (error: any) {
-      console.error("User auth check failed:", error);
+      setUser(null);
+      void queryClientInstance.cancelQueries();
+      queryClientInstance.clear();
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
       setAuthChecked(true);
 
       // If user auth fails, it might be an expired token
-      if (error.status === 401 || error.status === 403) {
+      const status = error.status || error.response?.status;
+      if (status === 401 || status === 403) {
         setAuthError({
           type: "auth_required",
           message: "Authentication required",
+        });
+      } else {
+        setAuthError({
+          type: "network",
+          message: "Couldn’t check your sign-in. Please try again.",
         });
       }
     }
   };
 
   const logout = (shouldRedirect = true) => {
+    void queryClientInstance.cancelQueries();
+    queryClientInstance.clear();
+    // Keep namespaced unsynced workout drafts so this user can recover them.
+    clearPrivateState();
     setUser(null);
     setIsAuthenticated(false);
 
     if (shouldRedirect) {
       // Use the SDK's logout method which handles token cleanup and redirect
-      base44.auth.logout(window.location.href);
+      base44.auth.logout("/login");
     } else {
       // Just remove the token without redirect
       base44.auth.logout();

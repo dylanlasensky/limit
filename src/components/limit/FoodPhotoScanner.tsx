@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Camera, ImagePlus, Loader2, RotateCcw } from "lucide-react";
 import { Image } from "@/components/ui/image";
 import {
@@ -16,12 +16,14 @@ interface FoodPhotoScannerProps {
   dietaryProfile?: DietaryProfile | null;
   onDone: () => void;
   onManual: () => void;
+  initialMealType?: string;
 }
 export default function FoodPhotoScanner({
   mode,
   dietaryProfile,
   onDone,
   onManual,
+  initialMealType,
 }: FoodPhotoScannerProps) {
   const [url, setUrl] = useState(""),
     [fileUri, setFileUri] = useState(""),
@@ -29,6 +31,12 @@ export default function FoodPhotoScanner({
     [loading, setLoading] = useState(false),
     [error, setError] = useState(""),
     [answer, setAnswer] = useState("");
+  useEffect(
+    () => () => {
+      if (url) URL.revokeObjectURL(url);
+    },
+    [url]
+  );
   const analyze = async (fileUri: string, clarification?: string) => {
     setLoading(true);
     setError("");
@@ -116,12 +124,13 @@ export default function FoodPhotoScanner({
   if (result)
     return mode === "meal" ? (
       <ScannedMealEditor
+        initialMealType={initialMealType}
         result={result}
         conflicts={conflictsFor(result, dietaryProfile)}
         onDone={onDone}
       />
     ) : (
-      <ScannedFoodEditor result={result} onDone={onDone} />
+      <ScannedFoodEditor initialMealType={initialMealType} result={result} onDone={onDone} />
     );
   return (
     <div className="space-y-4">

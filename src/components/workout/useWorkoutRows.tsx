@@ -2,18 +2,22 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import {
   writeDraft,
+  validateSet,
   type EditableSetField,
   type WorkoutDraftState,
   type WorkoutSetRow,
 } from "@/components/workout/workoutDraft";
+
 type RowsUpdater = WorkoutSetRow[] | ((rows: WorkoutSetRow[]) => WorkoutSetRow[]);
 export default function useWorkoutRows(state: WorkoutDraftState, storageKey?: string | null) {
-  const [rows, setRows] = useState<WorkoutSetRow[]>([]),
-    [savingIds, setSavingIds] = useState<Set<string>>(new Set()),
-    [syncError, setSyncError] = useState("");
-  const current = useRef<WorkoutSetRow[]>([]),
-    busy = useRef(false),
-    stateRef = useRef(state);
+  const [rows, setRows] = useState<WorkoutSetRow[]>([]);
+  const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
+  const [syncError, setSyncError] = useState("");
+  const [conflict, setConflict] = useState(false);
+  const current = useRef<WorkoutSetRow[]>([]);
+  const flight = useRef<Promise<boolean> | null>(null);
+  const stateRef = useRef(state);
+  const conflictRef = useRef(false);
   stateRef.current = state;
   const commit = useCallback(
     (next: RowsUpdater) => {
@@ -32,47 +36,76 @@ export default function useWorkoutRows(state: WorkoutDraftState, storageKey?: st
     },
     [storageKey]
   );
-  const flush = useCallback(async () => {
-    if (busy.current || !stateRef.current.session || !navigator.onLine) return false;
-    busy.current = true;
-    setSyncError("");
-    try {
-      for (const row of current.current.filter((r) => r.pending)) {
-        setSavingIds(new Set([row.key]));
-        const { data } = await base44.functions.invoke("workoutCommand", {
-          action: "saveSet",
-          sessionId: stateRef.current.session.id,
-          row,
-        });
-        commit((rs) =>
-          rs.map((r) =>
-            r.key !== row.key
-              ? r
-              : {
-                  ...r,
-                  savedId: data.set.id,
-                  revision: data.set.revision,
-                  pending: r.operationId !== row.operationId,
-                }
-          )
-        );
+
+  const flush = useCallback((): Promise<boolean> => {
+    // Every caller awaits the same drain, including Finish pressed mid-save.
+    if (flight.current) return flight.current;
+    if (!stateRef.current.session || !navigator.onLine || conflictRef.current)
+      return Promise.resolve(false);
+    const sessionId = stateRef.current.session.id;
+    const run = async () => {
+      setSyncError("");
+      try {
+        // Read the latest queue after EVERY acknowledgement, not a stale snapshot.
+        while (true) {
+          const row = current.current.find((r) => r.pending && !r.removed);
+          if (!row) return true;
+          const validation = validateSet(row);
+          if (validation) {
+            setSyncError(validation);
+            return false;
+          }
+          const sent = { ...row };
+          setSavingIds(new Set([sent.key]));
+          const { data } = await base44.functions.invoke("workoutCommand", {
+            action: "saveSet",
+            sessionId,
+            row: sent,
+          });
+          if (!data?.set?.id || data.set.revision !== sent.operationId) {
+            throw new Error("Invalid save acknowledgement.");
+          }
+          if (stateRef.current.session?.id !== sessionId) return false;
+          commit((rs) =>
+            rs.map((r) =>
+              r.key !== sent.key
+                ? r
+                : {
+                    ...r,
+                    savedId: data.set.id,
+                    revision: data.set.revision,
+                    pending: r.operationId !== sent.operationId,
+                  }
+            )
+          );
+        }
+      } catch (e: any) {
+        const message = e?.response?.data?.error || e?.data?.error;
+        // A conflict needs an explicit choice; never silently overwrite another device.
+        if (
+          (e?.status || e?.response?.status) === 409 &&
+          /another screen|no longer active/i.test(message || "")
+        ) {
+          conflictRef.current = true;
+          setConflict(true);
+        }
+        setSyncError(message || "Couldn’t sync. Keep this screen open or reconnect to retry.");
+        return false;
+      } finally {
+        setSavingIds(new Set());
       }
-      return true;
-    } catch (e: any) {
-      setSyncError(
-        e?.response?.data?.error || "That set hasn’t synced. Your entries are saved on this device."
-      );
-      return false;
-    } finally {
-      busy.current = false;
-      setSavingIds(new Set());
-    }
+    };
+    flight.current = run().finally(() => {
+      flight.current = null;
+    });
+    return flight.current;
   }, [commit]);
+
   useEffect(() => {
-    const online = () => flush();
+    const online = () => void flush();
     window.addEventListener("online", online);
     const timer = setInterval(() => {
-      if (current.current.some((r) => r.pending)) flush();
+      if (current.current.some((r) => r.pending)) void flush();
     }, 15000);
     return () => {
       window.removeEventListener("online", online);
@@ -89,6 +122,7 @@ export default function useWorkoutRows(state: WorkoutDraftState, storageKey?: st
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, []);
+
   const edit = (key: string, field: EditableSetField, value: string) =>
     commit((rs) =>
       rs.map((r) =>
@@ -97,7 +131,7 @@ export default function useWorkoutRows(state: WorkoutDraftState, storageKey?: st
               ...r,
               [field]: value,
               completed: false,
-              pending: !!r.savedId,
+              pending: !!r.savedId || r.pending,
               operationId: crypto.randomUUID(),
             }
           : r
@@ -106,25 +140,22 @@ export default function useWorkoutRows(state: WorkoutDraftState, storageKey?: st
   const toggle = async (key: string): Promise<string | null> => {
     const row = current.current.find((r) => r.key === key);
     if (!row) return null;
-    if (
-      row.weight === "" ||
-      !Number.isFinite(+row.weight) ||
-      +row.weight < 0 ||
-      +row.weight > 2500 ||
-      !Number.isInteger(+row.reps) ||
-      +row.reps < 1 ||
-      +row.reps > 100
-    )
-      return "Enter a valid weight and whole reps first.";
+    const error = validateSet(row);
+    if (error) return error;
     commit((rs) =>
       rs.map((r) =>
         r.key === key
-          ? { ...r, completed: !r.completed, pending: true, operationId: crypto.randomUUID() }
+          ? {
+              ...r,
+              completed: !r.completed,
+              pending: true,
+              operationId: crypto.randomUUID(),
+            }
           : r
       )
     );
     if (!navigator.onLine) {
-      setSyncError("Offline — saved on this device. Reconnect to sync.");
+      setSyncError("Offline. Keep this device’s draft until you reconnect.");
       return null;
     }
     await flush();
@@ -134,30 +165,34 @@ export default function useWorkoutRows(state: WorkoutDraftState, storageKey?: st
     commit((rs) => {
       const mine = rs.filter((r) => r.workoutExerciseId === we),
         last = mine.at(-1);
-      if (!last || mine.length >= 30) return rs;
-      const number = Math.max(...mine.map((r) => r.setNumber)) + 1;
-      return [
-        ...rs,
-        {
-          ...last,
-          key: `${we}:${number}`,
-          setNumber: number,
-          reps: "",
-          completed: false,
-          savedId: null,
-          pending: false,
-          revision: "",
-          operationId: "",
-        },
-      ];
+      const reusable = mine.find((r) => r.removed && !r.savedId && !r.pending);
+      const number = reusable?.setNumber ?? Math.max(0, ...mine.map((r) => r.setNumber)) + 1;
+      if (!last || number > 30) return rs;
+      const next = {
+        ...last,
+        key: reusable?.key ?? we + ":" + number,
+        setNumber: number,
+        reps: "",
+        rir: "",
+        completed: false,
+        savedId: null,
+        pending: false,
+        removed: false,
+        revision: "",
+        operationId: "",
+      };
+      return reusable ? rs.map((r) => (r === reusable ? next : r)) : [...rs, next];
     });
   const removeSet = (key: string) =>
-    commit((rs) => rs.filter((r) => r.key !== key || r.savedId || r.pending));
+    commit((rs) =>
+      rs.map((r) => (r.key === key && !r.savedId && !r.pending ? { ...r, removed: true } : r))
+    );
   return {
-    rows,
+    rows: rows.filter((r) => !r.removed),
     setRows: commit,
     savingIds,
     syncError,
+    conflict,
     flush,
     edit,
     toggle,

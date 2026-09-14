@@ -1,8 +1,4 @@
-import {
-  analyzeFoodImage,
-  type AnalyzeFoodImageParams,
-  type FoodScanResult,
-} from "@/components/limit/foodImageAnalysis";
+import { analyzeFoodImage, type FoodScanResult } from "@/components/limit/foodImageAnalysis";
 import type { DietaryProfile } from "@/components/limit/data";
 export const mobileCapabilities = {
   camera: true,
@@ -20,12 +16,11 @@ export async function lookupBarcode(): Promise<never> {
     "No verified product nutrition database is connected. Scan the Nutrition Facts label instead."
   );
 }
-// Note: these helpers pass `fileUrl`, while analyzeFoodImage reads `fileUri`. Preserved as-is.
 export async function analyzeNutritionLabel(
   fileUrl: string,
   dietaryProfile?: DietaryProfile | null
 ): Promise<FoodScanResult> {
-  return analyzeFoodImage({ fileUrl, scanMode: "food", dietaryProfile } as AnalyzeFoodImageParams);
+  return analyzeFoodImage({ fileUri: fileUrl, scanMode: "food", dietaryProfile });
 }
 export async function analyzeMealPhoto(
   fileUrl: string,
@@ -33,11 +28,11 @@ export async function analyzeMealPhoto(
   clarification?: string
 ): Promise<FoodScanResult> {
   return analyzeFoodImage({
-    fileUrl,
+    fileUri: fileUrl,
     scanMode: "meal",
     dietaryProfile,
     clarification,
-  } as AnalyzeFoodImageParams);
+  });
 }
 export async function syncHealthKit(): Promise<never> {
   throw new Error("HealthKit becomes available after native iOS packaging.");

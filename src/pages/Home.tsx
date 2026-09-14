@@ -2,7 +2,9 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { base44 } from "@/api/base44Client";
-import { today, sumMacros } from "@/components/limit/data";
+import { sumMacros } from "@/components/limit/data";
+import useLocalDate from "@/hooks/use-local-date";
+import ScreenState from "@/components/limit/ScreenState";
 import { calculateMuscleRating, emptyRating } from "@/components/limit/muscleRating";
 import { profileWeightLb } from "@/components/limit/nutritionTargets";
 import useActivePlan, { todayWeekday } from "@/hooks/use-active-plan";
@@ -18,7 +20,7 @@ const greeting = () => {
 };
 
 export default function Home() {
-  const date = today();
+  const date = useLocalDate();
   const profile = useQuery({
     queryKey: ["userProfile"],
     queryFn: () => base44.entities.UserProfile.list(),
@@ -32,16 +34,25 @@ export default function Home() {
   const planQuery = useActivePlan();
   const weightsQuery = useQuery({
     queryKey: ["weightEntries"],
-    queryFn: () => base44.entities.WeightEntry.list("date", 30),
+    queryFn: async () => (await base44.entities.WeightEntry.list("-date", 30)).reverse(),
     staleTime: 30000,
   });
   const workoutExercises = useQuery({
-    queryKey: ["workoutExercises"],
-    queryFn: () => base44.entities.WorkoutExercise.list(null as any, 500),
+    queryKey: ["workoutExercises", planQuery.data?.plan?.id],
+    enabled: !!planQuery.data?.days?.length,
+    queryFn: () => {
+      const days = planQuery.data?.days;
+      if (!days?.length) return [];
+      return base44.entities.WorkoutExercise.filter(
+        { workoutDayId: { $in: days.map((d) => d.id) } },
+        "order",
+        500
+      );
+    },
     staleTime: 60000,
   });
   const sessionsQuery = useQuery({
-    queryKey: ["todaySession"],
+    queryKey: ["todaySession", date],
     queryFn: async () => {
       const [todayRows, activeRows] = await Promise.all([
         base44.entities.WorkoutSession.filter({ date }),
@@ -56,7 +67,7 @@ export default function Home() {
     staleTime: 30000,
     queryFn: async () => {
       const [sets, exercises, sessions, records] = await Promise.all([
-        base44.entities.ExerciseSet.list("-timestamp", 500),
+        base44.entities.ExerciseSet.list("-timestamp", 2000),
         base44.entities.Exercise.list(null as any, 500),
         base44.entities.WorkoutSession.list("-date", 100),
         base44.entities.PersonalRecord.list("-date", 10),
@@ -109,6 +120,25 @@ export default function Home() {
       sessionsQuery.refetch(),
       ratingData.refetch(),
     ]);
+  if (profile.isLoading || planQuery.isLoading || sessionsQuery.isLoading)
+    return <ScreenState loading />;
+  if (
+    profile.error ||
+    planQuery.error ||
+    sessionsQuery.error ||
+    foodsQuery.error ||
+    weightsQuery.error ||
+    ratingData.error ||
+    workoutExercises.error
+  ) {
+    return (
+      <ScreenState
+        title="Couldn’t load your dashboard"
+        description="We couldn’t retrieve all your data. Try again to see your saved progress."
+        onAction={() => void refresh()}
+      />
+    );
+  }
 
   return (
     <PullToRefresh onRefresh={refresh}>
@@ -119,7 +149,7 @@ export default function Home() {
           </span>
           <div className="relative z-10">
             <p className="limit-kicker">{format(new Date(), "EEEE, MMM d")}</p>
-            <h1 className="mt-3 text-4xl font-black tracking-[-.045em]">
+            <h1 className="mt-3 break-words text-3xl font-extrabold tracking-[-.045em] sm:text-4xl">
               {greeting()}
               {p.name ? `, ${p.name.split(" ")[0]}` : ""}
             </h1>

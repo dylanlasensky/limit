@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { makeRating } from "../../base44/shared/workoutAnalytics.js";
 import {
   calculateMuscleRating,
   emptyRating,
@@ -38,6 +39,7 @@ describe("emptyRating", () => {
   it("produces a Beginner rating for every muscle with no data", () => {
     const rating = emptyRating();
     expect(rating.hasData).toBe(false);
+    expect(rating.overallScore).toBe(0);
     expect(rating.overallLevel).toBe("Beginner");
     expect(Object.keys(rating.muscles).sort()).toEqual([...MUSCLES].sort());
     for (const m of MUSCLES) {
@@ -45,6 +47,30 @@ describe("emptyRating", () => {
       expect(rating.muscles[m].sets).toBe(0);
       expect(rating.muscles[m].confidence).toBe(0);
     }
+  });
+});
+
+describe("shared snapshot scoring", () => {
+  it("produces exactly the same scores on the server and the dashboard", () => {
+    const sets = [set("s1", 135, 8), set("s2", 145, 8)];
+    const sessions = [session("s1"), session("s2")];
+    const rating = calculateMuscleRating({ sets, exercises: [benchPress], sessions, profile });
+    const snapshot = makeRating(sets, [benchPress], profile, [], sessions);
+    const { date, workoutSessionId, ...expected } = snapshotPayload(rating);
+    expect(snapshot).toEqual(expected);
+  });
+  it("does not credit warmups or unfinished sets", () => {
+    const rating = calculateMuscleRating({
+      sets: [
+        { ...set("s1", 100, 5), setType: "warmup" },
+        { ...set("s1", 100, 5), completed: false },
+      ],
+      exercises: [benchPress],
+      sessions: [session("s1")],
+      profile,
+    });
+    expect(rating.hasData).toBe(false);
+    expect(rating.overallScore).toBe(0);
   });
 });
 
@@ -78,6 +104,19 @@ describe("calculateMuscleRating", () => {
       weights: [],
     });
     expect(rating.muscles.Chest.sets).toBe(0);
+    expect(rating.hasData).toBe(false);
+  });
+
+  it("ignores malformed imported sets without crashing", () => {
+    const rating = calculateMuscleRating({
+      sets: [
+        { weight: 100, reps: 5 },
+        { exerciseName: "Squat", weight: NaN, reps: 5 },
+      ],
+      sessions: [],
+      profile,
+    });
+    expect(rating.hasData).toBe(false);
   });
 
   it("scores heavier relative loads higher and gains confidence with more sessions", () => {

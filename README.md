@@ -1,4 +1,6 @@
-# Base44 Project
+# LIMIT
+
+Mobile-first training, nutrition and progress, built on Base44. See the [launch-readiness checklist](docs/launch-readiness.md) for the implemented hardening and the remaining requirements before a paid launch.
 
 Use this repository to run and edit the app locally, then publish changes back through Base44.
 
@@ -65,11 +67,13 @@ When you use `base44 dev`, the command injects the local Base44 values for you, 
 ```bash
 npm run lint        # eslint
 npm run typecheck   # tsc (checkJs)
+npm run format:check
 npm test            # vitest (jsdom + Testing Library); `npm run test:watch` for watch mode
+npm run test:e2e     # production-bundle browser tests with synthetic APIs; first run: npx playwright install chromium
 npm run build       # vite build -> ./dist
 ```
 
-Tests live in `src/__tests__/` and use the `@` alias configured in `vitest.config.js`.
+Unit tests live in `src/__tests__/` and use the `@` alias configured in `vitest.config.ts`. Browser tests live in `e2e/` and never use live account credentials.
 
 ## Publish Your Changes
 
@@ -86,7 +90,7 @@ GitHub Actions workflow: `.github/workflows/ci.yml`.
 **On every pull request and push to `main`:**
 
 - `quality` — `npm ci`, `npm run lint`, `npm run typecheck`
-- `test` — `npm test` (vitest)
+- `test` — `npm test` (Vitest), then the Playwright browser suite with synthetic data
 - `build` — `npm run build` with `VITE_BASE44_APP_ID` / `VITE_BASE44_APP_BASE_URL` injected, uploads `dist/` as an artifact
 
 **Only on `main` (push, or a manual `workflow_dispatch` of `main`):**

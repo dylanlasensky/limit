@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { createFoodEntry, validateFoodEntry } from "@/lib/food-entry";
 import { today } from "@/components/limit/data";
 import NativeSelect from "@/components/limit/NativeSelect";
 const units = ["oz", "lb", "cups", "tbsp", "tsp", "servings", "pieces"];
@@ -16,14 +16,16 @@ interface ManualFoodProps {
   onDone: (saved?: boolean) => void;
   entryMethod?: string;
   estimated?: boolean;
+  initialMealType?: string;
 }
 export default function ManualFood({
   onDone,
   entryMethod = "manual",
   estimated = false,
+  initialMealType = "Breakfast",
 }: ManualFoodProps) {
   const [f, setF] = useState<ManualFoodForm>({
-      mealType: "Breakfast",
+      mealType: initialMealType,
       quantity: 1,
       unit: "servings",
       estimated,
@@ -32,30 +34,45 @@ export default function ManualFood({
     [error, setError] = useState(""),
     client = useQueryClient(),
     set = (k: string, v: unknown) => setF((x) => ({ ...x, [k]: v }));
+  const submitting = useRef(false);
   const save = async () => {
+    if (submitting.current) return;
+    try {
+      validateFoodEntry(f);
+    } catch (e: any) {
+      setError(e.message);
+      return;
+    }
+    submitting.current = true;
     const date = today(),
       item = { ...f, date, entryMethod },
       key = ["foodEntries", date],
-      previous = client.getQueryData<any[]>(key) || [],
       optimistic = { ...item, id: `pending-${Date.now()}` };
     setSaving(true);
     setError("");
-    client.setQueryData(key, [...previous, optimistic]);
+    await client.cancelQueries({ queryKey: key });
+    client.setQueryData(key, (old: any[] | undefined) => [...(old || []), optimistic]);
     try {
-      const saved = await base44.entities.FoodEntry.create(item);
+      const saved = await createFoodEntry(item);
       client.setQueryData(key, (old: any[] | undefined) =>
         (old || []).map((x) => (x.id === optimistic.id ? saved : x))
       );
       onDone(true);
+      void client.invalidateQueries({ queryKey: ["recentFoods"] });
     } catch {
-      client.setQueryData(key, previous);
+      client.setQueryData(key, (old: any[] | undefined) =>
+        (old || []).filter((x) => x.id !== optimistic.id)
+      );
       setError("Couldn’t add this food. Check your connection and try again.");
       setSaving(false);
+    } finally {
+      submitting.current = false;
     }
   };
   return (
     <div className="space-y-3">
       <input
+        aria-label="Food name"
         className="h-12 w-full rounded-xl border border-border bg-transparent px-3"
         placeholder={entryMethod === "search" ? "Food name" : "Food name"}
         value={f.foodName || ""}
@@ -77,6 +94,9 @@ export default function ManualFood({
           label="Unit"
         />
       </div>
+      <p className="text-xs text-muted-foreground">
+        Enter nutrition totals for the full portion you ate.
+      </p>
       <NativeSelect
         value={f.mealType}
         onChange={(v) => set("mealType", v)}

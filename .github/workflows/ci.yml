@@ -55,6 +55,21 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Install test browser
+        run: npx playwright install --with-deps chromium
+
+      # Synthetic local fixtures only: no account credentials or live API writes.
+      - name: Browser regression tests
+        run: npm run test:e2e
+
+      - name: Upload browser test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
   build:
     name: Build
     runs-on: ubuntu-latest

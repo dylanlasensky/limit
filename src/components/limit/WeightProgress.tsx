@@ -5,7 +5,7 @@ interface WeightProgressProps {
   current?: number | null;
   average?: number | null;
   goal?: number | null;
-  onLog: (weight: number) => void;
+  onLog: (weight: number) => Promise<void>;
   saving?: boolean;
 }
 export default function WeightProgress({
@@ -17,10 +17,19 @@ export default function WeightProgress({
   saving,
 }: WeightProgressProps) {
   const [value, setValue] = useState("");
-  const submit = () => {
-    if (+value > 0) {
-      onLog(+value);
+  const [error, setError] = useState("");
+  const submit = async () => {
+    if (saving) return;
+    if (!Number.isFinite(+value) || +value <= 0 || +value > 1500) {
+      setError("Enter a weight above 0 and up to 1,500 lb.");
+      return;
+    }
+    setError("");
+    try {
+      await onLog(+value);
       setValue("");
+    } catch {
+      setError("Couldn’t save your weigh-in. Your entry is still here; please retry.");
     }
   };
   return (
@@ -61,6 +70,10 @@ export default function WeightProgress({
       )}
       <div className="mt-4 flex gap-2">
         <input
+          aria-label="Today’s weight in pounds"
+          min="0.1"
+          max="1500"
+          disabled={saving}
           type="number"
           inputMode="decimal"
           value={value}
@@ -76,6 +89,11 @@ export default function WeightProgress({
           LOG
         </button>
       </div>
+      {error && (
+        <p role="alert" className="mt-3 text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </>
   );
 }

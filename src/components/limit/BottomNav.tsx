@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { House, Dumbbell, Apple, TrendingUp, UserRound, type LucideIcon } from "lucide-react";
+import { storageGet, storageSet } from "@/lib/storage";
 const items: Array<[string, string, LucideIcon]> = [
   ["Home", "/home", House],
   ["Workout", "/workout", Dumbbell],
@@ -15,7 +16,8 @@ export default function BottomNav() {
   useEffect(() => {
     const item = items.find(([, root]) => isWithin(location.pathname, root));
     if (item)
-      sessionStorage.setItem(
+      storageSet(
+        "sessionStorage",
         `limit-tab-route:${item[1]}`,
         `${location.pathname}${location.search}${location.hash}`
       );
@@ -24,13 +26,17 @@ export default function BottomNav() {
     if (isWithin(location.pathname, root)) {
       window.scrollTo({ top: 0, behavior: "smooth" });
       navigate(root, { replace: true });
-      sessionStorage.setItem(`limit-tab-route:${root}`, root);
+      storageSet("sessionStorage", `limit-tab-route:${root}`, root);
       return;
     }
-    navigate(sessionStorage.getItem(`limit-tab-route:${root}`) || root);
+    const saved = storageGet("sessionStorage", `limit-tab-route:${root}`);
+    navigate(saved && isWithin(saved.split(/[?#]/)[0], root) ? saved : root);
   };
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md px-3 pb-[max(.55rem,env(safe-area-inset-bottom))]">
+    <nav
+      aria-label="Main navigation"
+      className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md px-3 pb-[max(.55rem,env(safe-area-inset-bottom))]"
+    >
       <div className="limit-surface flex justify-around rounded-[1.4rem] bg-background/85 p-1.5 backdrop-blur-2xl">
         {items.map(([label, root, Icon]) => {
           const active = isWithin(location.pathname, root);
