@@ -1,28 +1,28 @@
-import { Toaster } from "@/components/ui/toaster"
-import { QueryClientProvider } from '@tanstack/react-query'
-import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import PageNotFound from './lib/PageNotFound';
-import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import ScrollToTop from './components/ScrollToTop';
-import { Navigate } from 'react-router-dom';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import Login from '@/pages/Login';
-import Register from '@/pages/Register';
-import ForgotPassword from '@/pages/ForgotPassword';
-import ResetPassword from '@/pages/ResetPassword';
-import Entry from '@/pages/Entry';
-import Onboarding from '@/pages/Onboarding';
-import Home from '@/pages/Home';
-import Workout from '@/pages/Workout';
-import LiveWorkout from '@/pages/LiveWorkout';
-import WorkoutDetail from '@/pages/WorkoutDetail';
-import ImportWorkout from '@/pages/ImportWorkout';
-import Nutrition from '@/pages/Nutrition';
-import Progress from '@/pages/Progress';
-import Profile from '@/pages/Profile';
-import LimitShell from '@/components/limit/LimitShell';
+import { Toaster } from "@/components/ui/toaster";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClientInstance } from "@/lib/query-client";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import PageNotFound from "./lib/PageNotFound";
+import { AuthProvider, useAuth } from "@/lib/AuthContext";
+import UserNotRegisteredError from "@/components/UserNotRegisteredError";
+import ScrollToTop from "./components/ScrollToTop";
+import { Navigate } from "react-router-dom";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
+import Entry from "@/pages/Entry";
+import Onboarding from "@/pages/Onboarding";
+import Home from "@/pages/Home";
+import Workout from "@/pages/Workout";
+import LiveWorkout from "@/pages/LiveWorkout";
+import WorkoutDetail from "@/pages/WorkoutDetail";
+import ImportWorkout from "@/pages/ImportWorkout";
+import Nutrition from "@/pages/Nutrition";
+import Progress from "@/pages/Progress";
+import Profile from "@/pages/Profile";
+import LimitShell from "@/components/limit/LimitShell";
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -39,9 +39,9 @@ const AuthenticatedApp = () => {
 
   // Handle authentication errors
   if (authError) {
-    if (authError.type === 'user_not_registered') {
+    if (authError.type === "user_not_registered") {
       return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
+    } else if (authError.type === "auth_required") {
       // Redirect to login automatically
       navigateToLogin();
       return null;
@@ -75,9 +75,7 @@ const AuthenticatedApp = () => {
   );
 };
 
-
 function App() {
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
@@ -88,7 +86,7 @@ function App() {
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;
