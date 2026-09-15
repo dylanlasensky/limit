@@ -16,12 +16,8 @@ export default function SectionHeading({
   return (
     <header className="mb-4 mt-9 flex items-end justify-between gap-3">
       <div>
-        {label && (
-          <p className="mb-1 text-[10px] font-bold uppercase tracking-[.2em] text-muted-foreground">
-            {label}
-          </p>
-        )}
-        <h2 className="font-heading text-2xl font-black tracking-[-.03em]">{title}</h2>
+        {label && <p className="mb-1 text-xs font-medium text-muted-foreground">{label}</p>}
+        <h2 className="font-heading text-xl font-semibold tracking-[-.025em]">{title}</h2>
       </div>
       {to && (
         <Link

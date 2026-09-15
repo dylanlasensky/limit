@@ -45,8 +45,8 @@ export default function MuscleDetailSheet({
       <DrawerContent className="border-border bg-card text-foreground">
         <div className="mx-auto w-full max-w-md pb-8">
           <DrawerHeader>
-            <DrawerDescription className="limit-kicker">System detail</DrawerDescription>
-            <DrawerTitle className="text-4xl font-black uppercase italic tracking-[-.04em]">
+            <DrawerDescription className="limit-kicker">Your strength, in detail</DrawerDescription>
+            <DrawerTitle className="text-3xl font-semibold tracking-[-.035em]">
               {muscle}
             </DrawerTitle>
           </DrawerHeader>
@@ -55,9 +55,9 @@ export default function MuscleDetailSheet({
               <div className="relative z-10 flex items-end justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                    Current tier
+                    Current level
                   </p>
-                  <b className="mt-1 block text-2xl uppercase text-primary">{data.level}</b>
+                  <b className="mt-1 block text-2xl text-primary">{data.level}</b>
                 </div>
                 <span className="text-4xl font-black tabular-nums">{data.score}</span>
               </div>
@@ -69,7 +69,7 @@ export default function MuscleDetailSheet({
               </div>
               <p className="relative z-10 mt-2 text-xs text-muted-foreground">
                 {data.level === "Elite"
-                  ? "Elite system unlocked"
+                  ? "Your logged performance has reached the elite range"
                   : data.confidence < 45
                     ? "More sessions will sharpen this score"
                     : `${progress}% toward ${Object.keys(next)[Object.keys(next).indexOf(data.level) + 1] || "Elite"}`}

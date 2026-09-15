@@ -12,7 +12,7 @@ export default function MuscleRatingPreview({ rating }: MuscleRatingPreviewProps
   ).length;
   return (
     <Link
-      to="/progress"
+      to="/progress?tab=muscle-rating"
       className="limit-hero group mt-8 block rounded-[2rem] p-5 active:scale-[.985]"
     >
       <div className="relative z-10 grid grid-cols-[1fr_120px] items-center">
@@ -21,13 +21,15 @@ export default function MuscleRatingPreview({ rating }: MuscleRatingPreviewProps
             <Sparkles className="h-3.5 w-3.5" />
             Muscle rating
           </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-[-.035em]">{rating.overallLevel}</h2>
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-.035em]">
+            {rating.hasData ? rating.overallLevel : "Discover your strength"}
+          </h2>
           <p className="mt-1 max-w-[13rem] text-sm leading-relaxed text-muted-foreground">
             {rating.hasData
               ? `${high} muscle groups have reached advanced or elite levels.`
               : "Your strength map grows with each workout you log."}
           </p>
-          <span className="mt-5 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.18em] text-primary">
+          <span className="mt-5 inline-flex min-h-10 items-center gap-1 text-xs font-semibold text-primary">
             View strength map{" "}
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>

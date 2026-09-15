@@ -50,6 +50,7 @@ export default function TrainingPreferences({ profile, onChange }: TrainingPrefe
           <button
             key={x}
             onClick={() => toggle(x)}
+            aria-pressed={profile.equipment?.includes(x) || false}
             className={`min-h-10 rounded-full border px-3 text-xs font-bold ${profile.equipment?.includes(x) ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
           >
             {x}

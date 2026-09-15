@@ -35,10 +35,8 @@ export default function WeightProgress({
   return (
     <>
       <section className="rounded-3xl border border-border bg-card p-5">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-          Current weight
-        </p>
-        <p className="mt-2 text-4xl font-black tabular-nums">
+        <p className="text-sm font-medium text-muted-foreground">Current weight</p>
+        <p className="mt-2 text-4xl font-semibold tracking-tight tabular-nums">
           {current || "—"} <span className="text-sm text-muted-foreground">lb</span>
         </p>
         <p className="mt-2 text-sm text-primary">
@@ -57,9 +55,16 @@ export default function WeightProgress({
                   background: "hsl(var(--card))",
                   border: "1px solid hsl(var(--border))",
                   borderRadius: 12,
+                  color: "hsl(var(--foreground))",
                 }}
               />
-              <Line type="monotone" dataKey="weight" stroke="#2563EB" strokeWidth={3} dot={false} />
+              <Line
+                type="monotone"
+                dataKey="weight"
+                stroke="hsl(var(--primary))"
+                strokeWidth={3}
+                dot={false}
+              />
             </LineChart>
           </ResponsiveContainer>
         </section>
@@ -86,7 +91,7 @@ export default function WeightProgress({
           onClick={submit}
           className="rounded-xl bg-primary px-5 font-bold text-primary-foreground disabled:opacity-40"
         >
-          LOG
+          Log
         </button>
       </div>
       {error && (

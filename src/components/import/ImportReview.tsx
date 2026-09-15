@@ -23,6 +23,7 @@ export default function ImportReview({ flow }: ImportReviewProps) {
           <p className="limit-kicker">Review the work</p>
           <input
             value={flow.draft.name}
+            aria-label="Program name"
             onChange={(e) => flow.setDraft({ ...flow.draft, name: e.target.value })}
             className="mt-2 w-full bg-transparent text-4xl font-bold tracking-[-.035em] outline-none"
           />
@@ -35,7 +36,7 @@ export default function ImportReview({ flow }: ImportReviewProps) {
       </header>
       {uncertain > 0 && (
         <div className="mt-4 flex gap-3 rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4">
-          <ShieldCheck className="h-5 w-5 shrink-0 text-amber-400" />
+          <ShieldCheck className="h-5 w-5 shrink-0 text-amber-700 dark:text-amber-300" />
           <p className="text-xs leading-relaxed">
             <b>{uncertain} matches need review.</b>
             <br />

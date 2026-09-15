@@ -157,7 +157,8 @@ export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProp
             <button
               key={i}
               onClick={() => setDay(i)}
-              className={`min-w-14 rounded-xl px-2 py-3 text-xs font-bold ${day === i ? "bg-zinc-950 text-white dark:bg-blue-600 dark:text-white" : "bg-white dark:bg-zinc-900"}`}
+              aria-pressed={day === i}
+              className={`min-w-14 rounded-xl px-2 py-3 text-xs font-semibold ${day === i ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground"}`}
             >
               {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]}
             </button>
@@ -170,7 +171,7 @@ export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProp
             {profile.calorieTarget ? ` · Your target: ${profile.calorieTarget} cal` : ""}
           </p>
         </div>
-        <p className="mb-4 text-xs text-zinc-500">
+        <p className="mb-4 text-xs leading-relaxed text-muted-foreground">
           Estimated meal ideas filtered by your saved restrictions, not a complete nutrition
           prescription. Check portions, labels, and ingredients.
         </p>
@@ -201,7 +202,7 @@ export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProp
           <button
             onClick={() => void run(saveWeek, "Week saved.")}
             disabled={!week.flat().length}
-            className="h-12 rounded-xl bg-zinc-950 font-bold text-white dark:bg-blue-600 dark:text-white"
+            className="h-12 rounded-xl bg-primary font-semibold text-primary-foreground"
           >
             Save week
           </button>
@@ -214,7 +215,7 @@ export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProp
           </button>
         </div>
         {list.length > 0 && (
-          <section className="mt-4 rounded-2xl bg-white p-4 dark:bg-zinc-900">
+          <section className="limit-surface mt-4 rounded-2xl p-4">
             <h3 className="font-bold">Grocery list</h3>
             {list.map((x, i) => (
               <label key={x.name} className="mt-3 flex gap-3 text-sm">
@@ -225,7 +226,7 @@ export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProp
                     setList((l) => l.map((v, j) => (j === i ? { ...v, checked: !v.checked } : v)))
                   }
                 />
-                <span className={x.checked ? "line-through text-zinc-400" : ""}>
+                <span className={x.checked ? "line-through text-muted-foreground" : ""}>
                   {x.name} × {x.qty}
                 </span>
               </label>

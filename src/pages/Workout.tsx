@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { listExercises } from "@/lib/training/exerciseLibrary";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/lib/AuthContext";
 import SegmentedTabs from "@/components/limit/SegmentedTabs";
 import ScreenState from "@/components/limit/ScreenState";
 import ExerciseLibrary from "@/components/workout/ExerciseLibrary";
@@ -26,13 +27,21 @@ const WEEKDAY_LABELS = [
 
 export default function Workout() {
   const currentDate = useLocalDate();
-  const [tab, setTab] = useState("Schedule");
+  const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab =
+    ({ exercises: "Exercises", history: "History" } as Record<string, string>)[
+      searchParams.get("tab") || ""
+    ] || "Schedule";
+  const setTab = (value: string) =>
+    setSearchParams(value === "Schedule" ? {} : { tab: value.toLowerCase() }, { replace: true });
   const nav = useNavigate();
   const planQuery = useActivePlan();
   const exQuery = useQuery({
     queryKey: ["exercises"],
     queryFn: () => listExercises(),
     staleTime: 60000,
+    refetchOnWindowFocus: true,
   });
   const weQuery = useQuery({
     queryKey: ["workoutExercises", planQuery.data?.plan?.id],
@@ -54,6 +63,12 @@ export default function Workout() {
     queryKey: ["activeSession"],
     queryFn: () => base44.entities.WorkoutSession.filter({ status: "active" }, "-created_date"),
     staleTime: 15000,
+  });
+  const recentSetsQuery = useQuery({
+    queryKey: ["libraryRecentSets", user?.id],
+    enabled: tab === "Exercises" && !!user?.id,
+    queryFn: () => base44.entities.ExerciseSet.filter({ completed: true }, "-timestamp", 300),
+    staleTime: 30000,
   });
 
   const { plan, days = [] } = planQuery.data || {};
@@ -98,8 +113,12 @@ export default function Workout() {
       activeQuery.refetch(),
       weQuery.refetch(),
       exQuery.refetch(),
+      ...(tab === "Exercises" ? [recentSetsQuery.refetch()] : []),
     ]);
-  if (planQuery.error || weQuery.error || historyQuery.error || activeQuery.error) {
+  if (
+    tab !== "Exercises" &&
+    (planQuery.error || weQuery.error || historyQuery.error || activeQuery.error)
+  ) {
     return (
       <ScreenState
         title="Couldn’t load your workouts"
@@ -112,7 +131,13 @@ export default function Workout() {
   return (
     <PullToRefresh onRefresh={refresh}>
       <div>
-        <header className="limit-hero flex items-end justify-between rounded-[2rem] p-5">
+        <header
+          className={
+            tab === "Exercises"
+              ? "flex items-end justify-between px-1 pb-1 pt-3"
+              : "limit-hero flex items-end justify-between rounded-[2rem] p-5"
+          }
+        >
           <div className="relative z-10">
             <p className="limit-kicker">Move with purpose</p>
             <h1 className="limit-page-title">Workout</h1>
@@ -152,7 +177,7 @@ export default function Workout() {
                 onClick={() => nav("/onboarding")}
                 className="limit-button mt-5 h-12 rounded-xl px-6 font-bold"
               >
-                BUILD MY LIMIT PLAN
+                Build my plan
               </button>
               <button
                 onClick={() => nav("/workout/import")}
@@ -237,6 +262,11 @@ export default function Workout() {
             loading={exQuery.isLoading}
             error={!!exQuery.error}
             onRetry={() => void exQuery.refetch()}
+            userId={user?.id || "guest"}
+            recentSets={recentSetsQuery.data || []}
+            recentLoading={recentSetsQuery.isLoading}
+            recentError={!!recentSetsQuery.error}
+            onRetryRecent={() => void recentSetsQuery.refetch()}
           />
         )}
 

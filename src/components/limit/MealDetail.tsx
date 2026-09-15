@@ -1,5 +1,5 @@
 import React from "react";
-import { X } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import type { PlannedMeal } from "@/components/limit/data";
 interface MealDetailProps {
   meal?: PlannedMeal | null;
@@ -8,16 +8,13 @@ interface MealDetailProps {
 export default function MealDetail({ meal, onClose }: MealDetailProps) {
   if (!meal) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/40">
-      <section className="mx-auto max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-[2rem] bg-white p-5 dark:bg-zinc-900">
-        <button onClick={onClose} className="float-right p-2">
-          <X />
-        </button>
-        <p className="text-xs font-bold uppercase text-lime-600">{meal.mealType} · estimate</p>
-        <h2 className="mt-2 text-2xl font-black">{meal.name}</h2>
-        <p className="mt-2 text-sm text-zinc-500">
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="block max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-lg overflow-y-auto rounded-3xl border-border bg-card p-5 text-foreground sm:rounded-3xl">
+        <p className="pr-8 text-xs font-medium text-primary">{meal.mealType} · estimate</p>
+        <DialogTitle className="mt-2 pr-6 text-2xl font-semibold">{meal.name}</DialogTitle>
+        <DialogDescription className="mt-2 text-sm text-muted-foreground">
           {meal.servingSize} · {meal.prepMinutes} min
-        </p>
+        </DialogDescription>
         <div className="my-5 grid grid-cols-4 gap-2 text-center">
           {(
             [
@@ -27,30 +24,30 @@ export default function MealDetail({ meal, onClose }: MealDetailProps) {
               ["Fat", meal.fat + "g"],
             ] as Array<[string, React.ReactNode]>
           ).map((x) => (
-            <div className="rounded-xl bg-zinc-100 p-2 dark:bg-zinc-800">
+            <div key={x[0]} className="rounded-xl bg-secondary p-2">
               <b>{x[1]}</b>
-              <p className="text-[10px] text-zinc-500">{x[0]}</p>
+              <p className="text-[10px] text-muted-foreground">{x[0]}</p>
             </div>
           ))}
         </div>
         <h3 className="font-bold">Ingredients</h3>
         {meal.ingredients?.map((x) => (
-          <p className="mt-2 flex justify-between text-sm">
+          <p key={x.name} className="mt-2 flex justify-between gap-4 text-sm">
             <span>{x.name}</span>
-            <span className="text-zinc-500">{x.quantity}</span>
+            <span className="text-right text-muted-foreground">{x.quantity}</span>
           </p>
         ))}
         <h3 className="mt-6 font-bold">Simple method</h3>
         {meal.instructions?.map((x, i) => (
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+          <p key={i} className="mt-2 text-sm leading-relaxed text-muted-foreground">
             {i + 1}. {x}
           </p>
         ))}
-        <p className="mt-6 rounded-xl bg-amber-50 p-3 text-xs text-amber-900">
+        <p className="mt-6 rounded-xl border border-border bg-secondary p-3 text-xs leading-relaxed text-muted-foreground">
           Designed around saved restrictions. Always verify labels and cross-contact information for
           serious allergies.
         </p>
-      </section>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

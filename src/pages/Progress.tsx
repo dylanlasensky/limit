@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { format, parseISO, subDays } from "date-fns";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { listExercises } from "@/lib/training/exerciseLibrary";
@@ -10,16 +12,27 @@ import SegmentedTabs from "@/components/limit/SegmentedTabs";
 import ScreenState from "@/components/limit/ScreenState";
 import PullToRefresh from "@/components/limit/PullToRefresh";
 import { profileWeightLb } from "@/components/limit/nutritionTargets";
+import useLocalDate from "@/hooks/use-local-date";
+import WeeklyActivity from "@/components/limit/WeeklyActivity";
+import NativeSelect from "@/components/limit/NativeSelect";
 
 const ranges: Record<string, number> = { 1: 30, 3: 90, 6: 180, 12: 365, ALL: Infinity };
-const localDate = () => {
-  const date = new Date();
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+const tabs: Record<string, string> = {
+  overview: "Overview",
+  "muscle-rating": "Muscle Rating",
+  strength: "Strength",
+  weight: "Weight",
 };
 
 export default function Progress() {
-  const [tab, setTab] = useState("Muscle Rating");
+  const [params, setParams] = useSearchParams();
+  const tab = tabs[params.get("tab") || "overview"] || "Overview";
+  const setTab = (value: string) =>
+    setParams({ tab: Object.keys(tabs).find((key) => tabs[key] === value) || "overview" });
   const [range, setRange] = useState<string>("3");
+  const [strengthExercise, setStrengthExercise] = useState("");
+  const date = useLocalDate();
+  const navigate = useNavigate();
   const client = useQueryClient();
   const query = useQuery({
     queryKey: ["progressData"],
@@ -38,7 +51,7 @@ export default function Progress() {
   });
   const addWeight = useMutation({
     mutationFn: (weight: number) =>
-      base44.entities.WeightEntry.create({ date: localDate(), weight, unit: "lb" }),
+      base44.entities.WeightEntry.create({ date, weight, unit: "lb" }),
     onSuccess: () => {
       for (const key of ["progressData", "weightEntries", "muscleRatingData"])
         void client.invalidateQueries({ queryKey: [key] });
@@ -59,7 +72,7 @@ export default function Progress() {
   const cutoff =
     ranges[range] === Infinity
       ? "0000-00-00"
-      : new Date(Date.now() - ranges[range] * 86400000).toISOString().slice(0, 10);
+      : format(subDays(parseISO(date), ranges[range]), "yyyy-MM-dd");
   const sessions = data.sessions.filter((item: any) => item.date >= cutoff);
   const records = data.records.filter((item: any) => item.date >= cutoff);
   const sets = data.sets.filter((item: any) =>
@@ -75,36 +88,49 @@ export default function Progress() {
   const rating = calculateMuscleRating({ ...(data as any), profile: data.profile });
   const current =
     weights.at(-1)?.weight || Math.round(profileWeightLb(data.profile) * 10) / 10 || null;
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-  const cutoffDay = `${sevenDaysAgo.getFullYear()}-${String(sevenDaysAgo.getMonth() + 1).padStart(2, "0")}-${String(sevenDaysAgo.getDate()).padStart(2, "0")}`;
-  const recentWeights = weights.filter(
-    (item) => item.date >= cutoffDay && item.date <= localDate()
-  );
+  const cutoffDay = format(subDays(parseISO(date), 6), "yyyy-MM-dd");
+  const recentWeights = weights.filter((item) => item.date >= cutoffDay && item.date <= date);
   const average = recentWeights.length
     ? recentWeights.reduce((sum, item) => sum + item.weight, 0) / recentWeights.length
     : 0;
+  const exerciseNames = [
+    ...new Set(records.map((record: any) => String(record.exerciseName || "Unnamed exercise"))),
+  ].sort();
+  const selectedExercise = exerciseNames.includes(strengthExercise) ? strengthExercise : "";
+  const strengthRecords = selectedExercise
+    ? records.filter((record: any) => record.exerciseName === selectedExercise)
+    : records;
 
   return (
     <PullToRefresh onRefresh={() => query.refetch()}>
       <div>
-        <header className="limit-hero rounded-[2rem] p-5">
+        <header className="px-1 pb-1 pt-3">
           <div className="relative z-10">
             <p className="limit-kicker">Your progress, over time</p>
             <h1 className="limit-page-title">Progress</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Proof of the work, signal by signal.
+              See your consistency, celebrate your progress.
             </p>
           </div>
         </header>
-        <div className="no-scrollbar mt-5 flex gap-2 overflow-x-auto">
+        <div
+          className="no-scrollbar mt-5 flex gap-2 overflow-x-auto"
+          role="group"
+          aria-label="Progress date range"
+        >
           {Object.keys(ranges).map((option) => (
             <button
               key={option}
               onClick={() => setRange(option)}
+              aria-pressed={range === option}
+              aria-label={
+                option === "ALL"
+                  ? "All time"
+                  : `Last ${option} ${option === "1" ? "month" : "months"}`
+              }
               className={`min-h-10 min-w-12 rounded-full px-3 text-xs font-bold ${range === option ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}
             >
-              {option === "ALL" ? "ALL" : `${option}M`}
+              {option === "ALL" ? "All time" : `${option} mo`}
             </button>
           ))}
         </div>
@@ -117,17 +143,24 @@ export default function Progress() {
 
         {tab === "Overview" && (
           <>
+            <div className="mb-4">
+              <WeeklyActivity
+                sessions={data.sessions}
+                date={date}
+                goal={data.profile.trainingDays?.length}
+              />
+            </div>
             {sessions.length ? (
               <ProgressOverview sessions={sessions} records={records} sets={sets} />
             ) : (
               <ScreenState
                 title="Your progress starts with one workout"
                 description="Complete your first session and LIMIT will begin tracking consistency, volume, strength, and records."
+                action="Find your next workout"
+                onAction={() => navigate("/workout")}
               />
             )}
-            <h2 className="mb-3 mt-7 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Recent records
-            </h2>
+            <h2 className="mb-3 mt-7 text-lg font-semibold tracking-tight">Recent records</h2>
             {records.length ? (
               records.slice(0, 5).map((record: any) => (
                 <div
@@ -145,7 +178,7 @@ export default function Progress() {
               ))
             ) : (
               <p className="rounded-2xl border border-dashed border-border p-5 text-sm text-muted-foreground">
-                PRs appear after completed working sets beat your previous best.
+                Your personal bests will appear here as you build your training history.
               </p>
             )}
           </>
@@ -155,8 +188,28 @@ export default function Progress() {
         )}
         {tab === "Strength" &&
           (records.length ? (
-            <div className="space-y-2">
-              {records.map((record: any) => (
+            <div className="space-y-3">
+              <div className="limit-surface rounded-2xl p-4">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Explore your exercise history
+                  <NativeSelect
+                    className="mt-2"
+                    value={selectedExercise}
+                    onChange={setStrengthExercise}
+                    label="Strength exercise"
+                    options={[
+                      { value: "", label: "All exercises" },
+                      ...exerciseNames.map((name) => ({ value: name, label: name })),
+                    ]}
+                  />
+                </label>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {strengthRecords.length} personal{" "}
+                  {strengthRecords.length === 1 ? "best" : "bests"} in this date range. Estimated
+                  maximums are calculated from logged sets, not a max-lift test.
+                </p>
+              </div>
+              {strengthRecords.map((record: any) => (
                 <div key={record.id} className="rounded-2xl border border-border bg-card p-4">
                   <b>{record.exerciseName}</b>
                   <p className="mt-1 text-sm text-muted-foreground">
@@ -169,7 +222,9 @@ export default function Progress() {
           ) : (
             <ScreenState
               title="No strength trend yet"
-              description="Complete working sets in Live Workout. LIMIT uses valid logged lifts—not random estimates—to build this view."
+              description="Log your working sets to build a picture of how your strength changes over time."
+              action="Go to workouts"
+              onAction={() => navigate("/workout")}
             />
           ))}
         {tab === "Weight" && (

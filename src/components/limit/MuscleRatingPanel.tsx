@@ -31,9 +31,11 @@ export default function MuscleRatingPanel({ rating, snapshots = [] }: MuscleRati
             <Zap className="h-3.5 w-3.5" />
             Strength profile
           </p>
-          <h2 className="mt-2 text-4xl font-bold tracking-[-.035em]">{rating.overallLevel}</h2>
+          <h2 className="mt-2 text-3xl font-semibold tracking-[-.035em]">
+            {rating.hasData ? rating.overallLevel : "Getting started"}
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Strength profile · Score{" "}
+            Training-based estimate · Score{" "}
             <span className="font-bold text-foreground">{rating.overallScore}</span>
           </p>
         </div>
@@ -41,13 +43,13 @@ export default function MuscleRatingPanel({ rating, snapshots = [] }: MuscleRati
           <Database className="ml-auto h-3.5 w-3.5 text-primary" />
           <b className="mt-1 block text-lg tabular-nums">{snapshots.length}</b>
           <p className="text-[8px] font-bold uppercase tracking-widest text-muted-foreground">
-            signals
+            check-ins
           </p>
         </div>
       </div>
       {!rating.hasData && (
         <div className="relative z-10 mt-5 border-l-2 border-primary pl-4">
-          <b className="text-sm">Your profile is calibrating</b>
+          <b className="text-sm">Built from your own training</b>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
             Log your workouts to see how your strength develops across muscle groups.
           </p>
@@ -56,15 +58,17 @@ export default function MuscleRatingPanel({ rating, snapshots = [] }: MuscleRati
       <div className="relative z-10 mt-5 flex rounded-xl bg-background/60 p-1">
         <button
           onClick={() => setView("front")}
-          className={`h-10 flex-1 rounded-lg text-[10px] font-black tracking-[.2em] transition-all ${view === "front" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground"}`}
+          aria-pressed={view === "front"}
+          className={`h-10 flex-1 rounded-lg text-xs font-semibold transition-all ${view === "front" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
         >
-          FRONT
+          Front
         </button>
         <button
           onClick={() => setView("back")}
-          className={`h-10 flex-1 rounded-lg text-[10px] font-black tracking-[.2em] transition-all ${view === "back" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground"}`}
+          aria-pressed={view === "back"}
+          className={`h-10 flex-1 rounded-lg text-xs font-semibold transition-all ${view === "back" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
         >
-          BACK
+          Back
         </button>
       </div>
       <div className="limit-grid relative z-10 mt-3 overflow-hidden rounded-[1.75rem] border border-border/50 bg-background/50">

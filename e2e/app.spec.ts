@@ -4,7 +4,13 @@ import { exerciseCatalog } from "../base44/shared/exerciseCatalog.js";
 type Row = Record<string, any>;
 async function mockApp(
   page: Page,
-  { signedIn = true, failFood = false, expandedLibrary = false, failExercises = false } = {}
+  {
+    signedIn = true,
+    failFood = false,
+    expandedLibrary = false,
+    failExercises = false,
+    legacyLibrary = false,
+  } = {}
 ) {
   const control = { failExercises };
   const today = new Date().toLocaleDateString("en-CA");
@@ -68,6 +74,10 @@ async function mockApp(
   const writes: Row[] = [];
   if (expandedLibrary)
     entities.Exercise.push(...exerciseCatalog.map((row) => ({ ...row, id: row.catalogKey })));
+  if (legacyLibrary)
+    entities.Exercise = exerciseCatalog
+      .slice(0, 18)
+      .map((row, i) => ({ ...row, id: "legacy-" + i }));
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.route("**/*", async (route) => {
@@ -137,13 +147,19 @@ async function mockApp(
           );
         const query = JSON.parse(url.searchParams.get("q") || "{}");
         return reply(
-          rows.filter((row) =>
-            Object.entries(query).every(([key, value]) =>
-              value && typeof value === "object" && "$in" in value
-                ? (value.$in as any[]).includes(row[key])
-                : row[key] === value
+          rows
+            .filter((row) =>
+              Object.entries(query).every(([key, value]) =>
+                value && typeof value === "object" && "$in" in value
+                  ? (value.$in as any[]).includes(row[key])
+                  : row[key] === value
+              )
             )
-          )
+            .slice(
+              Number(url.searchParams.get("skip") || 0),
+              Number(url.searchParams.get("skip") || 0) +
+                Number(url.searchParams.get("limit") || rows.length)
+            )
         );
       }
       if (request.method() === "POST") {
@@ -158,7 +174,7 @@ async function mockApp(
     }
     return reply({ error: "Unmocked API request: " + url.pathname }, 500);
   });
-  return { writes, errors, control };
+  return { writes, errors, control, entities };
 }
 
 test("expanded exercise library searches aliases, filters power and shows technique notes", async ({
@@ -179,7 +195,7 @@ test("expanded exercise library searches aliases, filters power and shows techni
   await page
     .getByRole("combobox", { name: "Training focus", exact: true })
     .selectOption("Athletic power");
-  await expect(page.getByText("39 exercises found", { exact: true })).toBeVisible();
+  await expect(page.getByText("39 results · 365 total", { exact: true })).toBeVisible();
   await page.getByRole("textbox", { name: "Search exercises", exact: true }).fill("Power Clean");
   await page.getByRole("button", { name: /^Power Clean Quads/ }).click();
   await expect(page.getByRole("dialog").getByText(/Coaching recommended\./)).toBeVisible();
@@ -199,16 +215,93 @@ test("expanded exercise library searches aliases, filters power and shows techni
   expect(errors).toEqual([]);
 });
 
-test("exercise library failure is visible and retry recovers", async ({ page }) => {
+test("exercise library failure keeps all references visible and retry reconnects saved rows", async ({
+  page,
+}) => {
   const { control, errors } = await mockApp(page, { failExercises: true });
   await page.goto("/workout");
   await page.getByRole("tab", { name: "Exercises", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "Couldn’t load the exercise library" })
-  ).toBeVisible({ timeout: 15000 });
+  await expect(page.getByText("365 total exercises", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Saved exercise data couldn’t load/)).toBeVisible({ timeout: 15000 });
   control.failExercises = false;
-  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await page.getByRole("button", { name: "Retry saved exercises", exact: true }).click();
+  await page.getByRole("textbox", { name: "Search exercises", exact: true }).fill("Bench Press");
   await expect(page.getByRole("button", { name: /^Bench Press Chest/ })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("18 saved exercises still expose the entire catalog with persistent favorites", async ({
+  page,
+}) => {
+  const { writes, errors } = await mockApp(page, { legacyLibrary: true });
+  await page.goto("/workout?tab=exercises");
+  await expect(page.getByText("365 total exercises", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Show all 365 results", exact: true }).click();
+  await expect(page.getByTestId("exercise-row")).toHaveCount(365);
+  await expect(page.getByText("365 results · 365 total", { exact: true })).toBeVisible();
+  await page.getByRole("textbox", { name: "Search exercises", exact: true }).fill("Zottman Curl");
+  await page.getByRole("button", { name: "Favorite Zottman Curl", exact: true }).click();
+  await page.reload();
+  await page.getByRole("button", { name: /^Favorites · 1$/ }).click();
+  await expect(page.getByRole("button", { name: /^Zottman Curl Biceps/ })).toBeVisible();
+  await page.getByRole("button", { name: /^Zottman Curl Biceps/ }).click();
+  await expect(page.getByRole("dialog").getByText(/Reference preview/)).toBeVisible();
+  await page.getByRole("button", { name: "Done", exact: true }).click();
+  await noOverflow(page);
+  expect(writes).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test("light and dark controls work on every main screen without horizontal overflow", async ({
+  page,
+}, testInfo) => {
+  const { errors } = await mockApp(page, { expandedLibrary: true });
+  for (const mode of ["light", "dark"]) {
+    await page.goto("/home");
+    await page
+      .getByRole("button", { name: mode === "light" ? "Light mode" : "Dark mode", exact: true })
+      .click();
+    for (const path of ["/home", "/workout?tab=exercises", "/nutrition", "/progress", "/profile"]) {
+      await page.goto(path);
+      await expect(page.locator("html")).toHaveClass(new RegExp(mode));
+      await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
+      await noOverflow(page);
+      if (testInfo.project.name === "phone")
+        await page.screenshot({
+          path: testInfo.outputPath(mode + "-" + path.split("?")[0].slice(1) + ".png"),
+          fullPage: false,
+        });
+    }
+  }
+  expect(errors).toEqual([]);
+});
+
+test("legacy muscles and duplicate saved IDs stay discoverable in recent exercise history", async ({
+  page,
+}) => {
+  const { entities, errors } = await mockApp(page, { expandedLibrary: true });
+  const bench = exerciseCatalog.find((row) => row.name === "Barbell Bench Press")!;
+  const lat = exerciseCatalog.find((row) => row.name === "Lat Pulldown")!;
+  entities.Exercise.unshift({
+    ...lat,
+    id: "old-lat",
+    catalogKey: undefined,
+    primaryMuscle: "Back",
+  });
+  entities.ExerciseSet = [
+    { id: "one", exerciseId: bench.catalogKey, completed: true, timestamp: "2026-09-14T11:00:00Z" },
+    { id: "two", exerciseId: lat.catalogKey, completed: true, timestamp: "2026-09-14T12:00:00Z" },
+  ];
+  await page.goto("/workout?tab=exercises");
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await page.getByRole("textbox", { name: "Search exercises", exact: true }).fill("Lat Pulldown");
+  await expect(page.getByRole("button", { name: /^Lat Pulldown Back/ })).toBeVisible();
+  await page.getByRole("button", { name: "Clear filters", exact: true }).click();
+  await page.getByRole("button", { name: "Recent", exact: true }).click();
+  await expect(page.getByTestId("exercise-row")).toHaveCount(2);
+  await expect(page.getByTestId("exercise-row").first()).toContainText("Lat Pulldown");
+  await page.getByRole("combobox", { name: "Sort", exact: true }).selectOption("name");
+  await expect(page.getByTestId("exercise-row").first()).toContainText("Bench Press");
   expect(errors).toEqual([]);
 });
 

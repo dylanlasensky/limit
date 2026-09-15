@@ -17,9 +17,9 @@ export default function HomeWorkout({
 }: HomeWorkoutProps) {
   return (
     <div>
-      <div className="flex items-center gap-2 text-blue-500">
+      <div className="flex items-center gap-2 text-primary">
         <Dumbbell className="h-4 w-4" />
-        <span className="text-xs font-bold uppercase tracking-widest">Training</span>
+        <span className="text-xs font-semibold">Today’s training</span>
       </div>
       <div className="-mt-3">
         <TodayWorkoutHero
