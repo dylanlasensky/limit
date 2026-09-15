@@ -96,6 +96,11 @@
   html {
     scroll-padding-bottom: 7rem;
   }
+  @media (min-width: 1024px) {
+    html {
+      scroll-padding-bottom: 2rem;
+    }
+  }
   body {
     @apply bg-background text-foreground font-body antialiased;
     margin: 0;

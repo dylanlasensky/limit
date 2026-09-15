@@ -11,11 +11,11 @@ export default function LimitShell() {
     location = useLocation();
   const reducedMotion = useReducedMotion();
   return (
-    <div className="limit-app-shell min-h-screen text-foreground">
+    <div className="limit-app-shell min-h-screen text-foreground lg:pl-60">
       <a href="#main-content" className="limit-skip-link">
         Skip to content
       </a>
-      <header className="mx-auto flex max-w-xl items-center justify-between gap-3 px-4 pb-5 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 sm:pb-7 sm:pt-6">
+      <header className="mx-auto flex max-w-xl items-center justify-between gap-3 px-4 pb-5 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 sm:pb-7 sm:pt-6 md:max-w-3xl lg:fixed lg:left-0 lg:top-0 lg:z-40 lg:h-36 lg:w-60 lg:flex-col lg:items-start lg:justify-start lg:gap-4 lg:border-r lg:bg-card lg:px-6">
         <Link
           to="/home"
           aria-label="LIMIT home"
@@ -28,7 +28,7 @@ export default function LimitShell() {
       <main
         id="main-content"
         tabIndex={-1}
-        className="mx-auto min-h-[calc(100dvh-6rem)] max-w-xl overflow-x-clip px-4 pb-32 outline-none sm:px-6"
+        className="mx-auto min-h-[calc(100dvh-6rem)] max-w-xl overflow-x-clip px-4 pb-32 outline-none sm:px-6 md:max-w-3xl lg:max-w-7xl lg:px-8 lg:pb-24 lg:pt-6"
       >
         <motion.div
           key={location.pathname}
