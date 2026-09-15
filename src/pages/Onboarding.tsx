@@ -1,3 +1,4 @@
+import LimitLogo from "@/components/limit/LimitLogo";
 import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import useSystemTheme from "@/hooks/use-system-theme";
@@ -174,7 +175,7 @@ export default function Onboarding() {
       className={`${dark ? "dark" : ""} limit-grid relative mx-auto min-h-screen max-w-md overflow-hidden bg-background px-5 pb-8 pt-[max(2rem,env(safe-area-inset-top))] text-foreground`}
     >
       <div className="flex items-center justify-between">
-        <b className="text-xl font-black italic tracking-[.24em]">LIMIT</b>
+        <LimitLogo />
         <span className="rounded-full border border-border/70 bg-card/80 px-3 py-1.5 text-[10px] font-black tabular-nums text-muted-foreground">
           {String(step + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}
         </span>

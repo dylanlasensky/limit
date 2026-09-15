@@ -1,3 +1,4 @@
+import LimitLogo from "@/components/limit/LimitLogo";
 import React from "react";
 
 const UserNotRegisteredError = () => {
@@ -5,6 +6,7 @@ const UserNotRegisteredError = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-white to-slate-50">
       <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-lg border border-slate-100">
         <div className="text-center">
+          <LimitLogo className="mb-6" />
           <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-orange-100">
             <svg
               className="w-8 h-8 text-orange-600"

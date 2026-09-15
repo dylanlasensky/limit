@@ -259,22 +259,6 @@
   .limit-theme-switch button:hover {
     @apply text-foreground;
   }
-  .limit-brand-mark {
-    @apply flex h-8 w-8 items-end justify-center gap-[3px] rounded-[10px] border border-primary/20 bg-primary/10 pb-[8px];
-  }
-  .limit-brand-mark i {
-    @apply block w-[3px] rounded-full bg-primary;
-    transform: skew(-10deg);
-  }
-  .limit-brand-mark i:nth-child(1) {
-    height: 7px;
-  }
-  .limit-brand-mark i:nth-child(2) {
-    height: 11px;
-  }
-  .limit-brand-mark i:nth-child(3) {
-    height: 15px;
-  }
   .limit-skip-link {
     @apply fixed left-4 top-4 z-[100] -translate-y-24 rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground;
   }

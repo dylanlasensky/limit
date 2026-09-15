@@ -1,3 +1,4 @@
+import LimitLogo from "@/components/limit/LimitLogo";
 import React from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
@@ -20,12 +21,7 @@ export default function LimitShell() {
           aria-label="LIMIT home"
           className="flex min-h-11 items-center gap-2.5 rounded-lg"
         >
-          <span className="limit-brand-mark" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </span>
-          <span className="font-heading text-base font-extrabold tracking-[.18em]">LIMIT</span>
+          <LimitLogo />
         </Link>
         <ThemeToggle dark={dark} />
       </header>

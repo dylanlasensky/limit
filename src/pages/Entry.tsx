@@ -1,3 +1,4 @@
+import BrandLoading from "@/components/limit/BrandLoading";
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
@@ -8,11 +9,6 @@ export default function Entry() {
       setDone(Boolean(x[0]?.onboardingComplete))
     );
   }, []);
-  if (done === null)
-    return (
-      <div className="fixed inset-0 grid place-items-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
-      </div>
-    );
+  if (done === null) return <BrandLoading />;
   return <Navigate to={done ? "/home" : "/onboarding"} replace />;
 }

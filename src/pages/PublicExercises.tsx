@@ -1,3 +1,4 @@
+import LimitLogo from "@/components/limit/LimitLogo";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import ExerciseLibrary from "@/components/workout/ExerciseLibrary";
@@ -12,7 +13,7 @@ export default function PublicExercises() {
           className="flex min-h-11 items-center gap-2 text-sm font-semibold text-primary"
         >
           <ArrowLeft aria-hidden className="h-4 w-4" />
-          LIMIT
+          <LimitLogo size="sm" />
         </Link>
         <Link
           to="/register"
