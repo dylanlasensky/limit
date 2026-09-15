@@ -4,6 +4,9 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Base44 can regenerate .jsx auth scaffolding after a repository sync.
+  // Always resolve our maintained TypeScript implementation first.
+  resolve: { extensions: [".mjs", ".ts", ".tsx", ".js", ".jsx", ".json"] },
   plugins: [
     base44({
       // Support for legacy code that imports the base44 SDK with @/integrations, @/entities, etc.
