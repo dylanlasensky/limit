@@ -37,7 +37,7 @@ export default function RecoveryPanel({
   });
   const sleepDays = days.filter((day) => day.metrics.sleep_duration);
   return (
-    <div className="space-y-4">
+    <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
       <section className="limit-surface rounded-3xl p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -117,7 +117,7 @@ export default function RecoveryPanel({
           )}
         </section>
       )}
-      <p className="flex items-start gap-2 rounded-2xl border border-border bg-secondary/40 p-4 text-xs leading-relaxed text-muted-foreground">
+      <p className="flex items-start gap-2 rounded-2xl border border-border bg-secondary/40 p-4 text-xs leading-relaxed text-muted-foreground lg:col-span-2">
         <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
         Wearable measurements and readiness scores are wellness estimates. LIMIT preserves their
         source and does not use them to diagnose a condition.

@@ -214,165 +214,171 @@ export default function Nutrition() {
             onAction={() => void foodsQuery.refetch()}
           />
         ) : tab === "Diary" ? (
-          <>
-            {p.calorieTarget ? (
-              <section className="limit-surface relative mb-4 overflow-hidden rounded-[2rem] p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {date === today ? "Today’s energy" : "Energy logged"}
-                    </p>
-                    <p className="mt-2 text-4xl font-semibold tracking-[-.04em] tabular-nums">
-                      {Math.round(m.calories).toLocaleString()}
-                      <span className="ml-2 text-sm font-normal tracking-normal text-muted-foreground">
-                        cal
-                      </span>
-                    </p>
+          <div className="lg:grid lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:items-start lg:gap-6">
+            <div className="min-w-0">
+              {p.calorieTarget ? (
+                <section className="limit-surface relative mb-4 overflow-hidden rounded-[2rem] p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {date === today ? "Today’s energy" : "Energy logged"}
+                      </p>
+                      <p className="mt-2 text-4xl font-semibold tracking-[-.04em] tabular-nums">
+                        {Math.round(m.calories).toLocaleString()}
+                        <span className="ml-2 text-sm font-normal tracking-normal text-muted-foreground">
+                          cal
+                        </span>
+                      </p>
+                    </div>
+                    <div className="rounded-2xl bg-primary/10 px-3.5 py-3 text-right">
+                      <p className="text-xl font-semibold tabular-nums text-primary">
+                        {Math.abs(Math.round(remaining)).toLocaleString()}
+                      </p>
+                      <p className="mt-1 text-[10px] text-muted-foreground">
+                        {remaining < 0 ? "above target" : "remaining"}
+                      </p>
+                    </div>
                   </div>
-                  <div className="rounded-2xl bg-primary/10 px-3.5 py-3 text-right">
-                    <p className="text-xl font-semibold tabular-nums text-primary">
-                      {Math.abs(Math.round(remaining)).toLocaleString()}
-                    </p>
-                    <p className="mt-1 text-[10px] text-muted-foreground">
-                      {remaining < 0 ? "above target" : "remaining"}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  role="progressbar"
-                  aria-label="Daily calorie target"
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={Math.min(
-                    100,
-                    Math.max(0, Math.round((m.calories / p.calorieTarget) * 100))
-                  )}
-                  aria-valuetext={`${Math.round(m.calories)} of ${p.calorieTarget} calories`}
-                  className="mt-5 h-2 overflow-hidden rounded-full bg-secondary"
-                >
                   <div
-                    className="h-full rounded-full bg-primary transition-all"
-                    style={{ width: `${Math.min(100, (m.calories / p.calorieTarget) * 100)}%` }}
-                  />
-                </div>
-                <div className="mt-2 flex justify-between gap-2 text-xs text-muted-foreground">
-                  <span>
-                    {foods.length} food {foods.length === 1 ? "entry" : "entries"}
-                  </span>
-                  <span>{p.calorieTarget.toLocaleString()} cal target</span>
-                </div>
-                <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-                  {p.targetExplanation ||
-                    "An estimated starting target based on your profile and goal. Manual overrides remain yours."}
-                </p>
-              </section>
-            ) : (
-              <ScreenState
-                title="Set your nutrition target"
-                description={
-                  p.targetExplanation ||
-                  "Add your body metrics and date of birth in Profile for an adult nutrition estimate. You can log food without a target."
-                }
-                action="Set nutrition targets"
-                onAction={() => navigate("/profile#nutrition")}
-              />
-            )}
-            <div className="grid grid-cols-3 gap-2">
-              {(
-                [
-                  ["Protein", m.protein, p.proteinTarget],
-                  ["Carbs", m.carbs, p.carbTarget],
-                  ["Fat", m.fat, p.fatTarget],
-                ] as [string, number, number | undefined][]
-              ).map(([label, value, goal]) => (
-                <MacroCard key={label} label={label} value={value} goal={goal || 0} />
-              ))}
-            </div>
-            <div className="mb-2 mt-7 flex items-end justify-between">
-              <h2 className="text-lg font-semibold tracking-tight">Your food diary</h2>
-              <span className="text-xs text-muted-foreground">
-                {date === today ? "Today" : format(parseISO(date), "MMM d")}
-              </span>
-            </div>
-            {meals.map((type) => {
-              const items = foods.filter((x) => x.mealType === type);
-              const totals = sumMacros(items);
-              return (
-                <section key={type} className="limit-surface mt-3 rounded-3xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="grid h-9 w-9 place-items-center rounded-xl bg-secondary text-primary">
-                        <Utensils className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-semibold">{type}</h3>
-                        <p className="mt-0.5 text-xs text-muted-foreground">
-                          {items.length
-                            ? `${Math.round(totals.calories)} cal · ${Math.round(totals.protein)} g protein`
-                            : "Ready when you are"}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={(event) => openAdd(event.currentTarget, type)}
-                      aria-label={`Add ${type}`}
-                      className="grid h-10 w-10 place-items-center rounded-xl bg-secondary text-primary"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </button>
+                    role="progressbar"
+                    aria-label="Daily calorie target"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={Math.min(
+                      100,
+                      Math.max(0, Math.round((m.calories / p.calorieTarget) * 100))
+                    )}
+                    aria-valuetext={`${Math.round(m.calories)} of ${p.calorieTarget} calories`}
+                    className="mt-5 h-2 overflow-hidden rounded-full bg-secondary"
+                  >
+                    <div
+                      className="h-full rounded-full bg-primary transition-all"
+                      style={{ width: `${Math.min(100, (m.calories / p.calorieTarget) * 100)}%` }}
+                    />
                   </div>
-                  {items.length ? (
-                    <div className="mt-2 divide-y divide-border">
-                      {items.map((x) => (
-                        <button
-                          key={x.id}
-                          onClick={(event) => {
-                            if (editingInFlight.current || openOverlay.current !== null) return;
-                            setEditOpener(captureOpener(event.currentTarget));
-                            setEditing({ ...x, editorGeneration: ++editorGeneration.current });
-                          }}
-                          disabled={String(x.id).startsWith("pending-")}
-                          aria-label={`Edit ${x.foodName}`}
-                          className="flex min-h-16 w-full items-center justify-between gap-3 rounded-lg py-3 text-left text-sm transition-colors hover:bg-secondary/50 disabled:opacity-50"
-                        >
-                          <div className="min-w-0">
-                            <p className="break-words font-medium">{x.foodName}</p>
-                            <p className="mt-1 text-[11px] text-muted-foreground">
-                              {x.quantity ? `${x.quantity} ${x.unit || "serving(s)"} · ` : ""}
-                              {Math.round(x.protein || 0)} g protein
-                            </p>
-                            {x.estimated && (
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                Estimated
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex shrink-0 items-center gap-2">
-                            <b className="tabular-nums">{Math.round(x.calories || 0)} cal</b>
-                            <Pencil
-                              className="h-3.5 w-3.5 text-muted-foreground"
-                              aria-hidden="true"
-                            />
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="mt-3 text-xs text-muted-foreground">
-                      Tap + to add a food or reuse something you’ve logged.
-                    </p>
-                  )}
+                  <div className="mt-2 flex justify-between gap-2 text-xs text-muted-foreground">
+                    <span>
+                      {foods.length} food {foods.length === 1 ? "entry" : "entries"}
+                    </span>
+                    <span>{p.calorieTarget.toLocaleString()} cal target</span>
+                  </div>
+                  <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+                    {p.targetExplanation ||
+                      "An estimated starting target based on your profile and goal. Manual overrides remain yours."}
+                  </p>
                 </section>
-              );
-            })}
-            <button
-              onClick={(event) => openAdd(event.currentTarget)}
-              className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary font-bold text-primary-foreground"
-            >
-              <Plus />
-              Add food
-            </button>
-          </>
+              ) : (
+                <ScreenState
+                  title="Set your nutrition target"
+                  description={
+                    p.targetExplanation ||
+                    "Add your body metrics and date of birth in Profile for an adult nutrition estimate. You can log food without a target."
+                  }
+                  action="Set nutrition targets"
+                  onAction={() => navigate("/profile#nutrition")}
+                />
+              )}
+              <div className="grid grid-cols-3 gap-2">
+                {(
+                  [
+                    ["Protein", m.protein, p.proteinTarget],
+                    ["Carbs", m.carbs, p.carbTarget],
+                    ["Fat", m.fat, p.fatTarget],
+                  ] as [string, number, number | undefined][]
+                ).map(([label, value, goal]) => (
+                  <MacroCard key={label} label={label} value={value} goal={goal || 0} />
+                ))}
+              </div>
+            </div>
+            <div className="min-w-0">
+              <div className="mb-2 mt-7 flex items-end justify-between lg:mt-0">
+                <h2 className="text-lg font-semibold tracking-tight">Your food diary</h2>
+                <span className="text-xs text-muted-foreground">
+                  {date === today ? "Today" : format(parseISO(date), "MMM d")}
+                </span>
+              </div>
+              <div className="grid gap-3 pt-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                {meals.map((type) => {
+                  const items = foods.filter((x) => x.mealType === type);
+                  const totals = sumMacros(items);
+                  return (
+                    <section key={type} className="limit-surface min-w-0 rounded-3xl p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="grid h-9 w-9 place-items-center rounded-xl bg-secondary text-primary">
+                            <Utensils className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-semibold">{type}</h3>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                              {items.length
+                                ? `${Math.round(totals.calories)} cal · ${Math.round(totals.protein)} g protein`
+                                : "Ready when you are"}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={(event) => openAdd(event.currentTarget, type)}
+                          aria-label={`Add ${type}`}
+                          className="grid h-10 w-10 place-items-center rounded-xl bg-secondary text-primary"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </button>
+                      </div>
+                      {items.length ? (
+                        <div className="mt-2 divide-y divide-border">
+                          {items.map((x) => (
+                            <button
+                              key={x.id}
+                              onClick={(event) => {
+                                if (editingInFlight.current || openOverlay.current !== null) return;
+                                setEditOpener(captureOpener(event.currentTarget));
+                                setEditing({ ...x, editorGeneration: ++editorGeneration.current });
+                              }}
+                              disabled={String(x.id).startsWith("pending-")}
+                              aria-label={`Edit ${x.foodName}`}
+                              className="flex min-h-16 w-full items-center justify-between gap-3 rounded-lg py-3 text-left text-sm transition-colors hover:bg-secondary/50 disabled:opacity-50"
+                            >
+                              <div className="min-w-0">
+                                <p className="break-words font-medium">{x.foodName}</p>
+                                <p className="mt-1 text-[11px] text-muted-foreground">
+                                  {x.quantity ? `${x.quantity} ${x.unit || "serving(s)"} · ` : ""}
+                                  {Math.round(x.protein || 0)} g protein
+                                </p>
+                                {x.estimated && (
+                                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                    Estimated
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex shrink-0 items-center gap-2">
+                                <b className="tabular-nums">{Math.round(x.calories || 0)} cal</b>
+                                <Pencil
+                                  className="h-3.5 w-3.5 text-muted-foreground"
+                                  aria-hidden="true"
+                                />
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="mt-3 text-xs text-muted-foreground">
+                          Tap + to add a food or reuse something you’ve logged.
+                        </p>
+                      )}
+                    </section>
+                  );
+                })}
+              </div>
+              <button
+                onClick={(event) => openAdd(event.currentTarget)}
+                className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary font-bold text-primary-foreground"
+              >
+                <Plus />
+                Add food
+              </button>
+            </div>
+          </div>
         ) : (
           <>
             <p className="mb-4 rounded-xl border border-border bg-secondary/40 p-3 text-xs leading-relaxed text-muted-foreground">

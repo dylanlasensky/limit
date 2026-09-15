@@ -38,89 +38,95 @@ export default function ImportSource({ meta, setMeta, onBegin, busy, error }: Im
           </p>
         </div>
       </header>
-      <div className="mt-5 grid grid-cols-3 gap-2">
-        {methods.map(([value, Icon, label, hint]) => (
-          <button
-            key={value}
-            disabled={busy}
-            onClick={() => setType(value)}
-            className={`min-h-28 rounded-2xl p-3 text-left ${type === value ? "limit-chip-active" : "limit-chip"}`}
-          >
-            <Icon className="h-5 w-5" />
-            <b className="mt-3 block text-xs">{label}</b>
-            <span className="mt-1 block text-[9px] leading-tight text-muted-foreground">
-              {hint}
-            </span>
-          </button>
-        ))}
-      </div>
-      {type === "pasted_text" && (
-        <textarea
-          value={text}
-          aria-label="Workout program text"
-          maxLength={50000}
-          disabled={busy}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={
-            "Paste a coach note, program, or table…\n\nMonday — Lower\nBack squat 4 × 5, rest 3 min"
-          }
-          className="limit-surface mt-4 min-h-52 w-full rounded-3xl p-4 text-sm leading-relaxed outline-none focus:border-primary/50"
-        />
-      )}
-      {type === "uploaded_file" && (
-        <label className="limit-grid limit-surface mt-4 flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-3xl p-6 text-center">
-          <FileUp className="h-8 w-8 text-primary" />
-          <b className="mt-4">{file?.name || "Choose regimen file"}</b>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Screenshot, photo, PDF, TXT, CSV, XLS, or XLSX
-          </p>
-          <input
-            type="file"
-            accept="image/*,.pdf,.txt,.csv,.xls,.xlsx"
-            disabled={busy}
-            onChange={(e) => setFile(e.target.files?.[0])}
-            className="sr-only"
-          />
-        </label>
-      )}
-      <div className="mt-5">
-        <AthleteContext meta={meta} onChange={setMeta} />
-      </div>
-      {type !== "manual" && (
-        <div className="mt-5">
-          <AiConsent
-            checked={consent}
-            onChange={setConsent}
-            disabled={busy}
-            purpose="read your workout program"
-            dataDescription="the program text or file you choose"
-          />
+      <div className="lg:mt-6 lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:items-start lg:gap-6">
+        <div className="min-w-0">
+          <div className="mt-5 grid grid-cols-3 gap-2 lg:mt-0">
+            {methods.map(([value, Icon, label, hint]) => (
+              <button
+                key={value}
+                disabled={busy}
+                onClick={() => setType(value)}
+                className={`min-h-28 rounded-2xl p-3 text-left ${type === value ? "limit-chip-active" : "limit-chip"}`}
+              >
+                <Icon className="h-5 w-5" />
+                <b className="mt-3 block text-xs">{label}</b>
+                <span className="mt-1 block text-[9px] leading-tight text-muted-foreground">
+                  {hint}
+                </span>
+              </button>
+            ))}
+          </div>
+          {type === "pasted_text" && (
+            <textarea
+              value={text}
+              aria-label="Workout program text"
+              maxLength={50000}
+              disabled={busy}
+              onChange={(e) => setText(e.target.value)}
+              placeholder={
+                "Paste a coach note, program, or table…\n\nMonday — Lower\nBack squat 4 × 5, rest 3 min"
+              }
+              className="limit-surface mt-4 min-h-52 w-full rounded-3xl lg:min-h-96 p-4 text-sm leading-relaxed outline-none focus:border-primary/50"
+            />
+          )}
+          {type === "uploaded_file" && (
+            <label className="limit-grid limit-surface mt-4 flex min-h-52 lg:min-h-96 cursor-pointer flex-col items-center justify-center rounded-3xl p-6 text-center">
+              <FileUp className="h-8 w-8 text-primary" />
+              <b className="mt-4">{file?.name || "Choose regimen file"}</b>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Screenshot, photo, PDF, TXT, CSV, XLS, or XLSX
+              </p>
+              <input
+                type="file"
+                accept="image/*,.pdf,.txt,.csv,.xls,.xlsx"
+                disabled={busy}
+                onChange={(e) => setFile(e.target.files?.[0])}
+                className="sr-only"
+              />
+            </label>
+          )}
         </div>
-      )}
-      {error && (
-        <p className="mt-4 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm">
-          {error}
-        </p>
-      )}
-      <button
-        disabled={
-          busy ||
-          (type !== "manual" && !consent) ||
-          (type === "pasted_text" && !text.trim()) ||
-          (type === "uploaded_file" && !file)
-        }
-        onClick={() =>
-          onBegin({
-            type,
-            ...(type === "pasted_text" ? { text } : type === "uploaded_file" ? { file } : {}),
-            ...(type !== "manual" && consent ? { aiConsent: AI_CONSENT_VERSION } : {}),
-          })
-        }
-        className="limit-button mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-black disabled:opacity-40"
-      >
-        {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
-        {type === "manual" ? "BUILD MY SPLIT" : "PARSE REGIMEN"}
-      </button>
+        <div className="min-w-0">
+          <div className="mt-5 lg:mt-0">
+            <AthleteContext meta={meta} onChange={setMeta} />
+          </div>
+          {type !== "manual" && (
+            <div className="mt-5">
+              <AiConsent
+                checked={consent}
+                onChange={setConsent}
+                disabled={busy}
+                purpose="read your workout program"
+                dataDescription="the program text or file you choose"
+              />
+            </div>
+          )}
+          {error && (
+            <p className="mt-4 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm">
+              {error}
+            </p>
+          )}
+          <button
+            disabled={
+              busy ||
+              (type !== "manual" && !consent) ||
+              (type === "pasted_text" && !text.trim()) ||
+              (type === "uploaded_file" && !file)
+            }
+            onClick={() =>
+              onBegin({
+                type,
+                ...(type === "pasted_text" ? { text } : type === "uploaded_file" ? { file } : {}),
+                ...(type !== "manual" && consent ? { aiConsent: AI_CONSENT_VERSION } : {}),
+              })
+            }
+            className="limit-button mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-black disabled:opacity-40"
+          >
+            {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
+            {type === "manual" ? "BUILD MY SPLIT" : "PARSE REGIMEN"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

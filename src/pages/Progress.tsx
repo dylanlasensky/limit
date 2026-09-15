@@ -211,7 +211,7 @@ export default function Progress() {
           label="Health sections"
         />
         <div
-          className="mb-5 flex items-center justify-between gap-2"
+          className="mb-5 flex items-center justify-between gap-2 md:max-w-md"
           role="group"
           aria-label="Health day navigation"
         >
@@ -393,27 +393,31 @@ export default function Progress() {
           ) : body.error ? (
             <ScreenState title="Couldn’t load body history" onAction={() => body.refetch()} />
           ) : (
-            <div className="space-y-4">
-              <BodyCompositionPanel
-                date={date}
-                rows={health.data || []}
-                latestWeight={weights.at(-1) || null}
-                onSaved={() => void refresh()}
-              />
-              {isMetricVisible("weight") && (
-                <WeightProgress
-                  weights={weights.filter((row) => row.date >= cutoff)}
-                  current={weights.at(-1)?.weight || null}
-                  average={
-                    recent.length
-                      ? recent.reduce((sum, row) => sum + row.weight, 0) / recent.length
-                      : null
-                  }
-                  goal={body.data?.profile.goalWeight}
-                  showLog={false}
-                  onLog={async () => {}}
+            <div className="grid gap-4 lg:grid-cols-2 lg:items-start lg:gap-6">
+              <div className="min-w-0">
+                <BodyCompositionPanel
+                  date={date}
+                  rows={health.data || []}
+                  latestWeight={weights.at(-1) || null}
+                  onSaved={() => void refresh()}
                 />
-              )}
+              </div>
+              <div className="min-w-0">
+                {isMetricVisible("weight") && (
+                  <WeightProgress
+                    weights={weights.filter((row) => row.date >= cutoff)}
+                    current={weights.at(-1)?.weight || null}
+                    average={
+                      recent.length
+                        ? recent.reduce((sum, row) => sum + row.weight, 0) / recent.length
+                        : null
+                    }
+                    goal={body.data?.profile.goalWeight}
+                    showLog={false}
+                    onLog={async () => {}}
+                  />
+                )}
+              </div>
               {body.data?.truncated && (
                 <p className="text-xs text-muted-foreground">
                   The most recent 5,000 manual weigh-ins are included.

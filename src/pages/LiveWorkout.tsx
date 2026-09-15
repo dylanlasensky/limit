@@ -130,8 +130,8 @@ export default function LiveWorkout() {
     }
   };
   return (
-    <main className="mx-auto min-h-screen max-w-md bg-background px-4 pb-36 pt-[max(1rem,env(safe-area-inset-top))] text-foreground">
-      <header className="sticky top-0 z-30 -mx-4 flex items-center justify-between gap-3 border-b border-border/60 bg-background/85 px-4 py-3 shadow-[0_14px_35px_hsl(var(--background)/.8)] backdrop-blur-2xl">
+    <main className="mx-auto min-h-screen max-w-md md:max-w-3xl lg:max-w-6xl bg-background px-4 md:px-6 pb-36 pt-[max(1rem,env(safe-area-inset-top))] text-foreground">
+      <header className="sticky top-0 z-30 -mx-4 flex items-center justify-between gap-3 border-b border-border/60 bg-background/85 px-4 py-3 shadow-[0_14px_35px_hsl(var(--background)/.8)] backdrop-blur-2xl md:-mx-6 md:px-6">
         <div className="flex min-w-0 items-center gap-2">
           <button
             disabled={finishing || discarding}
@@ -194,7 +194,10 @@ export default function LiveWorkout() {
           )}
         </div>
       )}
-      <fieldset disabled={finishing || discarding} className="min-w-0">
+      <fieldset
+        disabled={finishing || discarding}
+        className="min-w-0 lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-6"
+      >
         {live.workoutExercises.map((we) => (
           <ExerciseCard
             key={we.id}

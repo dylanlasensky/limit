@@ -141,7 +141,7 @@ export default function ProfileBasics({ profile, onChange }: ProfileBasicsProps)
         <p className="mt-1 text-xs text-muted-foreground">
           Choose 2–6 days. Rebuild your program below to apply the schedule.
         </p>
-        <div className="mt-2 grid grid-cols-4 gap-2">
+        <div className="mt-2 grid grid-cols-4 gap-2 md:grid-cols-7">
           {WEEKDAYS.map((day) => (
             <button
               type="button"

@@ -59,8 +59,11 @@ export default function WorkoutHistory({
       </section>
     );
   return (
-    <section aria-label="Workout history">
-      <div className="limit-surface rounded-3xl p-5">
+    <section
+      aria-label="Workout history"
+      className="lg:grid lg:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)] lg:items-start lg:gap-6"
+    >
+      <div className="limit-surface rounded-3xl p-5 lg:sticky lg:top-6">
         <p className="limit-kicker">Every session counts</p>
         <h2 className="mt-2 text-2xl font-semibold tracking-tight">Your training journal</h2>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -109,89 +112,95 @@ export default function WorkoutHistory({
             : ". You’ve reached the beginning of your history."}
         </p>
       </div>
-      {!rows.length && (
-        <div className="mt-4 rounded-2xl border border-dashed border-border p-6 text-center">
-          <h3 className="font-semibold">No matching workouts {hasMore ? "loaded yet" : "found"}</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {hasMore
-              ? "Try another name or load older sessions below."
-              : "Try another name or a wider date range."}
-          </p>
-          <button
-            onClick={() => {
-              setSearch("");
-              setRange("all");
-            }}
-            className="mt-3 min-h-11 px-4 text-sm font-semibold text-primary"
-          >
-            Clear history filters
-          </button>
-        </div>
-      )}
-      {groups.map((group) => (
-        <section key={group.label} className="mt-6">
-          <h3 className="mb-3 px-1 text-sm font-semibold text-muted-foreground">{group.label}</h3>
-          <div className="space-y-3">
-            {group.sessions.map((session) => {
-              const date = sessionDate(session.date);
-              return (
-                <Link
-                  key={session.id}
-                  data-testid="history-workout"
-                  to={`/workout/history/${session.id}`}
-                  className="limit-surface flex min-h-24 items-center gap-3 rounded-2xl p-4 transition-colors hover:border-primary/40 active:bg-secondary"
-                >
-                  <div
-                    className="grid w-12 shrink-0 place-items-center rounded-xl bg-secondary py-2 text-primary"
-                    aria-hidden
-                  >
-                    <span className="text-[10px] font-semibold uppercase">
-                      {date ? format(parseISO(date), "EEE") : "—"}
-                    </span>
-                    <span className="text-xl font-semibold tabular-nums">
-                      {date ? format(parseISO(date), "d") : "—"}
-                    </span>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h4 className="break-words font-semibold">{session.name || "Workout"}</h4>
-                    <p className="mt-1 flex flex-wrap gap-x-2 text-xs tabular-nums text-muted-foreground">
-                      <span>{Math.round(session.durationMinutes || 0)} min</span>
-                      <span>·</span>
-                      <span>{session.setCount || 0} sets</span>
-                      <span>·</span>
-                      <span>{Math.round(session.totalVolume || 0).toLocaleString()} lb volume</span>
-                    </p>
-                    {!!session.prCount && (
-                      <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-primary">
-                        <Trophy aria-hidden className="h-3.5 w-3.5" />
-                        {session.prCount} personal {session.prCount === 1 ? "best" : "bests"}
-                      </p>
-                    )}
-                  </div>
-                  <ChevronRight aria-hidden className="h-4 w-4 shrink-0 text-muted-foreground" />
-                </Link>
-              );
-            })}
+      <div className="min-w-0 lg:[&>section:first-child]:mt-0">
+        {!rows.length && (
+          <div className="mt-4 rounded-2xl border border-dashed border-border p-6 text-center">
+            <h3 className="font-semibold">
+              No matching workouts {hasMore ? "loaded yet" : "found"}
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {hasMore
+                ? "Try another name or load older sessions below."
+                : "Try another name or a wider date range."}
+            </p>
+            <button
+              onClick={() => {
+                setSearch("");
+                setRange("all");
+              }}
+              className="mt-3 min-h-11 px-4 text-sm font-semibold text-primary"
+            >
+              Clear history filters
+            </button>
           </div>
-        </section>
-      ))}
-      {error && (
-        <div role="alert" className="mt-4 rounded-2xl border border-destructive/30 p-4 text-sm">
-          Couldn’t load more history. The sessions above are still available.
-          <button onClick={onRetry} className="mt-2 block min-h-11 font-semibold text-primary">
-            Retry history
+        )}
+        {groups.map((group) => (
+          <section key={group.label} className="mt-6">
+            <h3 className="mb-3 px-1 text-sm font-semibold text-muted-foreground">{group.label}</h3>
+            <div className="space-y-3">
+              {group.sessions.map((session) => {
+                const date = sessionDate(session.date);
+                return (
+                  <Link
+                    key={session.id}
+                    data-testid="history-workout"
+                    to={`/workout/history/${session.id}`}
+                    className="limit-surface flex min-h-24 items-center gap-3 rounded-2xl p-4 transition-colors hover:border-primary/40 active:bg-secondary"
+                  >
+                    <div
+                      className="grid w-12 shrink-0 place-items-center rounded-xl bg-secondary py-2 text-primary"
+                      aria-hidden
+                    >
+                      <span className="text-[10px] font-semibold uppercase">
+                        {date ? format(parseISO(date), "EEE") : "—"}
+                      </span>
+                      <span className="text-xl font-semibold tabular-nums">
+                        {date ? format(parseISO(date), "d") : "—"}
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="break-words font-semibold">{session.name || "Workout"}</h4>
+                      <p className="mt-1 flex flex-wrap gap-x-2 text-xs tabular-nums text-muted-foreground">
+                        <span>{Math.round(session.durationMinutes || 0)} min</span>
+                        <span>·</span>
+                        <span>{session.setCount || 0} sets</span>
+                        <span>·</span>
+                        <span>
+                          {Math.round(session.totalVolume || 0).toLocaleString()} lb volume
+                        </span>
+                      </p>
+                      {!!session.prCount && (
+                        <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-primary">
+                          <Trophy aria-hidden className="h-3.5 w-3.5" />
+                          {session.prCount} personal {session.prCount === 1 ? "best" : "bests"}
+                        </p>
+                      )}
+                    </div>
+                    <ChevronRight aria-hidden className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+        {error && (
+          <div role="alert" className="mt-4 rounded-2xl border border-destructive/30 p-4 text-sm">
+            Couldn’t load more history. The sessions above are still available.
+            <button onClick={onRetry} className="mt-2 block min-h-11 font-semibold text-primary">
+              Retry history
+            </button>
+          </div>
+        )}
+        {hasMore && (
+          <button
+            onClick={onLoadMore}
+            disabled={loadingMore}
+            className="mt-5 min-h-12 w-full rounded-xl border border-border bg-card font-semibold disabled:opacity-50"
+          >
+            {loadingMore ? "Loading older workouts…" : "Load older workouts"}
           </button>
-        </div>
-      )}
-      {hasMore && (
-        <button
-          onClick={onLoadMore}
-          disabled={loadingMore}
-          className="mt-5 min-h-12 w-full rounded-xl border border-border bg-card font-semibold disabled:opacity-50"
-        >
-          {loadingMore ? "Loading older workouts…" : "Load older workouts"}
-        </button>
-      )}
+        )}
+      </div>
     </section>
   );
 }

@@ -21,6 +21,14 @@ import ScreenState from "@/components/limit/ScreenState";
 import ConnectedHealthPanel from "@/components/health/ConnectedHealthPanel";
 import ProfileSettingsSection from "@/components/limit/ProfileSettingsSection";
 const sectionIds = ["appearance", "connections", "basics", "training", "nutrition", "account"];
+const sectionLabels: Record<string, string> = {
+  appearance: "Appearance",
+  connections: "Connected health",
+  basics: "About you",
+  training: "Training",
+  nutrition: "Nutrition",
+  account: "Account",
+};
 const nutritionInputs = [
   "birthDate",
   "sex",
@@ -211,18 +219,33 @@ export default function Profile() {
     onToggle: () => setActiveSection((current) => (current === id ? "" : id)),
   });
   return (
-    <div>
-      <header className="px-1 pb-1 pt-3">
-        <div className="relative z-10">
-          <p className="limit-kicker">Made for you</p>
-          <h1 className="limit-page-title">Profile</h1>
-          <p className="mt-2 break-words text-sm text-muted-foreground">{user?.email}</p>
-        </div>
-      </header>
-      <p className="mt-4 px-1 text-sm text-muted-foreground">
-        Open a section to make it yours. Your edits stay here as you switch sections.
-      </p>
-      <div className={`mt-4 space-y-3 ${dirty || saving ? "mb-28" : ""}`}>
+    <div className="lg:grid lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:items-start lg:gap-x-8">
+      <div className="lg:sticky lg:top-6">
+        <header className="px-1 pb-1 pt-3">
+          <div className="relative z-10">
+            <p className="limit-kicker">Made for you</p>
+            <h1 className="limit-page-title">Profile</h1>
+            <p className="mt-2 break-words text-sm text-muted-foreground">{user?.email}</p>
+          </div>
+        </header>
+        <p className="mt-4 px-1 text-sm text-muted-foreground">
+          Open a section to make it yours. Your edits stay here as you switch sections.
+        </p>
+        <nav aria-label="Profile sections" className="mt-6 hidden space-y-1 lg:block">
+          {sectionIds.map((id) => (
+            <a
+              key={id}
+              href={`#${id}`}
+              onClick={() => setActiveSection(id)}
+              aria-current={activeSection === id ? "location" : undefined}
+              className={`flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold transition-colors ${activeSection === id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+            >
+              {sectionLabels[id]}
+            </a>
+          ))}
+        </nav>
+      </div>
+      <div className={`mt-4 min-w-0 space-y-3 lg:mt-3 ${dirty || saving ? "mb-28 lg:mb-8" : ""}`}>
         <ProfileSettingsSection
           {...section("appearance")}
           title="Appearance"
@@ -380,7 +403,7 @@ export default function Profile() {
         </ProfileSettingsSection>
       </div>
       <div
-        className={`mt-5 rounded-2xl border border-border bg-card p-3 shadow-lg ${dirty || saving ? "sticky bottom-24 z-30 mr-16" : ""}`}
+        className={`mt-5 rounded-2xl border border-border bg-card p-3 shadow-lg lg:col-start-2 ${dirty || saving ? "sticky bottom-24 z-30 mr-16 lg:bottom-6" : ""}`}
       >
         {(error || message) && (
           <p

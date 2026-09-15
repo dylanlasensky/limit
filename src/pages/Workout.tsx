@@ -197,97 +197,104 @@ export default function Workout() {
               </button>
             </section>
           ) : (
-            <>
-              <WeekStrip
-                days={days}
-                completedWeekdays={completedWeekdays}
-                onPreview={setPreviewDay}
-              />
-              <TodayWorkoutHero
-                day={activeDay || nextDay}
-                exercises={(weQuery.data || []).filter(
-                  (x: any) => x.workoutDayId === (activeDay?.id || today?.id)
-                )}
-                activeSession={activeSession}
-                completedSession={activeDay ? null : completedToday}
-                onPreview={() => setPreviewDay(activeDay || today || null)}
-              />
-              {activeSession && activeSession.workoutDayId !== today?.id && (
-                <p className="mt-3 rounded-xl border border-accent/40 bg-accent/10 p-3 text-xs text-accent">
-                  You have a workout in progress from another day. Resume it from its schedule row
-                  or it will stay open.
-                </p>
-              )}
-              <p className="mb-2 mt-7 text-xs font-black tracking-[.16em] text-muted-foreground">
-                {plan.name.toUpperCase()} · {plan.daysPerWeek} DAYS
-              </p>
-              {plan.description && (
-                <details className="mb-4 rounded-2xl border border-border bg-card px-4 py-3">
-                  <summary className="cursor-pointer py-1 text-sm font-semibold">
-                    About your plan
-                  </summary>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {plan.description}
+            <div className="lg:grid lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)] lg:items-start lg:gap-6">
+              <div className="min-w-0 lg:sticky lg:top-6">
+                <WeekStrip
+                  days={days}
+                  completedWeekdays={completedWeekdays}
+                  onPreview={setPreviewDay}
+                />
+                <TodayWorkoutHero
+                  day={activeDay || nextDay}
+                  exercises={(weQuery.data || []).filter(
+                    (x: any) => x.workoutDayId === (activeDay?.id || today?.id)
+                  )}
+                  activeSession={activeSession}
+                  completedSession={activeDay ? null : completedToday}
+                  onPreview={() => setPreviewDay(activeDay || today || null)}
+                />
+                {activeSession && activeSession.workoutDayId !== today?.id && (
+                  <p className="mt-3 rounded-xl border border-accent/40 bg-accent/10 p-3 text-xs text-accent">
+                    You have a workout in progress from another day. Resume it from its schedule row
+                    or it will stay open.
                   </p>
-                </details>
-              )}
-              <div className="space-y-2">
-                {days.map((d: any) => (
-                  <div
-                    key={d.id}
-                    className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 transition-all ${d.weekday === weekday ? "border-primary/40 bg-primary/[.07] shadow-[inset_3px_0_0_hsl(var(--primary))]" : "border-border/50 bg-card/60"}`}
-                  >
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                        {WEEKDAY_LABELS[d.weekday]}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <b className={d.isRest ? "text-muted-foreground" : ""}>{d.name}</b>
-                        {d.coachMandated && (
-                          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[8px] font-black tracking-wider text-primary">
-                            COACH
-                          </span>
-                        )}
-                        {d.fixedSchedule && (
-                          <span className="rounded-full bg-secondary px-2 py-0.5 text-[8px] font-black tracking-wider text-muted-foreground">
-                            FIXED
-                          </span>
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="mb-2 mt-7 lg:mt-0 text-xs font-black tracking-[.16em] text-muted-foreground">
+                  {plan.name.toUpperCase()} · {plan.daysPerWeek} DAYS
+                </p>
+                {plan.description && (
+                  <details className="mb-4 rounded-2xl border border-border bg-card px-4 py-3">
+                    <summary className="cursor-pointer py-1 text-sm font-semibold">
+                      About your plan
+                    </summary>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {plan.description}
+                    </p>
+                  </details>
+                )}
+                <div className="space-y-2">
+                  {days.map((d: any) => (
+                    <div
+                      key={d.id}
+                      className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 transition-all ${d.weekday === weekday ? "border-primary/40 bg-primary/[.07] shadow-[inset_3px_0_0_hsl(var(--primary))]" : "border-border/50 bg-card/60"}`}
+                    >
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                          {WEEKDAY_LABELS[d.weekday]}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <b className={d.isRest ? "text-muted-foreground" : ""}>{d.name}</b>
+                          {d.coachMandated && (
+                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[8px] font-black tracking-wider text-primary">
+                              COACH
+                            </span>
+                          )}
+                          {d.fixedSchedule && (
+                            <span className="rounded-full bg-secondary px-2 py-0.5 text-[8px] font-black tracking-wider text-muted-foreground">
+                              FIXED
+                            </span>
+                          )}
+                        </div>
+                        {!d.isRest && (
+                          <p className="text-xs text-muted-foreground">
+                            {
+                              (weQuery.data || []).filter((x: any) => x.workoutDayId === d.id)
+                                .length
+                            }{" "}
+                            exercises
+                          </p>
                         )}
                       </div>
-                      {!d.isRest && (
-                        <p className="text-xs text-muted-foreground">
-                          {(weQuery.data || []).filter((x: any) => x.workoutDayId === d.id).length}{" "}
-                          exercises
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setPreviewDay(d)}
-                        aria-label={`Preview ${WEEKDAY_LABELS[d.weekday]} ${d.name}`}
-                        className="min-h-11 rounded-xl border border-border px-3 text-xs font-semibold text-muted-foreground"
-                      >
-                        Preview
-                      </button>
-                      {!d.isRest && (
+                      <div className="flex items-center gap-2">
                         <button
-                          onClick={() => nav(`/live-workout/${d.id}`)}
-                          className={`rounded-xl px-4 py-2.5 text-sm font-bold ${activeSession?.workoutDayId === d.id ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
+                          onClick={() => setPreviewDay(d)}
+                          aria-label={`Preview ${WEEKDAY_LABELS[d.weekday]} ${d.name}`}
+                          className="min-h-11 rounded-xl border border-border px-3 text-xs font-semibold text-muted-foreground"
                         >
-                          {activeSession?.workoutDayId === d.id ? "Resume" : "Start"}
+                          Preview
                         </button>
-                      )}
+                        {!d.isRest && (
+                          <button
+                            onClick={() => nav(`/live-workout/${d.id}`)}
+                            className={`rounded-xl px-4 py-2.5 text-sm font-bold ${activeSession?.workoutDayId === d.id ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
+                          >
+                            {activeSession?.workoutDayId === d.id ? "Resume" : "Start"}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                <PlanOptions
+                  plan={plan}
+                  onGenerate={() => nav("/profile")}
+                  onImport={() => nav("/workout/import")}
+                  onEdit={() => nav(`/workout/import?plan=${plan.id}`)}
+                />
               </div>
-              <PlanOptions
-                plan={plan}
-                onGenerate={() => nav("/profile")}
-                onImport={() => nav("/workout/import")}
-                onEdit={() => nav(`/workout/import?plan=${plan.id}`)}
-              />
-            </>
+            </div>
           ))}
 
         {tab === "Exercises" && (

@@ -14,7 +14,7 @@ const destinations = {
 export default function PublicInfo({ kind }: { kind: InfoKind }) {
   const destination = destinations[kind];
   return (
-    <main className="mx-auto min-h-dvh max-w-xl px-5 pb-10 pt-[max(1rem,env(safe-area-inset-top))] text-foreground">
+    <main className="mx-auto min-h-dvh max-w-xl px-5 pb-10 md:max-w-3xl md:px-8 lg:max-w-5xl pt-[max(1rem,env(safe-area-inset-top))] text-foreground">
       <Link
         to="/"
         className="mb-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary"
@@ -52,7 +52,7 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
           App Store release remains blocked until this is completed.
         </p>
       )}
-      <div className="mt-6 space-y-6 text-sm leading-relaxed text-muted-foreground">
+      <div className="mt-6 space-y-6 text-sm leading-relaxed text-muted-foreground lg:grid lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0">
         {kind === "privacy" && (
           <>
             <InfoSection title="What you choose to record">

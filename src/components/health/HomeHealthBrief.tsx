@@ -49,7 +49,7 @@ export default function HomeHealthBrief({
       </Link>
     );
   return (
-    <section className="mt-5 space-y-3" aria-labelledby="daily-brief-title">
+    <section className="mt-5 space-y-3 lg:mt-0" aria-labelledby="daily-brief-title">
       <div className="limit-surface rounded-3xl p-5">
         <div className="flex items-start justify-between gap-4">
           <div>

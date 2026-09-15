@@ -50,7 +50,7 @@ export default function ExerciseCard({
       : suggestProgression(previousSets, workoutExercise.repMin, workoutExercise.repMax);
   return (
     <section
-      className={`limit-surface mt-5 rounded-[2rem] p-5 transition-opacity ${workoutExercise.skipped ? "opacity-55" : ""}`}
+      className={`limit-surface mt-5 min-w-0 rounded-[2rem] p-5 transition-opacity ${workoutExercise.skipped ? "opacity-55" : ""}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -106,7 +106,7 @@ export default function ExerciseCard({
           <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3">
             {previousSets.length > 0 && (
               <p className="py-2 text-xs text-muted-foreground">
-                Tap a previous set to copy its weight and reps.
+                Select a previous set to copy its weight and reps.
               </p>
             )}
             {usesPlates && (

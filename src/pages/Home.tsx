@@ -146,66 +146,74 @@ export default function Home() {
             )}
           </div>
         </header>
-        <HomeWorkout
-          day={activeDay || day}
-          exercises={
-            activeDay
-              ? (workoutExercises.data || []).filter((x: any) => x.workoutDayId === activeDay.id)
-              : dayExercises
-          }
-          activeSession={activeSession}
-          completedSession={activeDay ? null : completedSession}
-        />
-        <div className="mb-5 mt-4 grid grid-cols-2 gap-3">
-          {[
-            { to: "/workout?tab=exercises", label: "Exercise library", Icon: BookOpen },
-            { to: "/nutrition", label: "Food diary", Icon: Utensils },
-          ].map(({ to, label, Icon }) => (
-            <Link
-              key={to}
-              to={to}
-              className="flex min-h-14 items-center gap-2.5 rounded-2xl border border-border bg-card px-3.5 text-xs font-semibold transition-colors hover:border-primary/50"
-            >
-              <Icon className="h-4 w-4 shrink-0 text-primary" />
-              <span className="flex-1">{label}</span>
-              <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            </Link>
-          ))}
-        </div>
-        {(healthQuery.isLoading || checkInQuery.isLoading) && (
-          <div
-            className="mt-5 h-40 animate-pulse rounded-3xl bg-card/70"
-            aria-label="Loading daily brief"
-          />
-        )}
-        {!healthQuery.isLoading &&
-          !checkInQuery.isLoading &&
-          !healthQuery.error &&
-          !checkInQuery.error && (
-            <HomeHealthBrief
-              date={date}
-              rows={(healthQuery.data || []) as HealthMetricRecord[]}
-              checkIn={checkInQuery.data}
-              onCheckInSaved={(saved) => client.setQueryData(["dailyCheckIn", date], saved)}
+        <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
+          <div className="min-w-0">
+            <HomeWorkout
+              day={activeDay || day}
+              exercises={
+                activeDay
+                  ? (workoutExercises.data || []).filter(
+                      (x: any) => x.workoutDayId === activeDay.id
+                    )
+                  : dayExercises
+              }
+              activeSession={activeSession}
+              completedSession={activeDay ? null : completedSession}
             />
-          )}
-        {(healthQuery.error || checkInQuery.error) && (
-          <Link
-            to="/progress"
-            className="mt-4 block rounded-2xl border border-border bg-card p-4 text-sm"
-          >
-            Your daily brief couldn’t load. Open Health to try again →
-          </Link>
-        )}
-        {!!sessions.length && !historyQuery.error && (
-          <div className="mt-4">
-            <WeeklyActivity
-              sessions={sessions}
-              date={date}
-              goal={plan?.daysPerWeek || p.trainingDays?.length}
-            />
+            <div className="mb-5 mt-4 grid grid-cols-2 gap-3">
+              {[
+                { to: "/workout?tab=exercises", label: "Exercise library", Icon: BookOpen },
+                { to: "/nutrition", label: "Food diary", Icon: Utensils },
+              ].map(({ to, label, Icon }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className="flex min-h-14 items-center gap-2.5 rounded-2xl border border-border bg-card px-3.5 text-xs font-semibold transition-colors hover:border-primary/50"
+                >
+                  <Icon className="h-4 w-4 shrink-0 text-primary" />
+                  <span className="flex-1">{label}</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                </Link>
+              ))}
+            </div>
           </div>
-        )}
+          <div className="min-w-0">
+            {(healthQuery.isLoading || checkInQuery.isLoading) && (
+              <div
+                className="mt-5 h-40 animate-pulse rounded-3xl bg-card/70"
+                aria-label="Loading daily brief"
+              />
+            )}
+            {!healthQuery.isLoading &&
+              !checkInQuery.isLoading &&
+              !healthQuery.error &&
+              !checkInQuery.error && (
+                <HomeHealthBrief
+                  date={date}
+                  rows={(healthQuery.data || []) as HealthMetricRecord[]}
+                  checkIn={checkInQuery.data}
+                  onCheckInSaved={(saved) => client.setQueryData(["dailyCheckIn", date], saved)}
+                />
+              )}
+            {(healthQuery.error || checkInQuery.error) && (
+              <Link
+                to="/progress"
+                className="mt-4 block rounded-2xl border border-border bg-card p-4 text-sm"
+              >
+                Your daily brief couldn’t load. Open Health to try again →
+              </Link>
+            )}
+            {!!sessions.length && !historyQuery.error && (
+              <div className="mt-4">
+                <WeeklyActivity
+                  sessions={sessions}
+                  date={date}
+                  goal={plan?.daysPerWeek || p.trainingDays?.length}
+                />
+              </div>
+            )}
+          </div>
+        </div>
         <SectionHeading label="Today" title="Nutrition" to="/nutrition" action="Log food" />
         {foodsQuery.error ? (
           <button
@@ -217,7 +225,7 @@ export default function Home() {
         ) : foodsQuery.isLoading ? (
           <div className="h-40 animate-pulse rounded-2xl bg-card" aria-label="Loading nutrition" />
         ) : hasTargets ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <MacroCard label="Calories" value={m.calories} goal={p.calorieTarget} unit="" />
             <MacroCard label="Protein" value={m.protein} goal={p.proteinTarget} />
             <MacroCard label="Carbs" value={m.carbs} goal={p.carbTarget} />

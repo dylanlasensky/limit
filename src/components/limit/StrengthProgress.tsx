@@ -85,8 +85,8 @@ export default function StrengthProgress({
     );
 
   return (
-    <div className="space-y-4">
-      <section className="limit-surface rounded-3xl p-4 sm:p-5">
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:items-start lg:gap-6">
+      <section className="limit-surface min-w-0 rounded-3xl p-4 sm:p-5">
         <div className="mb-4 flex items-center gap-3">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
             <TrendingUp className="h-5 w-5" aria-hidden />
@@ -153,7 +153,7 @@ export default function StrengthProgress({
       </section>
       {selected && (
         <>
-          <section className="limit-surface overflow-hidden rounded-3xl p-4 sm:p-5">
+          <section className="limit-surface min-w-0 overflow-hidden rounded-3xl p-4 sm:p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="limit-kicker">Session trends</p>
@@ -313,14 +313,14 @@ export default function StrengthProgress({
               Changing lb/kg changes the display only. Saved sets are unchanged.
             </p>
           </section>
-          <section>
+          <section className="min-w-0 lg:col-span-2">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="flex items-center gap-2 text-lg font-semibold">
                 <History className="h-4 w-4 text-primary" aria-hidden /> Session history
               </h2>
               <span className="text-xs text-muted-foreground">Newest first</span>
             </div>
-            <div className="space-y-3">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {[...points]
                 .reverse()
                 .slice(0, visibleSessions)
