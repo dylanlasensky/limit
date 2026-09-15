@@ -3,6 +3,10 @@ import NativeSelect from "@/components/limit/NativeSelect";
 import { localDateInput } from "@/lib/profile-inputs";
 import { WEEKDAYS } from "@/lib/training/programEngine";
 const input = "mt-1 h-11 w-full rounded-xl border border-border bg-transparent px-3 text-base";
+const goalAliases: Record<string, string> = {
+  "increase strength": "get stronger",
+  "lose weight": "lose fat",
+};
 interface ProfileBasicsProps {
   profile: Record<string, any>;
   onChange: (profile: Record<string, any>) => void;
@@ -105,14 +109,15 @@ export default function ProfileBasics({ profile, onChange }: ProfileBasicsProps)
         Goal
         <NativeSelect
           className="mt-1"
-          value={profile.fitnessGoal || "general fitness"}
+          value={goalAliases[profile.fitnessGoal] || profile.fitnessGoal || "general fitness"}
           onChange={(value) => set("fitnessGoal", value)}
           options={[
-            "gain muscle",
-            "lose weight",
-            "maintain weight",
-            "increase strength",
-            "general fitness",
+            { value: "gain muscle", label: "Build muscle" },
+            { value: "get stronger", label: "Get stronger" },
+            { value: "muscle and strength", label: "Muscle + strength" },
+            { value: "lose fat", label: "Lose fat" },
+            { value: "maintain weight", label: "Maintain weight" },
+            { value: "general fitness", label: "General fitness" },
           ]}
           label="Goal"
         />

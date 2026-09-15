@@ -58,7 +58,7 @@ vi.mock("@/components/limit/NativeSelect", () => ({
 }));
 vi.mock("@/components/ui/drawer", () => ({
   Drawer: ({ children, open }) => (open ? <div role="dialog">{children}</div> : null),
-  DrawerContent: ({ children }) => <div>{children}</div>,
+  DrawerContent: ({ children, onKeyDown }) => <div onKeyDown={onKeyDown}>{children}</div>,
   DrawerDescription: ({ children }) => <p>{children}</p>,
   DrawerTitle: ({ children }) => <h2>{children}</h2>,
 }));
@@ -356,6 +356,44 @@ describe("selected diary date", () => {
       )
     );
     expect(await screen.findByRole("button", { name: "Edit Pasta" })).toBeInTheDocument();
+  });
+  it("closes add-food on an unhandled Escape without duplicating a claimed Escape", async () => {
+    show(<Nutrition />);
+    fireEvent.click(await screen.findByRole("button", { name: "Log food" }));
+    const close = await screen.findByRole("button", { name: "Close add food" });
+    const claimed = new KeyboardEvent("keydown", {
+      key: "Escape",
+      bubbles: true,
+      cancelable: true,
+    });
+    claimed.preventDefault();
+    fireEvent(close, claimed);
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    fireEvent.keyDown(close, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(api.create).not.toHaveBeenCalled();
+  });
+  it("does not dismiss add-food via the Escape fallback while a save is pending", async () => {
+    let finish!: (value: any) => void;
+    api.create.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        })
+    );
+    show(<Nutrition />);
+    fireEvent.click(await screen.findByRole("button", { name: "Log food" }));
+    fireEvent.click(screen.getByRole("button", { name: /Manual entry/ }));
+    fireEvent.change(screen.getByLabelText("Food name"), { target: { value: "Rice" } });
+    fireEvent.change(screen.getByLabelText("calories"), { target: { value: "200" } });
+    fireEvent.click(screen.getByRole("button", { name: "ADD FOOD" }));
+    await waitFor(() => expect(api.create).toHaveBeenCalledOnce());
+    const close = screen.getByRole("button", { name: "Close add food" });
+    expect(close).toBeDisabled();
+    fireEvent.keyDown(close, { key: "Escape" });
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    await act(async () => finish({ ...api.create.mock.calls[0][0], id: "saved-rice" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
   it("reuses recent foods on the selected date without losing their estimated status", async () => {
     const onDone = vi.fn();

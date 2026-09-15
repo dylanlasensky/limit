@@ -25,8 +25,8 @@ export default function OnboardingPriorities({ data, set }: OnboardingStepProps)
   return (
     <div>
       <p className="text-sm text-muted-foreground">
-        Optional. Pick up to 3 areas you want to emphasize — they'll get extra volume in your
-        program.
+        Optional. Pick up to 3 areas to prioritize within your time and equipment. Your plan still
+        balances the rest of your body.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         {areas.map((m) => (

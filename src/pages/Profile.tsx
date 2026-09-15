@@ -178,7 +178,7 @@ export default function Profile() {
       if (!savedProfile) return;
       const input = {
           ...savedProfile,
-          days: savedProfile.trainingDays?.length || 3,
+          days: savedProfile.availableDays?.length || savedProfile.trainingDays?.length || 3,
           availableDays: savedProfile.availableDays?.length
             ? savedProfile.availableDays
             : savedProfile.trainingDays,
