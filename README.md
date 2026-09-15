@@ -1,5 +1,7 @@
 # LIMIT
 
+https://limithealth.base44.app
+
 Mobile-first training, nutrition and progress, built on Base44. See the [launch-readiness checklist](docs/launch-readiness.md) for the implemented hardening and the remaining requirements before a paid launch.
 
 Use this repository to run and edit the app locally, then publish changes back through Base44.
