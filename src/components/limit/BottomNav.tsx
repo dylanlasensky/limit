@@ -40,9 +40,9 @@ export default function BottomNav() {
   return (
     <nav
       aria-label="Main navigation"
-      className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-xl px-3 pb-[max(.65rem,env(safe-area-inset-bottom))] sm:px-5"
+      className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-xl px-3 pb-[max(.65rem,env(safe-area-inset-bottom))] sm:px-5 md:max-w-3xl lg:inset-x-auto lg:bottom-0 lg:left-0 lg:top-36 lg:w-60 lg:overflow-y-auto lg:border-r lg:bg-card lg:px-3 lg:pb-6"
     >
-      <div className="limit-navigation grid grid-cols-5 gap-1 rounded-[1.5rem] p-1.5 backdrop-blur-xl">
+      <div className="limit-navigation grid grid-cols-5 gap-1 rounded-[1.5rem] p-1.5 backdrop-blur-xl lg:grid-cols-1 lg:gap-2 lg:rounded-none lg:border-0 lg:bg-transparent lg:shadow-none">
         {items.map(([label, root, Icon]) => {
           const active = isWithin(location.pathname, root);
           return (
@@ -51,7 +51,7 @@ export default function BottomNav() {
               type="button"
               onClick={() => select(root)}
               aria-current={active ? "page" : undefined}
-              className={`relative flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-[1.1rem] text-[10px] font-semibold transition-colors ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+              className={`relative flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-[1.1rem] text-[10px] font-semibold transition-colors lg:min-h-12 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-4 lg:text-sm ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
             >
               <Icon
                 className="relative h-5 w-5"

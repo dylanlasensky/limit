@@ -37,11 +37,12 @@ export default function CoachButton() {
       <button
         aria-label="Open LIMIT Coach"
         onClick={() => setOpen(true)}
-        className="fixed bottom-24 right-[max(1rem,calc((100vw-36rem)/2+1.5rem))] z-30 flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-card text-primary shadow-lg transition-transform active:scale-95"
+        className="fixed bottom-24 right-[max(1rem,calc((100vw-36rem)/2+1.5rem))] z-30 flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-card text-primary shadow-lg transition-transform active:scale-95 md:right-[max(1.5rem,calc((100vw-48rem)/2+1.5rem))] lg:bottom-6 lg:right-6"
       >
         <Sparkles />
       </button>
       <Drawer
+        autoFocus
         open={open}
         onOpenChange={(value) => {
           if (!value) close();

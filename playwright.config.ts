@@ -31,6 +31,10 @@ export default defineConfig({
       name: "large-phone",
       use: { viewport: { width: 430, height: 932 }, isMobile: true, hasTouch: true },
     },
+    {
+      name: "tablet",
+      use: { viewport: { width: 820, height: 1180 }, isMobile: true, hasTouch: true },
+    },
     { name: "desktop", use: { viewport: { width: 1280, height: 900 } } },
   ],
   webServer: {

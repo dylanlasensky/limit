@@ -1287,3 +1287,69 @@ test("Coach, photo scanning and import require optional consent and retain manua
   expect(writes.filter((row) => row.function !== "askLimitCoach")).toEqual([]);
   expect(errors).toEqual([]);
 });
+
+test("navigation adapts to the viewport and preserves tab and dialog interactions", async ({
+  page,
+}) => {
+  await mockApp(page);
+  await page.goto("/home");
+  const nav = page.getByRole("navigation", { name: "Main navigation" });
+  const main = page.locator("#main-content");
+  await expect(nav).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Light mode", exact: true })).toHaveCount(1);
+  const width = page.viewportSize()!.width;
+  const bounds = await nav.boundingBox();
+  const content = await main.boundingBox();
+  expect(bounds).not.toBeNull();
+  expect(content).not.toBeNull();
+  if (width >= 1024) {
+    expect(bounds!.x).toBe(0);
+    expect(bounds!.width).toBe(240);
+    expect(content!.x).toBeGreaterThanOrEqual(240);
+    expect(content!.width).toBeGreaterThan(576);
+  } else {
+    expect(bounds!.y).toBeGreaterThan(page.viewportSize()!.height - 120);
+    expect(content!.width).toBeLessThanOrEqual(width < 768 ? 576 : 768);
+  }
+  await nav.getByRole("button", { name: "Workout", exact: true }).click();
+  await page.getByRole("tab", { name: "History", exact: true }).click();
+  await nav.getByRole("button", { name: "Nutrition", exact: true }).click();
+  await expect(nav.getByRole("button", { name: "Nutrition", exact: true })).toHaveAttribute(
+    "aria-current",
+    "page"
+  );
+  await nav.getByRole("button", { name: "Workout", exact: true }).click();
+  await expect(page.getByRole("tab", { name: "History", exact: true })).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  await nav.getByRole("button", { name: "Workout", exact: true }).click();
+  await expect(page.getByRole("tab", { name: "Schedule", exact: true })).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  const coach = page.getByRole("button", { name: "Open LIMIT Coach" });
+  await coach.click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  if (width >= 1024) expect((await dialog.boundingBox())!.width).toBeLessThanOrEqual(640);
+  await expect(dialog.getByRole("button", { name: "Close coach" })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await noOverflow(page);
+});
+
+test("desktop dialogs stay inside short windows", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Desktop window resizing");
+  await page.setViewportSize({ width: 1024, height: 600 });
+  await mockApp(page);
+  await page.goto("/home");
+  await page.getByRole("button", { name: "Open LIMIT Coach" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog.getByRole("button", { name: "Close coach" })).toBeFocused();
+  const bounds = await dialog.boundingBox();
+  expect(bounds!.y).toBeGreaterThanOrEqual(0);
+  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(600);
+  await dialog.getByRole("button", { name: "Close coach" }).click();
+  await expect(dialog).toHaveCount(0);
+});
