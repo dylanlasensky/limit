@@ -108,6 +108,14 @@ export default function WorkoutPreview({
                               {row.notes}
                             </p>
                           )}
+                          {row.progressionNotes && (
+                            <details className="mt-3 text-xs text-muted-foreground">
+                              <summary className="cursor-pointer py-2 font-semibold">
+                                How to progress
+                              </summary>
+                              <p className="mt-1 leading-relaxed">{row.progressionNotes}</p>
+                            </details>
+                          )}
                           {row.coachMandated && (
                             <p className="mt-2 text-xs font-medium text-primary">
                               Coach-prescribed movement

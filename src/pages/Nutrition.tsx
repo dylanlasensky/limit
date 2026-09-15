@@ -394,6 +394,20 @@ export default function Nutrition() {
           <DrawerContent
             className="bg-card text-foreground"
             onCloseAutoFocus={(event) => restoreFoodFocus(event, addOpener)}
+            onKeyDown={(event) => {
+              // A rapidly reopened drawer can receive focus before Radix's
+              // document-level Escape listener finishes registering its layer.
+              // Handle only an unclaimed Escape to avoid a second history.back().
+              if (
+                event.key === "Escape" &&
+                !event.defaultPrevented &&
+                !addSaving &&
+                !addingInFlight.current
+              ) {
+                event.preventDefault();
+                closeAdd();
+              }
+            }}
           >
             <div className="no-scrollbar mx-auto max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-[2rem] border-t border-border bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
               <button

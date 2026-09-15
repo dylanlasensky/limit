@@ -8,7 +8,7 @@ export default function OnboardingReveal({ data }: OnboardingRevealProps) {
   const rec = useMemo(() => scoreProgramStructures(data).best, [data]);
   const targets = useMemo(() => calcTargets({ ...data, days: data.availableDays?.length }), [data]);
   if (!rec) return null;
-  const chosen: string[] = data.availableDays || [];
+  const chosen = WEEKDAYS.filter((day) => data.availableDays?.includes(day));
   return (
     <div>
       <section className="rounded-2xl border border-primary/30 bg-card p-5">

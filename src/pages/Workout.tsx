@@ -221,6 +221,16 @@ export default function Workout() {
               <p className="mb-2 mt-7 text-xs font-black tracking-[.16em] text-muted-foreground">
                 {plan.name.toUpperCase()} · {plan.daysPerWeek} DAYS
               </p>
+              {plan.description && (
+                <details className="mb-4 rounded-2xl border border-border bg-card px-4 py-3">
+                  <summary className="cursor-pointer py-1 text-sm font-semibold">
+                    About your plan
+                  </summary>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {plan.description}
+                  </p>
+                </details>
+              )}
               <div className="space-y-2">
                 {days.map((d: any) => (
                   <div

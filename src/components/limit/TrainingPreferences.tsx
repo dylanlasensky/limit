@@ -1,26 +1,13 @@
 import React from "react";
 import NativeSelect from "@/components/limit/NativeSelect";
-const equipment = [
-  "Full commercial gym",
-  "Barbell",
-  "Dumbbells",
-  "Cable machine",
-  "Machines",
-  "Bodyweight",
-];
+import EquipmentPicker from "@/components/limit/EquipmentPicker";
+import OnboardingPriorities from "@/components/onboarding/OnboardingPriorities";
 interface TrainingPreferencesProps {
   profile: Record<string, any>;
   onChange: (profile: Record<string, any>) => void;
 }
 export default function TrainingPreferences({ profile, onChange }: TrainingPreferencesProps) {
-  const set = (k: string, v: unknown) => onChange({ ...profile, [k]: v }),
-    toggle = (x: string) =>
-      set(
-        "equipment",
-        profile.equipment?.includes(x)
-          ? profile.equipment.filter((v: string) => v !== x)
-          : [...(profile.equipment || []), x]
-      );
+  const set = (k: string, v: unknown) => onChange({ ...profile, [k]: v });
   return (
     <section className="limit-surface mt-4 rounded-3xl p-5">
       <p className="limit-kicker text-muted-foreground">Training preferences</p>
@@ -45,18 +32,18 @@ export default function TrainingPreferences({ profile, onChange }: TrainingPrefe
         />
       </label>
       <p className="mt-4 text-xs text-muted-foreground">Available equipment</p>
-      <div className="mt-2 flex flex-wrap gap-2">
-        {equipment.map((x) => (
-          <button
-            key={x}
-            onClick={() => toggle(x)}
-            aria-pressed={profile.equipment?.includes(x) || false}
-            className={`min-h-10 rounded-full border px-3 text-xs font-bold ${profile.equipment?.includes(x) ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
-          >
-            {x}
-          </button>
-        ))}
-      </div>
+      <EquipmentPicker value={profile.equipment} onChange={(value) => set("equipment", value)} />
+      <details className="mt-4 rounded-xl border border-border p-3">
+        <summary className="cursor-pointer text-sm font-medium">
+          Muscle priorities
+          {profile.priorityMuscles?.length
+            ? ` · ${profile.priorityMuscles.join(", ")}`
+            : " · optional"}
+        </summary>
+        <div className="mt-3">
+          <OnboardingPriorities data={profile} set={set} />
+        </div>
+      </details>
     </section>
   );
 }

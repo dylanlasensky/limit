@@ -72,7 +72,7 @@ describe("curated exercise coverage", () => {
         new Set(),
         null
       ).name
-    ).toBe("Barbell Back Squat");
+    ).toBe("Goblet Squat");
     expect(
       selectExercise(
         { muscles: ["Quads"], role: "main" },
