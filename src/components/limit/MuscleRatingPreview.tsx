@@ -21,9 +21,7 @@ export default function MuscleRatingPreview({ rating }: MuscleRatingPreviewProps
             <Sparkles className="h-3.5 w-3.5" />
             Muscle rating
           </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-[-.035em]">
-            {rating.overallLevel}
-          </h2>
+          <h2 className="mt-3 text-3xl font-bold tracking-[-.035em]">{rating.overallLevel}</h2>
           <p className="mt-1 max-w-[13rem] text-sm leading-relaxed text-muted-foreground">
             {rating.hasData
               ? `${high} muscle groups have reached advanced or elite levels.`

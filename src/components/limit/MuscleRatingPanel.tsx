@@ -31,9 +31,7 @@ export default function MuscleRatingPanel({ rating, snapshots = [] }: MuscleRati
             <Zap className="h-3.5 w-3.5" />
             Strength profile
           </p>
-          <h2 className="mt-2 text-4xl font-bold tracking-[-.035em]">
-            {rating.overallLevel}
-          </h2>
+          <h2 className="mt-2 text-4xl font-bold tracking-[-.035em]">{rating.overallLevel}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Strength profile · Score{" "}
             <span className="font-bold text-foreground">{rating.overallScore}</span>
