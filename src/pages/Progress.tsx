@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { lazy, Suspense, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { format, parseISO, subDays } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -8,12 +8,10 @@ import { listExercises } from "@/lib/training/exerciseLibrary";
 import { calculateMuscleRating, emptyRating } from "@/components/limit/muscleRating";
 import MuscleRatingPanel from "@/components/limit/MuscleRatingPanel";
 import ProgressOverview from "@/components/limit/ProgressOverview";
-import WeightProgress from "@/components/limit/WeightProgress";
 import SegmentedTabs from "@/components/limit/SegmentedTabs";
 import ScreenState from "@/components/limit/ScreenState";
 import PullToRefresh from "@/components/limit/PullToRefresh";
 import useLocalDate from "@/hooks/use-local-date";
-import StrengthProgress from "@/components/limit/StrengthProgress";
 import { buildStrengthHistory, readProgressPages } from "@/lib/training/strengthHistory";
 import HealthOverview from "@/components/health/HealthOverview";
 import HealthQuickLog from "@/components/health/HealthQuickLog";
@@ -27,6 +25,9 @@ import {
 } from "@/lib/health/health-data";
 import { useHealthPreferences } from "@/lib/health/health-preferences";
 import { isDiaryDate, shiftDiaryDate } from "@/lib/food-diary";
+
+const StrengthProgress = lazy(() => import("@/components/limit/StrengthProgress"));
+const WeightProgress = lazy(() => import("@/components/limit/WeightProgress"));
 
 const ranges: Record<string, number> = { "1": 30, "3": 90, "6": 180, "12": 365, ALL: Infinity };
 const tabs: Record<string, string> = {
@@ -363,11 +364,13 @@ export default function Progress() {
                   )}
                 />
               ) : (
-                <StrengthProgress
-                  exercises={history.exercises}
-                  onOpenSession={(id) => navigate("/workout/history/" + encodeURIComponent(id))}
-                  onStartWorkout={() => navigate("/workout")}
-                />
+                <Suspense fallback={<ScreenState loading />}>
+                  <StrengthProgress
+                    exercises={history.exercises}
+                    onOpenSession={(id) => navigate("/workout/history/" + encodeURIComponent(id))}
+                    onStartWorkout={() => navigate("/workout")}
+                  />
+                </Suspense>
               )}
               {!!history.sessions.length && (
                 <details className="mt-5 rounded-2xl border border-border bg-card p-4">
@@ -404,18 +407,20 @@ export default function Progress() {
               </div>
               <div className="min-w-0">
                 {isMetricVisible("weight") && (
-                  <WeightProgress
-                    weights={weights.filter((row) => row.date >= cutoff)}
-                    current={weights.at(-1)?.weight || null}
-                    average={
-                      recent.length
-                        ? recent.reduce((sum, row) => sum + row.weight, 0) / recent.length
-                        : null
-                    }
-                    goal={body.data?.profile.goalWeight}
-                    showLog={false}
-                    onLog={async () => {}}
-                  />
+                  <Suspense fallback={<ScreenState loading />}>
+                    <WeightProgress
+                      weights={weights.filter((row) => row.date >= cutoff)}
+                      current={weights.at(-1)?.weight || null}
+                      average={
+                        recent.length
+                          ? recent.reduce((sum, row) => sum + row.weight, 0) / recent.length
+                          : null
+                      }
+                      goal={body.data?.profile.goalWeight}
+                      showLog={false}
+                      onLog={async () => {}}
+                    />
+                  </Suspense>
                 )}
               </div>
               {body.data?.truncated && (

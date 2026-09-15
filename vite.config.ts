@@ -7,6 +7,16 @@ export default defineConfig({
   // Base44 can regenerate .jsx auth scaffolding after a repository sync.
   // Always resolve our maintained TypeScript implementation first.
   resolve: { extensions: [".mjs", ".ts", ".tsx", ".js", ".jsx", ".json"] },
+  build: {
+    rollupOptions: {
+      output: {
+        // Keep React reusable across deploys without eagerly pulling chart dependencies in.
+        manualChunks(id) {
+          if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) return 'vendor-react';
+        },
+      },
+    },
+  },
   plugins: [
     base44({
       // Support for legacy code that imports the base44 SDK with @/integrations, @/entities, etc.
