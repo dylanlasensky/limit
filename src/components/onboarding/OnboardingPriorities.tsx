@@ -33,6 +33,8 @@ export default function OnboardingPriorities({ data, set }: OnboardingStepProps)
           <button
             key={m}
             type="button"
+            aria-pressed={picked.includes(m)}
+            disabled={!picked.includes(m) && picked.length >= 3}
             onClick={() => toggle(m)}
             className={`min-h-11 rounded-full px-4 text-sm font-bold ${picked.includes(m) ? "limit-chip-active" : "limit-chip"}`}
           >

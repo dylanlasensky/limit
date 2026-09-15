@@ -13,6 +13,7 @@ interface ExerciseDetailsProps {
   onOpenChange: (open: boolean) => void;
   favorite?: boolean;
   onFavorite?: () => void;
+  referenceMessage?: string;
 }
 export default function ExerciseDetails({
   exercise,
@@ -20,6 +21,7 @@ export default function ExerciseDetails({
   onOpenChange,
   favorite,
   onFavorite,
+  referenceMessage,
 }: ExerciseDetailsProps) {
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -94,8 +96,8 @@ export default function ExerciseDetails({
           </p>
           {exercise?.referenceOnly && (
             <p className="mt-4 rounded-xl bg-secondary p-3 text-xs leading-relaxed text-muted-foreground">
-              Reference preview. This movement’s saved database record is not connected yet; it will
-              be available to select in programs after the library sync finishes.
+              {referenceMessage ||
+                "Reference preview. This movement’s saved database record is not connected yet; it will be available to select in programs after the library sync finishes."}
             </p>
           )}
           {!exercise?.instructions?.length && (

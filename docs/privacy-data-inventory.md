@@ -1,0 +1,48 @@
+# LIMIT privacy data inventory — release-review draft
+
+This inventory describes repository-visible flows as reviewed September 14, 2026. It is **not a privacy policy, legal approval, a complete vendor audit, or a submitted App Store privacy label**. Business identity, operating regions, legal bases, retention periods, vendor processing terms and generated-native-package behavior still require verification. Do not promise immediate destruction of all backups or uploaded files without proving the platform's actual behavior.
+
+Apple's privacy disclosures cover the application and integrated third-party partners. Collection for app functionality still needs assessment; data linked to an account must not be described as anonymous just because it lacks a name. Review labels whenever the implementation or provider behavior changes. [Apple privacy-label guidance](https://developer.apple.com/app-store/app-privacy-details/)
+
+## Data flows visible in the code
+
+| Data | Purpose and storage/recipient | Review classification and remaining questions |
+| --- | --- | --- |
+| Account identifiers, name, email and sign-in credentials | Base44 authentication; optional configured social identity provider. Name also appears in `UserProfile`. Password management is delegated to the authentication service. | Account-linked contact information and user identifiers. Verify provider data, session duration, emails, account removal and recovery behavior. Never log passwords or access tokens. |
+| Birth date, sex, height, weight, goal weight and activity/experience | `UserProfile`, `WeightEntry`, `BodyMeasurement`; calculations, personalization and progress. | Potentially health/fitness and other personal data. Determine age/child-access policy and data minimization. Sex and birth date should not be reused for unrelated purposes. |
+| Workouts, sets, dates, durations, loads, effort, notes, records and ratings | Private plan/session/set entities and derived progress entities on Base44. | Account-linked fitness data and user content. Derived scores are estimates, not medical measurements. Verify tenant isolation across direct API requests, not only UI filtering. |
+| Food logs, calories/macros, food preferences, allergies and intolerances | `FoodEntry`, `DietaryProfile`, meal/grocery entities; nutrition tracking and suggestions. | Nutrition and allergy information may be sensitive health data. Identify all recipients, minimize prompts and avoid medical/allergy-safety guarantees. |
+| Food/label photos | User chooses a photo; uploaded through Base44 private-file storage; a limited-duration signed URL is passed to Base44's `Core.InvokeLLM` integration. | Photos and any incidental personal information. Private URLs are an access mechanism, not a retention policy. Verify who can sign them, provider retention and deletion of uploaded bytes. |
+| Imported workout documents or pasted text | Private-file upload where a file is used; source text or signed-file URL sent to `parseWorkoutRegimen` and the LLM integration; parsed plan saved under the account. | User content; documents can include coach names, team details or unrelated information. Warn users to upload only material they have permission to use and remove unnecessary personal data. |
+| Coach question and selected training/nutrition context | `askLimitCoach` retrieves the signed-in user's recent logs and goals, then sends a compact context to `Core.InvokeLLM`. | User content plus fitness/health context. Context can contain weight trends, allergies, targets and workouts even when the question itself is generic. Confirm explicit permission and a non-AI path. |
+| Local preferences, exercise favorites and workout drafts | Device browser/webview storage; per-user namespaces for private drafts/favorites; theme and layout preferences. | Device-resident information is not automatically remote collection. Verify shared-device logout, deletion, eviction and recovery. Some unsynced drafts intentionally survive logout for that user. |
+| Account data export | The signed-in user requests an export of their own app records and downloads a copy. | The exported file contains sensitive information; verify native download behavior, completeness, ownership filtering and handling of the downloaded copy. Do not send exports to external recipients automatically. |
+| Application interaction and diagnostics | Base44 hosting/SDK/native shell behavior and the configured Vite platform integrations; server errors/operational logs. | Actual collection and retention are not proven by source alone. Inspect production traffic and vendor documents before selecting analytics, tracking, device-ID or diagnostics answers. |
+
+The first column is based on `base44/entities/`, the upload/AI functions, `src/lib/storage.ts`, `src/lib/app-params.ts`, and the frontend flows. Suggested classifications are review prompts, not final selections in App Store Connect.
+
+## Providers and purposes
+
+- **Base44:** hosting, authentication, database, private files, backend functions and AI integration. The repository does not identify the complete downstream model-provider/subprocessor chain. Confirm current contracts, subprocessors, processing locations, retention and whether prompts/images may be retained or used for model improvement.
+- **Identity providers:** Google is present in sign-in UI. Verify the enabled provider configuration and the native equivalent-login requirement. Do not claim Apple login exists until the full flow works in the package.
+- **Apple:** App Store/TestFlight distribution and, only if later implemented, StoreKit transactions. There is no implemented HealthKit sync, native push or native purchase integration in this audit's code.
+- **Stripe:** dependency presence alone does not establish an active payment flow or data collection. There is no implemented commercial flow to disclose as a completed feature; reassess before connecting any payment service.
+
+No advertising SDK, contact-book access, precise-location feature or microphone recording was identified in the application source inspected. This is not a claim that platform telemetry is absent. Do not select “data not collected” or “not used for tracking” solely from this inventory; inspect the generated wrapper and production service behavior.
+
+## Native-package review
+
+The generated IPA may contain SDKs not listed in the web `package.json`. Inspect its privacy manifests, required-reason API declarations, entitlements, purpose strings and the privacy report from the real distribution archive. App Store privacy labels and native privacy manifests are separate artifacts. Do not manufacture required-reason codes or assert that a web-source scan covers the native shell. [Apple privacy-manifest documentation](https://developer.apple.com/documentation/bundleresources/privacy-manifest-files)
+
+Camera/photo purpose text should explain the user's selected food-label or meal-photo workflow. Test denial and cancellation, and check that uploads happen only after an intentional action. Permissions for HealthKit, location, contacts or microphone should not be added for nonexistent features.
+
+## Required evidence before approving a policy or labels
+
+1. Map each data type to exact recipients, purpose, account linkage, remote retention and deletion behavior; verify the private upload and model-provider paths with disposable data.
+2. Resolve account deletion across database rows, authentication identities, uploaded files, logs and backups. Document any lawful retention and its duration accurately; verify retries and partial failure.
+3. Confirm AI consent precedes sending photos, source documents or personalized context, remains understandable, and does not prevent manual logging or editing when declined.
+4. Verify live account isolation with two ordinary accounts, including private-file signing and server-owned records. A schema rule is not evidence of the deployed permissions.
+5. Verify the actual business/publisher identity, support contact, operating regions, age audience, vendors and legal basis with the responsible owner/reviewer. Do not fill these with guesses.
+6. Reconcile this inventory with the approved public documents, deployed application, generated IPA and App Store Connect answers; attach the evidence to `release/app-store.json`.
+
+Privacy and sensitive-data handling are release gates, not marketing copy. Keep reports free of real customer data and signing credentials.

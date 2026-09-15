@@ -1,4 +1,5 @@
 import { createClientFromRequest } from "npm:@base44/sdk@0.8.44";
+import { AI_MODEL, requireAiConsent } from "../../shared/aiConsent.js";
 
 const schema = {
   type: "object",
@@ -56,6 +57,7 @@ export default async function (req) {
       user = await base44.auth.me();
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
     const input = await req.json().catch(() => null);
+    requireAiConsent(input);
     if (
       typeof input?.fileUri !== "string" ||
       !input.fileUri.startsWith("private/") ||
@@ -75,6 +77,7 @@ export default async function (req) {
       expires_in: 300,
     });
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      model: AI_MODEL,
       file_urls: [signed.signed_url],
       response_json_schema: schema,
       prompt: `Analyze this food image for the Limit nutrition tracker. Requested mode: ${meal ? "actual plated meal" : "packaged food or Nutrition Facts label"}. First classify it as nutrition_label, package, meal, or unknown. ${meal ? "Identify each visible food, estimate its US customary portion, estimate calories, protein, carbs, and fat for each item, and sum nothing outside the items. Estimates must be conservative. Ask at most one short clarifying question only if the answer materially changes the estimate." : "If a readable Nutrition Facts label is visible, transcribe per-serving values exactly and set reliable true. Extract serving size, servings per container, calories, protein, total carbs, fat, fiber, sugar, and sodium. If only the package front is visible, identify the product but set reliable false and leave unknown nutrient numbers as 0."} Flag possible allergens without claiming certainty. Saved allergies: ${JSON.stringify(allergies)}. ${clarification ? `The user answered the clarification: ${clarification}. Return a revised final analysis and no further question.` : ""}`,

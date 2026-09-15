@@ -40,6 +40,10 @@ export default function NutritionTargetsEditor({
             {l}
             <input
               type="number"
+              min="0"
+              max="10000"
+              step="1"
+              inputMode="numeric"
               value={profile[k] || ""}
               onChange={(e) => onTargetsChange(k, +e.target.value)}
               className="mt-1 h-11 w-full rounded-xl border border-border bg-transparent px-3 text-base text-foreground"

@@ -1,3 +1,5 @@
+import { ageFromBirthDate } from "@/lib/profile-inputs";
+
 export interface NutritionProfileInput {
   weightLb?: number | string;
   measurementSystemVersion?: string;
@@ -32,17 +34,8 @@ export const profileWeightLb = (p: NutritionProfileInput): number => {
 export const profileHeightInches = (p: NutritionProfileInput): number =>
   (Number(p.heightFeet) || 0) * 12 + (Number(p.heightInches) || 0) ||
   (Number(p.heightCm) || 0) / 2.54;
-export const profileAge = (p: NutritionProfileInput): number => {
-  if (!p.birthDate) return 30;
-  const born = new Date(`${p.birthDate}T12:00:00`),
-    now = new Date();
-  return Math.max(
-    18,
-    now.getFullYear() -
-      born.getFullYear() -
-      (now < new Date(now.getFullYear(), born.getMonth(), born.getDate()) ? 1 : 0)
-  );
-};
+export const profileAge = (p: NutritionProfileInput): number | null =>
+  ageFromBirthDate(p.birthDate);
 export const toUSProfile = <T extends NutritionProfileInput>(p: T) => {
   const inches = Math.round(profileHeightInches(p)),
     weight = profileWeightLb(p),
@@ -55,13 +48,24 @@ export const toUSProfile = <T extends NutritionProfileInput>(p: T) => {
     heightFeet: Math.floor(inches / 12),
     heightInches: inches % 12,
     currentWeight: Math.round(weight * 10) / 10,
-    goalWeight: Math.round(goal * 10) / 10,
+    goalWeight: goal === 0 ? "" : Math.round(goal * 10) / 10,
   };
 };
 export const calcTargets = (p: NutritionProfileInput): NutritionTargets => {
+  const age = profileAge(p);
+  if (age === null || age < 18)
+    return {
+      calorieTarget: 0,
+      proteinTarget: 0,
+      carbTarget: 0,
+      fatTarget: 0,
+      targetExplanation:
+        age === null
+          ? "Add a valid date of birth to calculate an adult nutrition estimate. You can log food without a target."
+          : "Automatic nutrition estimates are for adults. If you are under 18, ask a qualified health professional about nutrition goals. You can log food without a target.",
+    };
   const weightLb = Math.max(90, profileWeightLb(p) || 165),
     heightIn = Math.max(48, profileHeightInches(p) || 68),
-    age = profileAge(p),
     days = Number(p.days) || p.trainingDays?.length || 3,
     kg = weightLb / 2.20462,
     cm = heightIn * 2.54;

@@ -34,6 +34,7 @@ export default function OnboardingTraining({ data, set }: OnboardingStepProps) {
             <button
               key={value}
               type="button"
+              aria-pressed={data.experienceLevel === value}
               onClick={() => set("experienceLevel", value)}
               className={`w-full rounded-xl border p-3 text-left ${data.experienceLevel === value ? "border-blue-600 bg-blue-600/10" : "border-border"}`}
             >
@@ -52,6 +53,8 @@ export default function OnboardingTraining({ data, set }: OnboardingStepProps) {
             <button
               key={l}
               type="button"
+              aria-pressed={+data.sessionLength === l}
+              aria-label={`${l === 90 ? "90 or more" : l} minutes`}
               onClick={() => set("sessionLength", l)}
               className={`h-12 rounded-xl border text-sm font-bold ${+data.sessionLength === l ? "border-blue-600 bg-blue-600/10 text-blue-500" : "border-border"}`}
             >
@@ -70,6 +73,7 @@ export default function OnboardingTraining({ data, set }: OnboardingStepProps) {
             <button
               key={x}
               type="button"
+              aria-pressed={equipment.includes(x)}
               onClick={() => toggleEq(x)}
               className={`min-h-11 rounded-full border px-4 text-sm font-semibold ${equipment.includes(x) ? "border-blue-600 bg-blue-600/10 text-blue-500" : "border-border"}`}
             >
@@ -87,6 +91,7 @@ export default function OnboardingTraining({ data, set }: OnboardingStepProps) {
             <button
               key={value}
               type="button"
+              aria-pressed={data.activityLevel === value}
               onClick={() => set("activityLevel", value)}
               className={`h-12 rounded-xl border px-4 text-left text-sm font-semibold ${data.activityLevel === value ? "border-blue-600 bg-blue-600/10 text-blue-500" : "border-border"}`}
             >

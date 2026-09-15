@@ -10,9 +10,10 @@ async function mockApp(
     expandedLibrary = false,
     failExercises = false,
     legacyLibrary = false,
+    failPublicSettings = false,
   } = {}
 ) {
-  const control = { failExercises };
+  const control = { failExercises, failExport: false, wrongExportAccount: false };
   const today = new Date().toLocaleDateString("en-CA");
   const weekday = (new Date().getDay() + 6) % 7;
   const user = { id: "qa-user", email: "qa@example.invalid", full_name: "Jordan", role: "user" };
@@ -88,9 +89,31 @@ async function mockApp(
     if (!url.pathname.startsWith("/api/")) return route.continue();
     const reply = (body: any, status = 200) => route.fulfill({ status, json: body });
     if (url.pathname.includes("public-settings"))
-      return reply({ id: "limit-browser-test", public_settings: {} });
+      return failPublicSettings
+        ? reply({ message: "Unavailable" }, 503)
+        : reply({ id: "limit-browser-test", public_settings: {} });
     if (url.pathname.endsWith("/User/me"))
       return reply(signedIn ? user : { message: "Unauthorized" }, signedIn ? 200 : 401);
+    if (url.pathname.includes("/functions/exportAccount")) {
+      writes.push({ function: "exportAccount" });
+      if (control.failExport) return reply({ error: "Unavailable" }, 503);
+      return reply({
+        schemaVersion: 1,
+        account: { id: control.wrongExportAccount ? "not-my-account" : user.id },
+        entities,
+      });
+    }
+    if (url.pathname.includes("/functions/askLimitCoach")) {
+      writes.push({ function: "askLimitCoach", ...request.postDataJSON() });
+      return reply({ answer: "Your last logged workout is ready to review." });
+    }
+    if (url.pathname.includes("/functions/deleteAccount")) {
+      writes.push({ function: "deleteAccount", ...request.postDataJSON() });
+      return reply(
+        { error: "Account deletion did not finish. Please retry before signing out." },
+        503
+      );
+    }
     if (url.pathname.includes("/functions/workoutCommand")) {
       const body = request.postDataJSON();
       writes.push(body);
@@ -265,6 +288,7 @@ test("light and dark controls work on every main screen without horizontal overf
       await page.goto(path);
       await expect(page.locator("html")).toHaveClass(new RegExp(mode));
       await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await noOverflow(page);
       if (testInfo.project.name === "phone")
         await page.screenshot({
@@ -342,6 +366,7 @@ test("appearance changes persist across reload and food selection uses the selec
   await expect(page.locator("html")).toHaveClass(/light/);
   await page.reload();
   await expect(page.locator("html")).toHaveClass(/light/);
+  await expect(page.getByRole("heading", { name: "Profile", exact: true })).toBeVisible();
   if (testInfo.project.name === "phone")
     await page.screenshot({ path: testInfo.outputPath("profile-light.png"), fullPage: true });
   await page.goto("/nutrition");
@@ -426,5 +451,119 @@ test("a workout set survives reload and finishes only with its saved revision", 
   if (!save || !finish) throw new Error("Expected both a saved set and a finish command.");
   expect(finish.expectedSets).toEqual([{ id: "set-1", revision: save.row.operationId }]);
   await noOverflow(page);
+  expect(errors).toEqual([]);
+});
+
+test("public information and the full exercise library work without sign-in or auth services", async ({
+  page,
+}, testInfo) => {
+  const { writes, errors } = await mockApp(page, { signedIn: false, failPublicSettings: true });
+  for (const [path, title] of [
+    ["/privacy", "Your privacy"],
+    ["/terms", "Using LIMIT safely"],
+    ["/support", "Help & support"],
+  ]) {
+    await page.goto(path);
+    await expect(page.getByRole("heading", { name: title, exact: true })).toBeVisible();
+    await expect(page.getByText(/Pre-release information:/)).toBeVisible();
+    await noOverflow(page);
+  }
+  await page.goto("/exercises");
+  await expect(page.getByText("365 total exercises", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Show all 365 results", exact: true }).click();
+  await expect(page.getByTestId("exercise-row")).toHaveCount(365);
+  await expect(page.getByRole("navigation", { name: "Exercise collections" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Favorite / })).toHaveCount(0);
+  await page.getByRole("textbox", { name: "Search exercises", exact: true }).fill("Zottman Curl");
+  await page.getByRole("button", { name: /^Zottman Curl Biceps/ }).click();
+  await expect(page.getByRole("dialog").getByText(/Sign in to select movements/)).toBeVisible();
+  await noOverflow(page);
+  if (testInfo.project.name === "phone")
+    await page.screenshot({ path: testInfo.outputPath("public-library.png"), fullPage: true });
+  expect(writes).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test("account export is explicit, private, downloadable and rejects failure or wrong identity", async ({
+  page,
+}) => {
+  const { control, errors } = await mockApp(page);
+  await page.goto("/profile");
+  await expect(page.getByRole("link", { name: "Privacy", exact: true })).toBeVisible();
+  control.failExport = true;
+  await page.getByRole("button", { name: "Export my data", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("Couldn’t prepare your complete export");
+  await expect(page.getByRole("link", { name: "Download data file" })).toHaveCount(0);
+  control.failExport = false;
+  control.wrongExportAccount = true;
+  await page.getByRole("button", { name: "Export my data", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("Couldn’t prepare your complete export");
+  await expect(page.getByRole("link", { name: "Download data file" })).toHaveCount(0);
+  control.wrongExportAccount = false;
+  await page.getByRole("button", { name: "Export my data", exact: true }).click();
+  const link = page.getByRole("link", { name: "Download data file" });
+  await expect(link).toBeVisible();
+  const data = await link.evaluate(async (element: HTMLAnchorElement) =>
+    (await fetch(element.href)).json()
+  );
+  expect(data.account.id).toBe("qa-user");
+  expect(data.entities.UserProfile[0].name).toBe("Jordan");
+  const downloadPromise = page.waitForEvent("download");
+  await link.click();
+  expect((await downloadPromise).suggestedFilename()).toMatch(/^limit-data-.*\.json$/);
+  await page.getByRole("button", { name: "Delete account", exact: true }).click();
+  await page.getByRole("button", { name: "Permanently delete account", exact: true }).click();
+  await expect(page.getByRole("dialog").getByRole("alert")).toContainText("did not finish");
+  await expect(
+    page.getByRole("button", { name: "Permanently delete account", exact: true })
+  ).toBeEnabled();
+  await page.getByRole("button", { name: "Keep my account", exact: true }).click();
+  await expect(page).toHaveURL(/\/profile$/);
+  expect(errors).toEqual([]);
+});
+
+test("Coach, photo scanning and import require optional consent and retain manual alternatives", async ({
+  page,
+}) => {
+  const { writes, errors } = await mockApp(page);
+  await page.goto("/home");
+  await page.getByRole("button", { name: "Open LIMIT Coach" }).click();
+  const drawer = page.getByRole("dialog");
+  await drawer.getByRole("textbox", { name: "Ask LIMIT Coach" }).fill("What did I log?");
+  await expect(drawer.getByRole("button", { name: "Send question" })).toBeDisabled();
+  await expect(
+    drawer.getByRole("checkbox", { name: "Allow this AI data sharing" })
+  ).not.toBeChecked();
+  await drawer.getByRole("checkbox", { name: "Allow this AI data sharing" }).check();
+  await drawer.getByRole("button", { name: "Send question" }).click();
+  await expect(drawer.getByRole("status")).toContainText("Your last logged workout");
+  expect(writes.filter((row) => row.function === "askLimitCoach")).toMatchObject([
+    { aiConsent: "openai-v1", question: "What did I log?" },
+  ]);
+  await drawer.getByRole("button", { name: "Close coach" }).click();
+  await page.getByRole("button", { name: "Open LIMIT Coach" }).click();
+  await expect(
+    drawer.getByRole("checkbox", { name: "Allow this AI data sharing" })
+  ).not.toBeChecked();
+  await drawer.getByRole("button", { name: "Close coach" }).click();
+  await page.goto("/nutrition");
+  await page.getByRole("button", { name: "Add Lunch", exact: true }).click();
+  await drawer.getByRole("button", { name: /Nutrition label/ }).click();
+  await expect(drawer.getByLabel("Camera", { exact: true })).toBeDisabled();
+  await expect(drawer.getByLabel("Photo Library", { exact: true })).toBeDisabled();
+  await drawer.getByRole("checkbox", { name: "Allow this AI data sharing" }).check();
+  await expect(drawer.getByLabel("Camera", { exact: true })).toBeEnabled();
+  await drawer.getByRole("checkbox", { name: "Allow this AI data sharing" }).uncheck();
+  await expect(drawer.getByLabel("Camera", { exact: true })).toBeDisabled();
+  await page.goto("/workout/import");
+  await page.getByRole("textbox", { name: "Workout program text" }).fill("Monday: Squat 3 x 5");
+  await expect(page.getByRole("button", { name: "PARSE REGIMEN", exact: true })).toBeDisabled();
+  await page.getByRole("checkbox", { name: "Allow this AI data sharing" }).check();
+  await expect(page.getByRole("button", { name: "PARSE REGIMEN", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: /Build manually/ }).click();
+  await expect(page.getByRole("button", { name: "BUILD MY SPLIT", exact: true })).toBeEnabled();
+  await expect(page.getByRole("checkbox", { name: "Allow this AI data sharing" })).toHaveCount(0);
+  await noOverflow(page);
+  expect(writes.filter((row) => row.function !== "askLimitCoach")).toEqual([]);
   expect(errors).toEqual([]);
 });

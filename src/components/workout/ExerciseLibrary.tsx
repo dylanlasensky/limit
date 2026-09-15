@@ -16,6 +16,7 @@ export default function ExerciseLibrary({
   recentLoading = false,
   recentError = false,
   onRetryRecent,
+  referenceMode = false,
 }: {
   exercises: any[];
   loading: boolean;
@@ -26,6 +27,7 @@ export default function ExerciseLibrary({
   recentLoading?: boolean;
   recentError?: boolean;
   onRetryRecent?: () => void;
+  referenceMode?: boolean;
 }) {
   const catalog = useMemo(() => browseCatalog(exercises), [exercises]);
   const { favorites, toggle } = useExerciseFavorites(userId);
@@ -131,25 +133,27 @@ export default function ExerciseLibrary({
           )}
         </div>
       )}
-      <div
-        aria-label="Exercise collections"
-        className="mb-4 grid grid-cols-3 gap-1 rounded-2xl bg-secondary p-1"
-      >
-        {["All", "Favorites", "Recent"].map((value) => (
-          <button
-            key={value}
-            aria-pressed={collection === value}
-            onClick={() => {
-              change(setCollection, value);
-              if (value === "Recent") setSort("recent");
-            }}
-            className={`min-h-11 rounded-xl text-sm font-semibold ${collection === value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
-          >
-            {value}
-            {value === "Favorites" ? ` · ${favorites.size}` : ""}
-          </button>
-        ))}
-      </div>
+      {!referenceMode && (
+        <div
+          aria-label="Exercise collections"
+          className="mb-4 grid grid-cols-3 gap-1 rounded-2xl bg-secondary p-1"
+        >
+          {["All", "Favorites", "Recent"].map((value) => (
+            <button
+              key={value}
+              aria-pressed={collection === value}
+              onClick={() => {
+                change(setCollection, value);
+                if (value === "Recent") setSort("recent");
+              }}
+              className={`min-h-11 rounded-xl text-sm font-semibold ${collection === value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+            >
+              {value}
+              {value === "Favorites" ? ` · ${favorites.size}` : ""}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="relative">
         <Search aria-hidden className="absolute left-4 top-4 h-5 w-5 text-muted-foreground" />
         <input
@@ -294,17 +298,19 @@ export default function ExerciseLibrary({
                   className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
                 />
               </button>
-              <button
-                aria-label={`${favorites.has(exercise.browseKey) ? "Unfavorite" : "Favorite"} ${exercise.name}`}
-                aria-pressed={favorites.has(exercise.browseKey)}
-                onClick={() => toggle(exercise.browseKey)}
-                className="mr-2 grid h-11 w-11 shrink-0 place-items-center rounded-xl text-primary hover:bg-primary/10"
-              >
-                <Star
-                  aria-hidden
-                  className={`h-4 w-4 ${favorites.has(exercise.browseKey) ? "fill-current" : ""}`}
-                />
-              </button>
+              {!referenceMode && (
+                <button
+                  aria-label={`${favorites.has(exercise.browseKey) ? "Unfavorite" : "Favorite"} ${exercise.name}`}
+                  aria-pressed={favorites.has(exercise.browseKey)}
+                  onClick={() => toggle(exercise.browseKey)}
+                  className="mr-2 grid h-11 w-11 shrink-0 place-items-center rounded-xl text-primary hover:bg-primary/10"
+                >
+                  <Star
+                    aria-hidden
+                    className={`h-4 w-4 ${favorites.has(exercise.browseKey) ? "fill-current" : ""}`}
+                  />
+                </button>
+              )}
             </div>
           ))}
           {visible < filtered.length && (
@@ -359,7 +365,12 @@ export default function ExerciseLibrary({
         open={!!detail}
         onOpenChange={(open) => !open && setDetail(null)}
         favorite={detail ? favorites.has(detail.browseKey) : false}
-        onFavorite={detail ? () => toggle(detail.browseKey) : undefined}
+        onFavorite={detail && !referenceMode ? () => toggle(detail.browseKey) : undefined}
+        referenceMessage={
+          referenceMode
+            ? "You’re viewing the public reference library. Sign in to select movements in your program and save workout history."
+            : undefined
+        }
       />
     </section>
   );

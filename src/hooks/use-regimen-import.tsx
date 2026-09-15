@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { listExercises } from "@/lib/training/exerciseLibrary";
 import {
@@ -19,9 +19,12 @@ export interface BeginRegimenInput {
   text?: string;
   file?: File | null;
   type: string;
+  aiConsent?: string;
 }
 
 export default function useRegimenImport(planId?: string | null) {
+  const parsing = useRef<AbortController>();
+  useEffect(() => () => parsing.current?.abort(), []);
   const client = useQueryClient(),
     catalog = useQuery({
       queryKey: ["exercises"],
@@ -53,18 +56,32 @@ export default function useRegimenImport(planId?: string | null) {
       .catch((e: any) => setError(e.message || "Couldn’t load this plan."))
       .finally(() => setBusy(false));
   }, [planId, catalog.data]);
-  const begin = async ({ text, file, type }: BeginRegimenInput) => {
+  const begin = async ({ text, file, type, aiConsent }: BeginRegimenInput) => {
+    parsing.current?.abort();
+    const request = new AbortController();
+    parsing.current = request;
     setBusy(true);
     setError("");
     try {
-      const parsed = type === "manual" ? blankRegimen() : await parseRegimen({ text, file });
+      if (!["manual", "pasted_text", "uploaded_file"].includes(type))
+        throw new Error("Choose an import method.");
+      const parsed =
+        type === "manual"
+          ? blankRegimen()
+          : await parseRegimen({
+              ...(type === "pasted_text" ? { text } : { file }),
+              aiConsent,
+              signal: request.signal,
+            });
+      if (request.signal.aborted) return;
       setDraft(matchRegimen(parsed, catalog.data || []));
       setSourceType(type);
       setStage("review");
     } catch (e: any) {
+      if (request.signal.aborted) return;
       setError(e.message || "LIMIT couldn’t read that regimen. Try pasted text or another file.");
     } finally {
-      setBusy(false);
+      if (!request.signal.aborted) setBusy(false);
     }
   };
   // Draft editors only run once a draft exists (review stage).

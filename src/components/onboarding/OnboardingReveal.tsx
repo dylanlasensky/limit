@@ -11,19 +11,21 @@ export default function OnboardingReveal({ data }: OnboardingRevealProps) {
   const chosen: string[] = data.availableDays || [];
   return (
     <div>
-      <section className="rounded-2xl border border-blue-900/60 bg-[#121217] p-5">
-        <p className="text-xs font-bold uppercase tracking-[.18em] text-blue-500">
-          Your LIMIT plan
-        </p>
+      <section className="rounded-2xl border border-primary/30 bg-card p-5">
+        <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">Your LIMIT plan</p>
         <h2 className="mt-2 text-3xl font-black">{rec.name}</h2>
-        <p className="mt-1 text-sm font-bold text-zinc-400">{rec.dayNames.length} DAYS / WEEK</p>
-        <p className="mt-4 text-xs font-bold uppercase tracking-widest text-zinc-500">
+        <p className="mt-1 text-sm font-bold text-muted-foreground">
+          {rec.dayNames.length} DAYS / WEEK
+        </p>
+        <p className="mt-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">
           Why this fits you
         </p>
-        <p className="mt-1 text-sm leading-relaxed text-zinc-300">{rec.why}</p>
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{rec.why}</p>
       </section>
-      <section className="mt-3 rounded-2xl border border-zinc-800 bg-[#121217] p-5">
-        <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Your week</p>
+      <section className="mt-3 rounded-2xl border border-border bg-card p-5">
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          Your week
+        </p>
         <div className="mt-3 space-y-1.5">
           {WEEKDAYS.map((d) => {
             const idx = chosen.indexOf(d);
@@ -31,29 +33,38 @@ export default function OnboardingReveal({ data }: OnboardingRevealProps) {
             return (
               <div
                 key={d}
-                className="flex items-center justify-between border-b border-zinc-800/60 pb-1.5 text-sm last:border-0"
+                className="flex items-center justify-between gap-3 border-b border-border pb-1.5 text-sm last:border-0"
               >
-                <span className="w-12 font-bold text-zinc-500">{d.slice(0, 3).toUpperCase()}</span>
-                <span className={idx >= 0 ? "font-bold" : "text-zinc-600"}>{name}</span>
+                <span className="w-12 shrink-0 font-bold text-muted-foreground">
+                  {d.slice(0, 3).toUpperCase()}
+                </span>
+                <span className={idx >= 0 ? "text-right font-bold" : "text-muted-foreground"}>
+                  {name}
+                </span>
               </div>
             );
           })}
         </div>
       </section>
-      <section className="mt-3 rounded-2xl border border-zinc-800 bg-[#121217] p-5">
-        <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+      <section className="mt-3 rounded-2xl border border-border bg-card p-5">
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
           Daily nutrition targets
         </p>
-        <p className="mt-2 text-3xl font-black">
-          {targets.calorieTarget} <span className="text-base font-bold text-zinc-400">CAL</span>
-        </p>
-        <div className="mt-2 flex gap-4 text-sm font-bold text-zinc-300">
-          <span>{targets.proteinTarget}g protein</span>
-          <span>{targets.carbTarget}g carbs</span>
-          <span>{targets.fatTarget}g fat</span>
-        </div>
-        <p className="mt-2 text-xs text-zinc-500">
-          Estimated from your body, activity, and goal. You can adjust anytime.
+        {targets.calorieTarget > 0 && (
+          <>
+            <p className="mt-2 text-3xl font-black">
+              {targets.calorieTarget}{" "}
+              <span className="text-base font-bold text-muted-foreground">CAL</span>
+            </p>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm font-bold text-muted-foreground">
+              <span>{targets.proteinTarget}g protein</span>
+              <span>{targets.carbTarget}g carbs</span>
+              <span>{targets.fatTarget}g fat</span>
+            </div>
+          </>
+        )}
+        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+          {targets.targetExplanation}
         </p>
       </section>
     </div>

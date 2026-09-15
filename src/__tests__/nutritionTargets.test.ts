@@ -61,6 +61,23 @@ describe("toUSProfile", () => {
 });
 
 describe("calcTargets", () => {
+  it("does not invent an adult age when a birth date is missing or invalid", () => {
+    for (const birthDate of [undefined, "", "not-a-date", "2099-01-01"]) {
+      const targets = calcTargets({ ...male, birthDate });
+      expect(targets.calorieTarget).toBe(0);
+      expect(targets.proteinTarget).toBe(0);
+      expect(targets.targetExplanation).toContain("date of birth");
+    }
+  });
+
+  it("does not prescribe automatic calorie or weight-loss targets to minors", () => {
+    const now = new Date();
+    const birthDate = `${now.getFullYear() - 10}-01-01`;
+    const targets = calcTargets({ ...male, birthDate, fitnessGoal: "lose fat" });
+    expect(targets.calorieTarget).toBe(0);
+    expect(targets.fatTarget).toBe(0);
+    expect(targets.targetExplanation).toContain("qualified health professional");
+  });
   it("returns a calorie target that matches the macro split", () => {
     const t = calcTargets(male);
     const fromMacros = t.proteinTarget * 4 + t.carbTarget * 4 + t.fatTarget * 9;

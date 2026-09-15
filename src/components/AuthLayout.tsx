@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import PublicLinks from "@/components/limit/PublicLinks";
 
 interface AuthLayoutProps {
   icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }>;
@@ -30,6 +32,13 @@ export default function AuthLayout({
         </div>
         <div className="limit-surface rounded-3xl p-6 sm:p-8">{children}</div>
         {footer && <p className="text-center text-sm text-muted-foreground mt-6">{footer}</p>}
+        <Link
+          to="/exercises"
+          className="mt-3 grid min-h-11 place-items-center text-sm font-semibold text-primary"
+        >
+          Explore exercises without an account
+        </Link>
+        <PublicLinks />
       </div>
     </main>
   );
