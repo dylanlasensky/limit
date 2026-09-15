@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Camera, ImagePlus, Loader2, RotateCcw } from "lucide-react";
 import { Image } from "@/components/ui/image";
 import {
@@ -11,6 +11,7 @@ import {
 import type { DietaryProfile } from "@/components/limit/data";
 import ScannedFoodEditor from "@/components/limit/ScannedFoodEditor";
 import ScannedMealEditor from "@/components/limit/ScannedMealEditor";
+import AiConsent, { AI_CONSENT_VERSION } from "@/components/limit/AiConsent";
 interface FoodPhotoScannerProps {
   mode: ScanMode;
   dietaryProfile?: DietaryProfile | null;
@@ -25,11 +26,14 @@ export default function FoodPhotoScanner({
   onManual,
   initialMealType,
 }: FoodPhotoScannerProps) {
+  const pending = useRef<AbortController>();
+  useEffect(() => () => pending.current?.abort(), []);
   const [url, setUrl] = useState(""),
     [fileUri, setFileUri] = useState(""),
     [result, setResult] = useState<FoodScanResult | undefined>(),
     [loading, setLoading] = useState(false),
     [error, setError] = useState(""),
+    [consent, setConsent] = useState(false),
     [answer, setAnswer] = useState("");
   useEffect(
     () => () => {
@@ -37,7 +41,15 @@ export default function FoodPhotoScanner({
     },
     [url]
   );
-  const analyze = async (fileUri: string, clarification?: string) => {
+  const analyze = async (
+    fileUri: string,
+    clarification?: string,
+    uploadRequest?: AbortController
+  ) => {
+    if (!consent || uploadRequest?.signal.aborted) return;
+    if (!uploadRequest) pending.current?.abort();
+    const request = uploadRequest || new AbortController();
+    pending.current = request;
     setLoading(true);
     setError("");
     try {
@@ -46,30 +58,42 @@ export default function FoodPhotoScanner({
         scanMode: mode,
         dietaryProfile,
         clarification,
+        aiConsent: AI_CONSENT_VERSION,
       });
+      if (request.signal.aborted) return;
       if (clarification) next.clarifyingQuestion = "";
       setResult(next);
     } catch (e: any) {
+      if (request.signal.aborted) return;
       setError(e.message || "We could not analyze this photo.");
     } finally {
-      setLoading(false);
+      if (!request.signal.aborted) setLoading(false);
     }
   };
   const choose = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !consent) return;
+    pending.current?.abort();
+    const request = new AbortController();
+    pending.current = request;
     setLoading(true);
     try {
-      const upload = await uploadFoodImage(file);
+      const upload = await uploadFoodImage(file, AI_CONSENT_VERSION);
+      if (request.signal.aborted) {
+        URL.revokeObjectURL(upload.previewUrl);
+        return;
+      }
       setFileUri(upload.fileUri);
       setUrl(upload.previewUrl);
-      await analyze(upload.fileUri);
+      await analyze(upload.fileUri, undefined, request);
     } catch (err: any) {
+      if (request.signal.aborted) return;
       setError(err.message || "Upload failed.");
       setLoading(false);
     }
   };
   const reset = () => {
+    pending.current?.abort();
     if (url) URL.revokeObjectURL(url);
     setUrl("");
     setFileUri("");
@@ -79,6 +103,13 @@ export default function FoodPhotoScanner({
   if (result?.clarifyingQuestion && mode === "meal")
     return (
       <div className="space-y-3">
+        <AiConsent
+          checked={consent}
+          onChange={setConsent}
+          disabled={loading}
+          purpose="refine the food estimate"
+          dataDescription="the selected food photo, saved allergies, and your clarification"
+        />
         <p className="font-bold">One quick question</p>
         <p className="text-sm text-muted-foreground">{result.clarifyingQuestion}</p>
         <input
@@ -89,7 +120,7 @@ export default function FoodPhotoScanner({
         />
         <button
           onClick={() => analyze(fileUri, answer)}
-          disabled={!answer || loading}
+          disabled={!answer || loading || !consent}
           className="h-12 w-full rounded-xl bg-primary font-semibold text-primary-foreground"
         >
           Refine estimate
@@ -135,6 +166,13 @@ export default function FoodPhotoScanner({
     );
   return (
     <div className="space-y-4">
+      <AiConsent
+        checked={consent}
+        onChange={setConsent}
+        disabled={loading}
+        purpose="estimate food nutrition"
+        dataDescription="the food photo you choose, saved allergies, and any clarification you enter"
+      />
       {url && (
         <Image
           src={url}
@@ -168,6 +206,7 @@ export default function FoodPhotoScanner({
                 accept="image/*"
                 capture="environment"
                 onChange={choose}
+                disabled={!consent}
                 className="sr-only"
               />
             </label>
@@ -176,7 +215,13 @@ export default function FoodPhotoScanner({
                 <ImagePlus className="mx-auto mb-2" />
                 Photo Library
               </span>
-              <input type="file" accept="image/*" onChange={choose} className="sr-only" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={choose}
+                disabled={!consent}
+                className="sr-only"
+              />
             </label>
           </div>
         </>
@@ -188,7 +233,11 @@ export default function FoodPhotoScanner({
         >
           <p>{error}</p>
           <div className="mt-3 flex gap-3">
-            <button onClick={() => fileUri && analyze(fileUri)} className="min-h-10 font-bold">
+            <button
+              disabled={!consent}
+              onClick={() => fileUri && analyze(fileUri)}
+              className="min-h-10 font-bold"
+            >
               Try again
             </button>
             <button onClick={onManual} className="min-h-10 font-bold text-primary">
@@ -196,6 +245,11 @@ export default function FoodPhotoScanner({
             </button>
           </div>
         </div>
+      )}
+      {!loading && (
+        <button onClick={onManual} className="min-h-11 w-full text-sm font-semibold text-primary">
+          Enter food manually instead
+        </button>
       )}
     </div>
   );

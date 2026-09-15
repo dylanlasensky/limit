@@ -7,6 +7,8 @@ export const mobileCapabilities = {
   mealVision: true,
   healthKit: false,
   pushNotifications: false,
+  fullOfflineMode: false,
+  nativePurchases: false,
 };
 export async function requestCameraFile(input?: HTMLInputElement | null): Promise<File | null> {
   return input?.files?.[0] || null;
@@ -18,22 +20,25 @@ export async function lookupBarcode(): Promise<never> {
 }
 export async function analyzeNutritionLabel(
   fileUrl: string,
-  dietaryProfile?: DietaryProfile | null
+  dietaryProfile?: DietaryProfile | null,
+  aiConsent?: string
 ): Promise<FoodScanResult> {
-  return analyzeFoodImage({ fileUri: fileUrl, scanMode: "food", dietaryProfile });
+  return analyzeFoodImage({ fileUri: fileUrl, scanMode: "food", dietaryProfile, aiConsent });
 }
 export async function analyzeMealPhoto(
   fileUrl: string,
   dietaryProfile?: DietaryProfile | null,
-  clarification?: string
+  clarification?: string,
+  aiConsent?: string
 ): Promise<FoodScanResult> {
   return analyzeFoodImage({
     fileUri: fileUrl,
     scanMode: "meal",
     dietaryProfile,
     clarification,
+    aiConsent,
   });
 }
 export async function syncHealthKit(): Promise<never> {
-  throw new Error("HealthKit becomes available after native iOS packaging.");
+  throw new Error("Apple Health sync is not available in this version of LIMIT.");
 }

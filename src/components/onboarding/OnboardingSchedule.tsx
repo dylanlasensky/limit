@@ -21,11 +21,14 @@ export default function OnboardingSchedule({ data, set }: OnboardingStepProps) {
           <button
             key={d}
             type="button"
+            aria-pressed={days.includes(d)}
+            disabled={!days.includes(d) && days.length >= 6}
             onClick={() => toggle(d)}
             className={`limit-surface flex min-h-14 w-full items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all ${days.includes(d) ? "border-primary/60 bg-primary/10 text-primary shadow-[inset_3px_0_0_hsl(var(--primary))]" : ""}`}
           >
             {d}
             <span
+              aria-hidden="true"
               className={`grid h-6 w-6 place-items-center rounded-full border text-xs ${days.includes(d) ? "border-blue-600 bg-blue-600 text-white" : "border-border text-transparent"}`}
             >
               ✓

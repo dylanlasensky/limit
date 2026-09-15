@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import useSystemTheme from "@/hooks/use-system-theme";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +13,8 @@ import OnboardingSchedule from "@/components/onboarding/OnboardingSchedule";
 import OnboardingPriorities from "@/components/onboarding/OnboardingPriorities";
 import OnboardingDiet from "@/components/limit/OnboardingDiet";
 import OnboardingReveal from "@/components/onboarding/OnboardingReveal";
+import { bodyInputErrors } from "@/lib/profile-inputs";
+import { profilePayload } from "@/lib/profile-payload";
 
 export interface OnboardingData {
   units: string;
@@ -43,12 +45,17 @@ type Step = [string, string, StepView, StepValidator];
 
 const steps: Step[] = [
   ["Your goal", "What are you training for?", OnboardingGoal, (d) => !!d.fitnessGoal],
-  ["Your body", "Let’s meet you", OnboardingPersonal, (d) => d.name && d.heightFeet && d.weightLb],
+  [
+    "Your body",
+    "Let’s meet you",
+    OnboardingPersonal,
+    (d) => !Object.keys(bodyInputErrors(d)).length,
+  ],
   [
     "Your training",
     "How you train",
     OnboardingTraining,
-    (d) => d.experienceLevel && d.sessionLength,
+    (d) => d.experienceLevel && d.sessionLength && d.equipment.length > 0,
   ],
   [
     "Your schedule",
@@ -65,7 +72,13 @@ export default function Onboarding() {
   const dark = useSystemTheme(),
     [step, setStep] = useState(0),
     [saving, setSaving] = useState(false),
-    [error, setError] = useState(false);
+    [error, setError] = useState("");
+  const heading = useRef<HTMLHeadingElement>(null);
+  const finishing = useRef(false);
+  useEffect(() => {
+    heading.current?.focus();
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [step]);
   const [data, setData] = useState<OnboardingData>({
     units: "imperial",
     sex: "female",
@@ -83,13 +96,15 @@ export default function Onboarding() {
   const canContinue = valid(data);
 
   const finish = async () => {
+    if (finishing.current) return;
+    finishing.current = true;
     setSaving(true);
-    setError(false);
+    setError("");
     try {
       const days = data.availableDays.length;
       const targets = calcTargets({ ...data, days });
       const rec = scoreProgramStructures(data).best;
-      const profile = {
+      const profile = profilePayload({
         name: data.name,
         birthDate: data.birthDate,
         sex: data.sex,
@@ -112,11 +127,10 @@ export default function Onboarding() {
         targetsCustomized: false,
         onboardingComplete: false,
         ...targets,
-      };
-      const [profiles, diets, activePlans] = await Promise.all([
+      });
+      const [profiles, diets] = await Promise.all([
         base44.entities.UserProfile.list(),
         base44.entities.DietaryProfile.list(),
-        base44.entities.WorkoutPlan.filter({ active: true }),
       ]);
       const savedProfile = profiles[0]
         ? await base44.entities.UserProfile.update(profiles[0].id, profile)
@@ -136,16 +150,22 @@ export default function Onboarding() {
       };
       if (diets[0]) await base44.entities.DietaryProfile.update(diets[0].id, diet);
       else await base44.entities.DietaryProfile.create(diet);
-      if (
-        !data.importAfterOnboarding &&
-        !activePlans.some((plan: any) => plan.name === rec.name && plan.daysPerWeek === days)
-      )
-        await createPersonalizedPlan({ ...profile, days }, rec);
+      // A retry may follow edits to exact weekdays, equipment, or experience.
+      // Rebuild from all current answers, not just a matching plan name/day count.
+      // The plan service validates an inactive replacement before activation,
+      // so the current working program stays available if generation fails.
+      if (!data.importAfterOnboarding) await createPersonalizedPlan({ ...profile, days }, rec);
       await base44.entities.UserProfile.update(savedProfile.id, { onboardingComplete: true });
       nav(data.importAfterOnboarding ? "/workout/import" : "/home", { replace: true });
-    } catch {
+    } catch (e: any) {
       setSaving(false);
-      setError(true);
+      setError(
+        e?.response
+          ? "Something went wrong building your plan. Try again."
+          : e.message || "Something went wrong building your plan. Try again."
+      );
+    } finally {
+      finishing.current = false;
     }
   };
 
@@ -170,7 +190,13 @@ export default function Onboarding() {
       </div>
       <div className="my-7">
         <p className="limit-kicker">{label}</p>
-        <h1 className="mt-3 text-4xl font-bold leading-tight tracking-[-.035em]">{title}</h1>
+        <h1
+          ref={heading}
+          tabIndex={-1}
+          className="mt-3 text-4xl font-bold leading-tight tracking-[-.035em] outline-none"
+        >
+          {title}
+        </h1>
         <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
           Your answers shape your training frequency, exercise selection, session length, and
           starting nutrition targets.
@@ -188,8 +214,11 @@ export default function Onboarding() {
         </motion.div>
       </AnimatePresence>
       {error && (
-        <p className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive-foreground">
-          Something went wrong building your plan. Try again.
+        <p
+          role="alert"
+          className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-foreground"
+        >
+          {error}
         </p>
       )}
       <button
@@ -205,6 +234,7 @@ export default function Onboarding() {
       </button>
       {step > 0 && !saving && (
         <button
+          aria-label="Back to previous step"
           onClick={() => setStep(step - 1)}
           className="mt-2 h-12 w-full text-sm font-semibold text-muted-foreground"
         >

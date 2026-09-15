@@ -37,6 +37,10 @@ jobs:
       - name: Format check
         run: npm run format:check
 
+      # This checks source safeguards, not Apple/legal/device release approval.
+      - name: App Store source safeguards
+        run: npm run check:release-source
+
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -93,6 +97,9 @@ jobs:
         env:
           VITE_BASE44_APP_ID: ${{ secrets.BASE44_APP_ID }}
           VITE_BASE44_APP_BASE_URL: ${{ vars.BASE44_APP_BASE_URL }}
+          VITE_LIMIT_PRIVACY_URL: ${{ vars.LIMIT_PRIVACY_URL }}
+          VITE_LIMIT_TERMS_URL: ${{ vars.LIMIT_TERMS_URL }}
+          VITE_LIMIT_SUPPORT_URL: ${{ vars.LIMIT_SUPPORT_URL }}
 
       - name: Upload dist
         uses: actions/upload-artifact@v4

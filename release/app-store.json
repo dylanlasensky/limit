@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "platform": "ios",
+  "packaging": "base44",
+  "candidate": {
+    "sourceRevision": null,
+    "appVersion": null,
+    "buildNumber": null,
+    "bundleIdentifier": null,
+    "developerTeamId": null,
+    "publishedUrl": "https://limit-55abb6d1.base44.app"
+  },
+  "legal": {
+    "businessName": null,
+    "privacyUrl": null,
+    "termsUrl": null,
+    "supportUrl": null
+  },
+  "commerce": {
+    "mode": "unconfigured"
+  },
+  "checks": {
+    "developerOwnership": { "status": "unverified" },
+    "nativePackage": { "status": "unverified" },
+    "nativeSDK": { "status": "unverified" },
+    "nativePermissionsPrivacy": { "status": "unverified" },
+    "legalAndDataPractices": { "status": "unverified" },
+    "supportAndOperations": { "status": "unverified" },
+    "nativeAuthentication": { "status": "unverified" },
+    "accountIsolation": { "status": "unverified" },
+    "accountDeletion": { "status": "unverified" },
+    "uploadsAndAI": { "status": "unverified" },
+    "workoutsAndRecovery": { "status": "unverified" },
+    "deviceAccessibility": { "status": "unverified" },
+    "commercialModel": { "status": "unverified" },
+    "storeMetadata": { "status": "unverified" },
+    "testFlight": { "status": "unverified" },
+    "releaseTests": { "status": "unverified" }
+  }
+}

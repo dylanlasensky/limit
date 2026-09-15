@@ -16,6 +16,7 @@ export default function AccountDeletion() {
     [deleting, setDeleting] = useState(false),
     [error, setError] = useState("");
   const remove = async () => {
+    if (deleting) return;
     setDeleting(true);
     setError("");
     try {
@@ -37,7 +38,13 @@ export default function AccountDeletion() {
         <Trash2 className="h-4 w-4" />
         Delete account
       </button>
-      <Drawer open={open} onOpenChange={setOpen}>
+      <Drawer
+        open={open}
+        onOpenChange={(value) => {
+          if (!deleting) setOpen(value);
+        }}
+        dismissible={!deleting}
+      >
         <DrawerContent>
           <div className="mx-auto w-full max-w-md px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <DrawerHeader className="px-0">
@@ -47,8 +54,21 @@ export default function AccountDeletion() {
                 metrics, meal data, and profile. This cannot be undone.
               </DrawerDescription>
             </DrawerHeader>
+            <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
+              Export anything you want to keep before continuing. Deleting the app alone does not
+              delete your account. See the{" "}
+              <a href="/privacy" className="underline">
+                privacy information
+              </a>{" "}
+              for uploaded files and service retention.
+            </p>
             {error && (
-              <p className="mb-3 rounded-xl bg-red-950/40 p-3 text-sm text-red-400">{error}</p>
+              <p
+                role="alert"
+                className="mb-3 rounded-xl bg-destructive/10 p-3 text-sm text-destructive"
+              >
+                {error}
+              </p>
             )}
             <button
               disabled={deleting}

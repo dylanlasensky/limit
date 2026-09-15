@@ -36,6 +36,9 @@ export default function NativeSelect<V extends string | number = string>({
     <>
       <button
         type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-description={label}
         onClick={() => setOpen(true)}
         className={cn(
           "limit-surface flex h-12 w-full items-center justify-between rounded-xl px-3 text-left transition-colors active:border-primary/40",
@@ -57,6 +60,7 @@ export default function NativeSelect<V extends string | number = string>({
                 <button
                   type="button"
                   key={item.value}
+                  aria-pressed={item.value === value}
                   onClick={() => {
                     onChange(item.value);
                     setOpen(false);

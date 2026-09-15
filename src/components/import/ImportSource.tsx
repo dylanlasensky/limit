@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { ClipboardPaste, FileUp, Keyboard, Loader2, Sparkles, type LucideIcon } from "lucide-react";
 import AthleteContext, { type ImportMeta } from "@/components/import/AthleteContext";
+import AiConsent, { AI_CONSENT_VERSION } from "@/components/limit/AiConsent";
 export type ImportSourceType = "pasted_text" | "uploaded_file" | "manual";
 export interface ImportSourceInput {
   type: ImportSourceType;
-  text: string;
+  text?: string;
   file?: File;
+  aiConsent?: string;
 }
 interface ImportSourceProps {
   meta: ImportMeta;
@@ -22,6 +24,7 @@ const methods: Array<[ImportSourceType, LucideIcon, string, string]> = [
 export default function ImportSource({ meta, setMeta, onBegin, busy, error }: ImportSourceProps) {
   const [type, setType] = useState<ImportSourceType>("pasted_text"),
     [text, setText] = useState(""),
+    [consent, setConsent] = useState(false),
     [file, setFile] = useState<File | undefined>();
   return (
     <div>
@@ -39,6 +42,7 @@ export default function ImportSource({ meta, setMeta, onBegin, busy, error }: Im
         {methods.map(([value, Icon, label, hint]) => (
           <button
             key={value}
+            disabled={busy}
             onClick={() => setType(value)}
             className={`min-h-28 rounded-2xl p-3 text-left ${type === value ? "limit-chip-active" : "limit-chip"}`}
           >
@@ -53,6 +57,9 @@ export default function ImportSource({ meta, setMeta, onBegin, busy, error }: Im
       {type === "pasted_text" && (
         <textarea
           value={text}
+          aria-label="Workout program text"
+          maxLength={50000}
+          disabled={busy}
           onChange={(e) => setText(e.target.value)}
           placeholder={
             "Paste a coach note, program, or table…\n\nMonday — Lower\nBack squat 4 × 5, rest 3 min"
@@ -70,14 +77,26 @@ export default function ImportSource({ meta, setMeta, onBegin, busy, error }: Im
           <input
             type="file"
             accept="image/*,.pdf,.txt,.csv,.xls,.xlsx"
+            disabled={busy}
             onChange={(e) => setFile(e.target.files?.[0])}
-            className="hidden"
+            className="sr-only"
           />
         </label>
       )}
       <div className="mt-5">
         <AthleteContext meta={meta} onChange={setMeta} />
       </div>
+      {type !== "manual" && (
+        <div className="mt-5">
+          <AiConsent
+            checked={consent}
+            onChange={setConsent}
+            disabled={busy}
+            purpose="read your workout program"
+            dataDescription="the program text or file you choose"
+          />
+        </div>
+      )}
       {error && (
         <p className="mt-4 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm">
           {error}
@@ -85,9 +104,18 @@ export default function ImportSource({ meta, setMeta, onBegin, busy, error }: Im
       )}
       <button
         disabled={
-          busy || (type === "pasted_text" && !text.trim()) || (type === "uploaded_file" && !file)
+          busy ||
+          (type !== "manual" && !consent) ||
+          (type === "pasted_text" && !text.trim()) ||
+          (type === "uploaded_file" && !file)
         }
-        onClick={() => onBegin({ type, text, file })}
+        onClick={() =>
+          onBegin({
+            type,
+            ...(type === "pasted_text" ? { text } : type === "uploaded_file" ? { file } : {}),
+            ...(type !== "manual" && consent ? { aiConsent: AI_CONSENT_VERSION } : {}),
+          })
+        }
         className="limit-button mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-black disabled:opacity-40"
       >
         {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}

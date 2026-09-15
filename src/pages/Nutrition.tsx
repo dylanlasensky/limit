@@ -45,12 +45,17 @@ export default function Nutrition() {
     remaining = (p.calorieTarget || 0) - m.calories,
     refresh = () =>
       Promise.all([foodsQuery.refetch(), profileQuery.refetch(), dietQuery.refetch()]);
-  if (profileQuery.isLoading || foodsQuery.isLoading) return <ScreenState loading />;
-  if (profileQuery.error || foodsQuery.error)
+  if (profileQuery.isLoading || foodsQuery.isLoading || dietQuery.isLoading)
+    return <ScreenState loading />;
+  if (profileQuery.error || foodsQuery.error || dietQuery.error)
     return (
       <ScreenState
         title="Couldn’t load today’s nutrition"
-        description="Your logged food is safe. Try loading today again."
+        description={
+          dietQuery.error
+            ? "We couldn’t verify your saved allergies and dietary preferences. Reload before adding food or viewing meal ideas."
+            : "Your logged food is safe. Try loading today again."
+        }
         onAction={refresh}
       />
     );
@@ -133,7 +138,10 @@ export default function Nutrition() {
             ) : (
               <ScreenState
                 title="Set your nutrition target"
-                description="Add your body metrics and goal in Profile to calculate an estimated calorie and macro starting point."
+                description={
+                  p.targetExplanation ||
+                  "Add your body metrics and date of birth in Profile for an adult nutrition estimate. You can log food without a target."
+                }
                 action="Set nutrition targets"
                 onAction={() => navigate("/profile#nutrition")}
               />

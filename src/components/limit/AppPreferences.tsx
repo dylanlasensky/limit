@@ -1,18 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import NativeSelect from "@/components/limit/NativeSelect";
 import { useAppearance, type Appearance } from "@/hooks/use-system-theme";
-import { storageGet, storageSet } from "@/lib/storage";
 export default function AppPreferences() {
   const { appearance, setAppearance } = useAppearance();
-  const [reminders, setReminders] = useState(
-    () => storageGet("localStorage", "limit-reminders") === "on"
-  );
   const theme = (value: string) => {
     setAppearance(value as Appearance);
-  };
-  const reminder = (value: boolean) => {
-    setReminders(value);
-    storageSet("localStorage", "limit-reminders", value ? "on" : "off");
   };
   return (
     <section className="limit-surface mt-4 rounded-3xl p-5">
@@ -37,20 +29,13 @@ export default function AppPreferences() {
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
         Choose crisp light or rich dark. Match device follows your system automatically.
       </p>
-      <label className="mt-5 flex min-h-12 items-center justify-between gap-4">
-        <span>
-          <b className="text-sm">Workout reminder preference</b>
-          <p className="text-xs text-muted-foreground">
-            Used when native notifications are enabled
-          </p>
-        </span>
-        <input
-          type="checkbox"
-          checked={reminders}
-          onChange={(e) => reminder(e.target.checked)}
-          className="h-5 w-5 accent-blue-600"
-        />
-      </label>
+      <div className="mt-5 border-t border-border pt-4">
+        <p className="text-sm font-semibold">Notifications</p>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          Workout reminders are not available in this version. Your schedule is always in the
+          Workout tab.
+        </p>
+      </div>
     </section>
   );
 }

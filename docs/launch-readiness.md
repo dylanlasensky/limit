@@ -2,7 +2,7 @@
 
 ## Status
 
-This change set is a production-hardening pass, **not approval to take payments or a certification that the live app is secure**. It preserves the Base44 backend, existing five-tab product, athlete-program import, imperial measurements, and black/royal-blue visual direction. No live customer records were edited or deleted during verification.
+This is a production-hardening record, **not approval to take payments or certification that the live app is secure**. It preserves the Base44 backend, five-tab product, athlete-program import, imperial measurements, and the neutral blue light/dark visual direction. No live customer records were edited or deleted during verification. See [the App Store release gate](app-store-readiness.md) and [privacy inventory](privacy-data-inventory.md) for the current mobile-specific requirements and evidence ledger.
 
 ## Implemented
 
@@ -11,7 +11,10 @@ This change set is a production-hardening pass, **not approval to take payments 
 - The dashboard and new saved Muscle Rating snapshots share one scoring function. Empty data is not fabricated; warmups and unfinished sets are excluded. Existing historical snapshots are not rewritten.
 - Manual/scanned food writes validate names, portions and nutrition, preserve the selected meal, show failures, and allow retry. Saved meal weeks reload; incomplete saves do not replace the previous week. New exclusions still filter saved suggestions. Batch portions affect grocery counts.
 - Cookie-backed sign-in works without a stored token. Account changes clear query caches. App/server configuration comes from build settings, not untrusted URL or storage overrides. Photo signing uses the user's permissions and short-lived links. Settings writes omit server-owned workout locks.
-- Dark/light tokens, mobile layouts, reduced-motion support, accessible drawers, recovery screens, route-level loading, app identity, favicon and manifest are included. Duplicate JavaScript auth modules that shadowed TypeScript pages are removed.
+- Dark/light tokens, mobile layouts, reduced-motion support, accessible drawers, recovery screens, route-level loading, app identity, favicon and manifest are included. Vite prioritizes maintained TypeScript modules over platform-generated JavaScript auth files; the source guard verifies that resolution order.
+- Optional AI requires explicit permission before uploads/requests. Model recipients are disclosed, private files are signed as the user, and import methods send only the chosen source. The Coach does not receive body-weight or nutrition totals when adult age is unverified and is instructed not to prescribe targets.
+- Profile includes verified-identity export, retryable checked account deletion, and public help/privacy/safety links. Guest exercise browsing needs no account. Informational legal fallbacks explicitly state their pre-release status; they are not approved policies.
+- Invalid profile inputs are blocked; unknown/minor ages do not receive automatic nutrition targets. Exact training-day preferences and saved-before-rebuild behavior are checked. Allergy-loading failures block food suggestions until retry.
 - Regression coverage includes unit tests and a production-bundle browser suite at 320, 390, 430 and 1280 CSS pixels. Browser tests intercept APIs and block external traffic. They do **not** prove live authorization, real email delivery, device integration, or payment behavior.
 
 ## Required before selling
@@ -30,6 +33,7 @@ This change set is a production-hardening pass, **not approval to take payments 
 npm ci
 npm run lint
 npm run typecheck
+npm run check:release-source
 npm run format:check
 npm test
 npx playwright install chromium
@@ -40,4 +44,4 @@ npm run build
 
 `test:e2e` supplies a fake app ID, builds locally and mocks API responses. Do not replace its fixtures with production credentials. Playwright writes reports and failure traces to ignored folders. `LIMIT_CHROMIUM_PATH` optionally selects a locally installed Chromium binary; leave unset in normal development/CI. Browser viewport emulation is not testing on actual phones.
 
-A build without `VITE_BASE44_APP_ID` is only a compile check, not a runnable deployment. The GitHub workflow already deploys `main` automatically when configured; keep this change set on its review branch until the live-environment checks above are completed. No production environment protection rules are bypassed.
+A build without `VITE_BASE44_APP_ID` is only a compile check, not a runnable deployment. The GitHub workflow deploys `main` automatically when its checks and configured production protections pass. That publishes the web app, not an App Store release. `npm run check:app-store` must remain failed until the actual signed candidate, legal/business details and operational evidence are verified. No production environment protection rules are bypassed.

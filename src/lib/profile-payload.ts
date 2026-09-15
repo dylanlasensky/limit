@@ -1,3 +1,6 @@
+import { bodyInputErrors } from "@/lib/profile-inputs";
+import { WEEKDAYS } from "@/lib/training/programEngine";
+
 // Never send a stale copy of server-owned metadata/locks with a settings edit.
 const profileFields = new Set([
   "name",
@@ -31,25 +34,29 @@ export function profilePayload(profile: Record<string, any>) {
   const result = Object.fromEntries(
     Object.entries(profile).filter(([key]) => profileFields.has(key))
   );
-  if (!result.name?.trim()) throw new Error("Add your name before saving.");
-  for (const key of ["currentWeight", "goalWeight"]) {
+  const errors = bodyInputErrors(result);
+  if (Object.keys(errors).length) throw new Error(Object.values(errors)[0]);
+  result.name = result.name.trim();
+  if (result.goalWeight === "") result.goalWeight = +result.currentWeight;
+  const days = result.availableDays?.length
+    ? result.availableDays
+    : (result.trainingDays ?? result.availableDays);
+  if (days != null) {
     if (
-      result[key] != null &&
-      (!Number.isFinite(+result[key]) || +result[key] <= 0 || +result[key] > 1500)
-    ) {
-      throw new Error("Weight must be above 0 and up to 1,500 lb.");
-    }
+      !Array.isArray(days) ||
+      days.length < 2 ||
+      days.length > 6 ||
+      new Set(days).size !== days.length ||
+      days.some((day) => !WEEKDAYS.includes(day))
+    )
+      throw new Error("Choose between 2 and 6 different training days.");
+    result.availableDays = WEEKDAYS.filter((day) => days.includes(day));
+    result.trainingDays = result.availableDays;
   }
-  if (
-    !Number.isInteger(+result.heightFeet) ||
-    +result.heightFeet < 3 ||
-    +result.heightFeet > 8 ||
-    !Number.isInteger(+result.heightInches) ||
-    +result.heightInches < 0 ||
-    +result.heightInches > 11
-  ) {
-    throw new Error("Check your height: use 3–8 feet and 0–11 inches.");
-  }
+  if (Array.isArray(result.equipment) && !result.equipment.length)
+    throw new Error(
+      "Choose your available equipment, including Bodyweight if you train without equipment."
+    );
   for (const key of ["calorieTarget", "proteinTarget", "carbTarget", "fatTarget"]) {
     if (
       result[key] != null &&
@@ -57,6 +64,20 @@ export function profilePayload(profile: Record<string, any>) {
     ) {
       throw new Error("Nutrition targets must be valid, non-negative numbers.");
     }
+  }
+  for (const key of [
+    "currentWeight",
+    "goalWeight",
+    "heightFeet",
+    "heightInches",
+    "heightCm",
+    "sessionLength",
+    "calorieTarget",
+    "proteinTarget",
+    "carbTarget",
+    "fatTarget",
+  ]) {
+    if (result[key] != null) result[key] = Number(result[key]);
   }
   return result;
 }

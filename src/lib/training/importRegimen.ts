@@ -1,5 +1,6 @@
 import { base44 } from "@/api/base44Client";
 import { normalizeExerciseName } from "../../../base44/shared/exerciseCatalog.js";
+import { requireAiConsent } from "../../../base44/shared/aiConsent.js";
 
 const uid = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
 const clean = (value?: string | null): string => normalizeExerciseName(value || "");
@@ -143,10 +144,34 @@ export function matchRegimen(raw: any, catalog: any[]): RegimenDraft {
   };
 }
 
-export async function parseRegimen({ text, file }: { text?: string; file?: File | null }) {
+export async function parseRegimen({
+  text,
+  file,
+  aiConsent,
+  signal,
+}: {
+  text?: string;
+  file?: File | null;
+  aiConsent?: string;
+  signal?: AbortSignal;
+}) {
+  const assertActive = () => {
+    if (signal?.aborted) throw new DOMException("Import closed.", "AbortError");
+  };
+  assertActive();
+  requireAiConsent({ aiConsent });
+  if (text && text.length > 50000) throw new Error("Keep workout text under 50,000 characters.");
+  if (file && file.size > 10 * 1024 * 1024) throw new Error("Choose a file smaller than 10 MB.");
   let fileUri: string | undefined;
   if (file) ({ file_uri: fileUri } = await base44.integrations.Core.UploadPrivateFile({ file }));
-  const { data } = await base44.functions.invoke("parseWorkoutRegimen", { text, fileUri });
+  // Uploads already sent cannot be recalled, but closing the feature prevents any later AI call.
+  assertActive();
+  const { data } = await base44.functions.invoke("parseWorkoutRegimen", {
+    text,
+    fileUri,
+    aiConsent,
+  });
+  assertActive();
   return shape(data);
 }
 

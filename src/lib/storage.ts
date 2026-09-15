@@ -30,6 +30,7 @@ export function clearPrivateState(userId?: string) {
         if (
           key.startsWith("limit-tab-route:") ||
           key.startsWith("limit-scroll:") ||
+          (userId && key === "limit-exercise-favorites:" + userId) ||
           (userId && key.startsWith("limit-workout-v2:" + userId + ":"))
         )
           storage.removeItem(key);

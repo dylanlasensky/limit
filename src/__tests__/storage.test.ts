@@ -10,11 +10,15 @@ describe("private state isolation", () => {
     localStorage.setItem("limit-workout-v2:a:day", "a");
     localStorage.setItem("limit-workout-v2:b:day", "b");
     localStorage.setItem("unrelated", "keep");
+    localStorage.setItem("limit-exercise-favorites:a", "private");
+    localStorage.setItem("limit-exercise-favorites:b", "keep");
     sessionStorage.setItem("limit-tab-route:/workout", "/workout/history/a");
     clearPrivateState("a");
     expect(localStorage.getItem("limit-workout-v2:a:day")).toBeNull();
     expect(localStorage.getItem("limit-workout-v2:b:day")).toBe("b");
     expect(localStorage.getItem("unrelated")).toBe("keep");
+    expect(localStorage.getItem("limit-exercise-favorites:a")).toBeNull();
+    expect(localStorage.getItem("limit-exercise-favorites:b")).toBe("keep");
     expect(sessionStorage.length).toBe(0);
   });
   it("nonessential storage failures do not crash the app", () => {

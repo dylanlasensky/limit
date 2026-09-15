@@ -15,6 +15,7 @@ export default function OnboardingGoal({ data, set }: OnboardingStepProps) {
         <button
           key={value}
           type="button"
+          aria-pressed={data.fitnessGoal === value}
           onClick={() => {
             set("fitnessGoal", value);
             set("importAfterOnboarding", false);
@@ -32,6 +33,7 @@ export default function OnboardingGoal({ data, set }: OnboardingStepProps) {
         <p className="limit-kicker mb-2">Already have a plan?</p>
         <button
           type="button"
+          aria-pressed={!!data.importAfterOnboarding}
           onClick={() => {
             set("fitnessGoal", "follow existing program");
             set("importAfterOnboarding", true);
