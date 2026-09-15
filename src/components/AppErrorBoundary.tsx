@@ -1,3 +1,4 @@
+import LimitLogo from "@/components/limit/LimitLogo";
 import React from "react";
 
 export default class AppErrorBoundary extends React.Component<
@@ -13,7 +14,7 @@ export default class AppErrorBoundary extends React.Component<
     return (
       <main className="mx-auto grid min-h-dvh max-w-md place-items-center px-6 text-foreground">
         <section role="alert" className="limit-surface w-full rounded-3xl p-6">
-          <p className="limit-kicker">LIMIT</p>
+          <LimitLogo size="sm" />
           <h1 className="mt-4 text-2xl font-bold">Let’s get you back.</h1>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             This screen couldn’t open. Reload to try again. Reloading does not delete saved workouts

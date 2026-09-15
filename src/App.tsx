@@ -1,3 +1,4 @@
+import BrandLoading from "@/components/limit/BrandLoading";
 import { Toaster } from "@/components/ui/toaster";
 import { lazy, Suspense } from "react";
 import { MotionConfig } from "framer-motion";
@@ -38,11 +39,7 @@ const AuthenticatedApp = () => {
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
-    return (
-      <div className="mx-auto max-w-md px-4 pt-8">
-        <ScreenState loading />
-      </div>
-    );
+    return <BrandLoading />;
   }
 
   // Handle authentication errors
@@ -99,13 +96,7 @@ function App() {
           <QueryClientProvider client={queryClientInstance}>
             <Router>
               <ScrollToTop />
-              <Suspense
-                fallback={
-                  <div className="mx-auto max-w-md px-4 pt-8">
-                    <ScreenState loading />
-                  </div>
-                }
-              >
+              <Suspense fallback={<BrandLoading />}>
                 <Routes>
                   <Route path="/privacy" element={<PublicInfo kind="privacy" />} />
                   <Route path="/terms" element={<PublicInfo kind="terms" />} />

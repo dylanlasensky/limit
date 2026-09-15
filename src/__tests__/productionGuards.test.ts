@@ -29,9 +29,12 @@ describe("production source integrity", () => {
     const manifest = JSON.parse(readFileSync(path.join(root, "public/manifest.json"), "utf8"));
     expect(manifest.name).toBe("LIMIT");
     expect(manifest.start_url).toBe("/");
-    expect(readFileSync(path.join(root, "public", manifest.icons[0].src), "utf8")).toContain(
-      "<svg"
-    );
+    for (const icon of manifest.icons) {
+      const data = readFileSync(path.join(root, "public", icon.src));
+      expect(data.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+      expect(icon.sizes).toBe(`${data.readUInt32BE(16)}x${data.readUInt32BE(20)}`);
+      expect(icon.type).toBe("image/png");
+    }
   });
   it("all private data schemas have read rules; workouts are server-write only", () => {
     for (const name of [

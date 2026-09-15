@@ -1,3 +1,4 @@
+import LimitLogo from "@/components/limit/LimitLogo";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import PublicLinks from "@/components/limit/PublicLinks";
@@ -22,7 +23,7 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
         <ArrowLeft aria-hidden className="h-4 w-4" />
         Back to LIMIT
       </Link>
-      <p className="limit-kicker">LIMIT</p>
+      <LimitLogo size="sm" />
       <h1 className="mt-3 text-3xl font-bold tracking-tight">{titles[kind]}</h1>
       {destination ? (
         <a

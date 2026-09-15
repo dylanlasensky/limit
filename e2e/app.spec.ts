@@ -685,6 +685,10 @@ test("light and dark controls work on every main screen without horizontal overf
       await page.goto(path);
       await expect(page.locator("html")).toHaveClass(new RegExp(mode));
       await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
+      const logo = page.getByRole("link", { name: "LIMIT home" }).locator("img");
+      await expect(logo).toHaveAttribute("src", "/brand/limit-icon-192.png");
+      await expect(logo).toBeVisible();
+      await expect(logo).toHaveJSProperty("naturalWidth", 192);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await noOverflow(page);
       if (testInfo.project.name === "phone")
