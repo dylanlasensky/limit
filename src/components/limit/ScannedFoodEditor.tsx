@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { createFoodEntry } from "@/lib/food-entry";
 import { today } from "@/components/limit/data";
 import NativeSelect from "@/components/limit/NativeSelect";
@@ -8,12 +8,17 @@ interface ScannedFoodEditorProps {
   result: FoodScanResult;
   onDone: () => void;
   initialMealType?: string;
+  entryDate?: string;
+  onSavingChange?: (saving: boolean) => void;
 }
 export default function ScannedFoodEditor({
   result,
   onDone,
   initialMealType = "Breakfast",
+  entryDate,
+  onSavingChange,
 }: ScannedFoodEditorProps) {
+  const pending = useRef(false);
   const [servings, setServings] = useState(1),
     [name, setName] = useState(result.title || "Scanned food"),
     [mealType, setMealType] = useState(initialMealType),
@@ -21,12 +26,14 @@ export default function ScannedFoodEditor({
     [saving, setSaving] = useState(false),
     [error, setError] = useState("");
   const save = async () => {
-    if (saving) return;
+    if (pending.current) return;
+    pending.current = true;
     setSaving(true);
+    onSavingChange?.(true);
     setError("");
     try {
       await createFoodEntry({
-        date: today(),
+        date: entryDate || today(),
         mealType,
         foodName: name,
         quantity: servings,
@@ -40,12 +47,13 @@ export default function ScannedFoodEditor({
       onDone();
     } catch (e: any) {
       setError(e.message || "Couldn’t save. Your scan is still here. Please retry.");
-    } finally {
+      pending.current = false;
       setSaving(false);
+      onSavingChange?.(false);
     }
   };
   return (
-    <div className="space-y-4">
+    <fieldset disabled={saving} className="min-w-0 space-y-4">
       <div>
         <p className="text-xs font-bold text-primary">NUTRITION FOUND</p>
         <input
@@ -128,6 +136,6 @@ export default function ScannedFoodEditor({
           {error}
         </p>
       )}
-    </div>
+    </fieldset>
   );
 }

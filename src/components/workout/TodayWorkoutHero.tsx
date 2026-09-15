@@ -8,6 +8,7 @@ interface TodayWorkoutHeroProps {
   exercises: any[];
   activeSession?: Record<string, any> | null;
   completedSession?: Record<string, any> | null;
+  onPreview?: () => void;
 }
 
 // States: rest | not started | active (resume) | completed
@@ -16,6 +17,7 @@ export default function TodayWorkoutHero({
   exercises,
   activeSession,
   completedSession,
+  onPreview,
 }: TodayWorkoutHeroProps) {
   const nav = useNavigate();
   if (!day && !activeSession)
@@ -107,6 +109,14 @@ export default function TodayWorkoutHero({
       >
         START WORKOUT <ArrowRight className="h-4 w-4" />
       </button>
+      {onPreview && (
+        <button
+          onClick={onPreview}
+          className="relative z-10 mt-2 min-h-11 w-full text-sm font-semibold text-primary"
+        >
+          Preview today’s workout
+        </button>
+      )}
     </section>
   );
 }

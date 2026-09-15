@@ -13,7 +13,16 @@ async function mockApp(
     failPublicSettings = false,
   } = {}
 ) {
-  const control = { failExercises, failExport: false, wrongExportAccount: false };
+  const control = {
+    failExercises,
+    failExport: false,
+    wrongExportAccount: false,
+    failFoodEdit: false,
+    failFoodDelete: false,
+    failGrocerySave: false,
+    failPlan: false,
+    failOlderHistory: false,
+  };
   const today = new Date().toLocaleDateString("en-CA");
   const weekday = (new Date().getDay() + 6) % 7;
   const user = { id: "qa-user", email: "qa@example.invalid", full_name: "Jordan", role: "user" };
@@ -161,6 +170,14 @@ async function mockApp(
       const [, name, id] = match;
       const rows = entities[name] || [];
       if (request.method() === "GET") {
+        if (name === "WorkoutPlan" && control.failPlan)
+          return reply({ message: "Unavailable" }, 503);
+        if (
+          name === "WorkoutSession" &&
+          control.failOlderHistory &&
+          Number(url.searchParams.get("skip") || 0) > 0
+        )
+          return reply({ message: "Unavailable" }, 503);
         if (name === "Exercise" && control.failExercises)
           return reply({ message: "Unavailable" }, 503);
         if (id)
@@ -190,9 +207,45 @@ async function mockApp(
         writes.push({ entity: name, ...body });
         if (name === "FoodEntry" && failFood)
           return reply({ message: "Temporarily unavailable" }, 503);
-        const saved = { ...body, id: "saved-" + writes.length };
+        const saved = {
+          ...body,
+          id: "saved-" + writes.length,
+          created_by_id: user.id,
+          updated_date: new Date().toISOString(),
+        };
         entities[name] = [...rows, saved];
         return reply(saved);
+      }
+      if (request.method() === "PUT" && id) {
+        const body = request.postDataJSON();
+        writes.push({ entity: name, action: "update", id, ...body });
+        if (name === "FoodEntry" && control.failFoodEdit)
+          return reply({ message: "Unavailable" }, 503);
+        const original = rows.find((row) => row.id === id);
+        if (!original) return reply({ message: "Not found" }, 404);
+        const saved = { ...original, ...body, updated_date: new Date().toISOString() };
+        entities[name] = rows.map((row) => (row.id === id ? saved : row));
+        return reply(saved);
+      }
+      if (request.method() === "DELETE" && id) {
+        writes.push({ entity: name, action: "delete", id });
+        if (name === "FoodEntry" && control.failFoodDelete)
+          return reply({ message: "Unavailable" }, 503);
+        entities[name] = rows.filter((row) => row.id !== id);
+        return reply({ success: true });
+      }
+      if (request.method() === "PATCH" && id === "update-many") {
+        const body = request.postDataJSON();
+        writes.push({ entity: name, action: "updateMany", ...body });
+        if (name === "GroceryList" && control.failGrocerySave)
+          return reply({ message: "Unavailable" }, 503);
+        let updated = 0;
+        entities[name] = rows.map((row) => {
+          if (!Object.entries(body.query).every(([key, value]) => row[key] === value)) return row;
+          updated++;
+          return { ...row, ...body.data.$set, updated_date: new Date().toISOString() };
+        });
+        return reply({ success: true, updated });
       }
     }
     return reply({ error: "Unmocked API request: " + url.pathname }, 500);
@@ -235,6 +288,279 @@ test("expanded exercise library searches aliases, filters power and shows techni
   await noOverflow(page);
   if (testInfo.project.name === "phone")
     await page.screenshot({ path: testInfo.outputPath("exercise-library.png"), fullPage: false });
+  expect(errors).toEqual([]);
+});
+
+function dateAgo(days: number) {
+  const value = new Date();
+  value.setDate(value.getDate() - days);
+  return value.toLocaleDateString("en-CA");
+}
+
+test("workout previews are read-only until an explicit start", async ({ page }, testInfo) => {
+  const { writes, errors } = await mockApp(page);
+  await page.goto("/workout");
+  await page.getByRole("button", { name: "Preview today’s workout", exact: true }).click();
+  const preview = page.getByRole("dialog");
+  await expect(preview.getByRole("heading", { name: "Bench Press", exact: true })).toBeVisible();
+  await expect(preview.getByText("3 sets × 8-12 reps", { exact: true })).toBeVisible();
+  await expect(preview.getByText(/Barbell · Chest · 60s rest/)).toBeVisible();
+  expect(writes).toEqual([]);
+  await noOverflow(page);
+  if (testInfo.project.name === "phone")
+    await page.screenshot({ path: testInfo.outputPath("workout-preview.png"), fullPage: true });
+  await preview.getByRole("button", { name: "Back to schedule", exact: true }).click();
+  expect(writes).toEqual([]);
+  await page.getByRole("button", { name: "Light mode", exact: true }).click();
+  await page.getByRole("button", { name: "Preview today’s workout", exact: true }).click();
+  await noOverflow(page);
+  if (testInfo.project.name === "phone")
+    await page.screenshot({
+      path: testInfo.outputPath("workout-preview-light.png"),
+      fullPage: false,
+    });
+  await preview.getByRole("button", { name: "Start this workout", exact: true }).click();
+  await expect(page).toHaveURL(/\/live-workout\/day$/);
+  await expect(page.getByLabel("Set 1 weight in pounds", { exact: true })).toBeVisible();
+  expect(writes.filter((row) => row.action === "start")).toHaveLength(1);
+  expect(errors).toEqual([]);
+});
+
+test("history loads beyond 30 sessions, keeps old pages on failure and works without schedule", async ({
+  page,
+}, testInfo) => {
+  const { entities, control, writes, errors } = await mockApp(page);
+  entities.WorkoutSession = Array.from({ length: 45 }, (_, i) => ({
+    id: `history-${i}`,
+    status: "completed",
+    name: i === 44 ? "First foundation session" : "Strength session",
+    date: dateAgo(i),
+    durationMinutes: 45,
+    setCount: 12,
+    totalVolume: 2500,
+    prCount: i === 1 ? 1 : 0,
+  }));
+  await page.goto("/workout?tab=history");
+  await expect(page.getByTestId("history-workout")).toHaveCount(30);
+  control.failOlderHistory = true;
+  await page.getByRole("button", { name: "Load older workouts", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("Couldn’t load more history", {
+    timeout: 15000,
+  });
+  await expect(page.getByTestId("history-workout")).toHaveCount(30);
+  await page.getByRole("tab", { name: "Schedule", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Preview today’s workout", exact: true })
+  ).toBeVisible();
+  await page.getByRole("tab", { name: "History", exact: true }).click();
+  control.failOlderHistory = false;
+  await page.getByRole("button", { name: "Load older workouts", exact: true }).click();
+  await expect(page.getByTestId("history-workout")).toHaveCount(45);
+  await page.getByRole("textbox", { name: "Search workout history" }).fill("First foundation");
+  await expect(page.getByTestId("history-workout")).toHaveCount(1);
+  await page.getByRole("button", { name: "30 days", exact: true }).click();
+  await expect(page.getByText("No matching workouts found", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "All dates", exact: true }).click();
+  await noOverflow(page);
+  if (testInfo.project.name === "phone")
+    await page.screenshot({ path: testInfo.outputPath("training-journal.png"), fullPage: true });
+  await page.getByTestId("history-workout").click();
+  await expect(
+    page.getByRole("heading", { name: "First foundation session", exact: true })
+  ).toBeVisible();
+  await page.getByRole("button", { name: "History", exact: true }).click();
+  await expect(page).toHaveURL(/\/workout\?tab=history$/);
+  control.failPlan = true;
+  await page.reload();
+  await expect(page.getByTestId("history-workout")).toHaveCount(30);
+  expect(writes).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test("food diary backfills, edits and confirms removal with safe retry", async ({
+  page,
+}, testInfo) => {
+  const { entities, control, writes, errors } = await mockApp(page);
+  entities.FoodEntry = [
+    {
+      id: "food-edit",
+      foodName: "Yogurt",
+      date: dateAgo(1),
+      mealType: "Breakfast",
+      quantity: 1,
+      unit: "cup",
+      calories: 180,
+      protein: 12,
+      carbs: 20,
+      fat: 5,
+      estimated: true,
+      entryMethod: "scan_meal",
+    },
+  ];
+  await page.goto("/nutrition");
+  await expect(page.getByRole("button", { name: "Next diary day" })).toBeDisabled();
+  await page.getByRole("button", { name: "Previous diary day" }).click();
+  await expect(page.getByLabel("Choose diary date")).toHaveValue(dateAgo(1));
+  await page.getByRole("button", { name: "Edit Yogurt", exact: true }).click();
+  const editor = page.getByRole("dialog");
+  await editor.getByLabel("Food name", { exact: true }).fill("Greek yogurt");
+  await editor.getByLabel("calories", { exact: true }).fill("200");
+  control.failFoodEdit = true;
+  await editor.getByRole("button", { name: "Save food changes" }).click();
+  await expect(editor.getByRole("alert")).toContainText("Couldn’t save");
+  await expect(editor.getByLabel("Food name", { exact: true })).toHaveValue("Greek yogurt");
+  control.failFoodEdit = false;
+  await editor.getByRole("button", { name: "Save food changes" }).click();
+  await expect(editor).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "Edit Greek yogurt", exact: true })).toBeVisible();
+  expect(entities.FoodEntry[0]).toMatchObject({
+    calories: 200,
+    estimated: true,
+    entryMethod: "scan_meal",
+    date: dateAgo(1),
+  });
+  await page.getByRole("button", { name: "Add Lunch", exact: true }).click();
+  await editor.getByRole("button", { name: /Manual entry/ }).click();
+  await editor.getByLabel("Food name", { exact: true }).fill("Chicken and rice");
+  await editor.getByLabel(/^calories$/i).fill("500");
+  await editor.getByRole("button", { name: "ADD FOOD", exact: true }).click();
+  await expect(editor).not.toBeVisible();
+  expect(writes.find((row) => row.foodName === "Chicken and rice")).toMatchObject({
+    date: dateAgo(1),
+    mealType: "Lunch",
+  });
+  await noOverflow(page);
+  if (testInfo.project.name === "phone")
+    await page.screenshot({ path: testInfo.outputPath("food-diary.png"), fullPage: true });
+  await page.getByRole("button", { name: "Light mode", exact: true }).click();
+  await page.getByRole("button", { name: "Edit Greek yogurt", exact: true }).click();
+  await noOverflow(page);
+  if (testInfo.project.name === "phone")
+    await page.screenshot({ path: testInfo.outputPath("food-editor-light.png"), fullPage: false });
+  await editor.getByRole("button", { name: "Remove from diary" }).click();
+  expect(writes.filter((row) => row.action === "delete")).toHaveLength(0);
+  control.failFoodDelete = true;
+  await editor.getByRole("button", { name: "Confirm removal" }).click();
+  await expect(editor.getByRole("alert")).toContainText("Couldn’t confirm removal");
+  control.failFoodDelete = false;
+  await editor.getByRole("button", { name: "Confirm removal" }).click();
+  await expect(editor).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "Edit Greek yogurt", exact: true })).toHaveCount(0);
+  await page.reload();
+  await page.getByRole("button", { name: "Previous diary day" }).click();
+  await expect(
+    page.getByRole("button", { name: "Edit Chicken and rice", exact: true })
+  ).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("strength trends show ordinary workouts without PRs and switch display units", async ({
+  page,
+}, testInfo) => {
+  const { entities, writes, errors } = await mockApp(page);
+  entities.WorkoutSession = [
+    { id: "strength-new", status: "completed", name: "Upper B", date: dateAgo(1) },
+    { id: "strength-old", status: "completed", name: "Upper A", date: dateAgo(5) },
+  ];
+  entities.ExerciseSet = [
+    {
+      id: "s1",
+      workoutSessionId: "strength-old",
+      exerciseId: "bench",
+      exerciseName: "Bench Press",
+      completed: true,
+      setType: "working",
+      weight: 135,
+      reps: 8,
+      setNumber: 1,
+    },
+    {
+      id: "s2",
+      workoutSessionId: "strength-new",
+      exerciseId: "bench",
+      exerciseName: "Bench Press",
+      completed: true,
+      setType: "working",
+      weight: 150,
+      reps: 6,
+      setNumber: 1,
+    },
+    {
+      id: "warmup",
+      workoutSessionId: "strength-new",
+      exerciseId: "bench",
+      exerciseName: "Bench Press",
+      completed: true,
+      setType: "warmup",
+      weight: 1000,
+      reps: 1,
+      setNumber: 0,
+    },
+  ];
+  await page.goto("/progress?tab=strength");
+  await expect(page.getByRole("heading", { name: "Every session tells a story" })).toBeVisible();
+  await expect(
+    page.getByRole("img", { name: /Heaviest load across 2 sessions. Latest 150 lb/ })
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Display strength in kilograms" }).click();
+  await expect(page.getByRole("img", { name: /Latest 68 kg/ })).toBeVisible();
+  await page.getByRole("button", { name: "Volume", exact: true }).click();
+  await expect(page.getByRole("img", { name: /Volume across 2 sessions/ })).toBeVisible();
+  await noOverflow(page);
+  if (testInfo.project.name === "phone")
+    await page.screenshot({ path: testInfo.outputPath("strength-trends.png"), fullPage: true });
+  await page.getByRole("button", { name: "Light mode", exact: true }).click();
+  await noOverflow(page);
+  if (testInfo.project.name === "phone")
+    await page.screenshot({
+      path: testInfo.outputPath("strength-trends-light.png"),
+      fullPage: true,
+    });
+  await page.getByRole("button", { name: /Open Upper B on/ }).click();
+  await expect(page).toHaveURL(/\/workout\/history\/strength-new$/);
+  expect(writes).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test("grocery lists restore checkmarks and retain the saved list on failed writes", async ({
+  page,
+}, testInfo) => {
+  const { entities, control, writes, errors } = await mockApp(page);
+  const monday = dateAgo((new Date().getDay() + 6) % 7);
+  entities.GroceryList = [
+    {
+      id: "groceries",
+      created_by_id: "qa-user",
+      updated_date: "2026-09-01T12:00:00Z",
+      weekStart: monday,
+      sourceMealIds: [],
+      items: [
+        { name: "Rice", qty: 2, unit: "recipe portion(s)", category: "Grains", checked: false },
+        { name: "Chicken", qty: 1, unit: "recipe portion(s)", category: "Protein", checked: true },
+      ],
+    },
+  ];
+  await page.goto("/nutrition");
+  await page.getByRole("tab", { name: "Meal Ideas", exact: true }).click();
+  const list = page.getByRole("region", { name: "Saved grocery list" });
+  await expect(list.getByRole("checkbox", { name: /Chicken/ })).toBeChecked();
+  control.failGrocerySave = true;
+  await list.getByRole("checkbox", { name: /Rice/ }).click();
+  await expect(list.getByRole("alert")).toBeVisible();
+  await expect(list.getByRole("checkbox", { name: /Rice/ })).not.toBeChecked();
+  control.failGrocerySave = false;
+  await list.getByRole("button", { name: "Retry save", exact: true }).click();
+  await expect(list.getByRole("checkbox", { name: /Rice/ })).toBeChecked();
+  await page.reload();
+  await page.getByRole("tab", { name: "Meal Ideas", exact: true }).click();
+  await expect(list.getByText("2 of 2 ingredients checked", { exact: true })).toBeVisible();
+  await noOverflow(page);
+  if (testInfo.project.name === "phone")
+    await list.screenshot({ path: testInfo.outputPath("saved-groceries.png") });
+  expect(entities.GroceryList).toHaveLength(1);
+  expect(
+    writes.filter((row) => row.entity === "GroceryList").every((row) => row.action === "updateMany")
+  ).toBe(true);
   expect(errors).toEqual([]);
 });
 
