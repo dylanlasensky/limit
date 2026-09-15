@@ -24,7 +24,7 @@ export default function ImportReview({ flow }: ImportReviewProps) {
           <input
             value={flow.draft.name}
             onChange={(e) => flow.setDraft({ ...flow.draft, name: e.target.value })}
-            className="mt-2 w-full bg-transparent text-4xl font-black italic tracking-[-.045em] outline-none"
+            className="mt-2 w-full bg-transparent text-4xl font-bold tracking-[-.035em] outline-none"
           />
           <p className="mt-3 text-sm text-muted-foreground">
             {flow.draft.days.length} training days ·{" "}

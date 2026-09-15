@@ -29,11 +29,9 @@ export default function MuscleRatingPanel({ rating, snapshots = [] }: MuscleRati
         <div>
           <p className="limit-kicker flex items-center gap-2">
             <Zap className="h-3.5 w-3.5" />
-            Performance class
+            Strength profile
           </p>
-          <h2 className="mt-2 text-4xl font-black uppercase italic tracking-[-.04em]">
-            {rating.overallLevel}
-          </h2>
+          <h2 className="mt-2 text-4xl font-bold tracking-[-.035em]">{rating.overallLevel}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Strength profile · Score{" "}
             <span className="font-bold text-foreground">{rating.overallScore}</span>
@@ -51,7 +49,7 @@ export default function MuscleRatingPanel({ rating, snapshots = [] }: MuscleRati
         <div className="relative z-10 mt-5 border-l-2 border-primary pl-4">
           <b className="text-sm">Your profile is calibrating</b>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-            Every qualifying lift sharpens this map and reveals your strongest systems.
+            Log your workouts to see how your strength develops across muscle groups.
           </p>
         </div>
       )}

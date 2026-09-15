@@ -21,13 +21,11 @@ export default function MuscleRatingPreview({ rating }: MuscleRatingPreviewProps
             <Sparkles className="h-3.5 w-3.5" />
             Muscle rating
           </p>
-          <h2 className="mt-3 text-3xl font-black uppercase italic tracking-[-.04em]">
-            {rating.overallLevel}
-          </h2>
+          <h2 className="mt-3 text-3xl font-bold tracking-[-.035em]">{rating.overallLevel}</h2>
           <p className="mt-1 max-w-[13rem] text-sm leading-relaxed text-muted-foreground">
             {rating.hasData
-              ? `${high} muscle groups are breaking into advanced territory.`
-              : "Train, log, evolve. Your strength map is calibrating."}
+              ? `${high} muscle groups have reached advanced or elite levels.`
+              : "Your strength map grows with each workout you log."}
           </p>
           <span className="mt-5 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[.18em] text-primary">
             View strength map{" "}

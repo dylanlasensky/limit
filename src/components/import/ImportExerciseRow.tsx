@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { exerciseSearch } from "@/lib/training/exerciseLibrary";
 import { AlertCircle, Trash2 } from "lucide-react";
 import NativeSelect from "@/components/limit/NativeSelect";
 export interface CatalogExercise {
@@ -46,7 +47,9 @@ export default function ImportExerciseRow({
   onRemove,
   catalog,
 }: ImportExerciseRowProps) {
-  const uncertain = exercise.matchConfidence < 70,
+  const [search, setSearch] = useState("");
+  const [changing, setChanging] = useState(false);
+  const uncertain = !exercise.exerciseId || exercise.matchConfidence < 100,
     choose = (id: string) => {
       const match = catalog.find((item) => item.id === id);
       onChange(
@@ -55,6 +58,8 @@ export default function ImportExerciseRow({
               exerciseId: match.id,
               exerciseName: match.name,
               primaryMuscle: match.primaryMuscle,
+              category: match.category,
+              equipment: match.equipment,
               matchConfidence: 100,
             }
           : {
@@ -67,10 +72,12 @@ export default function ImportExerciseRow({
     };
   const options = [
     { value: "", label: `Keep “${exercise.importedName}”` },
-    ...(exercise.candidates?.length ? exercise.candidates : catalog.slice(0, 12)).map((item) => ({
-      value: item.id,
-      label: item.name,
-    })),
+    ...catalog
+      .filter((item) => item.id === exercise.exerciseId || exerciseSearch(item, search))
+      .map((item) => ({
+        value: item.id,
+        label: item.name,
+      })),
   ];
   return (
     <div className="rounded-2xl border border-border/60 bg-background/45 p-3">
@@ -78,7 +85,14 @@ export default function ImportExerciseRow({
         <div className="min-w-0 flex-1">
           <input
             value={exercise.exerciseName}
-            onChange={(e) => onChange({ exerciseName: e.target.value })}
+            onChange={(e) =>
+              onChange({
+                exerciseName: e.target.value,
+                importedName: e.target.value,
+                exerciseId: "",
+                matchConfidence: 0,
+              })
+            }
             aria-label="Exercise name"
             className="w-full bg-transparent font-bold outline-none"
           />
@@ -97,8 +111,23 @@ export default function ImportExerciseRow({
           <Trash2 className="h-4 w-4" />
         </button>
       </div>
-      {uncertain && (
+      {!uncertain && (
+        <button
+          onClick={() => setChanging(!changing)}
+          className="min-h-11 text-xs font-semibold text-primary"
+        >
+          {changing ? "Done choosing" : "Change exercise match"}
+        </button>
+      )}
+      {(uncertain || changing) && (
         <>
+          <input
+            aria-label="Search exercise library"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search the full exercise library"
+            className="mt-3 h-11 w-full rounded-xl border border-border bg-secondary px-3 text-sm"
+          />
           <NativeSelect
             value={exercise.exerciseId || ""}
             onChange={choose}
@@ -141,6 +170,12 @@ export default function ImportExerciseRow({
           </label>
         ))}
       </div>
+      {exercise.category === "Power" && (
+        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+          Athletic power: confirm sets, reps, rest and load with your coach. Bodybuilding
+          progression suggestions do not apply.
+        </p>
+      )}
       <input
         value={exercise.notes || ""}
         onChange={(e) => onChange({ notes: e.target.value })}

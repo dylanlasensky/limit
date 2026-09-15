@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { listExercises } from "@/lib/training/exerciseLibrary";
 import { useAuth } from "@/lib/AuthContext";
 import { draftKey, readDraft, initialRows } from "@/components/workout/workoutDraft";
 import useWorkoutRows from "@/components/workout/useWorkoutRows";
@@ -77,7 +78,7 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
         const [day, templates, exercises, profiles] = await Promise.all([
           base44.entities.WorkoutDay.get(workoutDayId as string),
           base44.entities.WorkoutExercise.filter({ workoutDayId }),
-          base44.entities.Exercise.list(null as any, 500),
+          listExercises(),
           base44.entities.UserProfile.list(),
         ]);
         const plan = await base44.entities.WorkoutPlan.get((day as any).planId);

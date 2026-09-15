@@ -2,6 +2,16 @@
   "name": "Exercise",
   "type": "object",
   "properties": {
+    "catalogKey": { "type": "string" },
+    "catalogVersion": { "type": "number" },
+    "aliases": { "type": "array", "items": { "type": "string" } },
+    "movementPattern": { "type": "string" },
+    "difficulty": { "type": "string" },
+    "trainingFocus": { "type": "string" },
+    "programEligible": { "type": "boolean" },
+    "selectionPriority": { "type": "number" },
+    "instructions": { "type": "array", "items": { "type": "string" } },
+    "coachingRecommended": { "type": "boolean" },
     "name": {
       "type": "string"
     },

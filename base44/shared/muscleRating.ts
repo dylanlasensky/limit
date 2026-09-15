@@ -1,3 +1,5 @@
+import { isPowerExercise } from "./exerciseLibrary.js";
+
 const MUSCLES = [
   "Chest",
   "Shoulders",
@@ -163,6 +165,8 @@ export const calculateMuscleRating = ({
       +x.reps <= 100 &&
       x.completed === true &&
       x.setType !== "warmup" &&
+      !isPowerExercise(x) &&
+      !isPowerExercise(exerciseByName[x.exerciseName?.toLowerCase()] || {}) &&
       (!x.workoutSessionId || completed.has(x.workoutSessionId))
   );
   eligibleSets.forEach((set) => {

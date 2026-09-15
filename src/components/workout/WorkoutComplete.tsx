@@ -49,7 +49,7 @@ export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProp
       className="limit-grid relative mx-auto flex min-h-screen max-w-md flex-col overflow-hidden bg-background px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(3rem,env(safe-area-inset-top))] text-foreground"
     >
       <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
-      <p className="limit-kicker relative">Mission complete</p>
+      <p className="limit-kicker relative">Workout complete</p>
       <h1 className="relative mt-3 text-5xl font-black uppercase italic leading-[.9] tracking-[-.055em]">
         {summary.name}
       </h1>
@@ -84,7 +84,7 @@ export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProp
               className="limit-hero mt-2 rounded-2xl border-primary/40 p-4"
             >
               <p className="font-black uppercase">{pr.exerciseName}</p>
-              <p className="mt-1 text-sm tabular-nums text-blue-300">
+              <p className="mt-1 text-sm tabular-nums text-primary">
                 {pr.type === "e1rm" ? `e1RM ${pr.value} lb` : `${pr.value} lb`} · {pr.weight} ×{" "}
                 {pr.reps}
                 {pr.previous ? <span className="ml-2 text-zinc-500">was {pr.previous}</span> : null}
@@ -103,7 +103,7 @@ export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProp
                 className="flex items-center justify-between rounded-xl bg-[#121217] px-4 py-3 text-sm"
               >
                 <span className="font-bold">{muscle}</span>
-                <span className="tabular-nums text-blue-400">
+                <span className="tabular-nums text-primary">
                   {from} → {to}
                 </span>
               </div>
@@ -119,7 +119,7 @@ export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProp
             {summary.bestLift.weight} lb × {summary.bestLift.reps}
           </p>
           {summary.previousVolume != null && (
-            <p className="mt-2 text-xs text-blue-400">
+            <p className="mt-2 text-xs text-primary">
               {summary.volume >= summary.previousVolume ? "+" : ""}
               {Math.round(summary.volume - summary.previousVolume).toLocaleString()} lb vs previous
               session

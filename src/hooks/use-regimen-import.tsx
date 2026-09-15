@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { listExercises } from "@/lib/training/exerciseLibrary";
 import {
   blankRegimen,
   loadImportedPlan,
@@ -25,7 +25,7 @@ export default function useRegimenImport(planId?: string | null) {
   const client = useQueryClient(),
     catalog = useQuery({
       queryKey: ["exercises"],
-      queryFn: () => base44.entities.Exercise.list(null as any, 500),
+      queryFn: () => listExercises(),
       staleTime: 60000,
     }),
     [stage, setStage] = useState<RegimenImportStage>("source"),

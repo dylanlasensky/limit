@@ -49,7 +49,7 @@ export default function ExerciseCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="truncate font-heading text-lg font-black uppercase tracking-tight">
+          <h2 className="font-heading text-lg font-bold leading-snug tracking-tight">
             {workoutExercise.exerciseName}
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">

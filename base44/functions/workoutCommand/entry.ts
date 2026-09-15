@@ -8,6 +8,7 @@ import {
 } from "../../shared/workoutAccess.js";
 import { validSet, personalBests, finishAnalytics } from "../../shared/workoutAnalytics.js";
 import { activatePlan } from "../../shared/planActivation.js";
+import { enrichExercise } from "../../shared/exerciseLibrary.js";
 
 export default async function (req) {
   try {
@@ -103,9 +104,9 @@ export default async function (req) {
           plan.structureLocked || plan.athleteMode === "track_only" || we.coachMandated;
         if (locked && row.exerciseId && row.exerciseId !== we.exerciseId)
           fail("This exercise is locked by your imported program.", 409);
-        const original = we.exerciseId ? await db.Exercise.get(we.exerciseId) : null;
+        const original = we.exerciseId ? enrichExercise(await db.Exercise.get(we.exerciseId)) : null;
         const exercise = row.exerciseId
-          ? await db.Exercise.get(row.exerciseId)
+          ? enrichExercise(await db.Exercise.get(row.exerciseId))
           : original || {
               id: "",
               name: we.exerciseName,
@@ -117,7 +118,10 @@ export default async function (req) {
           original &&
           exercise.id !== original.id &&
           (exercise.primaryMuscle !== original.primaryMuscle ||
-            exercise.category !== original.category)
+            exercise.category !== original.category ||
+            (original.movementPattern && exercise.movementPattern !== original.movementPattern) ||
+            (original.difficulty !== "Advanced" && exercise.difficulty === "Advanced") ||
+            (original.category !== "Power" && exercise.programEligible === false))
         )
           fail("Choose a replacement with the same muscle and movement category.");
         if (

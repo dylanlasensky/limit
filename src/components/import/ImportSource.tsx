@@ -28,7 +28,7 @@ export default function ImportSource({ meta, setMeta, onBegin, busy, error }: Im
       <header className="limit-hero rounded-[2rem] p-5">
         <div className="relative z-10">
           <p className="limit-kicker">Optional plan setup</p>
-          <h1 className="mt-2 text-4xl font-black italic tracking-[-.045em]">USE YOUR PROGRAM</h1>
+          <h1 className="mt-2 text-4xl font-bold tracking-[-.035em]">Use your program</h1>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             Bring an existing routine into the same LIMIT schedule, live logging, history, PR, and
             Muscle Rating experience.

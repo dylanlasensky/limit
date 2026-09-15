@@ -1,16 +1,12 @@
 import { base44 } from "@/api/base44Client";
+import { normalizeExerciseName } from "../../../base44/shared/exerciseCatalog.js";
 
 const uid = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
-const clean = (value?: string | null): string =>
-  (value || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, " ")
-    .replace(/\b(barbell|dumbbell|machine|cable)\b/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+const clean = (value?: string | null): string => normalizeExerciseName(value || "");
 const score = (a?: string | null, b?: string | null): number => {
   const x = clean(a),
     y = clean(b);
+  if (!x || !y) return 0;
   if (x === y) return 1;
   if (x.includes(y) || y.includes(x)) return 0.88;
   const left = new Set(x.split(" ")),
@@ -117,11 +113,19 @@ export function matchRegimen(raw: any, catalog: any[]): RegimenDraft {
       ...day,
       exercises: day.exercises.map((exercise) => {
         const candidates = catalog
-          .map((item: any) => ({ ...item, matchScore: score(exercise.exerciseName, item.name) }))
+          .map((item: any) => ({
+            ...item,
+            matchScore: Math.max(
+              ...[item.name, ...(item.aliases || [])].map((name) =>
+                score(exercise.exerciseName, name)
+              )
+            ),
+          }))
           .sort((a, b) => b.matchScore - a.matchScore)
           .slice(0, 4);
         const best = candidates[0],
-          matched = best?.matchScore >= 0.42;
+          // Only unambiguous exact names/aliases are automatic. Variants require review.
+          matched = best?.matchScore === 1 && candidates[1]?.matchScore !== 1;
         return {
           ...exercise,
           exerciseId: matched ? best.id : "",

@@ -20,7 +20,7 @@ export default function WeekStrip({ days, completedWeekdays }: WeekStripProps) {
         return (
           <div key={i} className="flex flex-col items-center gap-1.5">
             <span
-              className={`text-[10px] font-bold ${isToday ? "text-blue-500" : "text-zinc-600"}`}
+              className={`text-[10px] font-bold ${isToday ? "text-primary" : "text-muted-foreground"}`}
             >
               {letter}
             </span>

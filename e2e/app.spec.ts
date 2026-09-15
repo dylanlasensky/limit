@@ -1,7 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
+import { exerciseCatalog } from "../base44/shared/exerciseCatalog.js";
 
 type Row = Record<string, any>;
-async function mockApp(page: Page, { signedIn = true, failFood = false } = {}) {
+async function mockApp(
+  page: Page,
+  { signedIn = true, failFood = false, expandedLibrary = false, failExercises = false } = {}
+) {
+  const control = { failExercises };
   const today = new Date().toLocaleDateString("en-CA");
   const weekday = (new Date().getDay() + 6) % 7;
   const user = { id: "qa-user", email: "qa@example.invalid", full_name: "Jordan", role: "user" };
@@ -61,6 +66,8 @@ async function mockApp(page: Page, { signedIn = true, failFood = false } = {}) {
     GroceryItem: [],
   };
   const writes: Row[] = [];
+  if (expandedLibrary)
+    entities.Exercise.push(...exerciseCatalog.map((row) => ({ ...row, id: row.catalogKey })));
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.route("**/*", async (route) => {
@@ -121,6 +128,8 @@ async function mockApp(page: Page, { signedIn = true, failFood = false } = {}) {
       const [, name, id] = match;
       const rows = entities[name] || [];
       if (request.method() === "GET") {
+        if (name === "Exercise" && control.failExercises)
+          return reply({ message: "Unavailable" }, 503);
         if (id)
           return reply(
             rows.find((row) => row.id === id) || {},
@@ -149,8 +158,59 @@ async function mockApp(page: Page, { signedIn = true, failFood = false } = {}) {
     }
     return reply({ error: "Unmocked API request: " + url.pathname }, 500);
   });
-  return { writes, errors };
+  return { writes, errors, control };
 }
+
+test("expanded exercise library searches aliases, filters power and shows technique notes", async ({
+  page,
+}, testInfo) => {
+  const { errors } = await mockApp(page, { expandedLibrary: true });
+  await page.goto("/workout");
+  await page.getByRole("tab", { name: "Exercises", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Find your next movement" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Show more/ })).toBeVisible();
+  await page.getByRole("textbox", { name: "Search exercises", exact: true }).fill("DB RDL");
+  await page.getByRole("button", { name: /^Dumbbell Romanian Deadlift/ }).click();
+  await expect(page.getByRole("dialog").getByText("Movement notes")).toBeVisible();
+  await expect(page.getByRole("dialog").getByText(/Keep the weights beside/)).toBeVisible();
+  await page.getByRole("button", { name: "Done", exact: true }).click();
+  await page.getByRole("button", { name: "Clear filters", exact: true }).click();
+  await page.getByRole("button", { name: "More filters", exact: true }).click();
+  await page
+    .getByRole("combobox", { name: "Training focus", exact: true })
+    .selectOption("Athletic power");
+  await expect(page.getByText("39 exercises found", { exact: true })).toBeVisible();
+  await page.getByRole("textbox", { name: "Search exercises", exact: true }).fill("Power Clean");
+  await page.getByRole("button", { name: /^Power Clean Quads/ }).click();
+  await expect(page.getByRole("dialog").getByText(/Coaching recommended\./)).toBeVisible();
+  await noOverflow(page);
+  if (testInfo.project.name === "phone")
+    await page.screenshot({ path: testInfo.outputPath("exercise-details.png"), fullPage: true });
+  await page.getByRole("button", { name: "Done", exact: true }).click();
+  await page.getByRole("button", { name: "Clear filters", exact: true }).click();
+  await page.getByRole("combobox", { name: "Muscle", exact: true }).selectOption("Adductors");
+  await expect(page.getByRole("button", { name: /^Seated Hip Adduction/ })).toBeVisible();
+  await page.getByRole("combobox", { name: "Equipment", exact: true }).selectOption("Barbell");
+  await expect(page.getByRole("heading", { name: "No exercises found" })).toBeVisible();
+  await page.getByRole("button", { name: "Clear filters", exact: true }).first().click();
+  await noOverflow(page);
+  if (testInfo.project.name === "phone")
+    await page.screenshot({ path: testInfo.outputPath("exercise-library.png"), fullPage: false });
+  expect(errors).toEqual([]);
+});
+
+test("exercise library failure is visible and retry recovers", async ({ page }) => {
+  const { control, errors } = await mockApp(page, { failExercises: true });
+  await page.goto("/workout");
+  await page.getByRole("tab", { name: "Exercises", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Couldn’t load the exercise library" })
+  ).toBeVisible({ timeout: 15000 });
+  control.failExercises = false;
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await expect(page.getByRole("button", { name: /^Bench Press Chest/ })).toBeVisible();
+  expect(errors).toEqual([]);
+});
 
 async function noOverflow(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
@@ -164,10 +224,10 @@ test("cookie-backed sign-in loads all five tabs without crashes or horizontal sc
   const { errors } = await mockApp(page);
   for (const [path, heading] of [
     ["/home", /Good (morning|afternoon|evening)/],
-    ["/workout", /WORKOUT/],
-    ["/nutrition", /NUTRITION/],
-    ["/progress", /PROGRESS/],
-    ["/profile", /PROFILE/],
+    ["/workout", /Workout/],
+    ["/nutrition", /Nutrition/],
+    ["/progress", /Progress/],
+    ["/profile", /Profile/],
   ] as const) {
     await page.goto(path);
     await expect(page.getByRole("heading", { name: heading, exact: false }).first()).toBeVisible();
@@ -267,7 +327,7 @@ test("a workout set survives reload and finishes only with its saved revision", 
   await page.reload();
   await expect(page.getByLabel("Set 1 weight in pounds", { exact: true })).toHaveValue("135");
   await page.getByRole("button", { name: "Finish", exact: true }).click();
-  await expect(page.getByText("Mission complete", { exact: true })).toBeVisible();
+  await expect(page.getByText("Workout complete", { exact: true })).toBeVisible();
   const save = writes.find((row) => row.action === "saveSet");
   const finish = writes.find((row) => row.action === "finish");
   if (!save || !finish) throw new Error("Expected both a saved set and a finish command.");

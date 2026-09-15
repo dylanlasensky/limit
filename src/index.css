@@ -142,19 +142,20 @@
 
 @keyframes limit-shimmer { to { background-position-x: -200%; } }
 
-/* LIMIT's shared palette: quiet charcoal surfaces and one royal-blue accent. */
+/* Keep LIMIT's charcoal-and-blue identity, with softer contrast and more open typography. */
 @layer base {
   :root, .dark {
-    --background: 240 10% 3.9%;
-    --card: 240 12% 8%;
-    --popover: 240 12% 8%;
-    --primary: 221 83% 53%;
-    --ring: 221 83% 53%;
-    --secondary: 240 10% 12%;
-    --muted: 240 10% 12%;
-    --muted-foreground: 240 6% 68%;
-    --border: 240 7% 20%;
-    --input: 240 7% 20%;
+    --background: 230 15% 7%;
+    --card: 230 13% 11%;
+    --popover: 230 13% 11%;
+    --primary: 225 84% 75%;
+    --primary-foreground: 230 35% 12%;
+    --ring: 225 84% 75%;
+    --secondary: 230 12% 16%;
+    --muted: 230 12% 16%;
+    --muted-foreground: 230 9% 72%;
+    --border: 230 10% 24%;
+    --input: 230 10% 24%;
   }
   html.light {
     color-scheme: light;
@@ -170,12 +171,17 @@
     --muted-foreground: 220 10% 40%;
     --border: 220 14% 84%;
     --input: 220 14% 84%;
+    --primary: 225 64% 46%;
+    --primary-foreground: 0 0% 100%;
+    --ring: 225 64% 46%;
   }
   button:disabled { cursor: not-allowed; }
   input[type="number"] { appearance: textfield; }
   input::-webkit-inner-spin-button, input::-webkit-outer-spin-button { appearance: none; margin: 0; }
 }
 @layer components {
+  .limit-page-title { @apply mt-2 text-4xl font-bold tracking-[-.035em]; }
+  .limit-kicker { @apply font-semibold tracking-[.12em]; }
   .limit-surface { box-shadow: inset 0 1px 0 hsl(var(--foreground) / .025); }
   .limit-hero { box-shadow: inset 0 1px 0 hsl(var(--foreground) / .04); }
   .limit-hero::after { opacity: .4; }
