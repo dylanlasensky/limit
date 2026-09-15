@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
-import confetti from "canvas-confetti";
 
 export interface WorkoutPR {
   exerciseName: string;
@@ -32,13 +31,24 @@ interface WorkoutCompleteProps {
 
 export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProps) {
   useEffect(() => {
-    if (summary.prs?.length)
-      confetti({
-        particleCount: 48,
-        spread: 55,
-        origin: { y: 0.35 },
-        colors: ["#2563EB", "#F8FAFC"],
+    if (!summary.prs?.length) return;
+    let cancelled = false;
+    void import("canvas-confetti")
+      .then(({ default: confetti }) => {
+        if (cancelled) return;
+        return confetti({
+          particleCount: 48,
+          spread: 55,
+          origin: { y: 0.35 },
+          colors: ["#2563EB", "#F8FAFC"],
+        });
+      })
+      .catch(() => {
+        // A failed celebration download must not interrupt the saved workout summary.
       });
+    return () => {
+      cancelled = true;
+    };
   }, []);
   const mm = Math.floor(summary.durationMinutes / 60),
     rem = summary.durationMinutes % 60;
