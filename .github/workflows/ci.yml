@@ -176,6 +176,11 @@ jobs:
         run: base44 deploy --yes --no-build --json
 
       # Additive, idempotent catalog migration; never changes exercise IDs or workout history.
+      - name: Install the script runtime required by Base44 exec
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
       - name: Expand and verify exercise library
         run: |
           base44 whoami

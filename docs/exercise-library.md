@@ -22,7 +22,7 @@ Power exercises remain available for search and coach-program imports, but never
 ## Data and release behavior
 
 - `base44/shared/exerciseCatalog.js` is the curated source of truth. Every entry has a stable key, version, primary/supporting muscles, equipment, aliases, difficulty, movement family, focus, original cues and generation eligibility.
-- Production deployment runs `scripts/seed-exercises.mjs` through authenticated `base44 exec`. Only the public Exercise entity is touched. GitHub production deploy concurrency serializes the seed.
+- Production deployment installs Deno, then runs `scripts/seed-exercises.mjs` through authenticated `base44 exec`. Only the public Exercise entity is touched. GitHub production deploy concurrency serializes the seed.
 - The seed adds missing entries and enriches recognized existing names/aliases only when equipment matches. It preserves existing IDs, display names, muscle attribution, rep ranges, programs, logs and custom records. It never deletes records. Existing metadata is updated only when the catalog version advances; new versioned catalog entries carry complete metadata.
 - Writes are batched; a partial run can be retried. A final read checks that every curated key exists. Migration failure fails the release job visibly. Unmatched existing records stay visible, so the total can exceed 365.
 - UI, import, planner, live logger and completion analytics page through the entire Exercise collection. A repeated page raises a visible error rather than presenting a silently truncated library. The browser never invents database IDs.
@@ -35,3 +35,5 @@ Power exercises remain available for search and coach-program imports, but never
 Before adding an entry, check normalized names and aliases for duplicates, verify that the logger can represent its measurement, write a specific setup note, and test its selection behavior. Never change a stable key just to rename an exercise. Bump an entry's catalog version to ship corrected metadata. Do not run competing manual seeds; use the serialized production workflow. Exercise-specific videos or clinical guidance require licensed content and qualified review.
 
 The visual refinement preserves navigation, muscle-map geometry and charcoal/blue identity. Softer blue with contrasting button text, sentence-case headings and quieter labels make the presentation more welcoming without assigning colors or training styles to gender.
+
+Base44 may recreate JavaScript auth templates during repository sync. Vite explicitly resolves maintained TypeScript modules first, and a regression guard verifies this priority. Generated templates are retained rather than repeatedly deleted and regenerated.

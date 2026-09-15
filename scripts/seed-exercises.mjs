@@ -1,7 +1,7 @@
 import { exerciseCatalog, normalizeExerciseName } from "../base44/shared/exerciseCatalog.js";
 import { readExercisePages, syncExerciseCatalog } from "../base44/shared/exerciseLibrary.js";
 
-// Emits a self-contained server-side script, consumed by the authenticated Base44 CLI.
+// Emits a self-contained script, consumed by the authenticated Base44 CLI.
 // No credentials are read or embedded here. Production deploys are serialized by CI.
 console.log(`
 ${normalizeExerciseName.toString()}

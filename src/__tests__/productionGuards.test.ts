@@ -9,17 +9,21 @@ function files(dir: string): string[] {
   );
 }
 describe("production source integrity", () => {
-  it("has no JavaScript files that shadow TypeScript modules", () => {
+  it("keeps regenerated platform scaffolding from shadowing TypeScript modules", () => {
     const source = files(path.join(root, "src"));
-    expect(
-      source.filter(
-        (file) =>
-          /\.(jsx|js)$/.test(file) &&
-          [file.replace(/\.(jsx|js)$/, ".ts"), file.replace(/\.(jsx|js)$/, ".tsx")].some((typed) =>
-            source.includes(typed)
-          )
-      )
-    ).toEqual([]);
+    const config = readFileSync(path.join(root, "vite.config.ts"), "utf8");
+    const extensions = JSON.parse(config.match(/extensions:\s*(\[[^\]]+\])/)![1]);
+    for (const file of source.filter((file) => /\.(jsx|js)$/.test(file))) {
+      for (const extension of [".ts", ".tsx"]) {
+        if (source.includes(file.replace(/\.(jsx|js)$/, extension))) {
+          expect(extensions.indexOf(extension)).toBeGreaterThanOrEqual(0);
+          expect(extensions.indexOf(extension)).toBeLessThan(
+            extensions.indexOf(path.extname(file))
+          );
+        }
+      }
+    }
+    expect(extensions.indexOf(".tsx")).toBeLessThan(extensions.indexOf(".jsx"));
   });
   it("ships the manifest referenced by index.html", () => {
     const manifest = JSON.parse(readFileSync(path.join(root, "public/manifest.json"), "utf8"));
