@@ -2,38 +2,36 @@ import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { loadSavedMealWeek, saveMealWeek } from "@/lib/meal-plans";
 import { createFoodEntry } from "@/lib/food-entry";
+import { format, startOfWeek } from "date-fns";
+import useLocalDate from "@/hooks/use-local-date";
 import {
   buildWeek,
   sumMacros,
   today,
-  weekStart,
   type DietaryProfile,
   type PlannedMeal,
 } from "@/components/limit/data";
-import { format } from "date-fns";
 import MealCard from "@/components/limit/MealCard";
 import MealDetail from "@/components/limit/MealDetail";
 import MealPrepCard from "@/components/limit/MealPrepCard";
-interface GroceryItem {
-  name: string;
-  qty: number;
-  unit: string;
-  category: string;
-  checked: boolean;
-}
+import GroceryListPanel from "@/components/limit/GroceryListPanel";
 interface MealPlannerProps {
   profile: Record<string, any>;
   onLogged: () => void;
   mode?: string;
 }
 export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProps) {
+  const currentDate = useLocalDate();
+  const currentWeek = format(
+    startOfWeek(new Date(`${currentDate}T12:00:00`), { weekStartsOn: 1 }),
+    "yyyy-MM-dd"
+  );
   const [diet, setDiet] = useState<DietaryProfile>({}),
     [savedWeekId, setSavedWeekId] = useState<string>(),
     [week, setWeek] = useState<PlannedMeal[][]>([]),
     [day, setDay] = useState(0),
     [detail, setDetail] = useState<PlannedMeal | undefined>(),
     [selected, setSelected] = useState<Array<PlannedMeal["key"]>>([]),
-    [list, setList] = useState<GroceryItem[]>([]),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false),
     [loadError, setLoadError] = useState(false);
@@ -52,6 +50,9 @@ export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProp
   };
   useEffect(() => {
     let cancelled = false;
+    setLoadError(false);
+    setWeek([]);
+    setSelected([]);
     base44.entities.DietaryProfile.list()
       .then(async (x: any[]) => {
         const saved = await loadSavedMealWeek(x[0] || {});
@@ -66,7 +67,7 @@ export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProp
     return () => {
       cancelled = true;
     };
-  }, [profile.calorieTarget]);
+  }, [profile.calorieTarget, currentWeek]);
   const add = async (m: PlannedMeal) => {
     await createFoodEntry({
       date: today(),
@@ -96,29 +97,6 @@ export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProp
             : d
         )
       );
-  };
-  const groceries = async () => {
-    const meals = week.flat().filter((x) => selected.includes(x.key));
-    const all = meals.flatMap((x) =>
-      x.ingredients.map((ingredient) => ({ ...ingredient, portions: x.servings || 1 }))
-    );
-    const map: Record<string, number> = {};
-    all.forEach((x) => {
-      map[x.name] = (map[x.name] || 0) + x.portions;
-    });
-    const items = Object.entries(map).map(([name, qty]) => ({
-      name,
-      qty,
-      unit: "recipe portion(s)",
-      category: all.find((x) => x.name === name)?.category || "Other",
-      checked: false,
-    }));
-    setList(items);
-    await base44.entities.GroceryList.create({
-      weekStart: format(weekStart(), "yyyy-MM-dd"),
-      sourceMealIds: selected,
-      items,
-    });
   };
   if (loadError)
     return (
@@ -198,41 +176,16 @@ export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProp
             />
           ))}
         </div>
-        <div className="mt-5 grid grid-cols-2 gap-2">
+        <div className="mt-5">
           <button
             onClick={() => void run(saveWeek, "Week saved.")}
             disabled={!week.flat().length}
-            className="h-12 rounded-xl bg-primary font-semibold text-primary-foreground"
+            className="h-12 w-full rounded-xl bg-primary font-semibold text-primary-foreground"
           >
             Save week
           </button>
-          <button
-            disabled={!selected.length}
-            onClick={() => void run(groceries, "Grocery list saved.")}
-            className="h-12 rounded-xl border font-bold disabled:opacity-40"
-          >
-            Grocery list ({selected.length})
-          </button>
         </div>
-        {list.length > 0 && (
-          <section className="limit-surface mt-4 rounded-2xl p-4">
-            <h3 className="font-bold">Grocery list</h3>
-            {list.map((x, i) => (
-              <label key={x.name} className="mt-3 flex gap-3 text-sm">
-                <input
-                  type="checkbox"
-                  checked={x.checked}
-                  onChange={() =>
-                    setList((l) => l.map((v, j) => (j === i ? { ...v, checked: !v.checked } : v)))
-                  }
-                />
-                <span className={x.checked ? "line-through text-muted-foreground" : ""}>
-                  {x.name} × {x.qty}
-                </span>
-              </label>
-            ))}
-          </section>
-        )}
+        <GroceryListPanel meals={week.flat().filter((meal) => selected.includes(meal.key))} />
       </fieldset>
       <MealDetail meal={detail} onClose={() => setDetail(undefined)} />
     </div>

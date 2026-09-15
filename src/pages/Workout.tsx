@@ -1,5 +1,5 @@
-import React from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { listExercises } from "@/lib/training/exerciseLibrary";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -14,6 +14,9 @@ import TodayWorkoutHero from "@/components/workout/TodayWorkoutHero";
 import PlanOptions from "@/components/workout/PlanOptions";
 import PullToRefresh from "@/components/limit/PullToRefresh";
 import useLocalDate from "@/hooks/use-local-date";
+import WorkoutHistory from "@/components/workout/WorkoutHistory";
+import WorkoutPreview from "@/components/workout/WorkoutPreview";
+import { uniqueHistory } from "@/lib/training/workoutHistory";
 
 const WEEKDAY_LABELS = [
   "Monday",
@@ -28,6 +31,7 @@ const WEEKDAY_LABELS = [
 export default function Workout() {
   const currentDate = useLocalDate();
   const { user } = useAuth();
+  const [previewDay, setPreviewDay] = useState<Record<string, any> | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const tab =
     ({ exercises: "Exercises", history: "History" } as Record<string, string>)[
@@ -54,9 +58,12 @@ export default function Workout() {
       ),
     staleTime: 60000,
   });
-  const historyQuery = useQuery({
-    queryKey: ["workoutHistory"],
-    queryFn: () => base44.entities.WorkoutSession.filter({ status: "completed" }, "-date", 30),
+  const historyQuery = useInfiniteQuery({
+    queryKey: ["workoutHistory", user?.id],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) =>
+      base44.entities.WorkoutSession.filter({ status: "completed" }, "-date", 30, pageParam),
+    getNextPageParam: (last, _pages, offset) => (last.length === 30 ? offset + 30 : undefined),
     staleTime: 30000,
   });
   const activeQuery = useQuery({
@@ -73,13 +80,13 @@ export default function Workout() {
 
   const { plan, days = [] } = planQuery.data || {};
   const exercises: any[] = exQuery.data || [],
-    history: any[] = historyQuery.data || [];
+    history = uniqueHistory(historyQuery.data?.pages || []);
   const weekday = todayWeekday();
   const today = days.find((d: any) => d.weekday === weekday);
   const weekStartDate = startOfWeek(new Date(), { weekStartsOn: 1 });
   const completedWeekdays = new Set(
     history
-      .filter((s) => s.date >= format(weekStartDate, "yyyy-MM-dd"))
+      .filter((s) => (s.date || "") >= format(weekStartDate, "yyyy-MM-dd"))
       .map((s) => days.findIndex((d: any) => d.id === s.workoutDayId))
       .filter((i) => i >= 0)
       .map((i): number => days[i].weekday)
@@ -116,8 +123,11 @@ export default function Workout() {
       ...(tab === "Exercises" ? [recentSetsQuery.refetch()] : []),
     ]);
   if (
-    tab !== "Exercises" &&
-    (planQuery.error || weQuery.error || historyQuery.error || activeQuery.error)
+    tab === "Schedule" &&
+    (planQuery.error ||
+      weQuery.error ||
+      (historyQuery.error && !history.length) ||
+      activeQuery.error)
   ) {
     return (
       <ScreenState
@@ -188,7 +198,11 @@ export default function Workout() {
             </section>
           ) : (
             <>
-              <WeekStrip days={days} completedWeekdays={completedWeekdays} />
+              <WeekStrip
+                days={days}
+                completedWeekdays={completedWeekdays}
+                onPreview={setPreviewDay}
+              />
               <TodayWorkoutHero
                 day={activeDay || nextDay}
                 exercises={(weQuery.data || []).filter(
@@ -196,6 +210,7 @@ export default function Workout() {
                 )}
                 activeSession={activeSession}
                 completedSession={activeDay ? null : completedToday}
+                onPreview={() => setPreviewDay(activeDay || today || null)}
               />
               {activeSession && activeSession.workoutDayId !== today?.id && (
                 <p className="mt-3 rounded-xl border border-accent/40 bg-accent/10 p-3 text-xs text-accent">
@@ -210,7 +225,7 @@ export default function Workout() {
                 {days.map((d: any) => (
                   <div
                     key={d.id}
-                    className={`flex items-center justify-between rounded-2xl border p-4 transition-all ${d.weekday === weekday ? "border-primary/40 bg-primary/[.07] shadow-[inset_3px_0_0_hsl(var(--primary))]" : "border-border/50 bg-card/60"}`}
+                    className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 transition-all ${d.weekday === weekday ? "border-primary/40 bg-primary/[.07] shadow-[inset_3px_0_0_hsl(var(--primary))]" : "border-border/50 bg-card/60"}`}
                   >
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
@@ -236,14 +251,23 @@ export default function Workout() {
                         </p>
                       )}
                     </div>
-                    {!d.isRest && (
+                    <div className="flex items-center gap-2">
                       <button
-                        onClick={() => nav(`/live-workout/${d.id}`)}
-                        className={`rounded-xl px-4 py-2.5 text-sm font-bold ${activeSession?.workoutDayId === d.id ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
+                        onClick={() => setPreviewDay(d)}
+                        aria-label={`Preview ${WEEKDAY_LABELS[d.weekday]} ${d.name}`}
+                        className="min-h-11 rounded-xl border border-border px-3 text-xs font-semibold text-muted-foreground"
                       >
-                        {activeSession?.workoutDayId === d.id ? "Resume" : "Start"}
+                        Preview
                       </button>
-                    )}
+                      {!d.isRest && (
+                        <button
+                          onClick={() => nav(`/live-workout/${d.id}`)}
+                          className={`rounded-xl px-4 py-2.5 text-sm font-bold ${activeSession?.workoutDayId === d.id ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
+                        >
+                          {activeSession?.workoutDayId === d.id ? "Resume" : "Start"}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -270,36 +294,30 @@ export default function Workout() {
           />
         )}
 
-        {tab === "History" &&
-          (history.length ? (
-            history.map((x) => (
-              <button
-                key={x.id}
-                onClick={() => nav(`/workout/history/${x.id}`)}
-                className="mt-3 w-full rounded-2xl border border-border bg-card p-4 text-left transition-colors active:bg-secondary"
-              >
-                <div className="flex justify-between">
-                  <b>{x.name}</b>
-                  <span className="text-xs tabular-nums text-muted-foreground">
-                    {format(new Date(`${x.date}T12:00:00`), "MMM d").toUpperCase()}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm tabular-nums text-muted-foreground">
-                  {x.durationMinutes ? `${x.durationMinutes} min · ` : ""}
-                  {x.setCount ? `${x.setCount} sets · ` : ""}
-                  {Math.round(x.totalVolume || 0).toLocaleString()} lb
-                  {x.prCount ? ` · ${x.prCount} PR${x.prCount > 1 ? "s" : ""}` : ""}
-                </p>
-              </button>
-            ))
-          ) : (
-            <section className="rounded-3xl border border-border bg-card p-8 text-center">
-              <h2 className="font-black">Your training history starts here.</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Finish your first workout and it will show up in History.
-              </p>
-            </section>
-          ))}
+        {tab === "History" && (
+          <WorkoutHistory
+            sessions={history}
+            loading={historyQuery.isLoading}
+            error={!!historyQuery.error}
+            hasMore={!!historyQuery.hasNextPage}
+            loadingMore={historyQuery.isFetchingNextPage}
+            onLoadMore={() => void historyQuery.fetchNextPage()}
+            onRetry={() => void historyQuery.refetch()}
+            today={currentDate}
+          />
+        )}
+        <WorkoutPreview
+          loading={weQuery.isLoading}
+          day={previewDay}
+          rows={weQuery.data || []}
+          exercises={exercises}
+          activeSession={activeSession}
+          onClose={() => setPreviewDay(null)}
+          onStart={(dayId) => {
+            setPreviewDay(null);
+            nav(`/live-workout/${dayId}`);
+          }}
+        />
       </div>
     </PullToRefresh>
   );

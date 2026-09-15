@@ -17,12 +17,16 @@ interface ManualFoodProps {
   entryMethod?: string;
   estimated?: boolean;
   initialMealType?: string;
+  entryDate?: string;
+  onSavingChange?: (saving: boolean) => void;
 }
 export default function ManualFood({
   onDone,
   entryMethod = "manual",
   estimated = false,
   initialMealType = "Breakfast",
+  entryDate,
+  onSavingChange,
 }: ManualFoodProps) {
   const [f, setF] = useState<ManualFoodForm>({
       mealType: initialMealType,
@@ -44,33 +48,42 @@ export default function ManualFood({
       return;
     }
     submitting.current = true;
-    const date = today(),
+    const date = entryDate || today(),
       item = { ...f, date, entryMethod },
       key = ["foodEntries", date],
       optimistic = { ...item, id: `pending-${Date.now()}` };
     setSaving(true);
+    onSavingChange?.(true);
     setError("");
-    await client.cancelQueries({ queryKey: key });
-    client.setQueryData(key, (old: any[] | undefined) => [...(old || []), optimistic]);
     try {
+      await client.cancelQueries({ queryKey: key });
+      // An unresolved diary is not an empty diary. Never seed a partial list
+      // while its first read is still pending or unavailable.
+      client.setQueryData(key, (old: any[] | undefined) =>
+        Array.isArray(old) ? [...old, optimistic] : old
+      );
       const saved = await createFoodEntry(item);
       client.setQueryData(key, (old: any[] | undefined) =>
-        (old || []).map((x) => (x.id === optimistic.id ? saved : x))
+        Array.isArray(old)
+          ? [...old.filter((x) => x.id !== optimistic.id && x.id !== saved.id), saved]
+          : old
       );
+      void client.invalidateQueries({ queryKey: key });
       onDone(true);
       void client.invalidateQueries({ queryKey: ["recentFoods"] });
     } catch {
       client.setQueryData(key, (old: any[] | undefined) =>
-        (old || []).filter((x) => x.id !== optimistic.id)
+        Array.isArray(old) ? old.filter((x) => x.id !== optimistic.id) : old
       );
+      void client.invalidateQueries({ queryKey: key });
       setError("Couldn’t add this food. Check your connection and try again.");
       setSaving(false);
-    } finally {
+      onSavingChange?.(false);
       submitting.current = false;
     }
   };
   return (
-    <div className="space-y-3">
+    <fieldset disabled={saving} className="min-w-0 space-y-3">
       <input
         aria-label="Food name"
         className="h-12 w-full rounded-xl border border-border bg-transparent px-3"
@@ -113,7 +126,7 @@ export default function ManualFood({
               inputMode="decimal"
               className="mt-1 h-12 w-full rounded-xl border border-border bg-transparent px-3"
               value={f[x] ?? ""}
-              onChange={(e) => set(x, +e.target.value)}
+              onChange={(e) => set(x, e.target.value === "" ? "" : +e.target.value)}
             />
           </label>
         ))}
@@ -124,7 +137,9 @@ export default function ManualFood({
         </p>
       )}
       {error && (
-        <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>
+        <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
+          {error}
+        </p>
       )}
       <button
         onClick={save}
@@ -133,6 +148,6 @@ export default function ManualFood({
       >
         {saving ? "ADDING…" : "ADD FOOD"}
       </button>
-    </div>
+    </fieldset>
   );
 }

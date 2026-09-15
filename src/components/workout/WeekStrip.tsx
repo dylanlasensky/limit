@@ -6,9 +6,10 @@ interface WeekStripProps {
   days: Array<{ weekday: number; isRest?: boolean; name: string; [key: string]: any }>;
   /** Set of weekday indexes completed this week. */
   completedWeekdays: Set<number>;
+  onPreview?: (day: Record<string, any>) => void;
 }
 
-export default function WeekStrip({ days, completedWeekdays }: WeekStripProps) {
+export default function WeekStrip({ days, completedWeekdays, onPreview }: WeekStripProps) {
   const today = todayWeekday();
   return (
     <div className="limit-surface flex justify-between rounded-2xl p-3">
@@ -18,7 +19,14 @@ export default function WeekStrip({ days, completedWeekdays }: WeekStripProps) {
         const done = completedWeekdays.has(i);
         const isToday = i === today;
         return (
-          <div key={i} className="flex flex-col items-center gap-1.5">
+          <button
+            key={i}
+            disabled={!day || !onPreview}
+            onClick={() => day && onPreview?.(day)}
+            aria-label={`Preview ${["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][i]}: ${day?.name || "No session"}${done ? ", completed" : ""}`}
+            aria-current={isToday ? "date" : undefined}
+            className="flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-default"
+          >
             <span
               className={`text-[10px] font-bold ${isToday ? "text-primary" : "text-muted-foreground"}`}
             >
@@ -38,7 +46,7 @@ export default function WeekStrip({ days, completedWeekdays }: WeekStripProps) {
                       .join("")
                       .slice(0, 2)}
             </div>
-          </div>
+          </button>
         );
       })}
     </div>

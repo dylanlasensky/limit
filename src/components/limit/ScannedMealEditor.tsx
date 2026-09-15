@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { createFoodEntry, validateFoodEntry } from "@/lib/food-entry";
 import { today, sumMacros } from "@/components/limit/data";
@@ -11,13 +11,18 @@ interface ScannedMealEditorProps {
   conflicts: string[];
   onDone: () => void;
   initialMealType?: string;
+  entryDate?: string;
+  onSavingChange?: (saving: boolean) => void;
 }
 export default function ScannedMealEditor({
   result,
   conflicts,
   onDone,
   initialMealType = "Dinner",
+  entryDate,
+  onSavingChange,
 }: ScannedMealEditorProps) {
+  const pending = useRef(false);
   const [items, setItems] = useState<ScannedMealItem[]>(result.items || []),
     [mealType, setMealType] = useState(initialMealType),
     [saving, setSaving] = useState(false),
@@ -48,14 +53,16 @@ export default function ScannedMealEditor({
       { name: "", amount: 1, unit: "serving", calories: 0, protein: 0, carbs: 0, fat: 0 },
     ]);
   const save = async () => {
-    if (saving) return;
+    if (pending.current) return;
+    pending.current = true;
     setSaving(true);
+    onSavingChange?.(true);
     setError("");
     try {
       for (const item of items)
         validateFoodEntry({ ...item, foodName: item.name, quantity: item.amount, mealType });
       await createFoodEntry({
-        date: today(),
+        date: entryDate || today(),
         mealType,
         foodName:
           items
@@ -73,12 +80,13 @@ export default function ScannedMealEditor({
       onDone();
     } catch (e: any) {
       setError(e.message || "Couldn’t save. Your meal is still here. Please retry.");
-    } finally {
+      pending.current = false;
       setSaving(false);
+      onSavingChange?.(false);
     }
   };
   return (
-    <div className="space-y-4">
+    <fieldset disabled={saving} className="min-w-0 space-y-4">
       <div>
         <p className="text-xs font-bold text-primary">AI MEAL ESTIMATE</p>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -172,6 +180,6 @@ export default function ScannedMealEditor({
       >
         {saving ? "LOGGING…" : "LOG MEAL"}
       </button>
-    </div>
+    </fieldset>
   );
 }

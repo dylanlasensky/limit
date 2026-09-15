@@ -18,6 +18,8 @@ interface FoodPhotoScannerProps {
   onDone: () => void;
   onManual: () => void;
   initialMealType?: string;
+  entryDate?: string;
+  onSavingChange?: (saving: boolean) => void;
 }
 export default function FoodPhotoScanner({
   mode,
@@ -25,6 +27,8 @@ export default function FoodPhotoScanner({
   onDone,
   onManual,
   initialMealType,
+  entryDate,
+  onSavingChange,
 }: FoodPhotoScannerProps) {
   const pending = useRef<AbortController>();
   useEffect(() => () => pending.current?.abort(), []);
@@ -156,13 +160,21 @@ export default function FoodPhotoScanner({
   if (result)
     return mode === "meal" ? (
       <ScannedMealEditor
+        entryDate={entryDate}
+        onSavingChange={onSavingChange}
         initialMealType={initialMealType}
         result={result}
         conflicts={conflictsFor(result, dietaryProfile)}
         onDone={onDone}
       />
     ) : (
-      <ScannedFoodEditor initialMealType={initialMealType} result={result} onDone={onDone} />
+      <ScannedFoodEditor
+        entryDate={entryDate}
+        onSavingChange={onSavingChange}
+        initialMealType={initialMealType}
+        result={result}
+        onDone={onDone}
+      />
     );
   return (
     <div className="space-y-4">

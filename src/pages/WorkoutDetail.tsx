@@ -53,7 +53,7 @@ export default function WorkoutDetail() {
   return (
     <div>
       <button
-        onClick={() => nav(-1)}
+        onClick={() => nav("/workout?tab=history")}
         className="mb-5 flex min-h-11 items-center gap-2 text-sm font-bold text-muted-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -62,7 +62,7 @@ export default function WorkoutDetail() {
       <p className="text-[10px] font-bold uppercase tracking-[.2em] text-primary">
         Completed workout
       </p>
-      <h1 className="mt-2 text-3xl font-black uppercase tracking-tight">{session.name}</h1>
+      <h1 className="mt-2 text-3xl font-semibold tracking-tight">{session.name}</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         {session.date} · {session.durationMinutes || 0} min
       </p>
@@ -106,7 +106,14 @@ export default function WorkoutDetail() {
           <div className="mt-3 space-y-2">
             {rows.map((row) => (
               <div key={row.id} className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Set {row.setNumber}</span>
+                <span className="text-muted-foreground">
+                  {row.setType === "warmup"
+                    ? "Warm-up"
+                    : row.setType === "drop"
+                      ? "Drop set"
+                      : "Set"}{" "}
+                  {row.setNumber}
+                </span>
                 <b className="tabular-nums">
                   {row.weight} lb × {row.reps}
                   {row.rir != null ? ` · ${row.rir} RIR` : ""}

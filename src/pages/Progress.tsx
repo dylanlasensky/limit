@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { format, parseISO, subDays } from "date-fns";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,7 +14,8 @@ import PullToRefresh from "@/components/limit/PullToRefresh";
 import { profileWeightLb } from "@/components/limit/nutritionTargets";
 import useLocalDate from "@/hooks/use-local-date";
 import WeeklyActivity from "@/components/limit/WeeklyActivity";
-import NativeSelect from "@/components/limit/NativeSelect";
+import StrengthProgress from "@/components/limit/StrengthProgress";
+import { buildStrengthHistory, readProgressPages } from "@/lib/training/strengthHistory";
 
 const ranges: Record<string, number> = { 1: 30, 3: 90, 6: 180, 12: 365, ALL: Infinity };
 const tabs: Record<string, string> = {
@@ -30,23 +31,55 @@ export default function Progress() {
   const setTab = (value: string) =>
     setParams({ tab: Object.keys(tabs).find((key) => tabs[key] === value) || "overview" });
   const [range, setRange] = useState<string>("3");
-  const [strengthExercise, setStrengthExercise] = useState("");
   const date = useLocalDate();
   const navigate = useNavigate();
   const client = useQueryClient();
   const query = useQuery({
     queryKey: ["progressData"],
+    staleTime: 60000,
     queryFn: async () => {
       const [weights, profiles, sets, exercises, sessions, snapshots, records] = await Promise.all([
-        base44.entities.WeightEntry.list("-date", 500).then((rows) => rows.reverse()),
+        readProgressPages((limit, skip) => base44.entities.WeightEntry.list("-date", limit, skip), {
+          maxRows: 5000,
+        }),
         base44.entities.UserProfile.list(),
-        base44.entities.ExerciseSet.list("-timestamp", 2000),
+        readProgressPages((limit, skip) =>
+          base44.entities.ExerciseSet.filter({ completed: true }, "-timestamp", limit, skip)
+        ),
         listExercises(),
-        base44.entities.WorkoutSession.filter({ status: "completed" }, "-date", 500),
-        base44.entities.MuscleRatingSnapshot.list("-date", 100),
-        base44.entities.PersonalRecord.list("-date", 500),
+        readProgressPages(
+          (limit, skip) =>
+            base44.entities.WorkoutSession.filter({ status: "completed" }, "-date", limit, skip),
+          { maxRows: 5000 }
+        ),
+        readProgressPages(
+          (limit, skip) => base44.entities.MuscleRatingSnapshot.list("-date", limit, skip),
+          { maxRows: 2000 }
+        ),
+        readProgressPages(
+          (limit, skip) => base44.entities.PersonalRecord.list("-date", limit, skip),
+          { maxRows: 5000 }
+        ),
       ]);
-      return { weights, profile: profiles[0] || {}, sets, exercises, sessions, snapshots, records };
+      const historyLimits = [
+        [weights, "weigh-ins"],
+        [sets, "sets"],
+        [sessions, "workouts"],
+        [snapshots, "muscle snapshots"],
+        [records, "records"],
+      ].flatMap(([history, label]: any) =>
+        history.truncated ? [`${history.rows.length.toLocaleString()} ${label}`] : []
+      );
+      return {
+        weights: weights.rows.reverse(),
+        profile: profiles[0] || {},
+        sets: sets.rows,
+        exercises,
+        sessions: sessions.rows,
+        snapshots: snapshots.rows,
+        records: records.rows,
+        historyLimits,
+      };
     },
   });
   const addWeight = useMutation({
@@ -57,6 +90,28 @@ export default function Progress() {
         void client.invalidateQueries({ queryKey: [key] });
     },
   });
+  const cutoff =
+    ranges[range] === Infinity
+      ? "0000-00-00"
+      : format(subDays(parseISO(date), ranges[range]), "yyyy-MM-dd");
+  const trainingHistory = useMemo(() => {
+    const data = query.data;
+    const sessions = (data?.sessions || []).filter((item: any) => item.date >= cutoff);
+    const records = (data?.records || []).filter((item: any) => item.date >= cutoff);
+    const sessionIds = new Set(sessions.map((session: any) => session.id));
+    const sets = (data?.sets || []).filter((item: any) => sessionIds.has(item.workoutSessionId));
+    return {
+      sessions,
+      records,
+      sets,
+      strengthExercises: buildStrengthHistory({
+        sets,
+        sessions,
+        exercises: data?.exercises || [],
+        throughDate: date,
+      }),
+    };
+  }, [query.data, cutoff, date]);
 
   if (query.isLoading) return <ScreenState loading />;
   if (query.error)
@@ -69,15 +124,7 @@ export default function Progress() {
     );
 
   const data = query.data!;
-  const cutoff =
-    ranges[range] === Infinity
-      ? "0000-00-00"
-      : format(subDays(parseISO(date), ranges[range]), "yyyy-MM-dd");
-  const sessions = data.sessions.filter((item: any) => item.date >= cutoff);
-  const records = data.records.filter((item: any) => item.date >= cutoff);
-  const sets = data.sets.filter((item: any) =>
-    sessions.some((session: any) => session.id === item.workoutSessionId)
-  );
+  const { sessions, records, sets, strengthExercises } = trainingHistory;
   const weights = data.weights
     .filter((item: any) => item.date >= cutoff)
     .map((item: any) => ({
@@ -93,13 +140,6 @@ export default function Progress() {
   const average = recentWeights.length
     ? recentWeights.reduce((sum, item) => sum + item.weight, 0) / recentWeights.length
     : 0;
-  const exerciseNames = [
-    ...new Set(records.map((record: any) => String(record.exerciseName || "Unnamed exercise"))),
-  ].sort();
-  const selectedExercise = exerciseNames.includes(strengthExercise) ? strengthExercise : "";
-  const strengthRecords = selectedExercise
-    ? records.filter((record: any) => record.exerciseName === selectedExercise)
-    : records;
 
   return (
     <PullToRefresh onRefresh={() => query.refetch()}>
@@ -140,6 +180,15 @@ export default function Progress() {
           onChange={setTab}
           label="Progress sections"
         />
+        {!!data.historyLimits?.length && (
+          <p
+            role="status"
+            className="mb-4 rounded-2xl border border-border bg-secondary/50 p-4 text-xs leading-relaxed text-muted-foreground"
+          >
+            Large-history view: the most recent {data.historyLimits.join(", ")} are loaded. Older
+            entries are not included in these totals or charts, including All time.
+          </p>
+        )}
 
         {tab === "Overview" && (
           <>
@@ -186,47 +235,13 @@ export default function Progress() {
         {tab === "Muscle Rating" && (
           <MuscleRatingPanel rating={rating || emptyRating()} snapshots={data.snapshots} />
         )}
-        {tab === "Strength" &&
-          (records.length ? (
-            <div className="space-y-3">
-              <div className="limit-surface rounded-2xl p-4">
-                <label className="text-xs font-medium text-muted-foreground">
-                  Explore your exercise history
-                  <NativeSelect
-                    className="mt-2"
-                    value={selectedExercise}
-                    onChange={setStrengthExercise}
-                    label="Strength exercise"
-                    options={[
-                      { value: "", label: "All exercises" },
-                      ...exerciseNames.map((name) => ({ value: name, label: name })),
-                    ]}
-                  />
-                </label>
-                <p className="mt-3 text-xs text-muted-foreground">
-                  {strengthRecords.length} personal{" "}
-                  {strengthRecords.length === 1 ? "best" : "bests"} in this date range. Estimated
-                  maximums are calculated from logged sets, not a max-lift test.
-                </p>
-              </div>
-              {strengthRecords.map((record: any) => (
-                <div key={record.id} className="rounded-2xl border border-border bg-card p-4">
-                  <b>{record.exerciseName}</b>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {record.type === "e1rm" ? "Estimated max" : "Heaviest set"} · {record.value} lb
-                    · {record.date}
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <ScreenState
-              title="No strength trend yet"
-              description="Log your working sets to build a picture of how your strength changes over time."
-              action="Go to workouts"
-              onAction={() => navigate("/workout")}
-            />
-          ))}
+        {tab === "Strength" && (
+          <StrengthProgress
+            exercises={strengthExercises}
+            onOpenSession={(id) => navigate(`/workout/history/${encodeURIComponent(id)}`)}
+            onStartWorkout={() => navigate("/workout")}
+          />
+        )}
         {tab === "Weight" && (
           <WeightProgress
             weights={weights}

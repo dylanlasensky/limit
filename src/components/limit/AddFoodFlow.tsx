@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Camera,
@@ -27,12 +27,17 @@ interface AddFoodFlowProps {
   dietaryProfile?: DietaryProfile | null;
   onDone: (saved?: boolean) => void;
   initialMealType?: string;
+  entryDate?: string;
+  onSavingChange?: (saving: boolean) => void;
 }
 export default function AddFoodFlow({
   dietaryProfile,
   onDone,
   initialMealType = "Breakfast",
+  entryDate,
+  onSavingChange,
 }: AddFoodFlowProps) {
+  const pending = useRef(false);
   const [saving, setSaving] = useState(false),
     [error, setError] = useState("");
   const [mode, setMode] = useState<AddFoodMode | undefined>(),
@@ -41,11 +46,16 @@ export default function AddFoodFlow({
       queryFn: () => base44.entities.FoodEntry.list("-created_date", 30),
       enabled: mode === "recent",
     });
+  const savingChanged = (value: boolean) => {
+    setSaving(value);
+    onSavingChange?.(value);
+  };
   if (mode)
     return (
       <div>
         <button
           onClick={() => setMode(undefined)}
+          disabled={saving}
           className="mb-4 flex min-h-10 items-center gap-1 text-sm text-muted-foreground"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -54,6 +64,8 @@ export default function AddFoodFlow({
         <h3 className="mb-4 text-lg font-black">{options.find((x) => x[2] === mode)?.[0]}</h3>
         {["food", "meal"].includes(mode) ? (
           <FoodPhotoScanner
+            entryDate={entryDate}
+            onSavingChange={savingChanged}
             initialMealType={initialMealType}
             mode={mode as "food" | "meal"}
             dietaryProfile={dietaryProfile}
@@ -72,8 +84,9 @@ export default function AddFoodFlow({
                     key={x.foodName}
                     disabled={saving}
                     onClick={async () => {
-                      if (saving) return;
-                      setSaving(true);
+                      if (pending.current) return;
+                      pending.current = true;
+                      savingChanged(true);
                       setError("");
                       try {
                         const {
@@ -103,14 +116,14 @@ export default function AddFoodFlow({
                           sugar,
                           sodium,
                           estimated,
-                          date: today(),
+                          date: entryDate || today(),
                           entryMethod: "recent",
                         });
                         onDone();
                       } catch {
                         setError("Couldn’t add this food. Please try again.");
-                      } finally {
-                        setSaving(false);
+                        savingChanged(false);
+                        pending.current = false;
                       }
                     }}
                     className="flex min-h-14 w-full justify-between rounded-xl bg-secondary p-4 text-left text-sm"
@@ -133,6 +146,8 @@ export default function AddFoodFlow({
           </div>
         ) : (
           <ManualFood
+            entryDate={entryDate}
+            onSavingChange={savingChanged}
             initialMealType={initialMealType}
             entryMethod={mode}
             estimated={mode === "restaurant"}
