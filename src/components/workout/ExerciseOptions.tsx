@@ -7,7 +7,8 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
-import { equipmentPool } from "@/lib/training/exerciseSelection";
+import { suitableReplacement } from "@/lib/training/exerciseSelection";
+import { exerciseSearch } from "@/lib/training/exerciseLibrary";
 interface ExerciseOptionsProps {
   exercise?: Record<string, any> | null;
   workoutExercise: Record<string, any>;
@@ -32,17 +33,14 @@ export default function ExerciseOptions({
 }: ExerciseOptionsProps) {
   const [open, setOpen] = useState(false),
     [replacing, setReplacing] = useState(false),
-    allowed = equipmentPool(profile || {}),
+    [search, setSearch] = useState(""),
     alternatives = allExercises.filter(
-      (item) =>
-        item.id !== exercise?.id &&
-        item.primaryMuscle === exercise?.primaryMuscle &&
-        item.category === exercise?.category &&
-        (!allowed || allowed.has(item.equipment))
+      (item) => suitableReplacement(exercise, item, profile) && exerciseSearch(item, search)
     ),
     close = () => {
       setOpen(false);
       setReplacing(false);
+      setSearch("");
     };
   return (
     <>
@@ -64,12 +62,19 @@ export default function ExerciseOptions({
                 {locked
                   ? "This exercise is protected by your imported program."
                   : replacing
-                    ? "Same muscle and movement category, using your equipment."
+                    ? "Similar movement and muscle target, using your equipment."
                     : "Changes affect this workout, not your program."}
               </DrawerDescription>
             </DrawerHeader>
             {replacing ? (
               <div className="max-h-[50dvh] space-y-2 overflow-y-auto">
+                <input
+                  aria-label="Search replacements"
+                  placeholder="Search replacements"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  className="h-12 w-full rounded-xl border border-border bg-secondary px-3"
+                />
                 {alternatives.length ? (
                   alternatives.map((item) => (
                     <button

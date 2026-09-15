@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { listExercises } from "@/lib/training/exerciseLibrary";
 import { useNavigate } from "react-router-dom";
-import { Search, ChevronRight, SlidersHorizontal } from "lucide-react";
 import SegmentedTabs from "@/components/limit/SegmentedTabs";
 import ScreenState from "@/components/limit/ScreenState";
-import ExerciseDetails from "@/components/workout/ExerciseDetails";
+import ExerciseLibrary from "@/components/workout/ExerciseLibrary";
 import { format, startOfWeek } from "date-fns";
 import useActivePlan, { todayWeekday } from "@/hooks/use-active-plan";
 import WeekStrip from "@/components/workout/WeekStrip";
@@ -27,15 +27,11 @@ const WEEKDAY_LABELS = [
 export default function Workout() {
   const currentDate = useLocalDate();
   const [tab, setTab] = useState("Schedule");
-  const [q, setQ] = useState("");
-  const [muscle, setMuscle] = useState("All");
-  const [equipment, setEquipment] = useState("All");
-  const [detail, setDetail] = useState<any | null>(null);
   const nav = useNavigate();
   const planQuery = useActivePlan();
   const exQuery = useQuery({
     queryKey: ["exercises"],
-    queryFn: () => base44.entities.Exercise.list(null as any, 500),
+    queryFn: () => listExercises(),
     staleTime: 60000,
   });
   const weQuery = useQuery({
@@ -43,7 +39,7 @@ export default function Workout() {
     enabled: !!planQuery.data?.days?.length,
     queryFn: () =>
       base44.entities.WorkoutExercise.filter(
-        { workoutDayId: { $in: planQuery.data!.days.map((d) => d.id) } },
+        { workoutDayId: { $in: (planQuery.data?.days || []).map((d) => d.id) } },
         "order",
         500
       ),
@@ -101,6 +97,7 @@ export default function Workout() {
       historyQuery.refetch(),
       activeQuery.refetch(),
       weQuery.refetch(),
+      exQuery.refetch(),
     ]);
   if (planQuery.error || weQuery.error || historyQuery.error || activeQuery.error) {
     return (
@@ -117,8 +114,8 @@ export default function Workout() {
       <div>
         <header className="limit-hero flex items-end justify-between rounded-[2rem] p-5">
           <div className="relative z-10">
-            <p className="limit-kicker">Training block</p>
-            <h1 className="mt-2 text-4xl font-black italic tracking-[-.04em]">WORKOUT</h1>
+            <p className="limit-kicker">Move with purpose</p>
+            <h1 className="limit-page-title">Workout</h1>
           </div>
           {plan && (
             <div className="relative z-10 text-right">
@@ -234,87 +231,14 @@ export default function Workout() {
             </>
           ))}
 
-        {tab === "Exercises" &&
-          (() => {
-            const muscles: string[] = [
-                "All",
-                ...new Set<string>(exercises.map((x) => x.primaryMuscle).filter(Boolean)),
-              ],
-              equipmentOptions: string[] = [
-                "All",
-                ...new Set<string>(exercises.map((x) => x.equipment).filter(Boolean)),
-              ];
-            const filtered = exercises.filter(
-              (x) =>
-                x.name.toLowerCase().includes(q.toLowerCase()) &&
-                (muscle === "All" || x.primaryMuscle === muscle) &&
-                (equipment === "All" || x.equipment === equipment)
-            );
-            return (
-              <>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
-                  <input
-                    value={q}
-                    onChange={(e) => setQ(e.target.value)}
-                    placeholder="Search exercises"
-                    className="h-12 w-full rounded-xl border border-border bg-card pl-10 pr-3"
-                  />
-                </div>
-                <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto pb-1">
-                  <SlidersHorizontal className="mt-2.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                  {muscles.map((x) => (
-                    <button
-                      key={x}
-                      onClick={() => setMuscle(x)}
-                      className={`min-h-9 shrink-0 rounded-full px-3 text-xs font-bold ${muscle === x ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}
-                    >
-                      {x}
-                    </button>
-                  ))}
-                </div>
-                <div className="no-scrollbar mt-2 flex gap-2 overflow-x-auto pb-2">
-                  {equipmentOptions.map((x) => (
-                    <button
-                      key={x}
-                      onClick={() => setEquipment(x)}
-                      className={`min-h-9 shrink-0 rounded-full border px-3 text-xs font-bold ${equipment === x ? "border-primary text-primary" : "border-border text-muted-foreground"}`}
-                    >
-                      {x}
-                    </button>
-                  ))}
-                </div>
-                {filtered.length ? (
-                  filtered.map((x) => (
-                    <button
-                      key={x.id}
-                      onClick={() => setDetail(x)}
-                      className="mt-2 flex min-h-16 w-full items-center justify-between rounded-2xl border border-border bg-card p-4 text-left"
-                    >
-                      <div>
-                        <b className="text-sm">{x.name}</b>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {x.primaryMuscle} · {x.equipment}
-                          {x.repMin ? ` · ${x.repMin}–${x.repMax} reps` : ""}
-                        </p>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </button>
-                  ))
-                ) : (
-                  <ScreenState
-                    title="No exercises found"
-                    description="Try another muscle, equipment filter, or search term."
-                  />
-                )}
-                <ExerciseDetails
-                  exercise={detail}
-                  open={Boolean(detail)}
-                  onOpenChange={(o: boolean) => !o && setDetail(null)}
-                />
-              </>
-            );
-          })()}
+        {tab === "Exercises" && (
+          <ExerciseLibrary
+            exercises={exercises}
+            loading={exQuery.isLoading}
+            error={!!exQuery.error}
+            onRetry={() => void exQuery.refetch()}
+          />
+        )}
 
         {tab === "History" &&
           (history.length ? (

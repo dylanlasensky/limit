@@ -170,9 +170,7 @@ export default function Onboarding() {
       </div>
       <div className="my-7">
         <p className="limit-kicker">{label}</p>
-        <h1 className="mt-3 text-5xl font-black italic leading-[.98] tracking-[-.055em]">
-          {title}
-        </h1>
+        <h1 className="mt-3 text-4xl font-bold leading-tight tracking-[-.035em]">{title}</h1>
         <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
           Your answers shape your training frequency, exercise selection, session length, and
           starting nutrition targets.

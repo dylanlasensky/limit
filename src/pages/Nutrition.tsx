@@ -58,7 +58,7 @@ export default function Nutrition() {
         <header className="limit-hero rounded-[2rem] p-5">
           <div className="relative z-10">
             <p className="limit-kicker">Daily fuel</p>
-            <h1 className="mt-2 text-4xl font-black italic tracking-[-.04em]">NUTRITION</h1>
+            <h1 className="limit-page-title">Nutrition</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               Fuel the work. Recover with intent.
             </p>

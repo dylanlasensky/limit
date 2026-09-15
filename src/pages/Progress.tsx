@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { listExercises } from "@/lib/training/exerciseLibrary";
 import { calculateMuscleRating, emptyRating } from "@/components/limit/muscleRating";
 import MuscleRatingPanel from "@/components/limit/MuscleRatingPanel";
 import ProgressOverview from "@/components/limit/ProgressOverview";
@@ -27,7 +28,7 @@ export default function Progress() {
         base44.entities.WeightEntry.list("-date", 500).then((rows) => rows.reverse()),
         base44.entities.UserProfile.list(),
         base44.entities.ExerciseSet.list("-timestamp", 2000),
-        base44.entities.Exercise.list(null as any, 500),
+        listExercises(),
         base44.entities.WorkoutSession.filter({ status: "completed" }, "-date", 500),
         base44.entities.MuscleRatingSnapshot.list("-date", 100),
         base44.entities.PersonalRecord.list("-date", 500),
@@ -89,8 +90,8 @@ export default function Progress() {
       <div>
         <header className="limit-hero rounded-[2rem] p-5">
           <div className="relative z-10">
-            <p className="limit-kicker">Evolution log</p>
-            <h1 className="mt-2 text-4xl font-black italic tracking-[-.04em]">PROGRESS</h1>
+            <p className="limit-kicker">Your progress, over time</p>
+            <h1 className="limit-page-title">Progress</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               Proof of the work, signal by signal.
             </p>

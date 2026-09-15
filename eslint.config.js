@@ -12,7 +12,7 @@ export default tseslint.config(
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ["e2e/**/*.ts", "playwright.config.ts"],
+    files: ["e2e/**/*.ts", "playwright.config.ts", "scripts/**/*.mjs"],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
     rules: { "@typescript-eslint/no-explicit-any": "off" },
   },

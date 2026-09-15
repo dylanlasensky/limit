@@ -174,3 +174,9 @@ jobs:
       # prebuilt ./dist (base44/config.jsonc site.outputDirectory).
       - name: Deploy
         run: base44 deploy --yes --no-build --json
+
+      # Additive, idempotent catalog migration; never changes exercise IDs or workout history.
+      - name: Expand and verify exercise library
+        run: |
+          base44 whoami
+          node scripts/seed-exercises.mjs | base44 exec --privileged --data-env prod

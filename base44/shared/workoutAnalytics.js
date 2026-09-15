@@ -1,5 +1,6 @@
 import { ownerFilter } from "./workoutAccess.js";
 import { calculateMuscleRating, snapshotPayload } from "./muscleRating.ts";
+import { readExercisePages, isPowerExercise } from "./exerciseLibrary.js";
 const e1rm = (r) => +r.weight * (+r.reps === 1 ? 1 : 1 + +r.reps / 30);
 export function validSet(r) {
   return (
@@ -24,7 +25,7 @@ export function personalBests(sets, records) {
       (r) => validSet(r) && r.exerciseName === name && r.setType !== "warmup"
     );
     const heavy = rows.reduce((a, b) => (+a.weight >= +b.weight ? a : b));
-    const lowRep = rows.filter((r) => +r.reps <= 12 && +r.weight > 0);
+    const lowRep = rows.filter((r) => +r.reps <= 12 && +r.weight > 0 && !isPowerExercise(r));
     const best = lowRep.length ? lowRep.reduce((a, b) => (e1rm(a) >= e1rm(b) ? a : b)) : null;
     for (const [type, row, value] of [
       ["weight", heavy, +heavy.weight],
@@ -104,7 +105,7 @@ export async function finishAnalytics(client, user, session, profile, assertLock
   if (!snapshot) {
     const [sessions, exercises, weights, previous] = await Promise.all([
       db.WorkoutSession.filter({ ...filter, status: "completed" }, "-date", 100),
-      db.Exercise.list(null, 500),
+      readExercisePages(db.Exercise),
       db.WeightEntry.filter({ created_by_id: user.id }, "-date", 1),
       db.MuscleRatingSnapshot.filter(filter, "-date", 1),
     ]);

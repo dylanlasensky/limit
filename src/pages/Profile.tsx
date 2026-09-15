@@ -134,7 +134,7 @@ export default function Profile() {
       <header className="limit-hero rounded-[2rem] p-5">
         <div className="relative z-10">
           <p className="limit-kicker">Your system</p>
-          <h1 className="mt-2 text-4xl font-black italic tracking-[-.04em]">PROFILE</h1>
+          <h1 className="limit-page-title">Profile</h1>
           <p className="mt-2 text-sm text-muted-foreground">{user?.email}</p>
         </div>
       </header>

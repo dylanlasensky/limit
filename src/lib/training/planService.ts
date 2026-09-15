@@ -1,4 +1,5 @@
 import { base44 } from "@/api/base44Client";
+import { listExercises } from "@/lib/training/exerciseLibrary";
 import {
   scoreProgramStructures,
   slotsFor,
@@ -39,7 +40,8 @@ export const buildDayExercises = (
       exercises,
       used,
       allowed,
-      slot.role === "main" || slot.role === "main_strength" ? 0 : variant
+      slot.role === "main" || slot.role === "main_strength" ? 0 : variant,
+      profile.experienceLevel || "beginner"
     );
     if (!ex) continue;
     used.add(ex.id);
@@ -71,7 +73,7 @@ export async function createPersonalizedPlan(profile: any, recommendation?: Prog
   );
   if (sessions.length)
     throw new Error("Finish or discard your active workout before changing programs.");
-  const exercises = await base44.entities.Exercise.list(null as any, 500);
+  const exercises = await listExercises();
   const rec: ProgramOption = recommendation || scoreProgramStructures(profile).best;
   const templates = rec.dayNames.map((name) => buildDayExercises(name, profile, exercises));
   if (!templates.length || templates.some((rows) => !rows.length)) {

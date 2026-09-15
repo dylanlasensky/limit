@@ -2,6 +2,7 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { base44 } from "@/api/base44Client";
+import { listExercises } from "@/lib/training/exerciseLibrary";
 import { sumMacros } from "@/components/limit/data";
 import useLocalDate from "@/hooks/use-local-date";
 import ScreenState from "@/components/limit/ScreenState";
@@ -68,7 +69,7 @@ export default function Home() {
     queryFn: async () => {
       const [sets, exercises, sessions, records] = await Promise.all([
         base44.entities.ExerciseSet.list("-timestamp", 2000),
-        base44.entities.Exercise.list(null as any, 500),
+        listExercises(),
         base44.entities.WorkoutSession.list("-date", 100),
         base44.entities.PersonalRecord.list("-date", 10),
       ]);

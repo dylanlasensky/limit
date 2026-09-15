@@ -1,4 +1,5 @@
 // Deterministic strength math. No AI.
+import { isPowerExercise } from "../../../base44/shared/exerciseLibrary.js";
 export const epley = (weight: number | string, reps: number | string): number =>
   Number.isFinite(+weight) && +weight > 0 && Number.isInteger(+reps) && +reps >= 1 && +reps <= 12
     ? +weight * (+reps === 1 ? 1 : 1 + +reps / 30)
@@ -27,6 +28,7 @@ export const suggestProgression = (
   repMin = 6,
   repMax = 10
 ): ProgressionSuggestion | null => {
+  if (previousSets?.some(isPowerExercise)) return null;
   const done = (previousSets || []).filter(
     (s) =>
       s.completed !== false &&
@@ -92,7 +94,7 @@ export const detectPRs = (completedRows: SetRow[], records: any[]): DetectedPR[]
             : x.exerciseName === name)
       );
     const e1rmRec = find("e1rm");
-    if (!e1rmRec || bestE1rm > e1rmRec.value)
+    if (!isPowerExercise(best) && (!e1rmRec || bestE1rm > e1rmRec.value))
       prs.push({
         exerciseName: name,
         exerciseId: best.exerciseId,
