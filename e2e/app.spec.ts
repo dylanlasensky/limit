@@ -413,6 +413,7 @@ test("food diary backfills, edits and confirms removal with safe retry", async (
   await editor.getByRole("button", { name: "Save food changes" }).click();
   await expect(editor).not.toBeVisible();
   await expect(page.getByRole("button", { name: "Edit Greek yogurt", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Edit Greek yogurt", exact: true })).toBeFocused();
   expect(entities.FoodEntry[0]).toMatchObject({
     calories: 200,
     estimated: true,
@@ -429,6 +430,7 @@ test("food diary backfills, edits and confirms removal with safe retry", async (
     date: dateAgo(1),
     mealType: "Lunch",
   });
+  await expect(page.getByRole("button", { name: "Add Lunch", exact: true })).toBeFocused();
   await noOverflow(page);
   if (testInfo.project.name === "phone")
     await page.screenshot({ path: testInfo.outputPath("food-diary.png"), fullPage: true });
@@ -446,11 +448,60 @@ test("food diary backfills, edits and confirms removal with safe retry", async (
   await editor.getByRole("button", { name: "Confirm removal" }).click();
   await expect(editor).not.toBeVisible();
   await expect(page.getByRole("button", { name: "Edit Greek yogurt", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Log food", exact: true })).toBeFocused();
   await page.reload();
   await page.getByRole("button", { name: "Previous diary day" }).click();
   await expect(
     page.getByRole("button", { name: "Edit Chicken and rice", exact: true })
   ).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("food drawers restore keyboard focus after cancel and moving an entry", async ({ page }) => {
+  const { entities, writes, errors } = await mockApp(page);
+  entities.FoodEntry = [
+    {
+      id: "focus-food",
+      foodName: "Oats",
+      date: dateAgo(0),
+      mealType: "Breakfast",
+      quantity: 1,
+      unit: "cup",
+      calories: 150,
+      protein: 5,
+      carbs: 27,
+      fat: 3,
+    },
+  ];
+  await page.goto("/nutrition");
+  const lunch = page.getByRole("button", { name: "Add Lunch", exact: true });
+  const logFood = page.getByRole("button", { name: "Log food", exact: true });
+  const oats = page.getByRole("button", { name: "Edit Oats", exact: true });
+  const dialog = page.getByRole("dialog");
+  await lunch.focus();
+  await lunch.press("Enter");
+  await dialog.getByRole("button", { name: "Close add food" }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(lunch).toBeFocused();
+  await logFood.focus();
+  await logFood.press("Enter");
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+  await expect(logFood).toBeFocused();
+  await oats.focus();
+  await oats.press("Enter");
+  await dialog.getByRole("button", { name: "Close food editor" }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(oats).toBeFocused();
+  expect(writes).toEqual([]);
+  await oats.press("Enter");
+  await dialog.getByLabel("Diary date", { exact: true }).fill(dateAgo(1));
+  await dialog.getByRole("button", { name: "Save food changes" }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(oats).toHaveCount(0);
+  await expect(logFood).toBeFocused();
+  expect(entities.FoodEntry[0].date).toBe(dateAgo(1));
   expect(errors).toEqual([]);
 });
 
