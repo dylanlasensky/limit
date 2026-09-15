@@ -13,12 +13,36 @@ interface SetRowProps {
 
 export default function SetRow({ row, previous, onEdit, onToggle, saving }: SetRowProps) {
   const done = row.completed;
+  const validPrevious =
+    previous &&
+    String(previous.weight ?? "").trim() !== "" &&
+    Number.isFinite(Number(previous.weight)) &&
+    Number(previous.weight) >= 0 &&
+    Number(previous.weight) <= 2500 &&
+    Number.isInteger(Number(previous.reps)) &&
+    Number(previous.reps) >= 1 &&
+    Number(previous.reps) <= 100;
+  const canCopy = validPrevious && !done && !saving && !row.pending && !row.savedId;
   return (
     <div className="mt-2 grid grid-cols-[20px_54px_minmax(0,1fr)_minmax(0,1fr)_36px_40px] items-center gap-2">
-      <span className="text-center text-sm font-bold text-zinc-500">{row.setNumber}</span>
-      <span className="text-center text-xs tabular-nums text-zinc-600">
-        {previous ? `${previous.weight}×${previous.reps}` : "—"}
-      </span>
+      <span className="text-center text-sm font-bold text-muted-foreground">{row.setNumber}</span>
+      {validPrevious ? (
+        <button
+          type="button"
+          disabled={!canCopy}
+          aria-label={`Copy previous values for set ${row.setNumber}: ${previous.weight} pounds, ${previous.reps} reps`}
+          onClick={() => {
+            if (!canCopy) return;
+            onEdit("weight", String(previous.weight));
+            onEdit("reps", String(previous.reps));
+          }}
+          className="min-h-12 min-w-0 rounded-lg px-0.5 text-center text-xs tabular-nums text-primary underline decoration-primary/40 underline-offset-4 disabled:text-muted-foreground disabled:no-underline"
+        >
+          {previous.weight}×{previous.reps}
+        </button>
+      ) : (
+        <span className="text-center text-xs text-muted-foreground">—</span>
+      )}
       <input
         aria-label={`Set ${row.setNumber} weight in pounds`}
         min="0"

@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 import NativeSelect from "@/components/limit/NativeSelect";
+import { useAppearance, type Appearance } from "@/hooks/use-system-theme";
 import { storageGet, storageSet } from "@/lib/storage";
 export default function AppPreferences() {
-  const [appearance, setAppearance] = useState(
-      () => storageGet("localStorage", "limit-appearance") || "dark"
-    ),
-    [reminders, setReminders] = useState(
-      () => storageGet("localStorage", "limit-reminders") === "on"
-    );
+  const { appearance, setAppearance } = useAppearance();
+  const [reminders, setReminders] = useState(
+    () => storageGet("localStorage", "limit-reminders") === "on"
+  );
   const theme = (value: string) => {
-    setAppearance(value);
-    storageSet("localStorage", "limit-appearance", value);
-    window.dispatchEvent(new Event("limit-theme"));
+    setAppearance(value as Appearance);
   };
   const reminder = (value: boolean) => {
     setReminders(value);
@@ -19,7 +16,10 @@ export default function AppPreferences() {
   };
   return (
     <section className="limit-surface mt-4 rounded-3xl p-5">
-      <p className="limit-kicker text-muted-foreground">App preferences</p>
+      <p className="font-heading text-lg font-bold tracking-tight">Make it yours</p>
+      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+        Your view, your rhythm. Preferences are saved on this device.
+      </p>
       <label className="mt-4 block text-xs text-muted-foreground">
         Appearance
         <NativeSelect
@@ -34,6 +34,9 @@ export default function AppPreferences() {
           label="Appearance"
         />
       </label>
+      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+        Choose crisp light or rich dark. Match device follows your system automatically.
+      </p>
       <label className="mt-5 flex min-h-12 items-center justify-between gap-4">
         <span>
           <b className="text-sm">Workout reminder preference</b>

@@ -131,35 +131,65 @@ export default function Profile() {
   };
   return (
     <div>
-      <header className="limit-hero rounded-[2rem] p-5">
+      <header className="px-1 pb-1 pt-3">
         <div className="relative z-10">
-          <p className="limit-kicker">Your system</p>
+          <p className="limit-kicker">Made for you</p>
           <h1 className="limit-page-title">Profile</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{user?.email}</p>
+          <p className="mt-2 break-words text-sm text-muted-foreground">{user?.email}</p>
         </div>
       </header>
-      <ProfileBasics profile={p} onChange={change} />
-      <TrainingPreferences profile={p} onChange={change} />
-      <NutritionTargetsEditor
-        profile={p}
-        profileChanged={profileChanged}
-        onTargetsChange={(k: string, v: any) => {
-          setP((x: any) => ({ ...x, [k]: v, targetsCustomized: true }));
-          setSaved(false);
-        }}
-        onRecalculate={() => {
-          setP((x: any) => ({ ...x, ...calcTargets(x), targetsCustomized: false }));
-          setProfileChanged(false);
-        }}
-      />
+      <nav
+        aria-label="Profile sections"
+        className="no-scrollbar mt-5 flex gap-2 overflow-x-auto pb-1"
+      >
+        {[
+          ["appearance", "Appearance"],
+          ["basics", "About you"],
+          ["training", "Training"],
+          ["nutrition", "Nutrition"],
+          ["account", "Account"],
+        ].map(([id, label]) => (
+          <a
+            key={id}
+            href={`#${id}`}
+            className="flex min-h-10 shrink-0 items-center rounded-full border border-border bg-card px-3.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+      <div id="appearance" className="scroll-mt-24">
+        <AppPreferences />
+      </div>
+      <div id="basics" className="scroll-mt-24">
+        <ProfileBasics profile={p} onChange={change} />
+      </div>
+      <div id="training" className="scroll-mt-24">
+        <TrainingPreferences profile={p} onChange={change} />
+      </div>
+      <div id="nutrition" className="scroll-mt-24">
+        <NutritionTargetsEditor
+          profile={p}
+          profileChanged={profileChanged}
+          onTargetsChange={(k: string, v: any) => {
+            setP((x: any) => ({ ...x, [k]: v, targetsCustomized: true }));
+            setSaved(false);
+          }}
+          onRecalculate={() => {
+            setP((x: any) => ({ ...x, ...calcTargets(x), targetsCustomized: false }));
+            setProfileChanged(false);
+          }}
+        />
+      </div>
       <section className="limit-surface mt-4 rounded-3xl p-5">
         <p className="limit-kicker text-muted-foreground">Food safety</p>
-        <h2 className="mt-2 font-bold">Allergies · hard exclusions</h2>
+        <h2 className="mt-2 font-semibold">Allergies & foods to avoid</h2>
         <div className="mt-3 flex flex-wrap gap-2">
           {allergens.map((x) => (
             <button
               key={x}
               onClick={() => toggle(x)}
+              aria-pressed={d.allergies?.includes(x) || false}
               className={`min-h-10 rounded-full border px-3 text-xs font-bold ${d.allergies?.includes(x) ? "border-destructive bg-destructive/10 text-destructive" : "border-border text-muted-foreground"}`}
             >
               {x}
@@ -178,6 +208,7 @@ export default function Profile() {
             })
           }
           placeholder="Other foods to avoid"
+          aria-label="Other foods to avoid, separated by commas"
           className="mt-3 min-h-20 w-full rounded-xl border border-border bg-transparent p-3"
         />
         <NativeSelect
@@ -202,10 +233,9 @@ export default function Profile() {
           disabled={rebuilding}
           className="mt-4 h-12 w-full rounded-xl border border-primary font-bold text-primary disabled:opacity-40"
         >
-          {rebuilding ? "REBUILDING…" : "REBUILD MY PROGRAM"}
+          {rebuilding ? "Rebuilding…" : "Rebuild my program"}
         </button>
       </section>
-      <AppPreferences />
       {(error || message) && (
         <p className="mt-4 rounded-xl border border-border bg-secondary p-3 text-sm">
           {error || message}
@@ -216,9 +246,9 @@ export default function Profile() {
         disabled={saving}
         className="mt-5 h-14 w-full rounded-2xl bg-primary font-bold text-primary-foreground"
       >
-        {saving ? "SAVING…" : saved ? "SAVED" : "SAVE CHANGES"}
+        {saving ? "Saving…" : saved ? "Saved" : "Save changes"}
       </button>
-      <section className="mt-6 border-t border-border pt-6">
+      <section id="account" className="mt-6 scroll-mt-24 border-t border-border pt-6">
         <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
           Account
         </p>

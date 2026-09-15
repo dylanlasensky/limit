@@ -1,5 +1,5 @@
 import React from "react";
-import { Plus, RefreshCw, ChevronRight } from "lucide-react";
+import { Plus, RefreshCw, Check } from "lucide-react";
 import type { PlannedMeal } from "@/components/limit/data";
 interface MealCardProps {
   meal: PlannedMeal;
@@ -18,35 +18,39 @@ export default function MealCard({
   onSelect,
 }: MealCardProps) {
   return (
-    <article className="rounded-2xl bg-white p-4 shadow-sm dark:bg-zinc-900">
+    <article className="limit-surface rounded-3xl p-4">
       <div className="flex gap-3">
         <button
           onClick={onSelect}
-          className={`mt-1 h-5 w-5 rounded-md border ${selected ? "border-blue-500 bg-blue-600" : "border-zinc-300"}`}
-        />
+          aria-label={`Select ${meal.name} for groceries`}
+          aria-pressed={selected}
+          className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl border ${selected ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}
+        >
+          {selected ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+        </button>
         <button onClick={onOpen} className="min-w-0 flex-1 text-left">
-          <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">{meal.mealType}</p>
-          <h3 className="mt-1 font-bold">{meal.name}</h3>
-          <p className="mt-1 truncate text-xs text-zinc-500">
+          <p className="text-xs font-medium text-primary">{meal.mealType}</p>
+          <h3 className="mt-1 font-semibold">{meal.name}</h3>
+          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
             {meal.ingredients?.map((x) => x.name).join(" • ")}
           </p>
           <p className="mt-2 text-xs">
-            <b>{meal.calories}</b> cal · {meal.protein}g P · {meal.carbs}g C · {meal.fat}g F
+            <b>{meal.calories}</b> cal · {meal.protein}g protein
           </p>
+          <span className="mt-2 block text-xs font-medium text-primary">View recipe →</span>
         </button>
-        <ChevronRight className="h-5 w-5 text-zinc-300" />
       </div>
       <div className="mt-3 flex gap-2">
         <button
           onClick={onAdd}
-          className="flex h-10 flex-1 items-center justify-center gap-1 rounded-xl bg-blue-600 text-sm font-bold text-white"
+          className="flex h-11 flex-1 items-center justify-center gap-1 rounded-xl bg-primary text-sm font-semibold text-primary-foreground"
         >
           <Plus className="h-4 w-4" />
           Add today
         </button>
         <button
           onClick={onSwap}
-          className="flex h-10 items-center gap-1 rounded-xl bg-zinc-100 px-3 text-sm font-semibold dark:bg-zinc-800"
+          className="flex h-11 items-center gap-1 rounded-xl bg-secondary px-3 text-sm font-semibold"
         >
           <RefreshCw className="h-4 w-4" />
           Swap

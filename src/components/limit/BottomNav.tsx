@@ -24,7 +24,12 @@ export default function BottomNav() {
   }, [location]);
   const select = (root: string) => {
     if (isWithin(location.pathname, root)) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({
+        top: 0,
+        behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+      });
       navigate(root, { replace: true });
       storageSet("sessionStorage", `limit-tab-route:${root}`, root);
       return;
@@ -35,23 +40,23 @@ export default function BottomNav() {
   return (
     <nav
       aria-label="Main navigation"
-      className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md px-3 pb-[max(.55rem,env(safe-area-inset-bottom))]"
+      className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-xl px-3 pb-[max(.65rem,env(safe-area-inset-bottom))] sm:px-5"
     >
-      <div className="limit-surface flex justify-around rounded-[1.4rem] bg-background/85 p-1.5 backdrop-blur-2xl">
+      <div className="limit-navigation grid grid-cols-5 gap-1 rounded-[1.5rem] p-1.5 backdrop-blur-xl">
         {items.map(([label, root, Icon]) => {
           const active = isWithin(location.pathname, root);
           return (
             <button
               key={root}
+              type="button"
               onClick={() => select(root)}
               aria-current={active ? "page" : undefined}
-              className={`relative flex min-h-12 min-w-14 flex-col items-center justify-center gap-1 rounded-2xl text-[9px] font-bold transition-all ${active ? "text-primary" : "text-muted-foreground"}`}
+              className={`relative flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-[1.1rem] text-[10px] font-semibold transition-colors ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
             >
-              {active && (
-                <span className="absolute inset-0 rounded-2xl bg-primary/10 shadow-[inset_0_0_18px_hsl(var(--primary)/.06)]" />
-              )}
               <Icon
-                className={`relative h-5 w-5 ${active ? "drop-shadow-[0_0_8px_hsl(var(--primary))]" : ""}`}
+                className="relative h-5 w-5"
+                strokeWidth={active ? 2.3 : 1.8}
+                aria-hidden="true"
               />
               <span className="relative">{label}</span>
             </button>

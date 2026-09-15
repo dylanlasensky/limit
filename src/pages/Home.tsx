@@ -1,6 +1,8 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
+import { ArrowUpRight, BookOpen, Utensils } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { listExercises } from "@/lib/training/exerciseLibrary";
 import { sumMacros } from "@/components/limit/data";
@@ -14,6 +16,7 @@ import MacroCard from "@/components/limit/MacroCard";
 import MuscleRatingPreview from "@/components/limit/MuscleRatingPreview";
 import PullToRefresh from "@/components/limit/PullToRefresh";
 import SectionHeading from "@/components/limit/SectionHeading";
+import WeeklyActivity from "@/components/limit/WeeklyActivity";
 
 const greeting = () => {
   const h = new Date().getHours();
@@ -79,7 +82,7 @@ export default function Home() {
 
   const p: any = profile.data?.[0] || {};
   const foods: any[] = foodsQuery.data || [];
-  const { days = [] } = planQuery.data || {};
+  const { days = [], plan } = planQuery.data || {};
   const weights: any[] = weightsQuery.data || [];
   const data = ratingData.data;
   const rating = data ? calculateMuscleRating({ ...data, profile: p, weights }) : emptyRating();
@@ -94,14 +97,14 @@ export default function Home() {
     (s) => s.status === "completed" && s.workoutDayId === day?.id
   );
   const heroLine = completedSession
-    ? "Session done. Recover well."
+    ? "Workout complete. Make room for recovery."
     : activeSession
-      ? "Finish what you started."
+      ? "Your workout is ready when you are."
       : day && !day.isRest
-        ? "Beat last week."
+        ? "A little stronger, one session at a time."
         : days.length
-          ? "Recovery day."
-          : "";
+          ? "Room to recover. Space to grow."
+          : "Your training, nutrition, and progress in one place.";
   const latestWeight = weights.at(-1)
     ? Math.round(
         (weights.at(-1)!.unit === "kg"
@@ -144,18 +147,17 @@ export default function Home() {
   return (
     <PullToRefresh onRefresh={refresh}>
       <div>
-        <header className="limit-hero mb-7 rounded-[2rem] px-5 py-6">
-          <span className="pointer-events-none absolute -bottom-5 right-1 text-[5.5rem] font-black italic leading-none tracking-[-.08em] text-foreground/[.025]">
-            LIMIT
-          </span>
+        <header className="mb-6 px-1 pb-1 pt-3">
           <div className="relative z-10">
             <p className="limit-kicker">{format(new Date(), "EEEE, MMM d")}</p>
-            <h1 className="mt-3 break-words text-3xl font-extrabold tracking-[-.045em] sm:text-4xl">
+            <h1 className="mt-2 break-words text-3xl font-bold tracking-[-.04em] sm:text-4xl">
               {greeting()}
               {p.name ? `, ${p.name.split(" ")[0]}` : ""}
             </h1>
             {heroLine && (
-              <p className="mt-2 text-sm font-semibold text-muted-foreground">{heroLine}</p>
+              <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+                {heroLine}
+              </p>
             )}
           </div>
         </header>
@@ -169,6 +171,29 @@ export default function Home() {
           activeSession={activeSession}
           completedSession={activeDay ? null : completedSession}
         />
+        <div className="mb-5 mt-4 grid grid-cols-2 gap-3">
+          {[
+            { to: "/workout?tab=exercises", label: "Exercise library", Icon: BookOpen },
+            { to: "/nutrition", label: "Food diary", Icon: Utensils },
+          ].map(({ to, label, Icon }) => (
+            <Link
+              key={to}
+              to={to}
+              className="flex min-h-14 items-center gap-2.5 rounded-2xl border border-border bg-card px-3.5 text-xs font-semibold transition-colors hover:border-primary/50"
+            >
+              <Icon className="h-4 w-4 shrink-0 text-primary" />
+              <span className="flex-1">{label}</span>
+              <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            </Link>
+          ))}
+        </div>
+        {data && (
+          <WeeklyActivity
+            sessions={data.sessions}
+            date={date}
+            goal={plan?.daysPerWeek || p.trainingDays?.length}
+          />
+        )}
         <SectionHeading label="Today" title="Nutrition" to="/nutrition" action="Log food" />
         {hasTargets ? (
           <div className="grid grid-cols-2 gap-3">
@@ -184,12 +209,16 @@ export default function Home() {
             ))}
           </div>
         ) : (
-          <p className="rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground">
+          <Link
+            to="/profile#nutrition"
+            className="block rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground"
+          >
             Set your nutrition targets in Profile to track macros here.
-          </p>
+            <span className="mt-3 block font-semibold text-primary">Set up nutrition →</span>
+          </Link>
         )}
         <MuscleRatingPreview rating={rating} />
-        <SectionHeading label="Latest signal" title="Recent performance" to="/progress" />
+        <SectionHeading label="Personal bests" title="Recent progress" to="/progress" />
         {data?.records?.length ? (
           <section className="limit-surface relative overflow-hidden rounded-3xl p-5">
             <div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-primary/10 blur-2xl" />
@@ -212,7 +241,12 @@ export default function Home() {
           </p>
         )}
         <section className="limit-surface mt-7 rounded-3xl p-5">
-          <p className="limit-kicker text-muted-foreground">Body signal</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="limit-kicker text-muted-foreground">Weight</p>
+            <Link to="/progress?tab=weight" className="text-xs font-semibold text-primary">
+              Log weight →
+            </Link>
+          </div>
           {latestWeight ? (
             <div className="mt-3 flex items-end justify-between">
               <div>
@@ -220,7 +254,7 @@ export default function Home() {
                 <span className="ml-1 text-sm text-muted-foreground">lb</span>
               </div>
               {p.goalWeight ? (
-                <p className="text-sm tabular-nums text-muted-foreground">Goal {p.goalWeight}</p>
+                <p className="text-sm tabular-nums text-muted-foreground">Goal {p.goalWeight} lb</p>
               ) : null}
             </div>
           ) : (

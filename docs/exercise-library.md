@@ -37,3 +37,11 @@ Before adding an entry, check normalized names and aliases for duplicates, verif
 The visual refinement preserves navigation, muscle-map geometry and charcoal/blue identity. Softer blue with contrasting button text, sentence-case headings and quieter labels make the presentation more welcoming without assigning colors or training styles to gender.
 
 Base44 may recreate JavaScript auth templates during repository sync. Vite explicitly resolves maintained TypeScript modules first, and a regression guard verifies this priority. Generated templates are retained rather than repeatedly deleted and regenerated.
+
+## Reliable browsing across environments
+
+The Workout → Exercises screen ships the full curated reference catalog with the app. It merges saved records by catalog key or exact equipment/name alias, preserving real database IDs and custom exercises. A partially populated database (including the original 18-row case) no longer limits browsing. Missing records are explicitly reference-only and never receive fabricated database IDs; program generation, import matching and logging continue to use persisted records only.
+
+The deployment workflow runs the additive catalog migration and verifies all 365 keys in both `prod` and `dev`. Base44 keeps preview/test data separate from production; see [Base44 test-data documentation](https://docs.base44.com/documentation/managing-app-data/testing-your-data). No workout history or user-created exercise is deleted. The library distinguishes result count from total count, offers incremental rendering and “Show all,” and remains browsable when the saved-data request fails.
+
+Favorites are scoped to the signed-in account and stored on the current device (not cloud-synced). Recent exercises use the latest 300 completed set records, clearly labeled. Body-area shortcuts complement detailed muscle, equipment, experience and training-focus filters.

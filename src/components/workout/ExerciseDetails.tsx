@@ -1,4 +1,5 @@
 import React from "react";
+import { Star } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -10,8 +11,16 @@ interface ExerciseDetailsProps {
   exercise?: Record<string, any> | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  favorite?: boolean;
+  onFavorite?: () => void;
 }
-export default function ExerciseDetails({ exercise, open, onOpenChange }: ExerciseDetailsProps) {
+export default function ExerciseDetails({
+  exercise,
+  open,
+  onOpenChange,
+  favorite,
+  onFavorite,
+}: ExerciseDetailsProps) {
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="border-border bg-card text-foreground">
@@ -24,6 +33,16 @@ export default function ExerciseDetails({ exercise, open, onOpenChange }: Exerci
               {exercise?.name}
             </DrawerTitle>
           </DrawerHeader>
+          {onFavorite && (
+            <button
+              onClick={onFavorite}
+              aria-pressed={favorite}
+              className="mb-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-border text-sm font-semibold text-primary"
+            >
+              <Star aria-hidden className={`h-4 w-4 ${favorite ? "fill-current" : ""}`} />
+              {favorite ? "Saved to favorites" : "Save to favorites"}
+            </button>
+          )}
           <div className="flex flex-wrap gap-2">
             {[exercise?.primaryMuscle, exercise?.difficulty, exercise?.equipment]
               .filter(Boolean)
@@ -73,6 +92,12 @@ export default function ExerciseDetails({ exercise, open, onOpenChange }: Exerci
             Stop for sharp or unusual pain and seek qualified guidance. For unilateral exercises,
             record reps per side consistently.
           </p>
+          {exercise?.referenceOnly && (
+            <p className="mt-4 rounded-xl bg-secondary p-3 text-xs leading-relaxed text-muted-foreground">
+              Reference preview. This movement’s saved database record is not connected yet; it will
+              be available to select in programs after the library sync finishes.
+            </p>
+          )}
           {!exercise?.instructions?.length && (
             <p className="mt-4 text-xs text-muted-foreground">
               General lifting guidance, not an exercise-specific tutorial.

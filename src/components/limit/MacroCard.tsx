@@ -13,30 +13,37 @@ export default function MacroCard({
   unit = "g",
   color = "bg-primary",
 }: MacroCardProps) {
-  const pct = Math.min(100, Math.round((value / Math.max(goal, 1)) * 100));
+  const hasGoal = Number.isFinite(goal) && goal > 0;
+  const pct = hasGoal ? Math.min(100, Math.max(0, Math.round((value / goal) * 100))) : 0;
   return (
     <div className="limit-surface relative min-w-0 overflow-hidden rounded-2xl p-4">
-      <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-primary/5 to-transparent" />
       <div className="relative flex items-start justify-between gap-2">
-        <div>
-          <p className="text-[9px] font-black uppercase tracking-[.18em] text-muted-foreground">
-            {label}
-          </p>
-          <p className="mt-2 text-2xl font-black tabular-nums">
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-muted-foreground">{label}</p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight tabular-nums">
             {Math.round(value)}
             <span className="ml-1 text-xs font-medium text-muted-foreground">{unit}</span>
           </p>
         </div>
-        <span className="text-[10px] tabular-nums text-muted-foreground">
-          {Math.max(0, Math.round(goal - value))}
-          {unit}
-          <br />
-          left
-        </span>
       </div>
-      <div className="relative mt-4 h-1 overflow-hidden rounded-full bg-secondary">
+      <p className="mt-1 text-[10px] tabular-nums text-muted-foreground">
+        {hasGoal
+          ? `of ${Math.round(goal).toLocaleString()}${unit ? ` ${unit}` : ""}`
+          : "No target set"}
+      </p>
+      <div
+        role="progressbar"
+        aria-label={typeof label === "string" ? `${label} target` : "Nutrition target"}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={pct}
+        aria-valuetext={
+          hasGoal ? `${Math.round(value)} of ${Math.round(goal)} ${unit}` : "No target set"
+        }
+        className="relative mt-3 h-1.5 overflow-hidden rounded-full bg-secondary"
+      >
         <div
-          className={`h-full rounded-full shadow-[0_0_12px_hsl(var(--primary)/.6)] transition-all duration-700 ${color}`}
+          className={`h-full rounded-full transition-all duration-500 ${color}`}
           style={{ width: `${pct}%` }}
         />
       </div>

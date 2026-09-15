@@ -80,22 +80,23 @@ export default function FoodPhotoScanner({
     return (
       <div className="space-y-3">
         <p className="font-bold">One quick question</p>
-        <p className="text-sm text-zinc-300">{result.clarifyingQuestion}</p>
+        <p className="text-sm text-muted-foreground">{result.clarifyingQuestion}</p>
         <input
           value={answer}
+          aria-label="Clarifying answer"
           onChange={(e) => setAnswer(e.target.value)}
-          className="h-12 w-full rounded-xl border border-zinc-700 bg-transparent px-3"
+          className="h-12 w-full rounded-xl border border-border bg-background px-3"
         />
         <button
           onClick={() => analyze(fileUri, answer)}
           disabled={!answer || loading}
-          className="h-12 w-full rounded-xl bg-blue-600 font-bold"
+          className="h-12 w-full rounded-xl bg-primary font-semibold text-primary-foreground"
         >
           Refine estimate
         </button>
         <button
           onClick={() => setResult({ ...result, clarifyingQuestion: "" })}
-          className="h-10 w-full text-sm text-zinc-400"
+          className="h-10 w-full text-sm text-muted-foreground"
         >
           Use current estimate
         </button>
@@ -104,20 +105,20 @@ export default function FoodPhotoScanner({
   if (result && mode === "food" && !result.reliable)
     return (
       <div className="space-y-4">
-        <p className="text-xs font-bold text-blue-500">NUTRITION NOT VERIFIED</p>
-        <h3 className="text-xl font-black">
+        <p className="text-xs font-medium text-primary">Nutrition not verified</p>
+        <h3 className="text-xl font-semibold">
           {[result.brand, result.title, result.variant].filter(Boolean).join(" ")}
         </h3>
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-muted-foreground">
           {result.message ||
             "We couldn't verify the nutrition information. Scan the Nutrition Facts label for a more accurate result."}
         </p>
         <button
           onClick={reset}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 font-bold"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary font-semibold text-primary-foreground"
         >
           <RotateCcw className="h-4 w-4" />
-          SCAN NUTRITION LABEL
+          Scan nutrition label
         </button>
       </div>
     );
@@ -145,19 +146,19 @@ export default function FoodPhotoScanner({
       {loading ? (
         <div className="grid min-h-40 place-items-center text-center">
           <div>
-            <Loader2 className="mx-auto h-7 w-7 animate-spin text-blue-500" />
+            <Loader2 className="mx-auto h-7 w-7 animate-spin text-primary" />
             <p className="mt-3 text-sm">Analyzing photo…</p>
           </div>
         </div>
       ) : (
         <>
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-muted-foreground">
             {mode === "meal"
               ? "Photograph the full plate in good lighting."
               : "Photograph a Nutrition Facts label or the front of the package."}
           </p>
           <div className="grid grid-cols-2 gap-3">
-            <label className="grid h-24 cursor-pointer place-items-center rounded-xl border border-zinc-700 bg-zinc-950 text-sm font-bold">
+            <label className="grid h-24 cursor-pointer place-items-center rounded-xl border border-border bg-secondary text-sm font-semibold focus-within:ring-2 focus-within:ring-primary">
               <span className="text-center">
                 <Camera className="mx-auto mb-2" />
                 Camera
@@ -167,27 +168,30 @@ export default function FoodPhotoScanner({
                 accept="image/*"
                 capture="environment"
                 onChange={choose}
-                className="hidden"
+                className="sr-only"
               />
             </label>
-            <label className="grid h-24 cursor-pointer place-items-center rounded-xl border border-zinc-700 bg-zinc-950 text-sm font-bold">
+            <label className="grid h-24 cursor-pointer place-items-center rounded-xl border border-border bg-secondary text-sm font-semibold focus-within:ring-2 focus-within:ring-primary">
               <span className="text-center">
                 <ImagePlus className="mx-auto mb-2" />
                 Photo Library
               </span>
-              <input type="file" accept="image/*" onChange={choose} className="hidden" />
+              <input type="file" accept="image/*" onChange={choose} className="sr-only" />
             </label>
           </div>
         </>
       )}
       {error && (
-        <div className="rounded-xl border border-red-900/60 bg-red-950/40 p-3 text-sm text-red-300">
+        <div
+          role="alert"
+          className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
+        >
           <p>{error}</p>
           <div className="mt-3 flex gap-3">
             <button onClick={() => fileUri && analyze(fileUri)} className="min-h-10 font-bold">
               Try again
             </button>
-            <button onClick={onManual} className="min-h-10 font-bold text-blue-400">
+            <button onClick={onManual} className="min-h-10 font-bold text-primary">
               Enter manually
             </button>
           </div>

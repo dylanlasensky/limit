@@ -190,6 +190,7 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
       "muscleRatingData",
       "progressRatingData",
       "progressData",
+      "libraryRecentSets",
       "workoutExercises",
       "personalRecords",
       "workoutDetail",

@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Utensils } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { sumMacros } from "@/components/limit/data";
 import useLocalDate from "@/hooks/use-local-date";
@@ -14,6 +15,7 @@ import useModalHistory from "@/hooks/use-modal-history";
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 const meals = ["Breakfast", "Lunch", "Dinner", "Snacks"];
 export default function Nutrition() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [mealType, setMealType] = useState("Breakfast");
   const date = useLocalDate();
@@ -55,14 +57,21 @@ export default function Nutrition() {
   return (
     <PullToRefresh onRefresh={refresh}>
       <div>
-        <header className="limit-hero rounded-[2rem] p-5">
+        <header className="flex items-start justify-between gap-4 px-1 pb-1 pt-3">
           <div className="relative z-10">
-            <p className="limit-kicker">Daily fuel</p>
+            <p className="limit-kicker">Everyday nourishment</p>
             <h1 className="limit-page-title">Nutrition</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Fuel the work. Recover with intent.
+              Support your training. Enjoy your food.
             </p>
           </div>
+          <button
+            aria-label="Log food"
+            onClick={() => setAdd(true)}
+            className="mt-2 grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground"
+          >
+            <Plus className="h-5 w-5" />
+          </button>
         </header>
         <SegmentedTabs
           options={["Today", "Meal Ideas", "Meal Plan"]}
@@ -73,23 +82,48 @@ export default function Nutrition() {
         {tab === "Today" ? (
           <>
             {p.calorieTarget ? (
-              <section className="limit-surface relative mb-4 overflow-hidden rounded-[2rem] p-6">
-                <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />
-                <p className="limit-kicker text-muted-foreground">
-                  {remaining < 0 ? "Calories above target" : "Calories remaining"}
-                </p>
-                <p className="relative mt-3 text-6xl font-black tracking-[-.06em] tabular-nums">
-                  {Math.abs(Math.round(remaining)).toLocaleString()}
-                </p>
-                <div className="mt-4 flex justify-between text-xs text-muted-foreground">
-                  <span>{Math.round(m.calories).toLocaleString()} eaten</span>
-                  <span>{p.calorieTarget.toLocaleString()} goal</span>
+              <section className="limit-surface relative mb-4 overflow-hidden rounded-[2rem] p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Today’s energy</p>
+                    <p className="mt-2 text-4xl font-semibold tracking-[-.04em] tabular-nums">
+                      {Math.round(m.calories).toLocaleString()}
+                      <span className="ml-2 text-sm font-normal tracking-normal text-muted-foreground">
+                        cal
+                      </span>
+                    </p>
+                  </div>
+                  <div className="rounded-2xl bg-primary/10 px-3.5 py-3 text-right">
+                    <p className="text-xl font-semibold tabular-nums text-primary">
+                      {Math.abs(Math.round(remaining)).toLocaleString()}
+                    </p>
+                    <p className="mt-1 text-[10px] text-muted-foreground">
+                      {remaining < 0 ? "above target" : "remaining"}
+                    </p>
+                  </div>
                 </div>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary">
+                <div
+                  role="progressbar"
+                  aria-label="Daily calorie target"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.min(
+                    100,
+                    Math.max(0, Math.round((m.calories / p.calorieTarget) * 100))
+                  )}
+                  aria-valuetext={`${Math.round(m.calories)} of ${p.calorieTarget} calories`}
+                  className="mt-5 h-2 overflow-hidden rounded-full bg-secondary"
+                >
                   <div
                     className="h-full rounded-full bg-primary transition-all"
                     style={{ width: `${Math.min(100, (m.calories / p.calorieTarget) * 100)}%` }}
                   />
+                </div>
+                <div className="mt-2 flex justify-between gap-2 text-xs text-muted-foreground">
+                  <span>
+                    {foods.length} food {foods.length === 1 ? "entry" : "entries"}
+                  </span>
+                  <span>{p.calorieTarget.toLocaleString()} cal target</span>
                 </div>
                 <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
                   {p.targetExplanation ||
@@ -100,6 +134,8 @@ export default function Nutrition() {
               <ScreenState
                 title="Set your nutrition target"
                 description="Add your body metrics and goal in Profile to calculate an estimated calorie and macro starting point."
+                action="Set nutrition targets"
+                onAction={() => navigate("/profile#nutrition")}
               />
             )}
             <div className="grid grid-cols-3 gap-2">
@@ -113,15 +149,29 @@ export default function Nutrition() {
                 <MacroCard key={label} label={label} value={value} goal={goal || 0} />
               ))}
             </div>
-            <h2 className="mb-2 mt-7 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Meals
-            </h2>
+            <div className="mb-2 mt-7 flex items-end justify-between">
+              <h2 className="text-lg font-semibold tracking-tight">Your food diary</h2>
+              <span className="text-xs text-muted-foreground">Today</span>
+            </div>
             {meals.map((type) => {
               const items = foods.filter((x) => x.mealType === type);
+              const totals = sumMacros(items);
               return (
                 <section key={type} className="limit-surface mt-3 rounded-3xl p-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold">{type === "Snacks" ? "Snacks" : type}</h3>
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-9 w-9 place-items-center rounded-xl bg-secondary text-primary">
+                        <Utensils className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold">{type}</h3>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {items.length
+                            ? `${Math.round(totals.calories)} cal · ${Math.round(totals.protein)} g protein`
+                            : "Ready when you are"}
+                        </p>
+                      </div>
+                    </div>
                     <button
                       onClick={() => {
                         setMealType(type);
@@ -153,7 +203,9 @@ export default function Nutrition() {
                       ))}
                     </div>
                   ) : (
-                    <p className="mt-2 text-sm text-muted-foreground">Nothing logged yet.</p>
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Tap + to add a food or reuse something you’ve logged.
+                    </p>
                   )}
                 </section>
               );
@@ -163,7 +215,7 @@ export default function Nutrition() {
               className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary font-bold text-primary-foreground"
             >
               <Plus />
-              ADD FOOD
+              Add food
             </button>
           </>
         ) : (

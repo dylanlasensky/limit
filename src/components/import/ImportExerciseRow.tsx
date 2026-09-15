@@ -97,7 +97,7 @@ export default function ImportExerciseRow({
             className="w-full bg-transparent font-bold outline-none"
           />
           <p
-            className={`mt-1 flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider ${uncertain ? "text-amber-400" : "text-primary"}`}
+            className={`mt-1 flex items-center gap-1 text-[11px] font-semibold ${uncertain ? "text-amber-700 dark:text-amber-300" : "text-primary"}`}
           >
             {uncertain && <AlertCircle className="h-3 w-3" />}
             {uncertain ? "Confirm exercise match" : `${exercise.matchConfidence}% match`}
@@ -106,7 +106,7 @@ export default function ImportExerciseRow({
         <button
           onClick={onRemove}
           aria-label="Remove exercise"
-          className="grid h-9 w-9 place-items-center rounded-xl bg-secondary text-muted-foreground"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-secondary text-muted-foreground"
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -178,6 +178,7 @@ export default function ImportExerciseRow({
       )}
       <input
         value={exercise.notes || ""}
+        aria-label="Exercise notes"
         onChange={(e) => onChange({ notes: e.target.value })}
         placeholder="Technique, tempo, or coach notes"
         className="mt-3 h-10 w-full rounded-xl border border-border/60 bg-secondary/40 px-3 text-xs outline-none focus:border-primary/50"

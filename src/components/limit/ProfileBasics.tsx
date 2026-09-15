@@ -9,8 +9,8 @@ export default function ProfileBasics({ profile, onChange }: ProfileBasicsProps)
   const set = (k: string, v: unknown) => onChange({ ...profile, [k]: v });
   return (
     <section className="limit-surface mt-5 rounded-3xl p-5">
-      <p className="limit-kicker text-muted-foreground">Foundation</p>
-      <h2 className="mt-2 text-xl font-black">Body & goal</h2>
+      <p className="limit-kicker text-muted-foreground">About you</p>
+      <h2 className="mt-2 text-xl font-semibold">Body & goal</h2>
       <div className="mt-3 grid grid-cols-2 gap-2">
         <label className="text-xs text-muted-foreground">
           Date of birth
@@ -122,9 +122,9 @@ export default function ProfileBasics({ profile, onChange }: ProfileBasicsProps)
               )
             )
           }
-          className="mt-2 w-full accent-blue-600"
+          className="mt-2 w-full accent-primary"
         />
-        <span className="block text-center text-xl font-black">
+        <span className="block text-center text-xl font-semibold">
           {profile.trainingDays?.length || 3}
         </span>
       </label>

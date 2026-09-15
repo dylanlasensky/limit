@@ -8,16 +8,16 @@ export default function MealPrepCard({ meal, onAdd }: MealPrepCardProps) {
   const [servings, setServings] = useState(5);
   if (!meal) return null;
   return (
-    <section className="mb-4 rounded-2xl bg-zinc-950 p-5 text-white dark:bg-zinc-900">
-      <p className="text-xs font-bold uppercase tracking-wide text-blue-400">Meal prep mode</p>
-      <h3 className="mt-2 text-xl font-black">{meal.name}</h3>
+    <section className="limit-surface mb-4 rounded-3xl p-5">
+      <p className="text-xs font-medium text-primary">A little prep, an easier week</p>
+      <h3 className="mt-2 text-xl font-semibold">{meal.name}</h3>
       <div className="mt-3 flex items-center justify-between">
-        <span className="text-sm text-zinc-400">Batch servings</span>
+        <span className="text-sm text-muted-foreground">Batch servings</span>
         <div className="flex items-center gap-3">
           <button
             onClick={() => setServings(Math.max(2, servings - 1))}
             aria-label="Fewer batch servings"
-            className="h-9 w-9 rounded-lg bg-zinc-800"
+            className="h-11 w-11 rounded-xl bg-secondary"
           >
             −
           </button>
@@ -25,7 +25,7 @@ export default function MealPrepCard({ meal, onAdd }: MealPrepCardProps) {
           <button
             onClick={() => setServings(Math.min(30, servings + 1))}
             aria-label="More batch servings"
-            className="h-9 w-9 rounded-lg bg-zinc-800"
+            className="h-11 w-11 rounded-xl bg-secondary"
           >
             +
           </button>
@@ -36,7 +36,7 @@ export default function MealPrepCard({ meal, onAdd }: MealPrepCardProps) {
       </p>
       <button
         onClick={() => onAdd({ ...meal, servings })}
-        className="mt-4 h-11 w-full rounded-xl bg-blue-600 font-bold text-white"
+        className="mt-4 h-11 w-full rounded-xl bg-primary font-semibold text-primary-foreground"
       >
         Use for this week
       </button>

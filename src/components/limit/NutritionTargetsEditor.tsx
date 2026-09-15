@@ -13,19 +13,19 @@ export default function NutritionTargetsEditor({
 }: NutritionTargetsEditorProps) {
   return (
     <section className="limit-surface mt-4 rounded-3xl p-5">
-      <p className="limit-kicker text-muted-foreground">Fuel protocol</p>
-      <h2 className="mt-2 text-xl font-black">Daily nutrition targets</h2>
+      <p className="limit-kicker text-muted-foreground">Nutrition preferences</p>
+      <h2 className="mt-2 text-xl font-semibold">Daily nutrition targets</h2>
       {profileChanged && (
-        <div className="mt-3 rounded-xl border border-blue-800 bg-blue-950/40 p-3">
+        <div className="mt-3 rounded-xl border border-primary/25 bg-primary/10 p-3">
           <p className="text-sm font-bold">Your profile changed.</p>
-          <p className="mt-1 text-xs text-zinc-400">
+          <p className="mt-1 text-xs text-muted-foreground">
             Recalculate your recommended nutrition targets?
           </p>
           <button
             onClick={onRecalculate}
-            className="mt-3 rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white"
+            className="mt-3 min-h-10 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
           >
-            RECALCULATE
+            Recalculate
           </button>
         </div>
       )}
@@ -47,13 +47,16 @@ export default function NutritionTargetsEditor({
           </label>
         ))}
       </div>
-      <p className="mt-3 text-xs leading-relaxed text-zinc-500">
+      <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
         {profile.targetExplanation || "Personalized from your profile. This is an estimate."}
         {profile.targetsCustomized ? " Custom targets are preserved." : ""}
       </p>
       {!profileChanged && (
-        <button onClick={onRecalculate} className="mt-3 text-xs font-bold text-blue-500">
-          RECALCULATE RECOMMENDATION
+        <button
+          onClick={onRecalculate}
+          className="mt-3 min-h-10 text-xs font-semibold text-primary"
+        >
+          Recalculate recommendation
         </button>
       )}
     </section>

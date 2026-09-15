@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Calculator, Trash2 } from "lucide-react";
 import SetRow from "@/components/workout/SetRow";
 import ExerciseOptions from "@/components/workout/ExerciseOptions";
 import ExerciseDetails from "@/components/workout/ExerciseDetails";
+import PlateCalculator from "@/components/workout/PlateCalculator";
 import { suggestProgression } from "@/lib/training/e1rm";
 import type { EditableSetField, WorkoutSetRow } from "@/components/workout/workoutDraft";
 interface ExerciseCardProps {
@@ -37,6 +38,10 @@ export default function ExerciseCard({
   onReplace,
   onSkip,
 }: ExerciseCardProps) {
+  const [calculatorOpen, setCalculatorOpen] = useState(false);
+  const usesPlates = /barbell|smith|trap bar|landmine/i.test(
+    exercise?.equipment || workoutExercise.equipment || workoutExercise.exerciseName || ""
+  );
   const [details, setDetails] = useState(false),
     locked =
       plan?.structureLocked || plan?.athleteMode === "track_only" || workoutExercise.coachMandated,
@@ -98,6 +103,23 @@ export default function ExerciseCard({
               <p className="mt-0.5 text-xs text-muted-foreground">{suggestion.note}</p>
             </div>
           )}
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3">
+            {previousSets.length > 0 && (
+              <p className="py-2 text-xs text-muted-foreground">
+                Tap a previous set to copy its weight and reps.
+              </p>
+            )}
+            {usesPlates && (
+              <button
+                type="button"
+                onClick={() => setCalculatorOpen(true)}
+                className="flex min-h-11 items-center gap-2 rounded-xl px-2 text-xs font-semibold text-primary"
+              >
+                <Calculator aria-hidden className="h-4 w-4" />
+                Plate calculator
+              </button>
+            )}
+          </div>
           <div className="mt-4 grid grid-cols-[20px_54px_minmax(0,1fr)_minmax(0,1fr)_36px_40px] gap-2 text-center text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
             <span>Set</span>
             <span>Prev</span>
@@ -138,6 +160,16 @@ export default function ExerciseCard({
         </>
       )}
       <ExerciseDetails exercise={exercise} open={details} onOpenChange={setDetails} />
+      {calculatorOpen && (
+        <PlateCalculator
+          initialWeight={
+            rows.find((row) => !row.completed && row.weight)?.weight ||
+            rows.find((row) => row.weight)?.weight ||
+            (previousSets[0]?.weight != null ? String(previousSets[0].weight) : "")
+          }
+          onClose={() => setCalculatorOpen(false)}
+        />
+      )}
     </section>
   );
 }

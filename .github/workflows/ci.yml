@@ -185,3 +185,4 @@ jobs:
         run: |
           base44 whoami
           node scripts/seed-exercises.mjs | base44 exec --privileged --data-env prod
+          node scripts/seed-exercises.mjs | base44 exec --privileged --data-env dev
