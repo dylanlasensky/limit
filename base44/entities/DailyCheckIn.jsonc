@@ -1,0 +1,21 @@
+{
+  "name": "DailyCheckIn",
+  "type": "object",
+  "properties": {
+    "date": { "type": "string", "format": "date" },
+    "energy": { "type": ["number", "null"], "minimum": 1, "maximum": 5 },
+    "soreness": { "type": ["number", "null"], "minimum": 1, "maximum": 5 },
+    "mood": { "type": ["number", "null"], "minimum": 1, "maximum": 5 },
+    "stress": { "type": ["number", "null"], "minimum": 1, "maximum": 5 },
+    "sleepQuality": { "type": ["number", "null"], "minimum": 1, "maximum": 5 },
+    "note": { "type": "string", "maxLength": 1000 },
+    "tags": { "type": "array", "maxItems": 20, "items": { "type": "string" } }
+  },
+  "required": ["date"],
+  "rls": {
+    "read": { "created_by_id": "{{user.id}}" },
+    "create": { "created_by_id": "{{user.id}}" },
+    "update": { "created_by_id": "{{user.id}}" },
+    "delete": { "created_by_id": "{{user.id}}" }
+  }
+}

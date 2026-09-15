@@ -1,0 +1,26 @@
+{
+  "name": "HealthConnection",
+  "type": "object",
+  "properties": {
+    "provider": {
+      "type": "string",
+      "enum": ["apple_health", "health_connect"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["connected", "disconnected", "needs_attention"]
+    },
+    "permissionStatus": { "type": "string", "maxLength": 120 },
+    "capabilities": { "type": "array", "items": { "type": "string" } },
+    "deviceNames": { "type": "array", "maxItems": 20, "items": { "type": "string", "maxLength": 120 } },
+    "lastSyncedAt": { "type": "string", "format": "date-time" },
+    "lastSyncMessage": { "type": "string" }
+  },
+  "required": ["provider", "status"],
+  "rls": {
+    "read": { "created_by_id": "{{user.id}}" },
+    "create": { "created_by_id": "{{user.id}}" },
+    "update": { "created_by_id": "{{user.id}}" },
+    "delete": { "created_by_id": "{{user.id}}" }
+  }
+}

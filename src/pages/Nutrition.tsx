@@ -385,6 +385,7 @@ export default function Nutrition() {
         )}{" "}
         <Drawer
           open={add}
+          autoFocus
           dismissible={!addSaving}
           onOpenChange={(value) => {
             if (!value && !addSaving) closeAdd();

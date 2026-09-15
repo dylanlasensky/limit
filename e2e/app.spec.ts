@@ -22,6 +22,9 @@ async function mockApp(
     failGrocerySave: false,
     failPlan: false,
     failOlderHistory: false,
+    failHealth: false,
+    failCheckIn: false,
+    failTraining: false,
   };
   const today = new Date().toLocaleDateString("en-CA");
   const weekday = (new Date().getDay() + 6) % 7;
@@ -78,6 +81,11 @@ async function mockApp(
     WorkoutSession: [],
     PersonalRecord: [],
     MuscleRatingSnapshot: [],
+    HealthMetric: [],
+    DailyCheckIn: [],
+    HealthConnection: [],
+    HealthPreference: [],
+    HealthImport: [],
     MealPlan: [],
     GroceryItem: [],
   };
@@ -169,7 +177,14 @@ async function mockApp(
     if (match) {
       const [, name, id] = match;
       const rows = entities[name] || [];
+      if (
+        (name === "HealthMetric" && control.failHealth) ||
+        (name === "DailyCheckIn" && control.failCheckIn)
+      )
+        return reply({ message: "Temporarily unavailable" }, 503);
       if (request.method() === "GET") {
+        if (name === "ExerciseSet" && control.failTraining)
+          return reply({ message: "Unavailable" }, 503);
         if (name === "WorkoutPlan" && control.failPlan)
           return reply({ message: "Unavailable" }, 503);
         if (
@@ -192,7 +207,10 @@ async function mockApp(
               Object.entries(query).every(([key, value]) =>
                 value && typeof value === "object" && "$in" in value
                   ? (value.$in as any[]).includes(row[key])
-                  : row[key] === value
+                  : value && typeof value === "object" && ("$gte" in value || "$lte" in value)
+                    ? (!("$gte" in value) || row[key] >= (value as any).$gte) &&
+                      (!("$lte" in value) || row[key] <= (value as any).$lte)
+                    : row[key] === value
               )
             )
             .slice(
@@ -486,11 +504,13 @@ test("food drawers restore keyboard focus after cancel and moving an entry", asy
   await logFood.focus();
   await logFood.press("Enter");
   await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Close add food" })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
   await expect(logFood).toBeFocused();
   await oats.focus();
   await oats.press("Enter");
+  await expect(dialog.getByRole("button", { name: "Close food editor" })).toBeFocused();
   await dialog.getByRole("button", { name: "Close food editor" }).click();
   await expect(dialog).not.toBeVisible();
   await expect(oats).toBeFocused();
@@ -720,7 +740,7 @@ test("cookie-backed sign-in loads all five tabs without crashes or horizontal sc
     ["/home", /Good (morning|afternoon|evening)/],
     ["/workout", /Workout/],
     ["/nutrition", /Nutrition/],
-    ["/progress", /Progress/],
+    ["/progress", /Health/],
     ["/profile", /Profile/],
   ] as const) {
     await page.goto(path);
@@ -730,6 +750,49 @@ test("cookie-backed sign-in loads all five tabs without crashes or horizontal sc
     if (testInfo.project.name === "phone")
       await page.screenshot({ path: testInfo.outputPath(path.slice(1) + ".png"), fullPage: true });
   }
+  expect(errors).toEqual([]);
+});
+
+test("optional health data stays concise while training, body, and recovery remain discoverable", async ({
+  page,
+}) => {
+  const { entities, errors } = await mockApp(page);
+  const today = new Date().toLocaleDateString("en-CA");
+  entities.HealthMetric = [
+    {
+      id: "steps",
+      date: today,
+      metric: "steps",
+      value: 8234,
+      unit: "steps",
+      source: "health_connect",
+      aggregation: "daily",
+    },
+    {
+      id: "sleep",
+      date: today,
+      metric: "sleep_duration",
+      value: 455,
+      unit: "min",
+      source: "health_connect",
+      aggregation: "daily",
+    },
+  ];
+  await page.goto("/progress");
+  await expect(page.getByRole("heading", { name: "Health", exact: true })).toBeVisible();
+  await expect(page.getByText("8,234", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("7h 35m", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText(/browser cannot read Apple Health/i)).toBeVisible();
+  await noOverflow(page);
+
+  await page.getByRole("tab", { name: "Training", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Strength trends" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Muscle balance" })).toBeVisible();
+  await page.getByRole("tab", { name: "Body", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Add body metrics" })).toBeVisible();
+  await page.getByRole("tab", { name: "Recovery", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Seven-night sleep" })).toBeVisible();
+  await noOverflow(page);
   expect(errors).toEqual([]);
 });
 
@@ -761,6 +824,285 @@ test("appearance changes persist across reload and food selection uses the selec
   await expect(
     page.getByRole("dialog").getByRole("button", { name: "Dinner", exact: true })
   ).toBeVisible();
+});
+
+test("health logging stays focused, preserves dates and edits existing daily records", async ({
+  page,
+}, testInfo) => {
+  const { entities, errors } = await mockApp(page);
+  const date = new Date();
+  date.setDate(date.getDate() - 1);
+  const yesterday = date.toLocaleDateString("en-CA");
+  await page.goto(`/progress?date=${yesterday}`);
+  await expect(page.getByLabel("Health date", { exact: true })).toHaveValue(yesterday);
+  await page.getByRole("button", { name: "Add activity or sleep", exact: true }).click();
+  const drawer = page.getByRole("dialog");
+  await expect(drawer.getByRole("tab", { name: "Activity", exact: true })).toHaveAttribute(
+    "aria-selected",
+    "true"
+  );
+  await expect(drawer.getByLabel("Steps (steps)", { exact: true })).toBeVisible();
+  await expect(drawer.getByLabel("Sleep (hours)", { exact: true })).toBeHidden();
+  await drawer.getByLabel("Steps (steps)", { exact: true }).fill("4321");
+  await drawer.getByRole("tab", { name: "Sleep", exact: true }).click();
+  await drawer.getByLabel("Sleep (hours)", { exact: true }).fill("7.5");
+  await expect(drawer.getByLabel("Steps (steps)", { exact: true })).toBeHidden();
+  await noOverflow(page);
+  if (testInfo.project.name === "phone")
+    await page.screenshot({ path: testInfo.outputPath("health-sleep-log.png"), fullPage: false });
+  await drawer.getByRole("button", { name: "Save health metrics", exact: true }).click();
+  await expect(drawer).toBeHidden();
+  expect(entities.HealthMetric).toHaveLength(2);
+  expect(entities.HealthMetric.find((row) => row.metric === "steps")).toMatchObject({
+    date: yesterday,
+    value: 4321,
+    source: "manual",
+  });
+  expect(entities.HealthMetric.find((row) => row.metric === "sleep_duration")).toMatchObject({
+    date: yesterday,
+    value: 450,
+    unit: "min",
+  });
+  await page.reload();
+  await expect(page.getByText("4,321", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("7h 30m", { exact: true }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Add activity or sleep", exact: true }).click();
+  await expect(drawer.getByLabel("Steps (steps)", { exact: true })).toHaveValue("4321");
+  await drawer.getByLabel("Steps (steps)", { exact: true }).fill("5000");
+  await drawer.getByRole("button", { name: "Save health metrics", exact: true }).click();
+  await expect(drawer).toBeHidden();
+  expect(entities.HealthMetric).toHaveLength(2);
+  expect(entities.HealthMetric.filter((row) => row.metric === "steps")).toHaveLength(1);
+  expect(entities.HealthMetric.find((row) => row.metric === "steps")?.value).toBe(5000);
+
+  await page.getByRole("button", { name: /How did you feel\?/ }).click();
+  await drawer.getByRole("button", { name: "Energy 4 of 5", exact: true }).click();
+  await drawer.getByRole("button", { name: "Save check-in", exact: true }).click();
+  await expect(drawer).toBeHidden();
+  await page.getByRole("button", { name: /Your check-in/ }).click();
+  await expect(drawer.getByRole("button", { name: "Energy 4 of 5", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+  await drawer.getByRole("button", { name: "Energy 4 of 5", exact: true }).click();
+  await drawer.getByRole("button", { name: "Mood 3 of 5", exact: true }).click();
+  await drawer.getByRole("button", { name: "Update check-in", exact: true }).click();
+  await expect(drawer).toBeHidden();
+  expect(entities.DailyCheckIn).toHaveLength(1);
+  expect(entities.DailyCheckIn[0]).toMatchObject({ date: yesterday, energy: null, mood: 3 });
+  await page.reload();
+  await page.getByRole("button", { name: /Your check-in/ }).click();
+  await expect(drawer.getByRole("button", { name: "Energy 4 of 5", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "false"
+  );
+  await expect(drawer.getByRole("button", { name: "Mood 3 of 5", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+  await drawer.getByRole("button", { name: "Close daily check-in", exact: true }).click();
+  await noOverflow(page);
+  expect(errors).toEqual([]);
+});
+
+test("health and training failures stay within their own views and retry preserves saved data", async ({
+  page,
+}) => {
+  test.setTimeout(90000);
+  const { control, entities, errors } = await mockApp(page);
+  const today = new Date().toLocaleDateString("en-CA");
+  entities.HealthMetric = [
+    {
+      id: "today-steps",
+      date: today,
+      metric: "steps",
+      value: 8123,
+      unit: "steps",
+      source: "manual",
+      aggregation: "daily",
+    },
+  ];
+  control.failTraining = true;
+  await page.goto("/progress");
+  await expect(page.getByText("8,123", { exact: true })).toBeVisible();
+  await page.getByRole("tab", { name: "Training", exact: true }).click();
+  await expect(page.getByText("Couldn’t load training history", { exact: true })).toBeVisible({
+    timeout: 20000,
+  });
+  await page.getByRole("tab", { name: "Today", exact: true }).click();
+  await expect(page.getByText("8,123", { exact: true })).toBeVisible();
+  control.failTraining = false;
+  control.failHealth = true;
+  await page.reload();
+  await expect(page.getByText("Couldn’t load health data", { exact: true })).toBeVisible({
+    timeout: 20000,
+  });
+  await page.getByRole("tab", { name: "Training", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Strength trends", exact: true })).toBeVisible();
+  control.failHealth = false;
+  control.failCheckIn = true;
+  await page.goto("/progress");
+  await expect(page.getByText("Couldn’t load health data", { exact: true })).toBeVisible({
+    timeout: 20000,
+  });
+  await expect(page.getByRole("button", { name: /How do you feel\?/ })).toBeHidden();
+  control.failCheckIn = false;
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await expect(page.getByText("8,123", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /How do you feel\?/ })).toBeVisible();
+  expect(entities.HealthMetric).toHaveLength(1);
+  await noOverflow(page);
+  expect(errors).toEqual([]);
+});
+
+test("body measurements normalize imported units and keep manual edits visible", async ({
+  page,
+}, testInfo) => {
+  const { entities, errors } = await mockApp(page);
+  const today = new Date().toLocaleDateString("en-CA");
+  entities.HealthMetric = [
+    {
+      id: "scale-weight",
+      date: today,
+      metric: "weight",
+      value: 80,
+      unit: "kg",
+      source: "withings",
+      aggregation: "daily",
+    },
+  ];
+  await page.goto("/progress?tab=body");
+  await expect(page.getByText("176.4 lb", { exact: true }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Add body metrics", exact: true }).click();
+  const drawer = page.getByRole("dialog");
+  await expect(drawer.getByLabel("Weight (lb)", { exact: true })).toHaveValue("");
+  await drawer.getByLabel("Weight (lb)", { exact: true }).fill("180");
+  await drawer.getByLabel("Body fat (%)", { exact: true }).fill("20");
+  await drawer.getByLabel("Waist (in)", { exact: true }).fill("34");
+  await drawer.getByText("More measurements", { exact: true }).click();
+  await drawer.getByLabel("Bone mass (lb)", { exact: true }).fill("7");
+  await drawer.getByLabel("Hips (in)", { exact: true }).fill("38");
+  await noOverflow(page);
+  if (testInfo.project.name === "phone")
+    await page.screenshot({ path: testInfo.outputPath("body-log.png"), fullPage: false });
+  await drawer.getByRole("button", { name: "Save body metrics", exact: true }).click();
+  await expect(drawer).toBeHidden();
+  await page.reload();
+  await expect(page.getByText("180 lb", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("34 in", { exact: true })).toBeVisible();
+  await page.getByText("More measurements", { exact: true }).click();
+  await expect(page.getByText("38 in", { exact: true })).toBeVisible();
+  expect(entities.WeightEntry).toHaveLength(1);
+  expect(entities.HealthMetric).toHaveLength(5);
+  await page.getByRole("button", { name: "Add body metrics", exact: true }).click();
+  await expect(drawer.getByLabel("Weight (lb)", { exact: true })).toHaveValue("180");
+  await expect(drawer.getByLabel("Waist (in)", { exact: true })).toHaveValue("34");
+  await drawer.getByRole("button", { name: "Close body metrics", exact: true }).click();
+  await noOverflow(page);
+  expect(errors).toEqual([]);
+});
+
+test("health preferences select one source, hide metrics and remove only health records", async ({
+  page,
+}) => {
+  const { entities, errors } = await mockApp(page);
+  const today = new Date().toLocaleDateString("en-CA");
+  entities.HealthMetric = [
+    {
+      id: "manual-steps",
+      date: today,
+      metric: "steps",
+      value: 6000,
+      unit: "steps",
+      source: "manual",
+      aggregation: "daily",
+      created_by_id: "qa-user",
+    },
+    {
+      id: "ring-steps",
+      date: today,
+      metric: "steps",
+      value: 7000,
+      unit: "steps",
+      source: "oura",
+      aggregation: "daily",
+      created_by_id: "qa-user",
+    },
+  ];
+  entities.WeightEntry = [
+    { id: "weight", date: today, weight: 175, unit: "lb", created_by_id: "qa-user" },
+  ];
+  entities.BodyMeasurement = [{ id: "legacy-body", date: today, created_by_id: "qa-user" }];
+  await page.goto("/progress?tab=body");
+  await expect(page.getByText("175 lb", { exact: true }).first()).toBeVisible();
+  await page.getByRole("tab", { name: "Today", exact: true }).click();
+  await expect(page.getByText("6,000", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Health settings & data", exact: true }).click();
+  const drawer = page.getByRole("dialog");
+  await drawer.getByText("Preferred sources · optional", { exact: true }).click();
+  await drawer.getByLabel("Preferred source for Steps", { exact: true }).selectOption("oura");
+  await drawer.getByRole("button", { name: "Save health preferences", exact: true }).click();
+  await expect(drawer.getByText("Health preferences saved.", { exact: true })).toBeVisible();
+  await drawer.getByRole("button", { name: "Close health settings", exact: true }).click();
+  await expect(page.getByText("7,000", { exact: true })).toBeVisible();
+  await expect(page.getByText("6,000", { exact: true })).toBeHidden();
+  await page.getByRole("button", { name: "Health settings & data", exact: true }).click();
+  await drawer.getByText("Metric visibility", { exact: true }).click();
+  await drawer.getByLabel("Show Steps", { exact: true }).uncheck();
+  await drawer.getByRole("button", { name: "Save health preferences", exact: true }).click();
+  await expect(drawer.getByText("Health preferences saved.", { exact: true })).toBeVisible();
+  await drawer.getByRole("button", { name: "Close health settings", exact: true }).click();
+  await expect(page.getByText("7,000", { exact: true })).toBeHidden();
+  await page.getByRole("button", { name: "Health settings & data", exact: true }).click();
+  await drawer.getByText("Remove health data", { exact: true }).click();
+  await drawer.getByRole("button", { name: "Delete health data from LIMIT", exact: true }).click();
+  await drawer.getByRole("checkbox", { name: /I understand which records/ }).check();
+  await drawer.getByRole("button", { name: "Confirm health data deletion", exact: true }).click();
+  await expect(drawer.getByText(/Health records removed from LIMIT/)).toBeVisible();
+  expect(entities.HealthMetric).toHaveLength(0);
+  expect(entities.WeightEntry).toHaveLength(0);
+  expect(entities.BodyMeasurement).toHaveLength(0);
+  expect(entities.HealthPreference).toHaveLength(1);
+  expect(entities.UserProfile).toHaveLength(1);
+  expect(entities.WorkoutPlan).toHaveLength(1);
+  await drawer.getByRole("button", { name: "Close health settings", exact: true }).click();
+  await page.getByRole("tab", { name: "Body", exact: true }).click();
+  await expect(page.getByText("175 lb", { exact: true })).toBeHidden();
+  await expect(page.getByText(/Your measurements will appear here/)).toBeVisible();
+  await noOverflow(page);
+  expect(errors).toEqual([]);
+});
+
+test("Profile reveals one settings section at a time and keeps edits while switching", async ({
+  page,
+}, testInfo) => {
+  const { entities, writes, errors } = await mockApp(page);
+  await page.goto("/profile#nutrition");
+  await expect(
+    page.getByRole("button", { name: "Nutrition settings", exact: true })
+  ).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByLabel("Name", { exact: true })).toBeHidden();
+  await page
+    .getByLabel("Other foods to avoid, separated by commas", { exact: true })
+    .fill("Mushrooms, olives");
+  await expect(page.getByRole("button", { name: "Save changes", exact: true })).toBeEnabled();
+  if (testInfo.project.name === "phone" || testInfo.project.name === "small-phone")
+    await page.screenshot({ path: testInfo.outputPath("profile-nutrition.png"), fullPage: false });
+  await page.getByRole("button", { name: "About you settings", exact: true }).click();
+  await page.getByLabel("Name", { exact: true }).fill("Jordan Taylor");
+  await page.getByRole("button", { name: "Nutrition settings", exact: true }).click();
+  await expect(
+    page.getByLabel("Other foods to avoid, separated by commas", { exact: true })
+  ).toHaveValue("Mushrooms, olives");
+  await page.getByRole("button", { name: "Save changes", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Saved", exact: true })).toBeDisabled();
+  expect(entities.UserProfile[0].name).toBe("Jordan Taylor");
+  expect(entities.DietaryProfile[0].foodsToAvoid).toEqual(["Mushrooms", "olives"]);
+  expect(
+    writes.some((row) => row.entity === "WorkoutPlan" || row.function === "createPersonalizedPlan")
+  ).toBe(false);
+  await noOverflow(page);
+  expect(errors).toEqual([]);
 });
 
 test("signed-out users reach branded sign-in instead of a redirect loop", async ({ page }) => {
@@ -866,6 +1208,7 @@ test("account export is explicit, private, downloadable and rejects failure or w
 }) => {
   const { control, errors } = await mockApp(page);
   await page.goto("/profile");
+  await page.getByRole("button", { name: "Account settings", exact: true }).click();
   await expect(page.getByRole("link", { name: "Privacy", exact: true })).toBeVisible();
   control.failExport = true;
   await page.getByRole("button", { name: "Export my data", exact: true }).click();

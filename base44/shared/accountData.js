@@ -13,6 +13,11 @@ export const ACCOUNT_ENTITIES = [
   "PersonalRecord",
   "WeightEntry",
   "BodyMeasurement",
+  "HealthMetric",
+  "DailyCheckIn",
+  "HealthConnection",
+  "HealthPreference",
+  "HealthImport",
   "MuscleRatingSnapshot",
   "UserProfile",
 ];

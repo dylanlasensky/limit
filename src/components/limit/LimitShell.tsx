@@ -32,7 +32,7 @@ export default function LimitShell() {
       <main
         id="main-content"
         tabIndex={-1}
-        className="mx-auto min-h-[calc(100dvh-6rem)] max-w-xl overflow-x-hidden px-4 pb-32 outline-none sm:px-6"
+        className="mx-auto min-h-[calc(100dvh-6rem)] max-w-xl overflow-x-clip px-4 pb-32 outline-none sm:px-6"
       >
         <motion.div
           key={location.pathname}

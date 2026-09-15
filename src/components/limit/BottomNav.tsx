@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { House, Dumbbell, Apple, TrendingUp, UserRound, type LucideIcon } from "lucide-react";
+import { House, Dumbbell, Apple, HeartPulse, UserRound, type LucideIcon } from "lucide-react";
 import { storageGet, storageSet } from "@/lib/storage";
 const items: Array<[string, string, LucideIcon]> = [
   ["Home", "/home", House],
   ["Workout", "/workout", Dumbbell],
   ["Nutrition", "/nutrition", Apple],
-  ["Progress", "/progress", TrendingUp],
+  ["Health", "/progress", HeartPulse],
   ["Profile", "/profile", UserRound],
 ];
 const isWithin = (path: string, root: string) => path === root || path.startsWith(`${root}/`);
