@@ -12,6 +12,7 @@ interface FoodEntryEditorProps {
   onSaved: (entry: Record<string, any>) => void;
   onDeleted: () => void;
   onSavingChange?: (saving: boolean) => void;
+  onCloseAutoFocus?: (event: Event) => void;
 }
 
 export default function FoodEntryEditor({
@@ -20,6 +21,7 @@ export default function FoodEntryEditor({
   onSaved,
   onDeleted,
   onSavingChange,
+  onCloseAutoFocus,
 }: FoodEntryEditorProps) {
   const [draft, setDraft] = useState({ ...entry });
   const [busy, setBusy] = useState(false),
@@ -67,7 +69,7 @@ export default function FoodEntryEditor({
   };
   return (
     <Drawer open dismissible={!busy} onOpenChange={(open) => !open && !busy && onClose()}>
-      <DrawerContent className="bg-card text-foreground">
+      <DrawerContent className="bg-card text-foreground" onCloseAutoFocus={onCloseAutoFocus}>
         <div className="mx-auto max-h-[92dvh] w-full max-w-md overflow-y-auto p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
           <div className="flex items-start justify-between gap-3">
             <div>

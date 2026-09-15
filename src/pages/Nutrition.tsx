@@ -18,6 +18,7 @@ import PullToRefresh from "@/components/limit/PullToRefresh";
 import useModalHistory from "@/hooks/use-modal-history";
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 const meals = ["Breakfast", "Lunch", "Dinner", "Snacks"];
+type FoodDrawerOpener = { element: HTMLElement; generation: number };
 export default function Nutrition() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -28,6 +29,11 @@ export default function Nutrition() {
   const [addDate, setAddDate] = useState(today);
   const [addSaving, setAddSaving] = useState(false);
   const addingInFlight = useRef(false);
+  const logFoodButton = useRef<HTMLButtonElement>(null);
+  const overlayGeneration = useRef(0);
+  const openOverlay = useRef<number | null>(null);
+  const [addOpener, setAddOpener] = useState<FoodDrawerOpener | null>(null);
+  const [editOpener, setEditOpener] = useState<FoodDrawerOpener | null>(null);
   const [editing, setEditing] = useState<any>(null);
   const editingInFlight = useRef(false);
   const editorGeneration = useRef(0);
@@ -41,6 +47,7 @@ export default function Nutrition() {
   }, []);
   const dismissEdit = useCallback(() => {
     if (editingInFlight.current) return;
+    openOverlay.current = null;
     editorGeneration.current += 1;
     setEditing(null);
   }, []);
@@ -66,14 +73,36 @@ export default function Nutrition() {
     p: any = profileQuery.data?.[0] || {},
     diet: any = dietQuery.data?.[0] || {},
     dismiss = useCallback(() => {
-      if (!addingInFlight.current) setAdd(false);
+      if (!addingInFlight.current) {
+        openOverlay.current = null;
+        setAdd(false);
+      }
     }, []),
     closeAdd = useModalHistory(add, dismiss),
     m = sumMacros(foods),
     remaining = (p.calorieTarget || 0) - m.calories,
     refresh = () =>
       Promise.all([foodsQuery.refetch(), profileQuery.refetch(), dietQuery.refetch()]);
-  const openAdd = (type = mealType) => {
+  const captureOpener = (element: HTMLElement) => {
+    const generation = ++overlayGeneration.current;
+    openOverlay.current = generation;
+    return { element, generation };
+  };
+  const restoreFoodFocus = (event: Event, opener: FoodDrawerOpener | null) => {
+    event.preventDefault();
+    // An old drawer must not steal focus from a new drawer or another route.
+    if (
+      !mounted.current ||
+      openOverlay.current !== null ||
+      opener?.generation !== overlayGeneration.current
+    )
+      return;
+    const target = opener.element.isConnected ? opener.element : logFoodButton.current;
+    if (target?.isConnected) target.focus({ preventScroll: target === opener.element });
+  };
+  const openAdd = (element: HTMLElement, type = mealType) => {
+    if (openOverlay.current !== null) return;
+    setAddOpener(captureOpener(element));
     setMealType(type);
     setAddDate(date);
     setAdd(true);
@@ -112,8 +141,9 @@ export default function Nutrition() {
             </p>
           </div>
           <button
+            ref={logFoodButton}
             aria-label="Log food"
-            onClick={() => openAdd()}
+            onClick={(event) => openAdd(event.currentTarget)}
             className="mt-2 grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground"
           >
             <Plus className="h-5 w-5" />
@@ -284,7 +314,7 @@ export default function Nutrition() {
                       </div>
                     </div>
                     <button
-                      onClick={() => openAdd(type)}
+                      onClick={(event) => openAdd(event.currentTarget, type)}
                       aria-label={`Add ${type}`}
                       className="grid h-10 w-10 place-items-center rounded-xl bg-secondary text-primary"
                     >
@@ -296,8 +326,9 @@ export default function Nutrition() {
                       {items.map((x) => (
                         <button
                           key={x.id}
-                          onClick={() => {
-                            if (editingInFlight.current) return;
+                          onClick={(event) => {
+                            if (editingInFlight.current || openOverlay.current !== null) return;
+                            setEditOpener(captureOpener(event.currentTarget));
                             setEditing({ ...x, editorGeneration: ++editorGeneration.current });
                           }}
                           disabled={String(x.id).startsWith("pending-")}
@@ -335,7 +366,7 @@ export default function Nutrition() {
               );
             })}
             <button
-              onClick={() => openAdd()}
+              onClick={(event) => openAdd(event.currentTarget)}
               className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary font-bold text-primary-foreground"
             >
               <Plus />
@@ -359,7 +390,10 @@ export default function Nutrition() {
             if (!value && !addSaving) closeAdd();
           }}
         >
-          <DrawerContent className="bg-card text-foreground">
+          <DrawerContent
+            className="bg-card text-foreground"
+            onCloseAutoFocus={(event) => restoreFoodFocus(event, addOpener)}
+          >
             <div className="no-scrollbar mx-auto max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-[2rem] border-t border-border bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
               <button
                 onClick={closeAdd}
@@ -401,6 +435,7 @@ export default function Nutrition() {
             key={editing.id}
             entry={editing}
             onClose={closeEdit}
+            onCloseAutoFocus={(event) => restoreFoodFocus(event, editOpener)}
             onSavingChange={(value) => {
               if (mounted.current && editing.editorGeneration === editorGeneration.current)
                 editingInFlight.current = value;
