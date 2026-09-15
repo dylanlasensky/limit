@@ -60,7 +60,9 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
                 Your account identifies you by name and email. Your profile can include birth date,
                 body measurements, training goals and dietary preferences. Workouts, sets, food
                 entries and progress are stored with your account on Base44 so LIMIT can show your
-                history and plans.
+                history and plans. Optional activity, sleep, body measurements and daily check-ins
+                are also stored with your account, along with their source and your health-view
+                preferences.
               </p>
             </InfoSection>
             <InfoSection title="Optional AI features">
@@ -83,10 +85,13 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
               <p>
                 Use Profile → Account to download your account data or initiate account deletion.
                 The export contains sensitive personal information; keep it somewhere private.
-                Appearance, exercise favorites, and recovery drafts are saved on your device.
-                Signing out clears the active account session and cached data, but retains
-                account-specific favorites and recovery drafts so unfinished work is not lost.
-                Account deletion also removes those favorites and drafts from this device.
+                Health settings also let you hide metrics, choose preferred sources, and remove
+                health logs without removing workouts or nutrition. Hiding a metric does not delete
+                its records, and removing LIMIT health logs does not erase device records or revoke
+                device permissions. Appearance, exercise favorites, and recovery drafts are saved on
+                your device. Signing out clears the active account session and cached data, but
+                retains account-specific favorites and recovery drafts so unfinished work is not
+                lost. Account deletion also removes those favorites and drafts from this device.
               </p>
               <Link
                 to="/profile#account"

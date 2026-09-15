@@ -5,6 +5,7 @@ import { appParams } from "@/lib/app-params";
 import { createAxiosClient } from "@base44/sdk/dist/utils/axios-client";
 import { queryClientInstance } from "@/lib/query-client";
 import { clearPrivateState } from "@/lib/storage";
+import { resetHealthDataSession } from "@/lib/health/health-data";
 
 export interface AuthError {
   type: string;
@@ -113,6 +114,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoadingAuth(true);
       const currentUser = await base44.auth.me();
       if (user?.id !== currentUser.id) {
+        resetHealthDataSession();
         void queryClientInstance.cancelQueries();
         queryClientInstance.clear();
       }
@@ -122,6 +124,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoadingAuth(false);
       setAuthChecked(true);
     } catch (error: any) {
+      resetHealthDataSession();
       setUser(null);
       void queryClientInstance.cancelQueries();
       queryClientInstance.clear();
@@ -146,6 +149,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = (shouldRedirect = true) => {
+    resetHealthDataSession();
     void queryClientInstance.cancelQueries();
     queryClientInstance.clear();
     // Keep namespaced unsynced workout drafts so this user can recover them.

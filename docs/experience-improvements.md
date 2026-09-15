@@ -23,3 +23,7 @@ Browser checks cover 320px, 390px, 430px and desktop widths, both appearances, f
 ## Deliberate boundaries
 
 No billing, marketing launch, social feed, new tracking permissions or automatic replacement of a coach’s program is part of this change. Power movements remain separate from general hypertrophy recommendations. Device-only favorites are labeled as such. Full offline workout logging and cross-device favorites would require separate data/synchronization work; this update does not claim either.
+
+## Health-platform continuation
+
+The September 15 product pass broadens Progress into an optional Health hub while simplifying Home. Competitive findings, the connected-device architecture, implemented scope, and native boundaries are recorded in [the health platform plan](./health-platform-plan.md). The app keeps five destinations and preserves deep athlete training analysis; activity, recovery, and body composition are progressively disclosed instead of becoming another dense dashboard.

@@ -7,6 +7,7 @@ interface WeightProgressProps {
   goal?: number | null;
   onLog: (weight: number) => Promise<void>;
   saving?: boolean;
+  showLog?: boolean;
 }
 export default function WeightProgress({
   weights,
@@ -15,6 +16,7 @@ export default function WeightProgress({
   goal,
   onLog,
   saving,
+  showLog = true,
 }: WeightProgressProps) {
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
@@ -73,27 +75,29 @@ export default function WeightProgress({
           Log at least two weigh-ins to reveal your trend. Daily fluctuations are normal.
         </section>
       )}
-      <div className="mt-4 flex gap-2">
-        <input
-          aria-label="Today’s weight in pounds"
-          min="0.1"
-          max="1500"
-          disabled={saving}
-          type="number"
-          inputMode="decimal"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Today’s weight"
-          className="h-12 min-w-0 flex-1 rounded-xl border border-border bg-card px-3"
-        />
-        <button
-          disabled={!value || saving}
-          onClick={submit}
-          className="rounded-xl bg-primary px-5 font-bold text-primary-foreground disabled:opacity-40"
-        >
-          Log
-        </button>
-      </div>
+      {showLog && (
+        <div className="mt-4 flex gap-2">
+          <input
+            aria-label="Today’s weight in pounds"
+            min="0.1"
+            max="1500"
+            disabled={saving}
+            type="number"
+            inputMode="decimal"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Today’s weight"
+            className="h-12 min-w-0 flex-1 rounded-xl border border-border bg-card px-3"
+          />
+          <button
+            disabled={!value || saving}
+            onClick={submit}
+            className="rounded-xl bg-primary px-5 font-bold text-primary-foreground disabled:opacity-40"
+          >
+            Log
+          </button>
+        </div>
+      )}
       {error && (
         <p role="alert" className="mt-3 text-sm text-destructive">
           {error}

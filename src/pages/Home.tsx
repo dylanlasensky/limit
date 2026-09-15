@@ -1,22 +1,25 @@
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, BookOpen, Utensils } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { listExercises } from "@/lib/training/exerciseLibrary";
 import { sumMacros } from "@/components/limit/data";
 import useLocalDate from "@/hooks/use-local-date";
 import ScreenState from "@/components/limit/ScreenState";
-import { calculateMuscleRating, emptyRating } from "@/components/limit/muscleRating";
-import { profileWeightLb } from "@/components/limit/nutritionTargets";
 import useActivePlan, { todayWeekday } from "@/hooks/use-active-plan";
 import HomeWorkout from "@/components/limit/HomeWorkout";
 import MacroCard from "@/components/limit/MacroCard";
-import MuscleRatingPreview from "@/components/limit/MuscleRatingPreview";
 import PullToRefresh from "@/components/limit/PullToRefresh";
 import SectionHeading from "@/components/limit/SectionHeading";
 import WeeklyActivity from "@/components/limit/WeeklyActivity";
+import HomeHealthBrief from "@/components/health/HomeHealthBrief";
+import {
+  readHealthMetrics,
+  readDailyCheckIn,
+  type HealthMetricRecord,
+} from "@/lib/health/health-data";
+import { listFoodEntries } from "@/lib/food-entry";
 
 const greeting = () => {
   const h = new Date().getHours();
@@ -25,6 +28,7 @@ const greeting = () => {
 
 export default function Home() {
   const date = useLocalDate();
+  const client = useQueryClient();
   const profile = useQuery({
     queryKey: ["userProfile"],
     queryFn: () => base44.entities.UserProfile.list(),
@@ -32,15 +36,10 @@ export default function Home() {
   });
   const foodsQuery = useQuery({
     queryKey: ["foodEntries", date],
-    queryFn: () => base44.entities.FoodEntry.filter({ date }),
+    queryFn: () => listFoodEntries(date),
     staleTime: 30000,
   });
   const planQuery = useActivePlan();
-  const weightsQuery = useQuery({
-    queryKey: ["weightEntries"],
-    queryFn: async () => (await base44.entities.WeightEntry.list("-date", 30)).reverse(),
-    staleTime: 30000,
-  });
   const workoutExercises = useQuery({
     queryKey: ["workoutExercises", planQuery.data?.plan?.id],
     enabled: !!planQuery.data?.days?.length,
@@ -66,26 +65,26 @@ export default function Home() {
     },
     staleTime: 15000,
   });
-  const ratingData = useQuery({
-    queryKey: ["muscleRatingData"],
+  const historyQuery = useQuery({
+    queryKey: ["homeWorkoutHistory"],
     staleTime: 30000,
-    queryFn: async () => {
-      const [sets, exercises, sessions, records] = await Promise.all([
-        base44.entities.ExerciseSet.list("-timestamp", 2000),
-        listExercises(),
-        base44.entities.WorkoutSession.list("-date", 100),
-        base44.entities.PersonalRecord.list("-date", 10),
-      ]);
-      return { sets, exercises, sessions, records };
-    },
+    queryFn: () => base44.entities.WorkoutSession.filter({ status: "completed" }, "-date", 100),
+  });
+  const healthQuery = useQuery({
+    queryKey: ["todayHealth", date],
+    queryFn: () => readHealthMetrics({ from: date, through: date }),
+    staleTime: 30000,
+  });
+  const checkInQuery = useQuery({
+    queryKey: ["dailyCheckIn", date],
+    queryFn: () => readDailyCheckIn(date),
+    staleTime: 30000,
   });
 
   const p: any = profile.data?.[0] || {};
   const foods: any[] = foodsQuery.data || [];
   const { days = [], plan } = planQuery.data || {};
-  const weights: any[] = weightsQuery.data || [];
-  const data = ratingData.data;
-  const rating = data ? calculateMuscleRating({ ...data, profile: p, weights }) : emptyRating();
+  const sessions: any[] = historyQuery.data || [];
   const m = sumMacros(foods);
   const weekday = todayWeekday();
   const day = days.find((x: any) => x.weekday === weekday);
@@ -105,13 +104,6 @@ export default function Home() {
         : days.length
           ? "Room to recover. Space to grow."
           : "Your training, nutrition, and progress in one place.";
-  const latestWeight = weights.at(-1)
-    ? Math.round(
-        (weights.at(-1)!.unit === "kg"
-          ? weights.at(-1)!.weight * 2.20462
-          : weights.at(-1)!.weight) * 10
-      ) / 10
-    : Math.round(profileWeightLb(p) * 10) / 10 || null;
   const hasTargets = !!p.calorieTarget;
 
   const refresh = () =>
@@ -119,22 +111,15 @@ export default function Home() {
       profile.refetch(),
       foodsQuery.refetch(),
       planQuery.refetch(),
-      weightsQuery.refetch(),
       workoutExercises.refetch(),
       sessionsQuery.refetch(),
-      ratingData.refetch(),
+      historyQuery.refetch(),
+      healthQuery.refetch(),
+      checkInQuery.refetch(),
     ]);
   if (profile.isLoading || planQuery.isLoading || sessionsQuery.isLoading)
     return <ScreenState loading />;
-  if (
-    profile.error ||
-    planQuery.error ||
-    sessionsQuery.error ||
-    foodsQuery.error ||
-    weightsQuery.error ||
-    ratingData.error ||
-    workoutExercises.error
-  ) {
+  if (profile.error || planQuery.error || sessionsQuery.error || workoutExercises.error) {
     return (
       <ScreenState
         title="Couldn’t load your dashboard"
@@ -187,15 +172,51 @@ export default function Home() {
             </Link>
           ))}
         </div>
-        {data && (
-          <WeeklyActivity
-            sessions={data.sessions}
-            date={date}
-            goal={plan?.daysPerWeek || p.trainingDays?.length}
+        {(healthQuery.isLoading || checkInQuery.isLoading) && (
+          <div
+            className="mt-5 h-40 animate-pulse rounded-3xl bg-card/70"
+            aria-label="Loading daily brief"
           />
         )}
+        {!healthQuery.isLoading &&
+          !checkInQuery.isLoading &&
+          !healthQuery.error &&
+          !checkInQuery.error && (
+            <HomeHealthBrief
+              date={date}
+              rows={(healthQuery.data || []) as HealthMetricRecord[]}
+              checkIn={checkInQuery.data}
+              onCheckInSaved={(saved) => client.setQueryData(["dailyCheckIn", date], saved)}
+            />
+          )}
+        {(healthQuery.error || checkInQuery.error) && (
+          <Link
+            to="/progress"
+            className="mt-4 block rounded-2xl border border-border bg-card p-4 text-sm"
+          >
+            Your daily brief couldn’t load. Open Health to try again →
+          </Link>
+        )}
+        {!!sessions.length && !historyQuery.error && (
+          <div className="mt-4">
+            <WeeklyActivity
+              sessions={sessions}
+              date={date}
+              goal={plan?.daysPerWeek || p.trainingDays?.length}
+            />
+          </div>
+        )}
         <SectionHeading label="Today" title="Nutrition" to="/nutrition" action="Log food" />
-        {hasTargets ? (
+        {foodsQuery.error ? (
+          <button
+            onClick={() => foodsQuery.refetch()}
+            className="min-h-14 w-full rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground"
+          >
+            Nutrition couldn’t load · Retry
+          </button>
+        ) : foodsQuery.isLoading ? (
+          <div className="h-40 animate-pulse rounded-2xl bg-card" aria-label="Loading nutrition" />
+        ) : hasTargets ? (
           <div className="grid grid-cols-2 gap-3">
             <MacroCard label="Calories" value={m.calories} goal={p.calorieTarget} unit="" />
             <MacroCard label="Protein" value={m.protein} goal={p.proteinTarget} />
@@ -217,52 +238,6 @@ export default function Home() {
             <span className="mt-3 block font-semibold text-primary">Set up nutrition →</span>
           </Link>
         )}
-        <MuscleRatingPreview rating={rating} />
-        <SectionHeading label="Personal bests" title="Recent progress" to="/progress" />
-        {data?.records?.length ? (
-          <section className="limit-surface relative overflow-hidden rounded-3xl p-5">
-            <div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-primary/10 blur-2xl" />
-            <p className="limit-kicker">Personal record</p>
-            <div className="relative mt-4 flex items-end justify-between gap-3">
-              <div>
-                <b className="text-lg">{data.records[0].exerciseName}</b>
-                <p className="mt-1 text-sm text-muted-foreground">{data.records[0].date}</p>
-              </div>
-              <b className="text-right tabular-nums">
-                {data.records[0].type === "e1rm"
-                  ? `${data.records[0].value} lb e1RM`
-                  : `${data.records[0].value} lb`}
-              </b>
-            </div>
-          </section>
-        ) : (
-          <p className="rounded-2xl border border-dashed border-border p-5 text-sm text-muted-foreground">
-            Complete a workout to unlock progression insights and personal records.
-          </p>
-        )}
-        <section className="limit-surface mt-7 rounded-3xl p-5">
-          <div className="flex items-center justify-between gap-3">
-            <p className="limit-kicker text-muted-foreground">Weight</p>
-            <Link to="/progress?tab=weight" className="text-xs font-semibold text-primary">
-              Log weight →
-            </Link>
-          </div>
-          {latestWeight ? (
-            <div className="mt-3 flex items-end justify-between">
-              <div>
-                <b className="text-3xl tabular-nums">{latestWeight}</b>
-                <span className="ml-1 text-sm text-muted-foreground">lb</span>
-              </div>
-              {p.goalWeight ? (
-                <p className="text-sm tabular-nums text-muted-foreground">Goal {p.goalWeight} lb</p>
-              ) : null}
-            </div>
-          ) : (
-            <p className="mt-3 text-sm text-muted-foreground">
-              Log your first weigh-in from Progress.
-            </p>
-          )}
-        </section>
       </div>
     </PullToRefresh>
   );
