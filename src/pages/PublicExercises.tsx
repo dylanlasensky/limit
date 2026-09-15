@@ -6,7 +6,7 @@ import PublicLinks from "@/components/limit/PublicLinks";
 
 export default function PublicExercises() {
   return (
-    <main className="mx-auto min-h-dvh max-w-xl px-4 pb-10 pt-[max(1rem,env(safe-area-inset-top))] text-foreground">
+    <main className="mx-auto min-h-dvh max-w-xl px-4 pb-10 md:max-w-3xl md:px-6 lg:max-w-7xl lg:px-8 pt-[max(1rem,env(safe-area-inset-top))] text-foreground">
       <header className="mb-6 flex items-center justify-between gap-3">
         <Link
           to="/login"

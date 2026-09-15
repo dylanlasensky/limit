@@ -18,7 +18,7 @@ export default function MealCard({
   onSelect,
 }: MealCardProps) {
   return (
-    <article className="limit-surface rounded-3xl p-4">
+    <article className="limit-surface min-w-0 rounded-3xl p-4">
       <div className="flex gap-3">
         <button
           onClick={onSelect}

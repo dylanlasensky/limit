@@ -172,7 +172,7 @@ export default function Onboarding() {
 
   return (
     <main
-      className={`${dark ? "dark" : ""} limit-grid relative mx-auto min-h-screen max-w-md overflow-hidden bg-background px-5 pb-8 pt-[max(2rem,env(safe-area-inset-top))] text-foreground`}
+      className={`${dark ? "dark" : ""} limit-grid relative mx-auto min-h-screen max-w-md overflow-hidden bg-background px-5 pb-8 md:max-w-3xl md:px-8 lg:max-w-5xl lg:px-10 pt-[max(2rem,env(safe-area-inset-top))] text-foreground`}
     >
       <div className="flex items-center justify-between">
         <LimitLogo />
@@ -189,59 +189,63 @@ export default function Onboarding() {
           />
         ))}
       </div>
-      <div className="my-7">
-        <p className="limit-kicker">{label}</p>
-        <h1
-          ref={heading}
-          tabIndex={-1}
-          className="mt-3 text-4xl font-bold leading-tight tracking-[-.035em] outline-none"
-        >
-          {title}
-        </h1>
-        <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-          Your answers shape your training frequency, exercise selection, session length, and
-          starting nutrition targets.
-        </p>
+      <div className="lg:mt-10 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:items-start lg:gap-12">
+        <div className="my-7 lg:sticky lg:top-10 lg:my-0">
+          <p className="limit-kicker">{label}</p>
+          <h1
+            ref={heading}
+            tabIndex={-1}
+            className="mt-3 text-4xl font-bold leading-tight tracking-[-.035em] outline-none"
+          >
+            {title}
+          </h1>
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            Your answers shape your training frequency, exercise selection, session length, and
+            starting nutrition targets.
+          </p>
+        </div>
+        <div className="min-w-0">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={step}
+              initial={{ x: 28, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -22, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            >
+              <View data={data} set={set} />
+            </motion.div>
+          </AnimatePresence>
+          {error && (
+            <p
+              role="alert"
+              className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-foreground"
+            >
+              {error}
+            </p>
+          )}
+          <button
+            disabled={saving || !canContinue}
+            onClick={() => (step < steps.length - 1 ? setStep(step + 1) : finish())}
+            className={`mt-8 h-14 w-full rounded-2xl font-black tracking-wide transition-all ${canContinue && !saving ? "limit-button" : "bg-secondary text-muted-foreground"}`}
+          >
+            {saving
+              ? "Building your LIMIT plan…"
+              : step < steps.length - 1
+                ? "Continue"
+                : "START MY LIMIT PLAN"}
+          </button>
+          {step > 0 && !saving && (
+            <button
+              aria-label="Back to previous step"
+              onClick={() => setStep(step - 1)}
+              className="mt-2 h-12 w-full text-sm font-semibold text-muted-foreground"
+            >
+              Back
+            </button>
+          )}
+        </div>
       </div>
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={step}
-          initial={{ x: 28, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: -22, opacity: 0 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-        >
-          <View data={data} set={set} />
-        </motion.div>
-      </AnimatePresence>
-      {error && (
-        <p
-          role="alert"
-          className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-foreground"
-        >
-          {error}
-        </p>
-      )}
-      <button
-        disabled={saving || !canContinue}
-        onClick={() => (step < steps.length - 1 ? setStep(step + 1) : finish())}
-        className={`mt-8 h-14 w-full rounded-2xl font-black tracking-wide transition-all ${canContinue && !saving ? "limit-button" : "bg-secondary text-muted-foreground"}`}
-      >
-        {saving
-          ? "Building your LIMIT plan…"
-          : step < steps.length - 1
-            ? "Continue"
-            : "START MY LIMIT PLAN"}
-      </button>
-      {step > 0 && !saving && (
-        <button
-          aria-label="Back to previous step"
-          onClick={() => setStep(step - 1)}
-          className="mt-2 h-12 w-full text-sm font-semibold text-muted-foreground"
-        >
-          Back
-        </button>
-      )}
     </main>
   );
 }

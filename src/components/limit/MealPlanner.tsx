@@ -153,9 +153,9 @@ export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProp
           Estimated meal ideas filtered by your saved restrictions, not a complete nutrition
           prescription. Check portions, labels, and ingredients.
         </p>
-        <div className="space-y-3">
+        <div className="grid items-start gap-3 md:grid-cols-2">
           {week[day].length < 4 && (
-            <p className="rounded-xl border border-border p-4 text-sm text-muted-foreground">
+            <p className="rounded-xl border border-border p-4 text-sm text-muted-foreground md:col-span-2">
               Some meal slots have no matching ideas for your restrictions. Add your own food
               without relaxing your exclusions.
             </p>

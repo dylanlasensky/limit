@@ -16,7 +16,7 @@ export default function ProgressOverview({ sessions, records, sets = [] }: Progr
     [Layers3, completedSets, "Working sets", "logged"],
   ];
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       {items.map(([Icon, value, label, suffix]) => (
         <div key={label} className="limit-surface relative overflow-hidden rounded-3xl p-4">
           <div className="flex items-start justify-between">

@@ -751,8 +751,7 @@ test("cookie-backed sign-in loads all five tabs without crashes or horizontal sc
     await expect(page.getByRole("heading", { name: heading, exact: false }).first()).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
     await noOverflow(page);
-    if (testInfo.project.name === "phone")
-      await page.screenshot({ path: testInfo.outputPath(path.slice(1) + ".png"), fullPage: true });
+    await page.screenshot({ path: testInfo.outputPath(path.slice(1) + ".png"), fullPage: true });
   }
   expect(errors).toEqual([]);
 });
@@ -1356,4 +1355,42 @@ test("desktop dialogs stay inside short windows", async ({ page }, testInfo) => 
   expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(600);
   await dialog.getByRole("button", { name: "Close coach" }).click();
   await expect(dialog).toHaveCount(0);
+});
+
+test("desktop pages use columns and keep profile actions clear of Coach", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Desktop layout geometry");
+  await mockApp(page);
+  for (const width of [1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/nutrition");
+    const energy = page.getByRole("progressbar", { name: "Daily calorie target" });
+    const diary = page.getByRole("heading", { name: "Your food diary", exact: true });
+    await expect(diary).toBeVisible();
+    expect((await diary.boundingBox())!.x).toBeGreaterThan(
+      (await energy.boundingBox())!.x + (await energy.boundingBox())!.width
+    );
+    await noOverflow(page);
+    await page.goto("/profile#basics");
+    await page.getByLabel("Name", { exact: true }).fill(`Jordan ${width}`);
+    const save = page.getByRole("button", { name: "Save changes", exact: true });
+    await save.scrollIntoViewIfNeeded();
+    const saveBounds = (await save.boundingBox())!;
+    const coachBounds = (await page
+      .getByRole("button", { name: "Open LIMIT Coach" })
+      .boundingBox())!;
+    expect(
+      saveBounds.x + saveBounds.width <= coachBounds.x ||
+        saveBounds.y + saveBounds.height <= coachBounds.y ||
+        saveBounds.y >= coachBounds.y + coachBounds.height
+    ).toBe(true);
+    await page.screenshot({
+      path: testInfo.outputPath(`profile-edit-${width}.png`),
+      fullPage: true,
+    });
+    await save.click();
+    await expect(page.getByRole("button", { name: "Saved", exact: true })).toBeDisabled();
+    await noOverflow(page);
+  }
 });

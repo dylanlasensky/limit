@@ -46,7 +46,7 @@ export default function ImportReview({ flow }: ImportReviewProps) {
           </p>
         </div>
       )}
-      <div className="mt-5 space-y-4">
+      <div className="mt-5 grid items-start gap-4 xl:grid-cols-2">
         {flow.draft.days.map((day: any, index: number) => (
           <ImportDayCard
             key={day.key}

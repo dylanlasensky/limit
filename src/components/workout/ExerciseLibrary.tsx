@@ -133,233 +133,246 @@ export default function ExerciseLibrary({
           )}
         </div>
       )}
-      {!referenceMode && (
-        <div
-          aria-label="Exercise collections"
-          className="mb-4 grid grid-cols-3 gap-1 rounded-2xl bg-secondary p-1"
-        >
-          {["All", "Favorites", "Recent"].map((value) => (
-            <button
-              key={value}
-              aria-pressed={collection === value}
-              onClick={() => {
-                change(setCollection, value);
-                if (value === "Recent") setSort("recent");
-              }}
-              className={`min-h-11 rounded-xl text-sm font-semibold ${collection === value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
-            >
-              {value}
-              {value === "Favorites" ? ` · ${favorites.size}` : ""}
-            </button>
-          ))}
-        </div>
-      )}
-      <div className="relative">
-        <Search aria-hidden className="absolute left-4 top-4 h-5 w-5 text-muted-foreground" />
-        <input
-          aria-label="Search exercises"
-          value={query}
-          onChange={(e) => change(setQuery, e.target.value)}
-          placeholder="Name, muscle, or equipment"
-          className="h-14 w-full rounded-2xl border border-border bg-card pl-12 pr-12 text-sm"
-        />
-        {query && (
-          <button
-            aria-label="Clear search"
-            onClick={() => change(setQuery, "")}
-            className="absolute right-1 top-1 grid h-12 w-10 place-items-center text-muted-foreground"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
-      </div>
-      <div aria-label="Muscle groups" className="mt-3 flex gap-2 overflow-x-auto pb-1">
-        {Object.keys(muscleFamilies).map((value) => (
-          <button
-            key={value}
-            aria-pressed={family === value}
-            onClick={() => {
-              change(setFamily, family === value ? "" : value);
-              setMuscle("");
-            }}
-            className={`min-h-11 shrink-0 rounded-full border px-3.5 text-xs font-semibold ${family === value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground"}`}
-          >
-            {value}
-          </button>
-        ))}
-      </div>
-      <div className="mt-2 flex items-center justify-between gap-2">
-        <button
-          aria-expanded={moreFilters}
-          aria-controls="exercise-extra-filters"
-          onClick={() => setMoreFilters(!moreFilters)}
-          className="flex min-h-11 items-center gap-2 text-xs font-semibold text-muted-foreground"
-        >
-          <SlidersHorizontal className="h-4 w-4" />
-          {moreFilters ? "Fewer filters" : "More filters"}
-          {difficulty || focus || muscle || equipment ? " · active" : ""}
-        </button>
-        {active && (
-          <button onClick={reset} className="min-h-11 px-2 text-xs font-semibold text-primary">
-            Clear filters
-          </button>
-        )}
-      </div>
-      {moreFilters && (
-        <div id="exercise-extra-filters" className="mb-4 grid grid-cols-2 gap-3">
-          {[
-            ["Muscle", muscle, setMuscle, options("primaryMuscle")],
-            ["Equipment", equipment, setEquipment, options("equipment")],
-            ["Experience", difficulty, setDifficulty, options("difficulty")],
-            ["Training focus", focus, setFocus, options("trainingFocus")],
-          ].map(([label, value, setter, values]: any) => (
-            <label key={label} className="min-w-0 text-xs font-medium text-muted-foreground">
-              {label}
-              <select
-                value={value}
-                onChange={(e) => {
-                  change(setter, e.target.value);
-                  if (label === "Muscle") setFamily("");
-                }}
-                className="mt-1.5 h-12 w-full min-w-0 rounded-xl border border-border bg-card px-3 text-sm text-foreground"
-              >
-                <option value="">All</option>
-                {values.map((value: string) => (
-                  <option key={value}>{value}</option>
-                ))}
-              </select>
-            </label>
-          ))}
-        </div>
-      )}
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <p role="status" aria-live="polite" className="text-xs text-muted-foreground">
-          {filtered.length} results · {catalog.length} total
-        </p>
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
-          Sort
-          <select
-            value={sort}
-            onChange={(e) => change(setSort, e.target.value)}
-            className="h-11 rounded-xl border border-border bg-card px-2 text-foreground"
-          >
-            <option value="name">A–Z</option>
-            <option value="recent">Recently logged</option>
-          </select>
-        </label>
-      </div>
-      {muscle && (
-        <p className="mb-3 text-xs text-muted-foreground">
-          Includes primary and supporting muscles.
-        </p>
-      )}
-      {collection === "Favorites" && (
-        <p className="mb-3 text-xs text-muted-foreground">Saved for your account on this device.</p>
-      )}
-      {collection === "Recent" && (
-        <p className="mb-3 text-xs text-muted-foreground">From your latest 300 logged sets.</p>
-      )}
-      {collection === "Recent" && (recentLoading || recentError) ? (
-        <ScreenState
-          loading={recentLoading}
-          title="Couldn’t load recent exercises"
-          description="Your saved workouts haven’t changed. Retry or browse the full library."
-          onAction={onRetryRecent}
-        />
-      ) : filtered.length ? (
-        <div className="space-y-2">
-          {filtered.slice(0, visible).map((exercise) => (
+      <div className="lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-start lg:gap-6">
+        <div className="min-w-0 lg:sticky lg:top-6">
+          {!referenceMode && (
             <div
-              data-testid="exercise-row"
-              key={exercise.browseKey}
-              className="group flex min-h-20 items-center rounded-2xl border border-border/70 bg-card transition-colors hover:border-primary/40 hover:bg-primary/[.04]"
+              aria-label="Exercise collections"
+              className="mb-4 grid grid-cols-3 gap-1 rounded-2xl bg-secondary p-1"
             >
-              <button
-                onClick={() => setDetail(exercise)}
-                className="flex min-h-20 min-w-0 flex-1 items-center gap-3 p-4 text-left"
-              >
-                <span
-                  aria-hidden
-                  className={`h-9 w-1 shrink-0 rounded-full ${exercise.category === "Power" ? "bg-accent/60" : "bg-primary/35"}`}
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold leading-snug">{exercise.name}</span>
-                  <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
-                    {exercise.primaryMuscle} · {exercise.equipment}
-                  </span>
-                  {exercise.category === "Power" && (
-                    <span className="mt-1 block text-[11px] font-medium text-muted-foreground">
-                      Athletic power · coaching recommended
-                    </span>
-                  )}
-                </span>
-                <ArrowUpRight
-                  aria-hidden
-                  className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
-                />
-              </button>
-              {!referenceMode && (
+              {["All", "Favorites", "Recent"].map((value) => (
                 <button
-                  aria-label={`${favorites.has(exercise.browseKey) ? "Unfavorite" : "Favorite"} ${exercise.name}`}
-                  aria-pressed={favorites.has(exercise.browseKey)}
-                  onClick={() => toggle(exercise.browseKey)}
-                  className="mr-2 grid h-11 w-11 shrink-0 place-items-center rounded-xl text-primary hover:bg-primary/10"
+                  key={value}
+                  aria-pressed={collection === value}
+                  onClick={() => {
+                    change(setCollection, value);
+                    if (value === "Recent") setSort("recent");
+                  }}
+                  className={`min-h-11 rounded-xl text-sm font-semibold ${collection === value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
                 >
-                  <Star
-                    aria-hidden
-                    className={`h-4 w-4 ${favorites.has(exercise.browseKey) ? "fill-current" : ""}`}
-                  />
+                  {value}
+                  {value === "Favorites" ? ` · ${favorites.size}` : ""}
                 </button>
-              )}
+              ))}
             </div>
-          ))}
-          {visible < filtered.length && (
-            <div>
-              <p className="pt-3 text-center text-xs text-muted-foreground">
-                Showing {Math.min(visible, filtered.length)} of {filtered.length} results
-              </p>
+          )}
+          <div className="relative">
+            <Search aria-hidden className="absolute left-4 top-4 h-5 w-5 text-muted-foreground" />
+            <input
+              aria-label="Search exercises"
+              value={query}
+              onChange={(e) => change(setQuery, e.target.value)}
+              placeholder="Name, muscle, or equipment"
+              className="h-14 w-full rounded-2xl border border-border bg-card pl-12 pr-12 text-sm"
+            />
+            {query && (
               <button
-                onClick={() => setVisible((n) => n + 40)}
-                className="mt-3 min-h-12 w-full rounded-xl bg-secondary text-sm font-semibold"
+                aria-label="Clear search"
+                onClick={() => change(setQuery, "")}
+                className="absolute right-1 top-1 grid h-12 w-10 place-items-center text-muted-foreground"
               >
-                Show more · {filtered.length - visible} remaining
+                <X className="h-4 w-4" />
               </button>
+            )}
+          </div>
+          <div
+            aria-label="Muscle groups"
+            className="mt-3 flex gap-2 overflow-x-auto pb-1 md:flex-wrap"
+          >
+            {Object.keys(muscleFamilies).map((value) => (
               <button
-                onClick={() => setVisible(filtered.length)}
-                className="min-h-12 w-full text-sm font-semibold text-primary"
+                key={value}
+                aria-pressed={family === value}
+                onClick={() => {
+                  change(setFamily, family === value ? "" : value);
+                  setMuscle("");
+                }}
+                className={`min-h-11 shrink-0 rounded-full border px-3.5 text-xs font-semibold ${family === value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground"}`}
               >
-                Show all {filtered.length} results
+                {value}
               </button>
+            ))}
+          </div>
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <button
+              aria-expanded={moreFilters}
+              aria-controls="exercise-extra-filters"
+              onClick={() => setMoreFilters(!moreFilters)}
+              className="flex min-h-11 items-center gap-2 text-xs font-semibold text-muted-foreground"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              {moreFilters ? "Fewer filters" : "More filters"}
+              {difficulty || focus || muscle || equipment ? " · active" : ""}
+            </button>
+            {active && (
+              <button onClick={reset} className="min-h-11 px-2 text-xs font-semibold text-primary">
+                Clear filters
+              </button>
+            )}
+          </div>
+          {moreFilters && (
+            <div id="exercise-extra-filters" className="mb-4 grid grid-cols-2 gap-3">
+              {[
+                ["Muscle", muscle, setMuscle, options("primaryMuscle")],
+                ["Equipment", equipment, setEquipment, options("equipment")],
+                ["Experience", difficulty, setDifficulty, options("difficulty")],
+                ["Training focus", focus, setFocus, options("trainingFocus")],
+              ].map(([label, value, setter, values]: any) => (
+                <label key={label} className="min-w-0 text-xs font-medium text-muted-foreground">
+                  {label}
+                  <select
+                    value={value}
+                    onChange={(e) => {
+                      change(setter, e.target.value);
+                      if (label === "Muscle") setFamily("");
+                    }}
+                    className="mt-1.5 h-12 w-full min-w-0 rounded-xl border border-border bg-card px-3 text-sm text-foreground"
+                  >
+                    <option value="">All</option>
+                    {values.map((value: string) => (
+                      <option key={value}>{value}</option>
+                    ))}
+                  </select>
+                </label>
+              ))}
             </div>
           )}
         </div>
-      ) : (
-        <ScreenState
-          title={
-            collection === "Favorites" && !active
-              ? "Keep your go-to movements here"
-              : collection === "Recent" && !active
-                ? "Your next set starts your history"
-                : "No exercises found"
-          }
-          description={
-            collection === "Favorites" && !active
-              ? "Tap the star beside any exercise to find it faster next time."
-              : collection === "Recent" && !active
-                ? "Exercises appear here after you log completed sets."
-                : "Try a broader search or clear your filters."
-          }
-          onAction={() => {
-            reset();
-            setCollection("All");
-          }}
-          action={active ? "Clear filters" : "Explore all exercises"}
-        />
-      )}
-      <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
-        Explore technique notes here. Use your program or import a coach’s plan to log sets. Power
-        drills need their own programming; they aren’t added to general lifting plans.
-      </p>
+        <div className="min-w-0">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <p role="status" aria-live="polite" className="text-xs text-muted-foreground">
+              {filtered.length} results · {catalog.length} total
+            </p>
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              Sort
+              <select
+                value={sort}
+                onChange={(e) => change(setSort, e.target.value)}
+                className="h-11 rounded-xl border border-border bg-card px-2 text-foreground"
+              >
+                <option value="name">A–Z</option>
+                <option value="recent">Recently logged</option>
+              </select>
+            </label>
+          </div>
+          {muscle && (
+            <p className="mb-3 text-xs text-muted-foreground">
+              Includes primary and supporting muscles.
+            </p>
+          )}
+          {collection === "Favorites" && (
+            <p className="mb-3 text-xs text-muted-foreground">
+              Saved for your account on this device.
+            </p>
+          )}
+          {collection === "Recent" && (
+            <p className="mb-3 text-xs text-muted-foreground">From your latest 300 logged sets.</p>
+          )}
+          {collection === "Recent" && (recentLoading || recentError) ? (
+            <ScreenState
+              loading={recentLoading}
+              title="Couldn’t load recent exercises"
+              description="Your saved workouts haven’t changed. Retry or browse the full library."
+              onAction={onRetryRecent}
+            />
+          ) : filtered.length ? (
+            <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-1 2xl:grid-cols-2">
+              {filtered.slice(0, visible).map((exercise) => (
+                <div
+                  data-testid="exercise-row"
+                  key={exercise.browseKey}
+                  className="group flex min-h-20 items-center rounded-2xl border border-border/70 bg-card transition-colors hover:border-primary/40 hover:bg-primary/[.04]"
+                >
+                  <button
+                    onClick={() => setDetail(exercise)}
+                    className="flex min-h-20 min-w-0 flex-1 items-center gap-3 p-4 text-left"
+                  >
+                    <span
+                      aria-hidden
+                      className={`h-9 w-1 shrink-0 rounded-full ${exercise.category === "Power" ? "bg-accent/60" : "bg-primary/35"}`}
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold leading-snug">
+                        {exercise.name}
+                      </span>
+                      <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+                        {exercise.primaryMuscle} · {exercise.equipment}
+                      </span>
+                      {exercise.category === "Power" && (
+                        <span className="mt-1 block text-[11px] font-medium text-muted-foreground">
+                          Athletic power · coaching recommended
+                        </span>
+                      )}
+                    </span>
+                    <ArrowUpRight
+                      aria-hidden
+                      className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
+                    />
+                  </button>
+                  {!referenceMode && (
+                    <button
+                      aria-label={`${favorites.has(exercise.browseKey) ? "Unfavorite" : "Favorite"} ${exercise.name}`}
+                      aria-pressed={favorites.has(exercise.browseKey)}
+                      onClick={() => toggle(exercise.browseKey)}
+                      className="mr-2 grid h-11 w-11 shrink-0 place-items-center rounded-xl text-primary hover:bg-primary/10"
+                    >
+                      <Star
+                        aria-hidden
+                        className={`h-4 w-4 ${favorites.has(exercise.browseKey) ? "fill-current" : ""}`}
+                      />
+                    </button>
+                  )}
+                </div>
+              ))}
+              {visible < filtered.length && (
+                <div className="md:col-span-2 lg:col-span-1 2xl:col-span-2">
+                  <p className="pt-3 text-center text-xs text-muted-foreground">
+                    Showing {Math.min(visible, filtered.length)} of {filtered.length} results
+                  </p>
+                  <button
+                    onClick={() => setVisible((n) => n + 40)}
+                    className="mt-3 min-h-12 w-full rounded-xl bg-secondary text-sm font-semibold"
+                  >
+                    Show more · {filtered.length - visible} remaining
+                  </button>
+                  <button
+                    onClick={() => setVisible(filtered.length)}
+                    className="min-h-12 w-full text-sm font-semibold text-primary"
+                  >
+                    Show all {filtered.length} results
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <ScreenState
+              title={
+                collection === "Favorites" && !active
+                  ? "Keep your go-to movements here"
+                  : collection === "Recent" && !active
+                    ? "Your next set starts your history"
+                    : "No exercises found"
+              }
+              description={
+                collection === "Favorites" && !active
+                  ? "Tap the star beside any exercise to find it faster next time."
+                  : collection === "Recent" && !active
+                    ? "Exercises appear here after you log completed sets."
+                    : "Try a broader search or clear your filters."
+              }
+              onAction={() => {
+                reset();
+                setCollection("All");
+              }}
+              action={active ? "Clear filters" : "Explore all exercises"}
+            />
+          )}
+          <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
+            Explore technique notes here. Use your program or import a coach’s plan to log sets.
+            Power drills need their own programming; they aren’t added to general lifting plans.
+          </p>
+        </div>
+      </div>
       <ExerciseDetails
         exercise={detail}
         open={!!detail}
