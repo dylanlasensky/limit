@@ -44,7 +44,7 @@ describe("strength progress interface", () => {
     render(
       <StrengthProgress exercises={fixture()} onOpenSession={open} onStartWorkout={vi.fn()} />
     );
-    expect(screen.getByRole("combobox", { name: /Strength exercise/ })).toHaveTextContent(
+    expect(screen.getByRole("button", { name: "Strength exercise" })).toHaveTextContent(
       "Barbell Bench Press"
     );
     expect(screen.getByRole("img")).toHaveAccessibleName(/Heaviest load across 2 sessions/);
@@ -99,9 +99,9 @@ describe("strength progress interface", () => {
       <StrengthProgress exercises={fixture()} onOpenSession={vi.fn()} onStartWorkout={vi.fn()} />
     );
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "rowing" } });
-    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Strength exercise" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Clear search" }));
-    expect(screen.getByRole("combobox")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Strength exercise" })).toBeInTheDocument();
   });
 
   it("lets users inspect older sessions beyond the initial visible cards", () => {

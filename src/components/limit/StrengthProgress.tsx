@@ -17,6 +17,8 @@ import {
   type StrengthUnit,
 } from "@/lib/training/strengthHistory";
 import ScreenState from "@/components/limit/ScreenState";
+import NativeSelect from "@/components/limit/NativeSelect";
+import type { NativeSelectOption } from "@/components/limit/NativeSelect";
 
 const metrics: Array<{ key: StrengthMetric; label: string; unit: string }> = [
   { key: "heaviest", label: "Heaviest load", unit: "" },
@@ -114,30 +116,30 @@ export default function StrengthProgress({
         {filtered.length ? (
           <label className="mt-3 block text-xs font-medium text-muted-foreground">
             Strength exercise
-            <select
+            <NativeSelect
+              label="Strength exercise"
+              aria-label="Strength exercise"
               value={selected?.key || ""}
-              onChange={(event) => {
-                setSelectedKey(event.target.value);
+              onChange={(value) => {
+                setSelectedKey(value);
                 setChosenMetric(null);
                 setVisibleSessions(6);
               }}
-              className="mt-2 min-h-12 w-full min-w-0 rounded-xl border border-border bg-background px-3 pr-8 text-sm text-foreground"
-            >
-              {filtered.map((exercise, index) => (
-                <option value={exercise.key} key={exercise.key}>
-                  {exercise.name}
-                  {exercise.equipment ? ` · ${exercise.equipment}` : ""}
-                  {filtered.some(
+              options={filtered.map((exercise, index): NativeSelectOption => ({
+                value: exercise.key,
+                label: `${exercise.name}${exercise.equipment ? ` · ${exercise.equipment}` : ""}${
+                  filtered.some(
                     (other) =>
                       other.key !== exercise.key &&
                       other.name === exercise.name &&
                       other.equipment === exercise.equipment
                   )
                     ? ` · variation ${index + 1}`
-                    : ""}
-                </option>
-              ))}
-            </select>
+                    : ""
+                }`,
+              }))}
+              className="mt-2 h-auto min-h-12 min-w-0 gap-2 bg-background py-2 text-sm text-foreground"
+            />
           </label>
         ) : (
           <div className="mt-4 rounded-xl border border-dashed border-border p-4 text-sm">

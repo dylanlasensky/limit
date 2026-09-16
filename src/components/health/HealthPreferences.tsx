@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Settings2, Trash2, X } from "lucide-react";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
 import useModalHistory from "@/hooks/use-modal-history";
+import NativeSelect from "@/components/limit/NativeSelect";
 import {
   healthMetricDefinitions,
   sourceLabel,
@@ -93,26 +94,25 @@ function PreferenceControls({
             .map((metric) => (
               <label key={metric} className="block text-xs font-medium text-muted-foreground">
                 {healthMetricDefinitions[metric].label}
-                <select
+                <NativeSelect
+                  label={`Preferred source for ${healthMetricDefinitions[metric].label}`}
                   aria-label={`Preferred source for ${healthMetricDefinitions[metric].label}`}
+                  disabled={blocked}
                   value={draft.preferredSources[metric] || "automatic"}
-                  onChange={(event) =>
+                  onChange={(value) =>
                     setDraft((current) => {
                       const preferredSources = { ...current.preferredSources };
-                      if (event.target.value === "automatic") delete preferredSources[metric];
-                      else preferredSources[metric] = event.target.value as HealthSource;
+                      if (value === "automatic") delete preferredSources[metric];
+                      else preferredSources[metric] = value as HealthSource;
                       return { ...current, preferredSources };
                     })
                   }
-                  className="mt-1 h-11 w-full rounded-xl border border-border bg-card px-3 text-sm text-foreground"
-                >
-                  <option value="automatic">Automatic</option>
-                  {healthSources.map((source) => (
-                    <option key={source} value={source}>
-                      {sourceLabel(source)}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    { value: "automatic", label: "Automatic" },
+                    ...healthSources.map((source) => ({ value: source, label: sourceLabel(source) })),
+                  ]}
+                  className="mt-1 h-11 text-sm text-foreground"
+                />
               </label>
             ))}
         </div>

@@ -18,6 +18,8 @@ interface NativeSelectProps<V extends string | number> {
   /** Plain strings are used as both value and label. */
   options: Array<string | NativeSelectOption<V>>;
   label?: string;
+  "aria-label"?: string;
+  disabled?: boolean;
   className?: string;
 }
 export default function NativeSelect<V extends string | number = string>({
@@ -25,6 +27,8 @@ export default function NativeSelect<V extends string | number = string>({
   onChange,
   options,
   label = "Choose an option",
+  "aria-label": ariaLabel,
+  disabled = false,
   className,
 }: NativeSelectProps<V>) {
   const [open, setOpen] = useState(false),
@@ -39,6 +43,8 @@ export default function NativeSelect<V extends string | number = string>({
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-description={label}
+        aria-label={ariaLabel}
+        disabled={disabled}
         onClick={() => setOpen(true)}
         className={cn(
           "limit-surface flex h-12 w-full items-center justify-between rounded-xl px-3 text-left transition-colors active:border-primary/40",
@@ -48,14 +54,14 @@ export default function NativeSelect<V extends string | number = string>({
         <span>{selected?.label || label}</span>
         <ChevronDown className="h-4 w-4 text-zinc-500" />
       </button>
-      <Drawer open={open} onOpenChange={setOpen}>
+      <Drawer open={open && !disabled} onOpenChange={setOpen}>
         <DrawerContent>
           <div className="mx-auto w-full max-w-md pb-[max(1rem,env(safe-area-inset-bottom))]">
             <DrawerHeader>
               <DrawerTitle>{label}</DrawerTitle>
               <DrawerDescription>Select one option</DrawerDescription>
             </DrawerHeader>
-            <div className="px-4">
+            <div className="max-h-[65dvh] overflow-y-auto overscroll-contain px-4">
               {items.map((item) => (
                 <button
                   type="button"

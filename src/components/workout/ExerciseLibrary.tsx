@@ -5,6 +5,7 @@ import { browseCatalog, muscleFamilies } from "@/lib/training/browseCatalog";
 import useExerciseFavorites from "@/hooks/use-exercise-favorites";
 import ExerciseDetails from "@/components/workout/ExerciseDetails";
 import ScreenState from "@/components/limit/ScreenState";
+import NativeSelect from "@/components/limit/NativeSelect";
 
 export default function ExerciseLibrary({
   exercises,
@@ -220,19 +221,20 @@ export default function ExerciseLibrary({
               ].map(([label, value, setter, values]: any) => (
                 <label key={label} className="min-w-0 text-xs font-medium text-muted-foreground">
                   {label}
-                  <select
+                  <NativeSelect<string>
+                    label={label}
+                    aria-label={label}
                     value={value}
-                    onChange={(e) => {
-                      change(setter, e.target.value);
+                    onChange={(nextValue) => {
+                      change(setter, nextValue);
                       if (label === "Muscle") setFamily("");
                     }}
-                    className="mt-1.5 h-12 w-full min-w-0 rounded-xl border border-border bg-card px-3 text-sm text-foreground"
-                  >
-                    <option value="">All</option>
-                    {values.map((value: string) => (
-                      <option key={value}>{value}</option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: "", label: "All" },
+                      ...values.map((value: string) => ({ value, label: value })),
+                    ]}
+                    className="mt-1.5 h-auto min-h-12 min-w-0 gap-2 py-2 text-sm text-foreground"
+                  />
                 </label>
               ))}
             </div>
@@ -245,14 +247,17 @@ export default function ExerciseLibrary({
             </p>
             <label className="flex items-center gap-2 text-xs text-muted-foreground">
               Sort
-              <select
+              <NativeSelect
+                label="Sort"
+                aria-label="Sort"
                 value={sort}
-                onChange={(e) => change(setSort, e.target.value)}
-                className="h-11 rounded-xl border border-border bg-card px-2 text-foreground"
-              >
-                <option value="name">A–Z</option>
-                <option value="recent">Recently logged</option>
-              </select>
+                onChange={(value) => change(setSort, value)}
+                options={[
+                  { value: "name", label: "A–Z" },
+                  { value: "recent", label: "Recently logged" },
+                ]}
+                className="h-11 w-auto gap-2 px-2 text-foreground"
+              />
             </label>
           </div>
           {muscle && (

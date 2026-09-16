@@ -42,6 +42,7 @@ vi.mock("@/api/base44Client", () => ({ base44: { auth: { me: sdk.me }, entities:
 vi.mock("@/components/ui/drawer", () => ({
   Drawer: ({ open, children }) => (open ? <div role="dialog">{children}</div> : null),
   DrawerContent: ({ children }) => <div>{children}</div>,
+  DrawerHeader: ({ children }) => <div>{children}</div>,
   DrawerTitle: ({ children }) => <h2>{children}</h2>,
   DrawerDescription: ({ children }) => <p>{children}</p>,
 }));
@@ -137,13 +138,13 @@ describe("account-specific health preferences", () => {
     fireEvent.click(screen.getByRole("button", { name: "Health settings & data" }));
     await screen.findByRole("button", { name: "Save health preferences" });
     fireEvent.click(screen.getByLabelText("Show Steps"));
-    fireEvent.change(screen.getByLabelText("Preferred source for Sleep"), {
-      target: { value: "oura" },
-    });
+    fireEvent.click(screen.getByText("Preferred sources · optional"));
+    fireEvent.click(screen.getByRole("button", { name: "Preferred source for Sleep" }));
+    fireEvent.click(screen.getByRole("button", { name: "Oura" }));
     fireEvent.click(screen.getByRole("button", { name: "Save health preferences" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Your choices are still here");
     expect(screen.getByLabelText("Show Steps")).not.toBeChecked();
-    expect(screen.getByLabelText("Preferred source for Sleep")).toHaveValue("oura");
+    expect(screen.getByRole("button", { name: "Preferred source for Sleep" })).toHaveTextContent("Oura");
     const button = screen.getByRole("button", { name: "Save health preferences" });
     fireEvent.click(button);
     fireEvent.click(button);
