@@ -20,8 +20,16 @@ function deviceTheme(): MediaQueryList | undefined {
     : undefined;
 }
 
+function cssDarkFallback(): boolean {
+  if (typeof window === "undefined" || typeof document === "undefined") return true;
+  const colorScheme = window.getComputedStyle?.(document.documentElement).colorScheme || "";
+  return colorScheme.includes("dark") || !colorScheme.includes("light");
+}
+
 function isDark(appearance: Appearance, media = deviceTheme()): boolean {
-  return appearance === "system" ? (media?.matches ?? true) : appearance === "dark";
+  return appearance === "system"
+    ? media?.matches ?? cssDarkFallback()
+    : appearance === "dark";
 }
 
 export function setAppearance(appearance: Appearance) {

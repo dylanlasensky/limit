@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Scale, X } from "lucide-react";
 import { format, parseISO } from "date-fns";
@@ -27,6 +27,13 @@ const moreMetrics: HealthMetricName[] = [
   "visceral_fat",
   "hip_circumference",
 ];
+type BodyMetricCard = {
+  metric: HealthMetricName;
+  label: string;
+  value: string | null;
+  date: string;
+  source: string;
+};
 export default function BodyCompositionPanel({
   date,
   rows,
@@ -46,14 +53,15 @@ export default function BodyCompositionPanel({
   const [error, setError] = useState("");
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<string[]>([]);
+  const [optimisticCards, setOptimisticCards] = useState<
+    Partial<Record<HealthMetricName, BodyMetricCard>>
+  >({});
+  useEffect(() => setOptimisticCards({}), [date]);
   const latest = latestDailyMetrics(rows, date, preferences.preferredSources);
-  const cards = [...mainMetrics, ...moreMetrics].filter(isMetricVisible).flatMap<{
-    metric: HealthMetricName;
-    label: string;
-    value: string | null;
-    date: string;
-    source: string;
-  }>((metric) => {
+  const cards = [...mainMetrics, ...moreMetrics]
+    .filter(isMetricVisible)
+    .flatMap<BodyMetricCard>((metric) => {
+    if (optimisticCards[metric]) return [optimisticCards[metric]!];
     if (metric === "weight" && latestWeight)
       return [
         {
@@ -103,6 +111,7 @@ export default function BodyCompositionPanel({
     }
     setSaving(true);
     setError("");
+    const previousCards = optimisticCards;
     try {
       // Validate the whole form before saving any field.
       const payloads = entered.map(([metric, value]) =>
@@ -114,6 +123,20 @@ export default function BodyCompositionPanel({
           source: "manual",
         })
       );
+      const optimisticUpdates = payloads.reduce<
+        Partial<Record<HealthMetricName, BodyMetricCard>>
+      >((updates, row) => {
+        const metric = row.metric as HealthMetricName;
+        updates[metric] = {
+          metric,
+          label: healthMetricDefinitions[metric].label,
+          value: formatHealthValue(row),
+          date,
+          source: sourceLabel("manual"),
+        };
+        return updates;
+      }, {});
+      setOptimisticCards((current) => ({ ...current, ...optimisticUpdates }));
       const weight = payloads.find((row) => row.metric === "weight");
       if (weight) await saveDailyWeight({ date, weight: weight.value, unit: "lb" });
       const values = Object.fromEntries(
@@ -127,6 +150,7 @@ export default function BodyCompositionPanel({
       setDraft({});
       setTouched([]);
     } catch (failure: any) {
+      setOptimisticCards(previousCards);
       setError(
         failure?.status || failure?.response
           ? "Couldn’t save every measurement. Your entries are still here; please retry."

@@ -86,7 +86,12 @@ export default function SetRow({ row, previous, onEdit, onToggle, saving }: SetR
         aria-label={done ? "Uncheck set" : "Complete set"}
         className={`grid h-12 place-items-center rounded-xl transition-all ${done ? "bg-primary text-primary-foreground shadow-[0_0_24px_hsl(var(--primary)/.4)]" : "border border-border/50 bg-secondary/70 text-muted-foreground"}`}
       >
-        {saving ? (
+        {row.pending && done ? (
+          <span className="relative grid place-items-center">
+            <Check className="h-5 w-5 opacity-60" />
+            <Loader2 className="absolute -right-1 -top-1 h-2.5 w-2.5 animate-spin" />
+          </span>
+        ) : saving ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : done ? (
           <Check className="h-5 w-5" />

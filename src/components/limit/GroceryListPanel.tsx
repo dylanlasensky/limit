@@ -50,7 +50,11 @@ export default function GroceryListPanel({ meals }: { meals: PlannedMeal[] }) {
       generation.current++;
     };
   }, [load]);
-  const save = async (operation: () => Promise<SavedGroceryList>, success: string) => {
+  const save = async (
+    operation: () => Promise<SavedGroceryList>,
+    success: string,
+    rollback?: () => void
+  ) => {
     if (busy.current || loading) return;
     busy.current = true;
     setSaving(true);
@@ -66,10 +70,12 @@ export default function GroceryListPanel({ meals }: { meals: PlannedMeal[] }) {
         retry.current = null;
       }
     } catch (reason: any) {
-      if (generation.current === current)
+      if (generation.current === current) {
+        rollback?.();
         setError(
           reason?.message || "Couldn’t save this change. Your previous list is still shown."
         );
+      }
     } finally {
       if (generation.current === current) {
         busy.current = false;
@@ -211,9 +217,20 @@ export default function GroceryListPanel({ meals }: { meals: PlannedMeal[] }) {
                           checked={item.checked}
                           onChange={(event) => {
                             const nextChecked = event.target.checked;
+                            const previousList = list;
+                            const key = groceryKey(item);
+                            setList({
+                              ...list,
+                              items: list.items.map((entry) =>
+                                groceryKey(entry) === key
+                                  ? { ...entry, checked: nextChecked }
+                                  : entry
+                              ),
+                            });
                             void save(
-                              () => setGroceryChecked(list, item, nextChecked),
-                              "Shopping progress saved."
+                              () => setGroceryChecked(previousList, item, nextChecked),
+                              "Shopping progress saved.",
+                              () => setList(previousList)
                             );
                           }}
                           className="h-5 w-5 shrink-0 accent-primary"
