@@ -64,7 +64,7 @@ export default function OnboardingDiet({ data, set }: OnboardingStepProps) {
         value={data.avoidText || ""}
         onChange={(e) => set("avoidText", e.target.value)}
       />
-      <p className="rounded-xl bg-amber-50 p-3 text-xs text-amber-900">
+      <p className="rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
         Limit excludes saved allergens from meal ideas. Always verify labels and cross-contact
         warnings for serious allergies.
       </p>

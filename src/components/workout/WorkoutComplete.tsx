@@ -63,7 +63,7 @@ export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProp
       <h1 className="relative mt-3 text-5xl font-black uppercase italic leading-[.9] tracking-[-.055em]">
         {summary.name}
       </h1>
-      <p className="mt-1 font-mono text-lg tabular-nums text-zinc-400">
+      <p className="mt-1 font-mono text-lg tabular-nums text-muted-foreground">
         {mm > 0 ? `${mm}h ${String(rem).padStart(2, "0")}m` : `${rem} min`}
       </p>
       <div className="mt-8 grid grid-cols-3 gap-3">
@@ -76,13 +76,13 @@ export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProp
         ).map(([v, l]) => (
           <div key={l} className="limit-surface rounded-2xl p-4 text-center">
             <p className="text-2xl font-black tabular-nums">{v}</p>
-            <p className="mt-1 text-[10px] font-bold tracking-widest text-zinc-500">{l}</p>
+            <p className="mt-1 text-[10px] font-bold tracking-widest text-muted-foreground">{l}</p>
           </div>
         ))}
       </div>
       {(summary.prs?.length ?? 0) > 0 && (
         <section className="mt-6">
-          <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
             Personal records
           </p>
           {summary.prs!.map((pr, i) => (
@@ -97,7 +97,7 @@ export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProp
               <p className="mt-1 text-sm tabular-nums text-primary">
                 {pr.type === "e1rm" ? `e1RM ${pr.value} lb` : `${pr.value} lb`} · {pr.weight} ×{" "}
                 {pr.reps}
-                {pr.previous ? <span className="ml-2 text-zinc-500">was {pr.previous}</span> : null}
+                {pr.previous ? <span className="ml-2 text-muted-foreground">was {pr.previous}</span> : null}
               </p>
             </motion.div>
           ))}
@@ -105,12 +105,12 @@ export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProp
       )}
       {(summary.ratingChanges?.length ?? 0) > 0 && (
         <section className="mt-6">
-          <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">Muscle rating</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Muscle rating</p>
           <div className="mt-2 space-y-1.5">
             {summary.ratingChanges!.map(([muscle, from, to]) => (
               <div
                 key={muscle}
-                className="flex items-center justify-between rounded-xl bg-[#121217] px-4 py-3 text-sm"
+                className="flex items-center justify-between rounded-xl bg-card px-4 py-3 text-sm"
               >
                 <span className="font-bold">{muscle}</span>
                 <span className="tabular-nums text-primary">
@@ -122,10 +122,10 @@ export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProp
         </section>
       )}
       {summary.bestLift && (
-        <section className="mt-6 rounded-2xl border border-zinc-800 bg-[#121217] p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Best lift</p>
+        <section className="mt-6 rounded-2xl border border-border bg-card p-4">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Best lift</p>
           <p className="mt-2 font-bold">{summary.bestLift.name}</p>
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-muted-foreground">
             {summary.bestLift.weight} lb × {summary.bestLift.reps}
           </p>
           {summary.previousVolume != null && (
@@ -138,7 +138,7 @@ export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProp
         </section>
       )}
       {summary.analyticsPending && (
-        <p className="mt-5 text-xs text-zinc-500">
+        <p className="mt-5 text-xs text-muted-foreground">
           Workout saved. PR and Muscle Rating analysis will retry when this summary is opened again.
         </p>
       )}
