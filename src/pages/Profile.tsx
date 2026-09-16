@@ -18,6 +18,7 @@ import AccountDataExport from "@/components/limit/AccountDataExport";
 import PublicLinks from "@/components/limit/PublicLinks";
 import NativeSelect from "@/components/limit/NativeSelect";
 import ScreenState from "@/components/limit/ScreenState";
+import PullToRefresh from "@/components/limit/PullToRefresh";
 import ConnectedHealthPanel from "@/components/health/ConnectedHealthPanel";
 import ProfileSettingsSection from "@/components/limit/ProfileSettingsSection";
 const sectionIds = ["appearance", "connections", "basics", "training", "nutrition", "account"];
@@ -70,6 +71,8 @@ export default function Profile() {
     [activeSection, setActiveSection] = useState(() => sectionFromHash(location.hash)),
     saveInFlight = useRef(false),
     client = useQueryClient();
+  const currentDraft = useRef({ p, d, dirty, saving, rebuilding });
+  currentDraft.current = { p, d, dirty, saving, rebuilding };
   const settingsReady = Boolean(p && d);
   useEffect(() => {
     setActiveSection(sectionFromHash(location.hash));
@@ -213,12 +216,36 @@ export default function Profile() {
       setError("Couldn’t request a reset. Please try again.");
     }
   };
+  const refresh = async () => {
+    const draft = currentDraft.current;
+    try {
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ["userProfile"], refetchType: "none" }),
+        client.invalidateQueries({ queryKey: ["dietaryProfile"], refetchType: "none" }),
+      ]);
+      // Profile keeps editable local drafts, so invalidation alone cannot refresh its fields.
+      const [profiles, diets] = await Promise.all([
+        client.fetchQuery({ queryKey: ["userProfile"], queryFn: () => base44.entities.UserProfile.list() }),
+        client.fetchQuery({ queryKey: ["dietaryProfile"], queryFn: () => base44.entities.DietaryProfile.list() }),
+      ]);
+      const current = currentDraft.current;
+      if (draft.dirty || draft.saving || draft.rebuilding || current.dirty || current.saving ||
+          current.rebuilding || current.p !== draft.p || current.d !== draft.d) return;
+      setP(toUSProfile(profiles[0] || {}));
+      setD(diets[0] || {});
+      setFoodsToAvoidText((diets[0]?.foodsToAvoid || []).join(", "));
+      setError("");
+    } catch {
+      setError("Couldn’t refresh your settings. Your edits are still here.");
+    }
+  };
   const section = (id: string) => ({
     id,
     open: activeSection === id,
     onToggle: () => setActiveSection((current) => (current === id ? "" : id)),
   });
   return (
+    <PullToRefresh onRefresh={refresh}>
     <div className="lg:grid lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:items-start lg:gap-x-8">
       <div className="lg:sticky lg:top-6">
         <header className="px-1 pb-1 pt-3">
@@ -437,5 +464,6 @@ export default function Profile() {
         </div>
       </div>
     </div>
+    </PullToRefresh>
   );
 }
