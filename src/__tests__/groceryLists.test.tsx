@@ -18,7 +18,7 @@ const db = vi.hoisted(() => ({
   get: vi.fn(),
   updateMany: vi.fn(),
 }));
-vi.mock("@/api/base44Client", () => ({ base44: { entities: { GroceryList: db } } }));
+vi.mock("@/api/client", () => ({ limitApi: { entities: { GroceryList: db } } }));
 vi.mock("@/lib/AuthContext", () => ({ useAuth: () => ({ user: { id: "me" } }) }));
 const week = format(weekStart(), "yyyy-MM-dd");
 const meals: PlannedMeal[] = [

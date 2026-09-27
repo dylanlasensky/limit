@@ -1,5 +1,5 @@
-import { exerciseCatalog } from "../../../base44/shared/exerciseCatalog.js";
-import { catalogMatch, enrichExercise } from "../../../base44/shared/exerciseLibrary.js";
+import { exerciseCatalog } from "../../../packages/domain/exerciseCatalog.js";
+import { catalogMatch, enrichExercise } from "../../../packages/domain/exerciseLibrary.js";
 
 // Browsing is independent of database seeding. Reference-only entries deliberately
 // have NO database ID and must never be passed to logging/program APIs as records.

@@ -1,4 +1,4 @@
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import type { PlannedMeal } from "@/components/limit/data";
 
 export interface GroceryItem {
@@ -53,7 +53,7 @@ function verified(row: any, userId: string, week: string): SavedGroceryList {
 
 export async function loadGroceryList(userId: string, week: string) {
   if (!userId) throw new Error("Sign in to load your grocery list.");
-  const rows = await base44.entities.GroceryList.filter(
+  const rows = await limitApi.entities.GroceryList.filter(
     { created_by_id: userId, weekStart: week },
     "-created_date",
     1
@@ -105,7 +105,7 @@ async function updateList(
   )
     return current;
   // A conditional update fails instead of silently replacing a newer device's changes.
-  const result = await base44.entities.GroceryList.updateMany(
+  const result = await limitApi.entities.GroceryList.updateMany(
     {
       id: current.id,
       created_by_id: current.created_by_id,
@@ -116,7 +116,7 @@ async function updateList(
   if (result?.success !== true || result.updated !== 1)
     throw new Error("This list changed elsewhere. Reload it, then try your change again.");
   return verified(
-    await base44.entities.GroceryList.get(current.id),
+    await limitApi.entities.GroceryList.get(current.id),
     current.created_by_id,
     current.weekStart
   );
@@ -132,7 +132,7 @@ export async function buildGroceryList(userId: string, week: string, meals: Plan
   };
   if (current) return updateList(current, payload);
   return verified(
-    await base44.entities.GroceryList.create({ weekStart: week, ...payload }),
+    await limitApi.entities.GroceryList.create({ weekStart: week, ...payload }),
     userId,
     week
   );
@@ -144,7 +144,7 @@ export async function setGroceryChecked(
   checked: boolean
 ) {
   const latest = verified(
-    await base44.entities.GroceryList.get(list.id),
+    await limitApi.entities.GroceryList.get(list.id),
     list.created_by_id,
     list.weekStart
   );

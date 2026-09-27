@@ -21,5 +21,5 @@
     "types": ["vite/client", "node"]
   },
   "include": ["src", "e2e", "playwright.config.ts", "vite.config.ts"],
-  "exclude": ["node_modules", "dist", "base44"]
+  "exclude": ["node_modules", "dist"]
 }

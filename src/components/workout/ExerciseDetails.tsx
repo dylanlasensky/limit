@@ -1,3 +1,4 @@
+import ExerciseMedia from "./ExerciseMedia";
 import React from "react";
 import { Star } from "lucide-react";
 import {
@@ -77,18 +78,7 @@ export default function ExerciseDetails({
             </p>
           )}
           <h3 className="mb-3 mt-6 font-bold">Movement notes</h3>
-          <ol className="list-decimal space-y-3 pl-5 text-sm leading-relaxed text-muted-foreground">
-            {(exercise?.instructions?.length
-              ? exercise.instructions
-              : [
-                  "Start with a light warm-up to check your setup and comfortable range of motion.",
-                  "Use a controlled tempo and a stable position; stop the set when you can no longer maintain your technique.",
-                  "Stop if you feel sharp or unusual pain. Ask a qualified coach for movement-specific setup.",
-                ]
-            ).map((text: string, i: number) => (
-              <li key={i}>{text}</li>
-            ))}
-          </ol>
+          {open && exercise && <ExerciseMedia exercise={exercise} />}
           <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
             These are brief reference cues, not a complete tutorial or an injury-treatment plan.
             Stop for sharp or unusual pain and seek qualified guidance. For unilateral exercises,

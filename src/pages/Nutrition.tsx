@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, X, Utensils, CalendarDays, ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { sumMacros } from "@/components/limit/data";
 import useLocalDate from "@/hooks/use-local-date";
 import { listFoodEntries } from "@/lib/food-entry";
@@ -61,12 +61,12 @@ export default function Nutrition() {
     }),
     profileQuery = useQuery({
       queryKey: ["userProfile"],
-      queryFn: () => base44.entities.UserProfile.list(),
+      queryFn: () => limitApi.entities.UserProfile.list(),
       staleTime: 30000,
     }),
     dietQuery = useQuery({
       queryKey: ["dietaryProfile"],
-      queryFn: () => base44.entities.DietaryProfile.list(),
+      queryFn: () => limitApi.entities.DietaryProfile.list(),
       staleTime: 30000,
     }),
     foods: any[] = foodsQuery.data || [],

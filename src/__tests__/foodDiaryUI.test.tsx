@@ -17,8 +17,8 @@ const api = vi.hoisted(() => ({
   filter: vi.fn(),
   list: vi.fn(),
 }));
-vi.mock("@/api/base44Client", () => ({
-  base44: {
+vi.mock("@/api/client", () => ({
+  limitApi: {
     entities: {
       FoodEntry: api,
       UserProfile: {

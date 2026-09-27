@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Trophy } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import ScreenState from "@/components/limit/ScreenState";
 
 export default function WorkoutDetail() {
@@ -11,10 +11,10 @@ export default function WorkoutDetail() {
   const query = useQuery({
     queryKey: ["workoutDetail", id],
     queryFn: async () => {
-      let session: any = await base44.entities.WorkoutSession.get(id as string);
+      let session: any = await limitApi.entities.WorkoutSession.get(id as string);
       if (session.status !== "completed") throw new Error("This workout is not complete.");
       if (session.analyticsStatus === "pending") {
-        const { data } = await base44.functions.invoke("workoutCommand", {
+        const { data } = await limitApi.functions.invoke("workoutCommand", {
           action: "finish",
           sessionId: id,
           expectedSets: [],
@@ -26,12 +26,12 @@ export default function WorkoutDetail() {
         };
       }
       const [sets, prs] = await Promise.all([
-        base44.entities.ExerciseSet.filter(
+        limitApi.entities.ExerciseSet.filter(
           { workoutSessionId: id, completed: true },
           "setNumber",
           500
         ),
-        base44.entities.PersonalRecord.filter({ workoutSessionId: id }, "-value", 100),
+        limitApi.entities.PersonalRecord.filter({ workoutSessionId: id }, "-value", 100),
       ]);
       return { session, sets, prs };
     },

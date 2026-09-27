@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import StrengthProgress from "@/components/limit/StrengthProgress";
 import { buildStrengthHistory } from "@/lib/training/strengthHistory";
-import { exerciseCatalog } from "../../base44/shared/exerciseCatalog.js";
+import { exerciseCatalog } from "../../packages/domain/exerciseCatalog.js";
 
 vi.mock("recharts", () => ({
   ResponsiveContainer: ({ children }: any) => <div>{children}</div>,

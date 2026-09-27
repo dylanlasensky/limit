@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { listExercises } from "@/lib/training/exerciseLibrary";
 import { useAuth } from "@/lib/AuthContext";
 import { draftKey, readDraft, initialRows } from "@/components/workout/workoutDraft";
@@ -76,13 +76,13 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
       try {
         setState((s) => ({ ...s, loading: true, error: null }));
         const [day, templates, exercises, profiles] = await Promise.all([
-          base44.entities.WorkoutDay.get(workoutDayId as string),
-          base44.entities.WorkoutExercise.filter({ workoutDayId }),
+          limitApi.entities.WorkoutDay.get(workoutDayId as string),
+          limitApi.entities.WorkoutExercise.filter({ workoutDayId }),
           listExercises(),
-          base44.entities.UserProfile.list(),
+          limitApi.entities.UserProfile.list(),
         ]);
-        const plan = await base44.entities.WorkoutPlan.get((day as any).planId);
-        const { data } = await base44.functions.invoke("workoutCommand", {
+        const plan = await limitApi.entities.WorkoutPlan.get((day as any).planId);
+        const { data } = await limitApi.functions.invoke("workoutCommand", {
           action: "start",
           workoutDayId,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -97,11 +97,11 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
           return;
         }
         const [savedSets, completedSessions] = await Promise.all([
-          base44.entities.ExerciseSet.filter({ workoutSessionId: session.id }),
-          base44.entities.WorkoutSession.filter({ status: "completed" }, "-completedAt", 30),
+          limitApi.entities.ExerciseSet.filter({ workoutSessionId: session.id }),
+          limitApi.entities.WorkoutSession.filter({ status: "completed" }, "-completedAt", 30),
         ]);
         const recentSets = completedSessions.length
-          ? await base44.entities.ExerciseSet.filter(
+          ? await limitApi.entities.ExerciseSet.filter(
               {
                 workoutSessionId: { $in: completedSessions.map((s: any) => s.id) },
                 completed: true,

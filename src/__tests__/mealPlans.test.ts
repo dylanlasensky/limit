@@ -5,7 +5,7 @@ const db = vi.hoisted(() => ({
   WeeklyMealPlan: { filter: vi.fn(), create: vi.fn(), update: vi.fn() },
   MealRecommendation: { filter: vi.fn(), bulkCreate: vi.fn() },
 }));
-vi.mock("@/api/base44Client", () => ({ base44: { entities: db } }));
+vi.mock("@/api/client", () => ({ limitApi: { entities: db } }));
 import { loadSavedMealWeek, saveMealWeek } from "@/lib/meal-plans";
 
 beforeEach(() => vi.resetAllMocks());

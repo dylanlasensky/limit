@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
 // Runs the real production bundle against intercepted, disposable API fixtures.
-// Never point this suite at a live Base44 app or put real credentials here.
+// Never point this fixture suite at a live account.
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -11,6 +11,7 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: "http://127.0.0.1:4173",
+    serviceWorkers: "block",
     reducedMotion: "reduce",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
@@ -42,9 +43,5 @@ export default defineConfig({
     url: "http://127.0.0.1:4173",
     reuseExistingServer: false,
     timeout: 120_000,
-    env: {
-      VITE_BASE44_APP_ID: "limit-browser-test",
-      VITE_BASE44_APP_BASE_URL: "http://127.0.0.1:4173",
-    },
   },
 });

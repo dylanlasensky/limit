@@ -29,6 +29,10 @@ dist-ssr
 
 .env
 .vite
-base44/.app.jsonc
 /playwright-report/
 /test-results/
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+worker-configuration.d.ts

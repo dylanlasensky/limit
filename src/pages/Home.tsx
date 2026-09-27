@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, BookOpen, Utensils } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { sumMacros } from "@/components/limit/data";
 import useLocalDate from "@/hooks/use-local-date";
 import ScreenState from "@/components/limit/ScreenState";
@@ -31,7 +31,7 @@ export default function Home() {
   const client = useQueryClient();
   const profile = useQuery({
     queryKey: ["userProfile"],
-    queryFn: () => base44.entities.UserProfile.list(),
+    queryFn: () => limitApi.entities.UserProfile.list(),
     staleTime: 30000,
   });
   const foodsQuery = useQuery({
@@ -46,7 +46,7 @@ export default function Home() {
     queryFn: () => {
       const days = planQuery.data?.days;
       if (!days?.length) return [];
-      return base44.entities.WorkoutExercise.filter(
+      return limitApi.entities.WorkoutExercise.filter(
         { workoutDayId: { $in: days.map((d) => d.id) } },
         "order",
         500
@@ -58,8 +58,8 @@ export default function Home() {
     queryKey: ["todaySession", date],
     queryFn: async () => {
       const [todayRows, activeRows] = await Promise.all([
-        base44.entities.WorkoutSession.filter({ date }),
-        base44.entities.WorkoutSession.filter({ status: "active" }, "-created_date", 10),
+        limitApi.entities.WorkoutSession.filter({ date }),
+        limitApi.entities.WorkoutSession.filter({ status: "active" }, "-created_date", 10),
       ]);
       return [...new Map([...activeRows, ...todayRows].map((x: any) => [x.id, x])).values()];
     },
@@ -68,7 +68,7 @@ export default function Home() {
   const historyQuery = useQuery({
     queryKey: ["homeWorkoutHistory"],
     staleTime: 30000,
-    queryFn: () => base44.entities.WorkoutSession.filter({ status: "completed" }, "-date", 100),
+    queryFn: () => limitApi.entities.WorkoutSession.filter({ status: "completed" }, "-date", 100),
   });
   const healthQuery = useQuery({
     queryKey: ["todayHealth", date],

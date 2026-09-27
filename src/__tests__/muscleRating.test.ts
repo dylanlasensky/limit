@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { makeRating } from "../../base44/shared/workoutAnalytics.js";
+import { makeRating } from "../../packages/domain/workoutAnalytics.js";
 import {
   calculateMuscleRating,
   emptyRating,

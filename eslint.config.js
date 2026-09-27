@@ -7,12 +7,12 @@ import pluginUnusedImports from "eslint-plugin-unused-imports";
 
 export default tseslint.config(
   {
-    ignores: ["node_modules/**", "dist/**", "base44/**", "playwright-report/**", "test-results/**", "src/components/ui/**", "*.config.js", "postcss.config.js"],
+    ignores: ["node_modules/**", "dist/**", "worker/node_modules/**", "apps/mobile/**", "worker-configuration.d.ts", ".wrangler/**", "playwright-report/**", "test-results/**", "src/components/ui/**", "*.config.js", "postcss.config.js"],
   },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ["e2e/**/*.ts", "playwright.config.ts", "scripts/**/*.mjs"],
+    files: ["e2e/**/*.ts", "playwright.config.ts", "scripts/**/*.mjs", "tests/**/*.mjs", "worker/**/*.ts", "packages/**/*.{ts,js}"],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
     rules: { "@typescript-eslint/no-explicit-any": "off" },
   },

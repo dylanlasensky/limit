@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { format, parseISO, subDays } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { listExercises } from "@/lib/training/exerciseLibrary";
 import { calculateMuscleRating, emptyRating } from "@/components/limit/muscleRating";
 import MuscleRatingPanel from "@/components/limit/MuscleRatingPanel";
@@ -65,27 +65,30 @@ export default function Progress() {
     staleTime: 60000,
     queryFn: async () => {
       const [profiles, sets, exercises, sessions, snapshots, records, weights] = await Promise.all([
-        base44.entities.UserProfile.list(),
+        limitApi.entities.UserProfile.list(),
         readProgressPages((limit, skip) =>
-          base44.entities.ExerciseSet.filter({ completed: true }, "-timestamp", limit, skip)
+          limitApi.entities.ExerciseSet.filter({ completed: true }, "-timestamp", limit, skip)
         ),
         listExercises(),
         readProgressPages(
           (limit, skip) =>
-            base44.entities.WorkoutSession.filter({ status: "completed" }, "-date", limit, skip),
+            limitApi.entities.WorkoutSession.filter({ status: "completed" }, "-date", limit, skip),
           { maxRows: 5000 }
         ),
         readProgressPages(
-          (limit, skip) => base44.entities.MuscleRatingSnapshot.list("-date", limit, skip),
+          (limit, skip) => limitApi.entities.MuscleRatingSnapshot.list("-date", limit, skip),
           { maxRows: 2000 }
         ),
         readProgressPages(
-          (limit, skip) => base44.entities.PersonalRecord.list("-date", limit, skip),
+          (limit, skip) => limitApi.entities.PersonalRecord.list("-date", limit, skip),
           { maxRows: 5000 }
         ),
-        readProgressPages((limit, skip) => base44.entities.WeightEntry.list("-date", limit, skip), {
-          maxRows: 5000,
-        }),
+        readProgressPages(
+          (limit, skip) => limitApi.entities.WeightEntry.list("-date", limit, skip),
+          {
+            maxRows: 5000,
+          }
+        ),
       ]);
       return {
         profile: profiles[0] || {},
@@ -107,10 +110,13 @@ export default function Progress() {
     staleTime: 30000,
     queryFn: async () => {
       const [weights, profiles] = await Promise.all([
-        readProgressPages((limit, skip) => base44.entities.WeightEntry.list("-date", limit, skip), {
-          maxRows: 5000,
-        }),
-        base44.entities.UserProfile.list(),
+        readProgressPages(
+          (limit, skip) => limitApi.entities.WeightEntry.list("-date", limit, skip),
+          {
+            maxRows: 5000,
+          }
+        ),
+        limitApi.entities.UserProfile.list(),
       ]);
       return { weights: weights.rows, truncated: weights.truncated, profile: profiles[0] || {} };
     },

@@ -97,7 +97,9 @@ export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProp
               <p className="mt-1 text-sm tabular-nums text-primary">
                 {pr.type === "e1rm" ? `e1RM ${pr.value} lb` : `${pr.value} lb`} · {pr.weight} ×{" "}
                 {pr.reps}
-                {pr.previous ? <span className="ml-2 text-muted-foreground">was {pr.previous}</span> : null}
+                {pr.previous ? (
+                  <span className="ml-2 text-muted-foreground">was {pr.previous}</span>
+                ) : null}
               </p>
             </motion.div>
           ))}
@@ -105,7 +107,9 @@ export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProp
       )}
       {(summary.ratingChanges?.length ?? 0) > 0 && (
         <section className="mt-6">
-          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Muscle rating</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            Muscle rating
+          </p>
           <div className="mt-2 space-y-1.5">
             {summary.ratingChanges!.map(([muscle, from, to]) => (
               <div
@@ -123,7 +127,9 @@ export default function WorkoutComplete({ summary, onDone }: WorkoutCompleteProp
       )}
       {summary.bestLift && (
         <section className="mt-6 rounded-2xl border border-border bg-card p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Best lift</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            Best lift
+          </p>
           <p className="mt-2 font-bold">{summary.bestLift.name}</p>
           <p className="text-sm text-muted-foreground">
             {summary.bestLift.weight} lb × {summary.bestLift.reps}

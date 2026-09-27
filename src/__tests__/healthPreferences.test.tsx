@@ -38,7 +38,7 @@ const sdk = vi.hoisted(() => {
     ),
   };
 });
-vi.mock("@/api/base44Client", () => ({ base44: { auth: { me: sdk.me }, entities: sdk.entities } }));
+vi.mock("@/api/client", () => ({ limitApi: { auth: { me: sdk.me }, entities: sdk.entities } }));
 vi.mock("@/components/ui/drawer", () => ({
   Drawer: ({ open, children }) => (open ? <div role="dialog">{children}</div> : null),
   DrawerContent: ({ children }) => <div>{children}</div>,
@@ -144,7 +144,9 @@ describe("account-specific health preferences", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save health preferences" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Your choices are still here");
     expect(screen.getByLabelText("Show Steps")).not.toBeChecked();
-    expect(screen.getByRole("button", { name: "Preferred source for Sleep" })).toHaveTextContent("Oura");
+    expect(screen.getByRole("button", { name: "Preferred source for Sleep" })).toHaveTextContent(
+      "Oura"
+    );
     const button = screen.getByRole("button", { name: "Save health preferences" });
     fireEvent.click(button);
     fireEvent.click(button);

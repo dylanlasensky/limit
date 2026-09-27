@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Download, Share2 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
 import { readFavorites } from "@/hooks/use-exercise-favorites";
 
@@ -23,7 +23,7 @@ export default function AccountDataExport() {
     setUrl("");
     setFile(undefined);
     try {
-      const { data } = await base44.functions.invoke("exportAccount", {});
+      const { data } = await limitApi.functions.invoke("exportAccount", {});
       if (data?.schemaVersion !== 1 || data?.account?.id !== user.id || !data?.entities)
         throw new Error("The export could not be verified.");
       const result = new File(

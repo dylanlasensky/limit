@@ -1,7 +1,9 @@
+import useWorkoutClock from "@/components/workout/useWorkoutClock";
+import WorkoutHelp from "@/components/workout/WorkoutHelp";
 import React, { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { X } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import useLiveWorkout from "@/hooks/use-live-workout";
 import ExerciseCard from "@/components/workout/ExerciseCard";
 import RestTimer from "@/components/workout/RestTimer";
@@ -23,7 +25,6 @@ export default function LiveWorkout() {
   const { workoutDayId } = useParams<{ workoutDayId: string }>(),
     nav = useNavigate(),
     live = useLiveWorkout(workoutDayId),
-    [rest, setRest] = useState<number | null>(null),
     [cancelOpen, setCancelOpen] = useState(false),
     [finishing, setFinishing] = useState(false),
     [discarding, setDiscarding] = useState(false),
@@ -31,6 +32,10 @@ export default function LiveWorkout() {
     [inlineError, setInlineError] = useState(""),
     [summary, setSummary] = useState<any | null>(null);
   const actionInFlight = useRef(false);
+  const uiKey = live.session ? `limit-workout-ui:${live.session.ownerId}:${live.session.id}` : "";
+  const clock = useWorkoutClock(uiKey);
+  const { exercise: currentExercise, setExercise: setCurrentExercise, rest, setRest } = clock;
+  const paused = clock.pausedAt !== null;
   if (live.loading)
     return (
       <main className="mx-auto min-h-screen max-w-md bg-background px-4 pt-8 text-foreground">
@@ -89,12 +94,19 @@ export default function LiveWorkout() {
       const expectedSets = live.current.current
         .filter((r) => r.completed && r.savedId)
         .map((r) => ({ id: r.savedId, revision: r.revision }));
-      const { data } = await base44.functions.invoke("workoutCommand", {
+      const { data } = await limitApi.functions.invoke("workoutCommand", {
         action: "finish",
         sessionId: live.session!.id,
         expectedSets,
+        pausedMilliseconds:
+          clock.pausedMs + (clock.pausedAt === null ? 0 : Date.now() - clock.pausedAt),
       });
       live.clearDraft();
+      try {
+        localStorage.removeItem(uiKey);
+      } catch {
+        /* Storage can be unavailable. */
+      }
       live.invalidateAll();
       setSummary(data.summary);
     } catch (e: any) {
@@ -113,11 +125,16 @@ export default function LiveWorkout() {
       // Wait for any set currently being saved before changing session status.
       if (syncing && !(await live.flush()))
         throw new Error("Wait for your current save to finish before discarding.");
-      await base44.functions.invoke("workoutCommand", {
+      await limitApi.functions.invoke("workoutCommand", {
         action: "discard",
         sessionId: live.session!.id,
       });
       live.clearDraft();
+      try {
+        localStorage.removeItem(uiKey);
+      } catch {
+        /* Storage can be unavailable. */
+      }
       live.invalidateAll();
       nav("/workout", { replace: true });
     } catch (e: any) {
@@ -143,7 +160,12 @@ export default function LiveWorkout() {
           </button>
           <div className="min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-[.2em] text-primary">
-              Live · <Elapsed startedAt={live.session!.startedAt} />
+              Live ·{" "}
+              <Elapsed
+                startedAt={live.session!.startedAt}
+                pausedAt={clock.pausedAt}
+                pausedMs={clock.pausedMs}
+              />
             </p>
             <h1 className="truncate font-heading text-xl font-black uppercase">{live.day!.name}</h1>
           </div>
@@ -176,6 +198,11 @@ export default function LiveWorkout() {
             onClick={() => {
               if (window.confirm("Replace this device’s unsynced edits with the saved workout?")) {
                 live.clearDraft();
+                try {
+                  localStorage.removeItem(uiKey);
+                } catch {
+                  /* Storage can be unavailable. */
+                }
                 window.location.reload();
               }
             }}
@@ -194,31 +221,91 @@ export default function LiveWorkout() {
           )}
         </div>
       )}
-      <fieldset
-        disabled={finishing || discarding}
-        className="min-w-0 lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-6"
-      >
-        {live.workoutExercises.map((we) => (
-          <ExerciseCard
-            key={we.id}
-            workoutExercise={we}
-            exercise={live.exercisesById[we.exerciseId]}
-            rows={live.rows.filter((r) => r.workoutExerciseId === we.id)}
-            previousSets={live.previousByExercise[we.exerciseName]}
-            savingIds={live.savingIds}
-            onEdit={live.edit}
-            onToggle={handleToggle}
-            onAddSet={() => live.addSet(we.id)}
-            onRemoveSet={live.removeSet}
-            allExercises={live.allExercises || Object.values(live.exercisesById)}
-            profile={live.profile}
-            plan={live.plan}
-            onReplace={(e: any) => live.replaceExercise(we, e)}
-            onSkip={() => live.skipExercise(we)}
-          />
-        ))}
+      <div className="mx-auto mt-5 max-w-2xl">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold">
+            Movement {currentExercise + 1} of {live.workoutExercises.length}
+          </p>
+          <button
+            className="min-h-11 rounded-xl border px-4 text-sm font-semibold"
+            onClick={clock.togglePause}
+          >
+            {paused ? "Resume workout" : "Pause workout"}
+          </button>
+        </div>
+        {paused && (
+          <div
+            role="status"
+            className="mt-3 rounded-2xl border border-primary/30 bg-primary/10 p-4 text-sm"
+          >
+            Workout paused. Your entries are saved on this device. Resume when you are ready.
+          </div>
+        )}
+      </div>
+      <fieldset disabled={finishing || discarding || paused} className="mx-auto min-w-0 max-w-2xl">
+        {live.workoutExercises
+          .slice(
+            Math.min(currentExercise, live.workoutExercises.length - 1),
+            Math.min(currentExercise, live.workoutExercises.length - 1) + 1
+          )
+          .map((we) => (
+            <ExerciseCard
+              key={we.id}
+              workoutExercise={we}
+              exercise={live.exercisesById[we.exerciseId]}
+              rows={live.rows.filter((r) => r.workoutExerciseId === we.id)}
+              previousSets={live.previousByExercise[we.exerciseName]}
+              savingIds={live.savingIds}
+              onEdit={live.edit}
+              onToggle={handleToggle}
+              onAddSet={() => live.addSet(we.id)}
+              onRemoveSet={live.removeSet}
+              allExercises={live.allExercises || Object.values(live.exercisesById)}
+              profile={live.profile}
+              plan={live.plan}
+              onReplace={(e: any) => live.replaceExercise(we, e)}
+              onSkip={() => live.skipExercise(we)}
+            />
+          ))}
       </fieldset>
-      {rest && (
+      <nav
+        aria-label="Workout exercises"
+        className="mx-auto mt-5 flex max-w-2xl items-center justify-between gap-3"
+      >
+        <button
+          disabled={currentExercise === 0}
+          className="min-h-12 rounded-xl border px-4 text-sm disabled:opacity-40"
+          onClick={() => setCurrentExercise((i) => Math.max(0, i - 1))}
+        >
+          Previous
+        </button>
+        <div className="min-w-0 text-center text-xs text-muted-foreground">
+          {live.workoutExercises[currentExercise + 1] ? (
+            <>
+              Up next
+              <br />
+              <strong className="text-foreground">
+                {live.workoutExercises[currentExercise + 1].exerciseName}
+              </strong>
+            </>
+          ) : (
+            "Last movement · finish when ready"
+          )}
+        </div>
+        <button
+          disabled={currentExercise >= live.workoutExercises.length - 1}
+          className="limit-button min-h-12 rounded-xl px-4 text-sm font-bold disabled:opacity-40"
+          onClick={() =>
+            setCurrentExercise((i) => Math.min(live.workoutExercises.length - 1, i + 1))
+          }
+        >
+          Next
+        </button>
+      </nav>
+      <div className="mx-auto max-w-2xl">
+        <WorkoutHelp />
+      </div>
+      {rest && !paused && (
         <RestTimer
           endsAt={rest}
           onAdjust={(d: number) => setRest((r) => r! + d * 1000)}

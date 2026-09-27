@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { activatePlan } from "../../base44/shared/planActivation.js";
+import { activatePlan } from "../../packages/domain/planActivation.js";
 function fixture() {
   const plan = { id: "new", created_by_id: "u", daysPerWeek: 2, active: false };
   const days = Array.from({ length: 7 }, (_, weekday) => ({

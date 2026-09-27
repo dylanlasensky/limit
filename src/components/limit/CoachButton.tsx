@@ -1,10 +1,32 @@
+import { proposalSchema, type PlanProposal } from "../../../packages/domain/proposals";
+import { useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useState } from "react";
 import { Sparkles, Send, X } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import useModalHistory from "@/hooks/use-modal-history";
 import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import AiConsent, { AI_CONSENT_VERSION } from "@/components/limit/AiConsent";
 export default function CoachButton() {
+  const queryClient = useQueryClient();
+  const [proposal, setProposal] = useState<PlanProposal | null>(null);
+  const [before, setBefore] = useState<string>("");
+  const [proposalError, setProposalError] = useState("");
+  const [requestPlan, setRequestPlan] = useState(false);
+  const [approving, setApproving] = useState(false);
+  const approve = async () => {
+    if (!proposal || approving) return;
+    setApproving(true);
+    try {
+      await limitApi.functions.invoke("approvePlan", { proposalId: proposal.id, approved: true });
+      setProposal(null);
+      setAnswer("Your new plan is active. Open Workout to see your week.");
+      void queryClient.invalidateQueries();
+    } catch (e: any) {
+      setProposalError(e.message || "Could not activate this plan. Try again.");
+    } finally {
+      setApproving(false);
+    }
+  };
   const [open, setOpen] = useState(false),
     [q, setQ] = useState(""),
     [answer, setAnswer] = useState(""),
@@ -15,18 +37,28 @@ export default function CoachButton() {
       setConsent(false);
       setQ("");
       setAnswer("");
+      setProposal(null);
+      setProposalError("");
     }, []),
     close = useModalHistory(open, dismiss);
   const ask = async () => {
     if (!q.trim() || loading || !consent) return;
     setLoading(true);
     try {
-      const { data } = await base44.functions.invoke("askLimitCoach", {
+      const { data } = await limitApi.functions.invoke("askLimitCoach", {
         question: q,
+        propose: requestPlan,
         aiConsent: AI_CONSENT_VERSION,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
       setAnswer(data.answer);
+      setProposal(data.proposal ? proposalSchema.parse(data.proposal) : null);
+      setBefore(
+        data.before
+          ? `${data.before.name} · ${data.before.daysPerWeek} days/week`
+          : "No active plan"
+      );
+      setProposalError(data.proposalError || "");
     } catch {
       setAnswer("I couldn’t reach your data just now. Try again.");
     }
@@ -78,6 +110,55 @@ export default function CoachButton() {
                 ? "Thinking…"
                 : answer || "Ask about today’s training, nutrition, meal plan, or progress."}
             </div>
+            <label className="mb-3 flex min-h-11 items-center gap-3 text-sm">
+              <input
+                type="checkbox"
+                checked={requestPlan}
+                onChange={(e) => setRequestPlan(e.target.checked)}
+              />
+              Suggest a complete weekly plan
+            </label>
+            {proposalError && (
+              <p role="alert" className="mb-4 rounded-xl border p-3 text-sm">
+                {proposalError}
+              </p>
+            )}
+            {proposal && (
+              <section
+                aria-label="Proposed plan"
+                className="mb-5 rounded-2xl border border-primary/30 p-4 text-sm"
+              >
+                <p className="font-bold">Review your proposed week</p>
+                <p className="mt-2 text-muted-foreground">Current: {before}</p>
+                <p className="mt-1 font-semibold">
+                  Proposed: {proposal.name} · {proposal.days.filter((d) => !d.isRest).length}{" "}
+                  days/week
+                </p>
+                <p className="mt-2">{proposal.explanation}</p>
+                <ol className="my-3 space-y-1">
+                  {proposal.days.map((d) => (
+                    <li key={d.weekday}>
+                      {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][d.weekday]} · {d.name}
+                      {!d.isRest && ` · ${d.exercises.length} movements`}
+                    </li>
+                  ))}
+                </ol>
+                <p className="text-xs text-muted-foreground">
+                  Your current plan stays active until you approve. Start any new movement with a
+                  comfortable load.
+                </p>
+                <button
+                  onClick={approve}
+                  disabled={approving}
+                  className="limit-button mt-3 min-h-12 w-full rounded-xl font-bold"
+                >
+                  {approving ? "Activating…" : "Approve and activate plan"}
+                </button>
+                <button onClick={() => setProposal(null)} className="min-h-11 w-full text-sm">
+                  Keep my current plan
+                </button>
+              </section>
+            )}
             <div className="flex gap-2">
               <input
                 aria-label="Ask LIMIT Coach"

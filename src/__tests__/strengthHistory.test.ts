@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { exerciseCatalog } from "../../base44/shared/exerciseCatalog.js";
+import { exerciseCatalog } from "../../packages/domain/exerciseCatalog.js";
 import {
   buildStrengthHistory,
   POUNDS_PER_KILOGRAM,

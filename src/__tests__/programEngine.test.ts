@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { exerciseCatalog } from "../../base44/shared/exerciseCatalog.js";
+import { exerciseCatalog } from "../../packages/domain/exerciseCatalog.js";
 import {
   dayVariant,
   focusFor,

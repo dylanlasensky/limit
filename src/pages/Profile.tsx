@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Cable, Dumbbell, Palette, ShieldCheck, UserRound, Utensils } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
 import { profilePayload } from "@/lib/profile-payload";
 import { ageFromBirthDate, bodyInputErrors } from "@/lib/profile-inputs";
@@ -90,7 +90,7 @@ export default function Profile() {
     return () => window.removeEventListener("hashchange", openLinkedSection);
   }, []);
   useEffect(() => {
-    Promise.all([base44.entities.UserProfile.list(), base44.entities.DietaryProfile.list()])
+    Promise.all([limitApi.entities.UserProfile.list(), limitApi.entities.DietaryProfile.list()])
       .then(([a, b]) => {
         setP(toUSProfile(a[0] || {}));
         setD(b[0] || {});
@@ -149,15 +149,15 @@ export default function Profile() {
       // Persist returned IDs immediately, even if saving dietary preferences
       // fails later. Retrying must update the same records, not create copies.
       const profileResult = await (p.id
-        ? base44.entities.UserProfile.update(p.id, payload)
-        : base44.entities.UserProfile.create(payload));
+        ? limitApi.entities.UserProfile.update(p.id, payload)
+        : limitApi.entities.UserProfile.create(payload));
       const savedProfile = { ...p, ...payload, ...profileResult };
       setP(savedProfile);
       profilePersisted = true;
       void client.invalidateQueries({ queryKey: ["userProfile"] });
       const dietResult = await (d.id
-        ? base44.entities.DietaryProfile.update(d.id, d)
-        : base44.entities.DietaryProfile.create(d));
+        ? limitApi.entities.DietaryProfile.update(d.id, d)
+        : limitApi.entities.DietaryProfile.create(d));
       setD({ ...d, ...dietResult });
       setSaved(true);
       setDirty(false);
@@ -210,7 +210,7 @@ export default function Profile() {
   };
   const reset = async () => {
     try {
-      await base44.auth.resetPasswordRequest(user!.email);
+      await limitApi.auth.resetPasswordRequest(user!.email);
       setMessage("Password reset instructions sent if this email is eligible.");
     } catch {
       setError("Couldn’t request a reset. Please try again.");
@@ -225,12 +225,27 @@ export default function Profile() {
       ]);
       // Profile keeps editable local drafts, so invalidation alone cannot refresh its fields.
       const [profiles, diets] = await Promise.all([
-        client.fetchQuery({ queryKey: ["userProfile"], queryFn: () => base44.entities.UserProfile.list() }),
-        client.fetchQuery({ queryKey: ["dietaryProfile"], queryFn: () => base44.entities.DietaryProfile.list() }),
+        client.fetchQuery({
+          queryKey: ["userProfile"],
+          queryFn: () => limitApi.entities.UserProfile.list(),
+        }),
+        client.fetchQuery({
+          queryKey: ["dietaryProfile"],
+          queryFn: () => limitApi.entities.DietaryProfile.list(),
+        }),
       ]);
       const current = currentDraft.current;
-      if (draft.dirty || draft.saving || draft.rebuilding || current.dirty || current.saving ||
-          current.rebuilding || current.p !== draft.p || current.d !== draft.d) return;
+      if (
+        draft.dirty ||
+        draft.saving ||
+        draft.rebuilding ||
+        current.dirty ||
+        current.saving ||
+        current.rebuilding ||
+        current.p !== draft.p ||
+        current.d !== draft.d
+      )
+        return;
       setP(toUSProfile(profiles[0] || {}));
       setD(diets[0] || {});
       setFoodsToAvoidText((diets[0]?.foodsToAvoid || []).join(", "));
@@ -246,224 +261,224 @@ export default function Profile() {
   });
   return (
     <PullToRefresh onRefresh={refresh}>
-    <div className="lg:grid lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:items-start lg:gap-x-8">
-      <div className="lg:sticky lg:top-6">
-        <header className="px-1 pb-1 pt-3">
-          <div className="relative z-10">
-            <p className="limit-kicker">Made for you</p>
-            <h1 className="limit-page-title">Profile</h1>
-            <p className="mt-2 break-words text-sm text-muted-foreground">{user?.email}</p>
-          </div>
-        </header>
-        <p className="mt-4 px-1 text-sm text-muted-foreground">
-          Open a section to make it yours. Your edits stay here as you switch sections.
-        </p>
-        <nav aria-label="Profile sections" className="mt-6 hidden space-y-1 lg:block">
-          {sectionIds.map((id) => (
-            <a
-              key={id}
-              href={`#${id}`}
-              onClick={() => setActiveSection(id)}
-              aria-current={activeSection === id ? "location" : undefined}
-              className={`flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold transition-colors ${activeSection === id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+      <div className="lg:grid lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:items-start lg:gap-x-8">
+        <div className="lg:sticky lg:top-6">
+          <header className="px-1 pb-1 pt-3">
+            <div className="relative z-10">
+              <p className="limit-kicker">Made for you</p>
+              <h1 className="limit-page-title">Profile</h1>
+              <p className="mt-2 break-words text-sm text-muted-foreground">{user?.email}</p>
+            </div>
+          </header>
+          <p className="mt-4 px-1 text-sm text-muted-foreground">
+            Open a section to make it yours. Your edits stay here as you switch sections.
+          </p>
+          <nav aria-label="Profile sections" className="mt-6 hidden space-y-1 lg:block">
+            {sectionIds.map((id) => (
+              <a
+                key={id}
+                href={`#${id}`}
+                onClick={() => setActiveSection(id)}
+                aria-current={activeSection === id ? "location" : undefined}
+                className={`flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold transition-colors ${activeSection === id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+              >
+                {sectionLabels[id]}
+              </a>
+            ))}
+          </nav>
+        </div>
+        <div className={`mt-4 min-w-0 space-y-3 lg:mt-3 ${dirty || saving ? "mb-28 lg:mb-8" : ""}`}>
+          <ProfileSettingsSection
+            {...section("appearance")}
+            title="Appearance"
+            description="Light, dark or match your device"
+            icon={Palette}
+          >
+            <AppPreferences />
+          </ProfileSettingsSection>
+          <ProfileSettingsSection
+            {...section("connections")}
+            title="Connected health"
+            description="Optional watches, rings and smart scales"
+            icon={Cable}
+          >
+            <div className="mt-4">
+              <ConnectedHealthPanel compact />
+            </div>
+          </ProfileSettingsSection>
+          <ProfileSettingsSection
+            {...section("basics")}
+            title="About you"
+            description="Your body, goals and weekly schedule"
+            icon={UserRound}
+          >
+            <fieldset disabled={saving || rebuilding} className="min-w-0">
+              <ProfileBasics profile={p} onChange={change} />
+            </fieldset>
+          </ProfileSettingsSection>
+          <ProfileSettingsSection
+            {...section("training")}
+            title="Training"
+            description="Experience, equipment and your program"
+            icon={Dumbbell}
+          >
+            <fieldset disabled={saving || rebuilding} className="min-w-0">
+              <TrainingPreferences profile={p} onChange={change} />
+            </fieldset>
+            <section className="limit-surface mt-4 rounded-3xl p-5">
+              <h3 className="font-semibold">Apply changes to your program</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Save your preferences anytime. When you want a new program, rebuild it using your
+                goal, schedule and equipment. Your workout history stays with you.
+              </p>
+              <button
+                onClick={rebuild}
+                disabled={rebuilding || saving}
+                className="mt-4 min-h-12 w-full rounded-xl border border-primary px-3 py-2 font-semibold text-primary disabled:opacity-40"
+              >
+                {rebuilding ? "Rebuilding…" : "Rebuild my program"}
+              </button>
+            </section>
+          </ProfileSettingsSection>
+          <ProfileSettingsSection
+            {...section("nutrition")}
+            title="Nutrition"
+            description="Daily targets, food preferences and allergies"
+            icon={Utensils}
+          >
+            <fieldset disabled={saving || rebuilding} className="min-w-0">
+              <NutritionTargetsEditor
+                profile={p}
+                profileChanged={profileChanged}
+                onTargetsChange={(k: string, v: any) => {
+                  setP((x: any) => ({ ...x, [k]: v, targetsCustomized: true }));
+                  setDirty(true);
+                  setSaved(false);
+                  setMessage("");
+                }}
+                onRecalculate={() => {
+                  const errors = bodyInputErrors(p);
+                  if (Object.keys(errors).length) {
+                    setError(Object.values(errors)[0]);
+                    return;
+                  }
+                  setError("");
+                  setP((x: any) => ({ ...x, ...calcTargets(x), targetsCustomized: false }));
+                  setProfileChanged(false);
+                  setDirty(true);
+                  setSaved(false);
+                  setMessage("");
+                }}
+              />
+              <section className="limit-surface mt-4 rounded-3xl p-5">
+                <p className="limit-kicker text-muted-foreground">Food safety</p>
+                <h2 className="mt-2 font-semibold">Allergies & foods to avoid</h2>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {allergens.map((x) => (
+                    <button
+                      key={x}
+                      onClick={() => toggle(x)}
+                      aria-pressed={d.allergies?.includes(x) || false}
+                      className={`min-h-10 rounded-full border px-3 text-xs font-bold ${d.allergies?.includes(x) ? "border-destructive bg-destructive/10 text-destructive" : "border-border text-muted-foreground"}`}
+                    >
+                      {x}
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  value={foodsToAvoidText}
+                  onChange={(e) => {
+                    setFoodsToAvoidText(e.target.value);
+                    changeDiet({
+                      ...d,
+                      foodsToAvoid: e.target.value
+                        .split(",")
+                        .map((x) => x.trim())
+                        .filter(Boolean),
+                    });
+                  }}
+                  placeholder="Other foods to avoid"
+                  aria-label="Other foods to avoid, separated by commas"
+                  className="mt-3 min-h-20 w-full rounded-xl border border-border bg-transparent p-3"
+                />
+                <NativeSelect
+                  value={d.maxCookingTime || "Under 30 minutes"}
+                  onChange={(v: string) => changeDiet({ ...d, maxCookingTime: v })}
+                  options={[
+                    "Under 15 minutes",
+                    "Under 30 minutes",
+                    "Under 60 minutes",
+                    "No preference",
+                  ]}
+                  label="Cooking time"
+                  className="mt-3"
+                />
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Always verify labels and cross-contact details for serious allergies.
+                </p>
+              </section>
+            </fieldset>
+          </ProfileSettingsSection>
+          <ProfileSettingsSection
+            {...section("account")}
+            title="Account"
+            description="Password, privacy and your data"
+            icon={ShieldCheck}
+          >
+            <div className="mt-4 space-y-3">
+              <button
+                onClick={reset}
+                className="h-12 w-full rounded-xl bg-secondary text-sm font-semibold"
+              >
+                Change password
+              </button>
+              <AccountDataExport />
+              <AccountDeletion />
+              <button
+                onClick={() => logout()}
+                className="h-12 w-full rounded-xl bg-secondary text-sm font-semibold"
+              >
+                Sign out
+              </button>
+              <PublicLinks />
+            </div>
+          </ProfileSettingsSection>
+        </div>
+        <div
+          className={`mt-5 rounded-2xl border border-border bg-card p-3 shadow-lg lg:col-start-2 ${dirty || saving ? "sticky bottom-24 z-30 mr-16 lg:bottom-6" : ""}`}
+        >
+          {(error || message) && (
+            <p
+              role={error ? "alert" : "status"}
+              className={`mb-3 text-sm ${error ? "text-destructive" : "text-muted-foreground"}`}
             >
-              {sectionLabels[id]}
-            </a>
-          ))}
-        </nav>
-      </div>
-      <div className={`mt-4 min-w-0 space-y-3 lg:mt-3 ${dirty || saving ? "mb-28 lg:mb-8" : ""}`}>
-        <ProfileSettingsSection
-          {...section("appearance")}
-          title="Appearance"
-          description="Light, dark or match your device"
-          icon={Palette}
-        >
-          <AppPreferences />
-        </ProfileSettingsSection>
-        <ProfileSettingsSection
-          {...section("connections")}
-          title="Connected health"
-          description="Optional watches, rings and smart scales"
-          icon={Cable}
-        >
-          <div className="mt-4">
-            <ConnectedHealthPanel compact />
-          </div>
-        </ProfileSettingsSection>
-        <ProfileSettingsSection
-          {...section("basics")}
-          title="About you"
-          description="Your body, goals and weekly schedule"
-          icon={UserRound}
-        >
-          <fieldset disabled={saving || rebuilding} className="min-w-0">
-            <ProfileBasics profile={p} onChange={change} />
-          </fieldset>
-        </ProfileSettingsSection>
-        <ProfileSettingsSection
-          {...section("training")}
-          title="Training"
-          description="Experience, equipment and your program"
-          icon={Dumbbell}
-        >
-          <fieldset disabled={saving || rebuilding} className="min-w-0">
-            <TrainingPreferences profile={p} onChange={change} />
-          </fieldset>
-          <section className="limit-surface mt-4 rounded-3xl p-5">
-            <h3 className="font-semibold">Apply changes to your program</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Save your preferences anytime. When you want a new program, rebuild it using your
-              goal, schedule and equipment. Your workout history stays with you.
+              {error || message}
+            </p>
+          )}
+          <div className="flex items-center gap-3">
+            <p
+              role="status"
+              aria-live="polite"
+              className={`flex-1 text-xs leading-relaxed text-muted-foreground ${dirty || saving ? "sr-only sm:not-sr-only" : ""}`}
+            >
+              {saving
+                ? "Saving your settings…"
+                : dirty
+                  ? "You have unsaved changes."
+                  : saved
+                    ? "All changes saved."
+                    : "Your settings are up to date."}
             </p>
             <button
-              onClick={rebuild}
-              disabled={rebuilding || saving}
-              className="mt-4 min-h-12 w-full rounded-xl border border-primary px-3 py-2 font-semibold text-primary disabled:opacity-40"
+              onClick={save}
+              disabled={saving || rebuilding || !dirty}
+              className={`min-h-11 shrink-0 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-50 ${dirty || saving ? "w-full sm:w-auto" : ""}`}
             >
-              {rebuilding ? "Rebuilding…" : "Rebuild my program"}
+              {saving ? "Saving…" : saved ? "Saved" : "Save changes"}
             </button>
-          </section>
-        </ProfileSettingsSection>
-        <ProfileSettingsSection
-          {...section("nutrition")}
-          title="Nutrition"
-          description="Daily targets, food preferences and allergies"
-          icon={Utensils}
-        >
-          <fieldset disabled={saving || rebuilding} className="min-w-0">
-            <NutritionTargetsEditor
-              profile={p}
-              profileChanged={profileChanged}
-              onTargetsChange={(k: string, v: any) => {
-                setP((x: any) => ({ ...x, [k]: v, targetsCustomized: true }));
-                setDirty(true);
-                setSaved(false);
-                setMessage("");
-              }}
-              onRecalculate={() => {
-                const errors = bodyInputErrors(p);
-                if (Object.keys(errors).length) {
-                  setError(Object.values(errors)[0]);
-                  return;
-                }
-                setError("");
-                setP((x: any) => ({ ...x, ...calcTargets(x), targetsCustomized: false }));
-                setProfileChanged(false);
-                setDirty(true);
-                setSaved(false);
-                setMessage("");
-              }}
-            />
-            <section className="limit-surface mt-4 rounded-3xl p-5">
-              <p className="limit-kicker text-muted-foreground">Food safety</p>
-              <h2 className="mt-2 font-semibold">Allergies & foods to avoid</h2>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {allergens.map((x) => (
-                  <button
-                    key={x}
-                    onClick={() => toggle(x)}
-                    aria-pressed={d.allergies?.includes(x) || false}
-                    className={`min-h-10 rounded-full border px-3 text-xs font-bold ${d.allergies?.includes(x) ? "border-destructive bg-destructive/10 text-destructive" : "border-border text-muted-foreground"}`}
-                  >
-                    {x}
-                  </button>
-                ))}
-              </div>
-              <textarea
-                value={foodsToAvoidText}
-                onChange={(e) => {
-                  setFoodsToAvoidText(e.target.value);
-                  changeDiet({
-                    ...d,
-                    foodsToAvoid: e.target.value
-                      .split(",")
-                      .map((x) => x.trim())
-                      .filter(Boolean),
-                  });
-                }}
-                placeholder="Other foods to avoid"
-                aria-label="Other foods to avoid, separated by commas"
-                className="mt-3 min-h-20 w-full rounded-xl border border-border bg-transparent p-3"
-              />
-              <NativeSelect
-                value={d.maxCookingTime || "Under 30 minutes"}
-                onChange={(v: string) => changeDiet({ ...d, maxCookingTime: v })}
-                options={[
-                  "Under 15 minutes",
-                  "Under 30 minutes",
-                  "Under 60 minutes",
-                  "No preference",
-                ]}
-                label="Cooking time"
-                className="mt-3"
-              />
-              <p className="mt-3 text-xs text-muted-foreground">
-                Always verify labels and cross-contact details for serious allergies.
-              </p>
-            </section>
-          </fieldset>
-        </ProfileSettingsSection>
-        <ProfileSettingsSection
-          {...section("account")}
-          title="Account"
-          description="Password, privacy and your data"
-          icon={ShieldCheck}
-        >
-          <div className="mt-4 space-y-3">
-            <button
-              onClick={reset}
-              className="h-12 w-full rounded-xl bg-secondary text-sm font-semibold"
-            >
-              Change password
-            </button>
-            <AccountDataExport />
-            <AccountDeletion />
-            <button
-              onClick={() => logout()}
-              className="h-12 w-full rounded-xl bg-secondary text-sm font-semibold"
-            >
-              Sign out
-            </button>
-            <PublicLinks />
           </div>
-        </ProfileSettingsSection>
-      </div>
-      <div
-        className={`mt-5 rounded-2xl border border-border bg-card p-3 shadow-lg lg:col-start-2 ${dirty || saving ? "sticky bottom-24 z-30 mr-16 lg:bottom-6" : ""}`}
-      >
-        {(error || message) && (
-          <p
-            role={error ? "alert" : "status"}
-            className={`mb-3 text-sm ${error ? "text-destructive" : "text-muted-foreground"}`}
-          >
-            {error || message}
-          </p>
-        )}
-        <div className="flex items-center gap-3">
-          <p
-            role="status"
-            aria-live="polite"
-            className={`flex-1 text-xs leading-relaxed text-muted-foreground ${dirty || saving ? "sr-only sm:not-sr-only" : ""}`}
-          >
-            {saving
-              ? "Saving your settings…"
-              : dirty
-                ? "You have unsaved changes."
-                : saved
-                  ? "All changes saved."
-                  : "Your settings are up to date."}
-          </p>
-          <button
-            onClick={save}
-            disabled={saving || rebuilding || !dirty}
-            className={`min-h-11 shrink-0 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-50 ${dirty || saving ? "w-full sm:w-auto" : ""}`}
-          >
-            {saving ? "Saving…" : saved ? "Saved" : "Save changes"}
-          </button>
         </div>
       </div>
-    </div>
     </PullToRefresh>
   );
 }

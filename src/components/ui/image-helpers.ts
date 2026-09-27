@@ -1,5 +1,5 @@
 const WIX_MEDIA_HOSTS: Record<string, string> = {
-  "media.base44.com": "/images/public/",
+  "media.limitApi.com": "/images/public/",
   "static.wixstatic.com": "/media/",
 };
 

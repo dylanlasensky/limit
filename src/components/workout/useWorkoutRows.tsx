@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import {
   writeDraft,
   validateSet,
@@ -57,7 +57,7 @@ export default function useWorkoutRows(state: WorkoutDraftState, storageKey?: st
           }
           const sent = { ...row };
           setSavingIds(new Set([sent.key]));
-          const { data } = await base44.functions.invoke("workoutCommand", {
+          const { data } = await limitApi.functions.invoke("workoutCommand", {
             action: "saveSet",
             sessionId,
             row: sent,

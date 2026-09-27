@@ -5,10 +5,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import ImportSource from "@/components/import/ImportSource";
 import FoodPhotoScanner from "@/components/limit/FoodPhotoScanner";
 import useRegimenImport from "@/hooks/use-regimen-import";
-import { AI_CONSENT_VERSION } from "../../base44/shared/aiConsent.js";
+import { AI_CONSENT_VERSION } from "../../packages/domain/aiConsent.js";
 const mocks = vi.hoisted(() => ({ upload: vi.fn(), invoke: vi.fn() }));
-vi.mock("@/api/base44Client", () => ({
-  base44: {
+vi.mock("@/api/client", () => ({
+  limitApi: {
     integrations: { Core: { UploadPrivateFile: mocks.upload } },
     functions: { invoke: mocks.invoke },
   },

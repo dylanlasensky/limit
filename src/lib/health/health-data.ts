@@ -1,4 +1,4 @@
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { isDiaryDate } from "@/lib/food-diary";
 import { localDay } from "@/components/workout/workoutDraft";
 
@@ -236,7 +236,7 @@ export async function readHealthMetrics({ from, through }: { from: string; throu
     throw new Error("Choose a valid health history range.");
   const rows = new Map<string, HealthMetricRecord>();
   for (let skip = 0; skip < 20000; skip += 500) {
-    const page = await base44.entities.HealthMetric.filter(
+    const page = await limitApi.entities.HealthMetric.filter(
       { date: { $gte: from, $lte: through } },
       "-date",
       500,
@@ -448,7 +448,7 @@ function matchedRecord(rows: unknown, message: string): Record<string, any> | nu
 
 async function findDailyCheckIn(date: string) {
   if (!isDiaryDate(date)) throw new Error("Choose today or an earlier check-in date.");
-  const existing = await base44.entities.DailyCheckIn.filter({ date }, "-updated_date", 2);
+  const existing = await limitApi.entities.DailyCheckIn.filter({ date }, "-updated_date", 2);
   return matchedRecord(existing, "Your check-in could not be safely matched. Please retry.");
 }
 
@@ -498,8 +498,8 @@ export function saveDailyCheckIn(input: Record<string, unknown>) {
     if (!existing && !hasCheckInContent(payload))
       throw new Error("Add one rating or a note to save your check-in.");
     return existing
-      ? base44.entities.DailyCheckIn.update(existing.id, payload)
-      : base44.entities.DailyCheckIn.create(payload);
+      ? limitApi.entities.DailyCheckIn.update(existing.id, payload)
+      : limitApi.entities.DailyCheckIn.create(payload);
   });
 }
 
@@ -513,14 +513,14 @@ export function saveDailyWeight(input: { date: string; weight: unknown; unit?: s
       source: "manual",
     });
     const existing = matchedRecord(
-      await base44.entities.WeightEntry.filter({ date: valid.date }, "-updated_date", 2),
+      await limitApi.entities.WeightEntry.filter({ date: valid.date }, "-updated_date", 2),
       "This day’s weight could not be safely matched. Please retry."
     );
     assertCurrent();
     const payload = { date: valid.date, weight: valid.value, unit: valid.unit };
     return existing
-      ? base44.entities.WeightEntry.update(existing.id, payload)
-      : base44.entities.WeightEntry.create(payload);
+      ? limitApi.entities.WeightEntry.update(existing.id, payload)
+      : limitApi.entities.WeightEntry.create(payload);
   });
 }
 
@@ -528,7 +528,7 @@ async function prepareMetricWrites(payloads: HealthMetricRecord[], assertCurrent
   const prepared: Array<{ payload: HealthMetricRecord; existing: Record<string, any> | null }> = [];
   for (const payload of payloads) {
     assertCurrent();
-    const rows = await base44.entities.HealthMetric.filter(
+    const rows = await limitApi.entities.HealthMetric.filter(
       { source: payload.source, sourceRecordId: payload.sourceRecordId, metric: payload.metric },
       "-updated_date",
       2
@@ -560,8 +560,8 @@ async function writeMetrics(
     }
     saved.push(
       existing
-        ? await base44.entities.HealthMetric.update(existing.id, payload)
-        : await base44.entities.HealthMetric.create(payload)
+        ? await limitApi.entities.HealthMetric.update(existing.id, payload)
+        : await limitApi.entities.HealthMetric.create(payload)
     );
     onSaved?.(existing ? "updated" : "created");
   }
@@ -659,7 +659,7 @@ export function validateHealthBridgeStatus(input: HealthBridgeStatus): HealthBri
 
 async function findHealthConnection(provider: HealthBridgeStatus["provider"]) {
   return matchedRecord(
-    await base44.entities.HealthConnection.filter({ provider }, "-updated_date", 2),
+    await limitApi.entities.HealthConnection.filter({ provider }, "-updated_date", 2),
     "The health connection could not be safely matched. Please retry."
   );
 }
@@ -672,12 +672,12 @@ async function writeHealthConnection(
   const { platform: _platform, ...connection } = status;
   const payload = { ...connection, lastSyncMessage: message };
   return existing
-    ? base44.entities.HealthConnection.update(existing.id, payload)
-    : base44.entities.HealthConnection.create(payload);
+    ? limitApi.entities.HealthConnection.update(existing.id, payload)
+    : limitApi.entities.HealthConnection.create(payload);
 }
 
 export function syncHealthBridge({ connectIfNeeded = false } = {}) {
-  return withHealthDataMutation(async (assertCurrent) => {
+  return withHealthDataMutation<Record<string, any>>(async (assertCurrent) => {
     const bridge = window.limitHealthBridge;
     if (!bridge) throw new Error("Connected health sync is available in the installed mobile app.");
     // Permission prompts can remain open while the signed-in account changes.
@@ -718,10 +718,10 @@ export function syncHealthBridge({ connectIfNeeded = false } = {}) {
         message,
       };
       try {
-        if (auditId) await base44.entities.HealthImport.update(auditId, payload);
+        if (auditId) await limitApi.entities.HealthImport.update(auditId, payload);
         else {
           auditAttempted = true;
-          const saved = await base44.entities.HealthImport.create(payload);
+          const saved = await limitApi.entities.HealthImport.create(payload);
           if (!saved || typeof saved.id !== "string" || !saved.id)
             throw new Error("Missing audit identifier");
           auditId = saved.id;
@@ -790,7 +790,7 @@ export function syncHealthBridge({ connectIfNeeded = false } = {}) {
 }
 
 export function disconnectHealthBridge() {
-  return withHealthDataMutation(async (assertCurrent) => {
+  return withHealthDataMutation<Record<string, any>>(async (assertCurrent) => {
     const bridge = window.limitHealthBridge;
     if (!bridge?.disconnect)
       throw new Error("Manage health permissions in your device’s health settings.");

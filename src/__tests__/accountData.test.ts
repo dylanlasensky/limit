@@ -5,7 +5,7 @@ import {
   readAccountRows,
   exportAccountData,
   deleteAccountData,
-} from "../../base44/shared/accountData.js";
+} from "../../packages/domain/accountData.js";
 
 describe("account export and deletion boundaries", () => {
   it("requires an identity and keeps explicit ownership ahead of legacy creator metadata", () => {

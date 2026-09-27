@@ -1,5 +1,5 @@
 // Deterministic strength math. No AI.
-import { isPowerExercise } from "../../../base44/shared/exerciseLibrary.js";
+import { isPowerExercise } from "../../../packages/domain/exerciseLibrary.js";
 export const epley = (weight: number | string, reps: number | string): number =>
   Number.isFinite(+weight) && +weight > 0 && Number.isInteger(+reps) && +reps >= 1 && +reps <= 12
     ? +weight * (+reps === 1 ? 1 : 1 + +reps / 30)

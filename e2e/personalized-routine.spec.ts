@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { exerciseCatalog } from "../base44/shared/exerciseCatalog.js";
+import { exerciseCatalog } from "../packages/domain/exerciseCatalog.js";
 
 type Row = Record<string, any>;
 
@@ -48,10 +48,9 @@ async function mockNewMember(page: Page, { failExerciseSave = false } = {}) {
     // This suite never sends onboarding or exercise data to a real account.
     if (url.origin !== "http://127.0.0.1:4173") return route.abort();
     if (!url.pathname.startsWith("/api/")) return route.continue();
-    const reply = (body: unknown, status = 200) => route.fulfill({ status, json: body });
-    if (url.pathname.includes("public-settings"))
-      return reply({ id: "limit-browser-test", public_settings: {} });
-    if (url.pathname.endsWith("/User/me")) return reply(user);
+    const enrich=(value:any):any=>Array.isArray(value)?value.map(enrich):value&&typeof value==='object'?{...(value.id?{ownerId:"qa-user",created_by_id:"qa-user",created_date:"2026-09-27T00:00:00Z",updated_date:"2026-09-27T00:00:00Z"}:{}),...Object.fromEntries(Object.entries(value).map(([k,v])=>[k,enrich(v)]))}:value;
+    const reply = (body: any, status = 200) => route.fulfill({ status, json: enrich(body) });
+    if(url.pathname==="/api/auth/get-session")return reply({session:{id:"qa-session",userId:user.id,expiresAt:"2099-01-01T00:00:00Z"},user:{...user,name:user.full_name,emailVerified:true}});
     if (
       url.pathname.includes("/analytics/track/batch") ||
       url.pathname.startsWith("/api/app-logs/")
@@ -89,7 +88,7 @@ async function mockNewMember(page: Page, { failExerciseSave = false } = {}) {
             rows.find((row) => row.id === id) || {},
             rows.some((row) => row.id === id) ? 200 : 404
           );
-        const query = JSON.parse(url.searchParams.get("q") || "{}");
+        const query = JSON.parse(url.searchParams.get("filter") || "{}");
         const filtered = rows.filter((row) =>
           Object.entries(query).every(([key, value]) => {
             if (value && typeof value === "object") {
@@ -109,8 +108,8 @@ async function mockNewMember(page: Page, { failExerciseSave = false } = {}) {
       }
       if (request.method() === "POST") {
         const body = request.postDataJSON();
-        writes.push({ entity: name, action: id === "bulk" ? "bulkCreate" : "create", body });
-        if (id === "bulk") {
+        writes.push({ entity: name, action: id === "bulkCreate" ? "bulkCreate" : "create", body });
+        if (id === "bulkCreate") {
           if (name === "WorkoutExercise" && control.failExerciseSave)
             return reply({ message: "Temporary save failure" }, 503);
           const records = body.map((value: Row) => saved(name, value));
@@ -122,7 +121,7 @@ async function mockNewMember(page: Page, { failExerciseSave = false } = {}) {
         entities[name] = [...rows, record];
         return reply(record);
       }
-      if (request.method() === "PUT" && id) {
+      if (request.method() === "PATCH" && id) {
         const body = request.postDataJSON();
         writes.push({ entity: name, action: "update", id, body });
         const existing = rows.find((row) => row.id === id);

@@ -51,8 +51,8 @@ export function evaluateReadiness({ config, sourceChecks, revision, now = new Da
     if (!condition) blockers.push(message);
   };
   requireValue(
-    config?.schemaVersion === 1 && config?.platform === "ios" && config?.packaging === "base44",
-    "Release configuration must identify schema version 1 and the Base44 iOS package."
+    config?.schemaVersion === 1 && config?.platform === "ios" && config?.packaging === "expo",
+    "Release configuration must identify schema version 1 and the Expo iOS package."
   );
   const candidate = config?.candidate || {};
   const revisionValid =
@@ -153,7 +153,7 @@ export function inspectSource(read) {
     () => !read("src/components/limit/AppPreferences.tsx").includes("limit-reminders")
   );
   check("account-deletion-entrypoint", () =>
-    read("base44/functions/deleteAccount/entry.ts").includes("auth.me")
+    read("worker/index.ts").includes("authFor(env).api.getSession")
   );
   check("public-info-configuration", () => {
     const source = read("src/lib/public-info.ts");

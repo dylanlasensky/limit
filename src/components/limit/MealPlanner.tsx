@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { loadSavedMealWeek, saveMealWeek } from "@/lib/meal-plans";
 import { createFoodEntry } from "@/lib/food-entry";
 import { format, startOfWeek } from "date-fns";
@@ -53,7 +53,7 @@ export default function MealPlanner({ profile, onLogged, mode }: MealPlannerProp
     setLoadError(false);
     setWeek([]);
     setSelected([]);
-    base44.entities.DietaryProfile.list()
+    limitApi.entities.DietaryProfile.list()
       .then(async (x: any[]) => {
         const saved = await loadSavedMealWeek(x[0] || {});
         if (cancelled) return;

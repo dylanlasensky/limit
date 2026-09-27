@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import useSystemTheme from "@/hooks/use-system-theme";
 import { useNavigate } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { calcTargets } from "@/components/limit/nutritionTargets";
 import { scoreProgramStructures } from "@/lib/training/programEngine";
 import { createPersonalizedPlan } from "@/lib/training/planService";
@@ -130,12 +130,12 @@ export default function Onboarding() {
         ...targets,
       });
       const [profiles, diets] = await Promise.all([
-        base44.entities.UserProfile.list(),
-        base44.entities.DietaryProfile.list(),
+        limitApi.entities.UserProfile.list(),
+        limitApi.entities.DietaryProfile.list(),
       ]);
       const savedProfile = profiles[0]
-        ? await base44.entities.UserProfile.update(profiles[0].id, profile)
-        : await base44.entities.UserProfile.create(profile);
+        ? await limitApi.entities.UserProfile.update(profiles[0].id, profile)
+        : await limitApi.entities.UserProfile.create(profile);
       const diet = {
         allergies: data.allergies,
         intolerances: [],
@@ -149,21 +149,21 @@ export default function Onboarding() {
         budgetFriendly: true,
         mealPrepPreference: true,
       };
-      if (diets[0]) await base44.entities.DietaryProfile.update(diets[0].id, diet);
-      else await base44.entities.DietaryProfile.create(diet);
+      if (diets[0]) await limitApi.entities.DietaryProfile.update(diets[0].id, diet);
+      else await limitApi.entities.DietaryProfile.create(diet);
       // A retry may follow edits to exact weekdays, equipment, or experience.
       // Rebuild from all current answers, not just a matching plan name/day count.
       // The plan service validates an inactive replacement before activation,
       // so the current working program stays available if generation fails.
       if (!data.importAfterOnboarding) await createPersonalizedPlan({ ...profile, days }, rec);
-      await base44.entities.UserProfile.update(savedProfile.id, { onboardingComplete: true });
+      await limitApi.entities.UserProfile.update(savedProfile.id, { onboardingComplete: true });
       nav(data.importAfterOnboarding ? "/workout/import" : "/home", { replace: true });
     } catch (e: any) {
       setSaving(false);
       setError(
-        e?.response
-          ? "Something went wrong building your plan. Try again."
-          : e.message || "Something went wrong building your plan. Try again."
+        e?.response?.data?.error ||
+          e.message ||
+          "Something went wrong building your plan. Try again."
       );
     } finally {
       finishing.current = false;
