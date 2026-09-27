@@ -25,7 +25,7 @@ export default {
       if(url.pathname.startsWith('/api/auth/')) {
         if(env.EMAIL_ENABLED!=='true'&&/request-password-reset|send-verification-email/.test(url.pathname))throw new ApiError('Email delivery has not been configured yet.',503,'EMAIL_NOT_CONFIGURED');
         if(request.method==='POST') {const ip=request.headers.get('cf-connecting-ip')||'local';const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ip));const key=Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');await rateLimit(env.DB,'auth:'+key,25);}
-        response=await authFor(env).handler(request);
+        response=await env.ACCOUNT_COORDINATOR.getByName('authentication').fetch(request);
       } else {
         const parts=url.pathname.split('/').filter(Boolean);
         const name=parts[2] as EntityName;

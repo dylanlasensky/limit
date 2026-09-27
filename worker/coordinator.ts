@@ -1,3 +1,5 @@
+import {reserveBudget, type Budget} from '../packages/domain/freeBudget';
+import {authFor} from "./auth";
 import {validateProposal} from "../packages/domain/proposals";
 import { DurableObject } from 'cloudflare:workers';
 import { Repository } from './repository';
@@ -6,6 +8,15 @@ import workoutCommand from './workout-command';
 import { entityNames, type EntityName, type ApiUser } from '../packages/contracts/entities';
 import { exportAccountData } from '../packages/domain/accountData.js';
 export class AccountCoordinator extends DurableObject<Env> {
+  async fetch(request:Request){return authFor(this.env).handler(request);}
+  async reserve(kind:'storage'|'ai',bytes:number):Promise<boolean>{
+    return this.ctx.storage.transaction(async txn=>{
+      const next=reserveBudget(await txn.get<Budget>('budget'),kind,bytes);
+      if(!next)return false;
+      await txn.put('budget',next);return true;
+    });
+  }
+
   private tail: Promise<unknown> = Promise.resolve();
   async execute(user:ApiUser,operation:{kind:string;name?:string;method?:string;id?:string;input?:any}) {
     const run=this.tail.then(()=>this.perform(user,operation));
@@ -39,8 +50,8 @@ export class AccountCoordinator extends DurableObject<Env> {
         if(op.input?.confirm!==true)throw new ApiError('Confirm account deletion.');
         // Erase bytes first. If storage is unavailable, keep identity so the user can retry.
         if(!this.env.FILES && await this.env.DB.prepare('SELECT id FROM uploads WHERE owner_id=? LIMIT 1').bind(user.id).first())throw new ApiError('File storage is unavailable. Retry deletion when storage returns.',503);
-        let cursor:string|undefined;
-        if(this.env.FILES)do {const page=await this.env.FILES.list({prefix:`private/${user.id}/`,cursor});if(page.objects.length)await this.env.FILES.delete(page.objects.map(o=>o.key));cursor=page.truncated?page.cursor:undefined;}while(cursor);
+        const uploads=await this.env.DB.prepare('SELECT object_key FROM uploads WHERE owner_id=?').bind(user.id).all<{object_key:string}>();
+        if(uploads.results.length)await this.env.FILES.delete(uploads.results.map(r=>r.object_key));
         await this.env.COACH.getByName(user.id).erase();
         await this.env.DB.prepare('DELETE FROM user WHERE id = ?').bind(user.id).run();
         return {status:200,data:{success:true,deleted:true}};

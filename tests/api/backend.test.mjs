@@ -60,7 +60,7 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
  await t.test('coach fails closed on missing consent and only activates explicitly approved proposals',async()=>{
   assert.equal((await call('/functions/askLimitCoach',{cookie,method:'POST',body:{question:'Build a plan'}})).status,403);
   const answer=await call('/functions/askLimitCoach',{cookie,method:'POST',body:{question:'Build a plan',propose:true,aiConsent:'cloudflare-ai-v1'}});
-  assert.equal(answer.status,200,JSON.stringify(answer.data));assert.equal(answer.data.source,'deterministic');assert.ok(answer.data.proposal,JSON.stringify(answer.data));
+  assert.equal(answer.status,200,JSON.stringify(answer.data));if(base.startsWith('http://localhost'))assert.equal(answer.data.source,'deterministic');else assert.ok(['workers-ai','deterministic'].includes(answer.data.source));assert.ok(answer.data.proposal,JSON.stringify(answer.data));
   const before=(await call('/entities/WorkoutPlan?filter='+encodeURIComponent('{"active":true}'),{cookie})).data;assert.equal(before[0].id,plan.id);
   assert.equal((await call('/functions/approvePlan',{cookie,method:'POST',body:{proposalId:answer.data.proposal.id,approved:false}})).status,400);
   const approved=await call('/functions/approvePlan',{cookie,method:'POST',body:{proposalId:answer.data.proposal.id,approved:true}});assert.equal(approved.status,200,JSON.stringify(approved.data));assert.equal(approved.data.plan.active,true);

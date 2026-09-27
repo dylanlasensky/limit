@@ -45,3 +45,11 @@ Before release verify signup, logout, cross-account denial, a full workout, uplo
 Use `npx wrangler deployments list --env production` then `npx wrangler rollback <VERSION_ID> --env production` for compatible code rollback. D1 schema changes must be backward compatible; do not roll back code across an incompatible migration. D1 Time Travel can recover data, but test recovery in preview before using it on production. Keep versioned media instead of overwriting published keys.
 
 Inspect Workers observability for error rates and latency; never add request bodies/cookies to logs. Monitor D1 rows read/written, R2 operations/storage and Workers AI usage. Authentication hashing can require a Workers paid CPU allowance: verify signup on the account's current plan before release. Do not enable unbounded model output or automatic recurring AI calls.
+
+## Free-plan guardrails
+
+The owner requires no paid overages. Workers Free was verified in the Cloudflare billing dashboard on 2026-09-27; do not upgrade it. D1, SQLite Durable Objects and Workers AI stop at their free limits. Authentication hashing runs in a Durable Object so it does not rely on the Worker Free 10 ms CPU allowance.
+
+R2 is a usage-billed subscription with free Standard-storage allowances, not an account-wide hard spending cap. All LIMIT buckets stay private with no r2.dev/custom-domain bypass. The application reserves usage before R2 operations: each environment allows at most 256 MiB of lifetime private uploads, 1,000 lifetime uploaded objects and 20,000 storage requests per calendar month. Failed/retried uploads consume the conservative reservation; it is never automatically reset. Across preview and production, private bytes stay below 512 MiB. Published media must be manually budgeted below 500 MiB per environment. Do not enable Infrequent Access, Images, Stream, paid Workers or external paid AI.
+
+The agent permits 10 model calls per environment per UTC day, then uses deterministic guidance. No auto-upgrade or paid provider fallback exists. Owner-created buckets, direct uploads or other applications share the account's R2 allowance and are outside these application limits. Recheck account usage before importing exercise media. R2 has no confirmed account-wide zero-dollar hard cap; do not claim otherwise.
