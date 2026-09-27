@@ -1,11 +1,19 @@
-import {readdirSync,writeFileSync,readFileSync} from 'node:fs';
-import {createHash} from 'node:crypto';
-const assets=readdirSync('dist/assets').filter(f=>/\.(js|css)$/.test(f)).map(f=>'/assets/'+f);
-const hash=createHash('sha256').update(readFileSync('dist/index.html')).digest('hex').slice(0,12);
-writeFileSync('dist/sw.js',`const CACHE='limit-shell-${hash}';
-const FILES=${JSON.stringify(['/index.html','/brand/limit-logo.png',...assets])};
+import { readdirSync, writeFileSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+const assets = readdirSync("dist/assets")
+  .filter((f) => /\.(js|css)$/.test(f))
+  .map((f) => "/assets/" + f);
+const hash = createHash("sha256")
+  .update(readFileSync("dist/index.html"))
+  .digest("hex")
+  .slice(0, 12);
+writeFileSync(
+  "dist/sw.js",
+  `const CACHE='limit-shell-v2-${hash}';
+const FILES=${JSON.stringify(["/", "/brand/limit-logo.png", ...assets])};
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES))));
-self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('limit-shell-')&&k!==CACHE).map(k=>caches.delete(k))))));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('limit-shell-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{const u=new URL(event.request.url);if(event.request.method!=='GET'||u.origin!==self.location.origin||u.pathname.startsWith('/api/'))return;
-if(event.request.mode==='navigate')event.respondWith(fetch(event.request).catch(()=>caches.open(CACHE).then(c=>c.match('/index.html'))));
-else if(FILES.includes(u.pathname))event.respondWith(caches.open(CACHE).then(async c=>(await c.match(event.request))||fetch(event.request)));});`);
+if(event.request.mode==='navigate')event.respondWith(fetch(event.request).catch(()=>caches.open(CACHE).then(c=>c.match('/'))));
+else if(FILES.includes(u.pathname))event.respondWith(caches.open(CACHE).then(async c=>(await c.match(event.request))||fetch(event.request)));});`
+);

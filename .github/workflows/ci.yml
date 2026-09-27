@@ -30,6 +30,7 @@ jobs:
           for n in $(seq 1 60); do curl -fsS http://localhost:8787/api/health && break || sleep 1; done
           npm run test:api
       - run: npx playwright install --with-deps chromium
+      - run: node tests/hosted/smoke.mjs
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: always()
