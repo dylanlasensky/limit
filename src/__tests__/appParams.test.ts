@@ -1,35 +1,29 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-describe("trusted app configuration", () => {
-  beforeEach(() => {
-    vi.resetModules();
-    localStorage.clear();
-    window.history.replaceState({}, "", "/");
-    vi.stubEnv("VITE_BASE44_APP_ID", "trusted-app");
-    vi.stubEnv("VITE_BASE44_APP_BASE_URL", "https://trusted.base44.app");
+import { afterEach, describe, it, expect, vi } from "vitest";
+import { apiRequest } from "@/api/client";
+import { z } from "zod";
+afterEach(() => vi.unstubAllGlobals());
+describe("trusted API boundary", () => {
+  it("uses only the same origin even when a link supplies host overrides", async () => {
+    window.history.replaceState({}, "", "/?app_base_url=https://untrusted.invalid");
+    const fetch = vi
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status: 200 }));
+    vi.stubGlobal("fetch", fetch);
+    await apiRequest("/health", z.object({ ok: z.boolean() }));
+    expect(fetch.mock.calls[0][0]).toBe("/api/health");
+    expect(fetch.mock.calls[0][1].credentials).toBe("include");
   });
-  it("ignores host/app overrides from links and storage", async () => {
-    localStorage.setItem("base44_app_base_url", "https://untrusted.example");
-    window.history.replaceState(
-      {},
-      "",
-      "/?app_id=untrusted&app_base_url=https://untrusted.example&functions_version=other"
+  it("rejects malformed successful responses", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response('{"ok":"yes"}')));
+    await expect(apiRequest("/health", z.object({ ok: z.boolean() }))).rejects.toThrow(
+      "invalid response"
     );
-    const { appParams } = await import("@/lib/app-params");
-    expect(appParams.appId).toBe("trusted-app");
-    expect(appParams.appBaseUrl).toBe("https://trusted.base44.app");
-    expect(window.location.search).toBe("");
   });
-  it("consumes the callback token without leaving it in the URL", async () => {
-    window.history.replaceState({}, "", "/home?access_token=test-token&keep=yes");
-    const { appParams } = await import("@/lib/app-params");
-    expect(appParams.token).toBe("test-token");
-    expect(window.location.search).toBe("?keep=yes");
-  });
-  it("a clear-token flag is not persisted into future sign-ins", async () => {
-    localStorage.setItem("base44_access_token", "old");
-    window.history.replaceState({}, "", "/?clear_access_token=true");
-    const { appParams } = await import("@/lib/app-params");
-    expect(appParams.token).toBeUndefined();
-    expect(localStorage.getItem("base44_clear_access_token")).toBeNull();
+  it("retains a useful error status for retry and authorization handling", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(new Response('{"error":"Sign in"}', { status: 401 }))
+    );
+    await expect(apiRequest("/me", z.unknown())).rejects.toMatchObject({ status: 401 });
   });
 });

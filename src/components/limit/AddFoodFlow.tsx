@@ -9,7 +9,7 @@ import {
   History,
   type LucideIcon,
 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { createFoodEntry } from "@/lib/food-entry";
 import { today } from "@/components/limit/data";
 import ManualFood from "@/components/limit/ManualFood";
@@ -43,7 +43,7 @@ export default function AddFoodFlow({
   const [mode, setMode] = useState<AddFoodMode | undefined>(),
     recent = useQuery({
       queryKey: ["recentFoods"],
-      queryFn: () => base44.entities.FoodEntry.list("-created_date", 30),
+      queryFn: () => limitApi.entities.FoodEntry.list("-created_date", 30),
       enabled: mode === "recent",
     });
   const savingChanged = (value: boolean) => {

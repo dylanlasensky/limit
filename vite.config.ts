@@ -1,32 +1,8 @@
-import base44 from "@base44/vite-plugin"
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
-
-// https://vite.dev/config/
+import path from 'node:path';
+import react from '@vitejs/plugin-react';
+import {defineConfig} from 'vite';
 export default defineConfig({
-  // Base44 can regenerate .jsx auth scaffolding after a repository sync.
-  // Always resolve our maintained TypeScript implementation first.
-  resolve: { extensions: [".mjs", ".ts", ".tsx", ".js", ".jsx", ".json"] },
-  build: {
-    rollupOptions: {
-      output: {
-        // Keep React reusable across deploys without eagerly pulling chart dependencies in.
-        manualChunks(id) {
-          if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) return 'vendor-react';
-        },
-      },
-    },
-  },
-  plugins: [
-    base44({
-      // Support for legacy code that imports the base44 SDK with @/integrations, @/entities, etc.
-      // can be removed if the code has been updated to use the new SDK imports from @base44/sdk
-      legacySDKImports: process.env.BASE44_LEGACY_SDK_IMPORTS === 'true',
-      hmrNotifier: true,
-      navigationNotifier: true,
-      analyticsTracker: true,
-      visualEditAgent: true
-    }),
-    react(),
-  ]
+ resolve:{alias:{'@':path.resolve(__dirname,'src')},extensions:[".mjs", ".ts", ".tsx", ".js", ".jsx", ".json"]},
+ plugins:[react()],server:{proxy:{'/api':{target:'http://localhost:8787',changeOrigin:true}}},
+ build:{rollupOptions:{output:{manualChunks(id){if(/node_modules\/(react|react-dom|scheduler)\//.test(id))return 'vendor-react';}}}}
 });

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import {
   healthMetricDefinitions,
   type HealthMetricName,
@@ -58,7 +58,7 @@ export function validateHealthPreferences(input: unknown): HealthPreferencesValu
 }
 
 async function preferenceRecord() {
-  const rows = await base44.entities.HealthPreference.list("-updated_date", 2);
+  const rows = await limitApi.entities.HealthPreference.list("-updated_date", 2);
   if (!Array.isArray(rows) || rows.length > 1 || (rows[0] && !rows[0].id))
     throw new Error("Your health settings could not be safely matched. Please retry.");
   return rows[0];
@@ -82,18 +82,18 @@ export function useHealthPreferences() {
 }
 export async function saveHealthPreferences(input: unknown) {
   const payload = validateHealthPreferences(input);
-  const user = await base44.auth.me();
+  const user = await limitApi.auth.me();
   if (!user?.id) throw new Error("Sign in again before saving health preferences.");
   return withHealthDataMutation(async (assertCurrent) => {
-    if ((await base44.auth.me())?.id !== user.id)
+    if ((await limitApi.auth.me())?.id !== user.id)
       throw new Error("Your signed-in account changed. Please retry.");
     const existing = await preferenceRecord();
-    if ((await base44.auth.me())?.id !== user.id)
+    if ((await limitApi.auth.me())?.id !== user.id)
       throw new Error("Your signed-in account changed. Please retry.");
     assertCurrent();
     const saved = existing
-      ? await base44.entities.HealthPreference.update(existing.id, payload)
-      : await base44.entities.HealthPreference.create(payload);
+      ? await limitApi.entities.HealthPreference.update(existing.id, payload)
+      : await limitApi.entities.HealthPreference.create(payload);
     if (!saved?.id || (existing && saved.id !== existing.id))
       throw new Error("The saved health settings could not be confirmed. Please retry.");
     const verified = validateHealthPreferences(saved);
@@ -142,18 +142,18 @@ export const healthDataQueryKeys = [
 
 export async function deleteHealthData(confirmed: boolean) {
   if (confirmed !== true) throw new Error("Confirm the health data deletion first.");
-  const user = await base44.auth.me();
+  const user = await limitApi.auth.me();
   if (!user?.id) throw new Error("Sign in again before deleting health data.");
   return withHealthDataMutation(async (assertCurrent) => {
     const scope = { created_by_id: user.id };
     let deletedCount = 0;
     for (const name of healthDataCollections) {
-      const entity = base44.entities[name];
+      const entity = limitApi.entities[name];
       const seen = new Set<string>();
       let finished = false;
       // Always remove the first page: offset pagination skips rows while deleting.
       for (let batch = 0; batch < 200; batch += 1) {
-        if ((await base44.auth.me())?.id !== user.id)
+        if ((await limitApi.auth.me())?.id !== user.id)
           throw new Error("Your signed-in account changed. Deletion stopped.");
         const rows = await entity.filter(scope, "created_date", 250, 0);
         assertCurrent();
@@ -183,12 +183,12 @@ export async function deleteHealthData(confirmed: boolean) {
       }
       if (!finished) throw new Error("Some health data may remain. Please retry deletion.");
     }
-    if ((await base44.auth.me())?.id !== user.id)
+    if ((await limitApi.auth.me())?.id !== user.id)
       throw new Error("Your signed-in account changed. Deletion stopped.");
     // A second pass detects concurrent device imports or other-client writes.
     for (const name of healthDataCollections) {
       assertCurrent();
-      const remaining = await base44.entities[name].filter(scope, "created_date", 1, 0);
+      const remaining = await limitApi.entities[name].filter(scope, "created_date", 1, 0);
       if (!Array.isArray(remaining) || remaining.length)
         throw new Error(
           "New or remaining health data was found. Stop syncing other devices and retry."
@@ -200,7 +200,7 @@ export async function deleteHealthData(confirmed: boolean) {
 }
 
 export async function readHealthImports(limit = 20) {
-  const rows = await base44.entities.HealthImport.list("-startedAt", limit + 1, 0);
+  const rows = await limitApi.entities.HealthImport.list("-startedAt", limit + 1, 0);
   if (!Array.isArray(rows)) throw new Error("Import history could not be loaded.");
   return { rows: rows.slice(0, limit), hasMore: rows.length > limit };
 }

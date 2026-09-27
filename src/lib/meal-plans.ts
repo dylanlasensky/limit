@@ -1,5 +1,5 @@
 import { addDays, format } from "date-fns";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import {
   safeMeals,
   sumMacros,
@@ -10,7 +10,7 @@ import {
 
 export async function loadSavedMealWeek(diet: DietaryProfile) {
   const start = weekStart();
-  const plans = await base44.entities.WeeklyMealPlan.filter(
+  const plans = await limitApi.entities.WeeklyMealPlan.filter(
     { weekStart: format(start, "yyyy-MM-dd") },
     "-created_date",
     1
@@ -19,7 +19,11 @@ export async function loadSavedMealWeek(diet: DietaryProfile) {
   if (!plan) return null;
   const ids = plan.mealIds || [];
   const meals = ids.length
-    ? await base44.entities.MealRecommendation.filter({ id: { $in: ids } }, "generatedForDate", 100)
+    ? await limitApi.entities.MealRecommendation.filter(
+        { id: { $in: ids } },
+        "generatedForDate",
+        100
+      )
     : [];
   if (meals.length !== new Set(ids).size) throw new Error("Some saved meals could not be loaded.");
   // Previously saved suggestions must still respect the CURRENT exclusions.
@@ -53,7 +57,7 @@ export async function saveMealWeek(week: PlannedMeal[][], existingId?: string) {
     .flat()
     .map((meal) => Object.fromEntries(Object.entries(meal).filter(([key]) => fields.has(key))));
   if (!meals.length) throw new Error("Choose at least one meal before saving.");
-  const records = await base44.entities.MealRecommendation.bulkCreate(meals);
+  const records = await limitApi.entities.MealRecommendation.bulkCreate(meals);
   if (records.length !== meals.length)
     throw new Error("The complete week did not save. Your previous plan is unchanged.");
   const payload = {
@@ -66,6 +70,6 @@ export async function saveMealWeek(week: PlannedMeal[][], existingId?: string) {
   };
   // Change the visible weekly plan only after ALL its meal records are saved.
   return existingId
-    ? base44.entities.WeeklyMealPlan.update(existingId, payload)
-    : base44.entities.WeeklyMealPlan.create(payload);
+    ? limitApi.entities.WeeklyMealPlan.update(existingId, payload)
+    : limitApi.entities.WeeklyMealPlan.create(payload);
 }

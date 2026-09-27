@@ -1,6 +1,6 @@
-import { base44 } from "@/api/base44Client";
-import { normalizeExerciseName } from "../../../base44/shared/exerciseCatalog.js";
-import { requireAiConsent } from "../../../base44/shared/aiConsent.js";
+import { limitApi } from "@/api/client";
+import { normalizeExerciseName } from "../../../packages/domain/exerciseCatalog.js";
+import { requireAiConsent } from "../../../packages/domain/aiConsent.js";
 
 const uid = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
 const clean = (value?: string | null): string => normalizeExerciseName(value || "");
@@ -163,10 +163,10 @@ export async function parseRegimen({
   if (text && text.length > 50000) throw new Error("Keep workout text under 50,000 characters.");
   if (file && file.size > 10 * 1024 * 1024) throw new Error("Choose a file smaller than 10 MB.");
   let fileUri: string | undefined;
-  if (file) ({ file_uri: fileUri } = await base44.integrations.Core.UploadPrivateFile({ file }));
+  if (file) ({ file_uri: fileUri } = await limitApi.integrations.Core.UploadPrivateFile({ file }));
   // Uploads already sent cannot be recalled, but closing the feature prevents any later AI call.
   assertActive();
-  const { data } = await base44.functions.invoke("parseWorkoutRegimen", {
+  const { data } = await limitApi.functions.invoke("parseWorkoutRegimen", {
     text,
     fileUri,
     aiConsent,
@@ -176,12 +176,12 @@ export async function parseRegimen({
 }
 
 export async function loadImportedPlan(planId: string, catalog: any[]) {
-  const plan: any = await base44.entities.WorkoutPlan.get(planId);
-  const days = (await base44.entities.WorkoutDay.filter({ planId }))
+  const plan: any = await limitApi.entities.WorkoutPlan.get(planId);
+  const days = (await limitApi.entities.WorkoutDay.filter({ planId }))
     .filter((day: any) => !day.isRest)
     .sort((a: any, b: any) => a.weekday - b.weekday);
   const rows: any[] = days.length
-    ? await base44.entities.WorkoutExercise.filter({
+    ? await limitApi.entities.WorkoutExercise.filter({
         workoutDayId: { $in: days.map((day) => day.id) },
       })
     : [];
@@ -221,7 +221,7 @@ export async function saveImportedRegimen(
   if (draft.days.some((day) => !day.exercises.length))
     throw new Error("Every training day needs at least one exercise.");
   if (existingId && !duplicate) {
-    const active = await base44.entities.WorkoutSession.filter({ status: "active" });
+    const active = await limitApi.entities.WorkoutSession.filter({ status: "active" });
     if (active.some((session: any) => session.planId === existingId))
       throw new Error("Finish or discard the active workout before editing this plan.");
   }
@@ -243,7 +243,7 @@ export async function saveImportedRegimen(
     structureLocked: meta.structureLocked,
     importNotes: draft.notes || "",
   };
-  const plan = await base44.entities.WorkoutPlan.create(payload);
+  const plan = await limitApi.entities.WorkoutPlan.create(payload);
   const byWeekday = new Map<number, RegimenDay>(draft.days.map((day) => [day.weekday, day]));
   const dayRecords = Array.from({ length: 7 }, (_, weekday) => {
     const day = byWeekday.get(weekday);
@@ -259,7 +259,7 @@ export async function saveImportedRegimen(
       fixedSchedule: !!day?.fixedSchedule,
     };
   });
-  const created = await base44.entities.WorkoutDay.bulkCreate(dayRecords);
+  const created = await limitApi.entities.WorkoutDay.bulkCreate(dayRecords);
   const exerciseRows = created.flatMap((day: any) => {
     const source = byWeekday.get(day.weekday);
     return (source?.exercises || []).map((exercise, index) => ({
@@ -281,8 +281,8 @@ export async function saveImportedRegimen(
       coachMandated: !!exercise.coachMandated,
     }));
   });
-  if (exerciseRows.length) await base44.entities.WorkoutExercise.bulkCreate(exerciseRows);
-  const { data } = await base44.functions.invoke("workoutCommand", {
+  if (exerciseRows.length) await limitApi.entities.WorkoutExercise.bulkCreate(exerciseRows);
+  const { data } = await limitApi.functions.invoke("workoutCommand", {
     action: "activatePlan",
     planId: plan.id,
   });

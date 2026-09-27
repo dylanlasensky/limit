@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { exerciseCatalog } from "../../base44/shared/exerciseCatalog.js";
+import { exerciseCatalog } from "../../packages/domain/exerciseCatalog.js";
 import { browseCatalog, muscleFamilies } from "@/lib/training/browseCatalog";
 import { readFavorites } from "@/hooks/use-exercise-favorites";
 

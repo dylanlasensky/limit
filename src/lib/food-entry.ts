@@ -1,4 +1,4 @@
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { isDiaryDate } from "@/lib/food-diary";
 
 export function validateFoodEntry(entry: Record<string, any>): Record<string, any> {
@@ -56,7 +56,7 @@ function foodPayload(entry: Record<string, any>) {
   );
 }
 export async function createFoodEntry(entry: Record<string, any>) {
-  return base44.entities.FoodEntry.create(foodPayload(entry));
+  return limitApi.entities.FoodEntry.create(foodPayload(entry));
 }
 
 export async function updateFoodEntry(entry: Record<string, any>, changes: Record<string, any>) {
@@ -68,7 +68,7 @@ export async function updateFoodEntry(entry: Record<string, any>, changes: Recor
     entryMethod: entry.entryMethod,
     estimated: entry.estimated,
   });
-  const result = await base44.entities.FoodEntry.update(entry.id, payload);
+  const result = await limitApi.entities.FoodEntry.update(entry.id, payload);
   if (result?.id !== entry.id)
     throw new Error("The saved change could not be confirmed. Please retry.");
   return result;
@@ -77,7 +77,7 @@ export async function updateFoodEntry(entry: Record<string, any>, changes: Recor
 export async function deleteFoodEntry(id: string) {
   if (!id || id.startsWith("pending-")) throw new Error("Wait for this entry to finish saving.");
   try {
-    const result = await base44.entities.FoodEntry.delete(id);
+    const result = await limitApi.entities.FoodEntry.delete(id);
     if (result?.success !== true)
       throw new Error("The deletion could not be confirmed. Please retry.");
   } catch (error: any) {
@@ -90,7 +90,7 @@ export async function listFoodEntries(date: string) {
   if (!isDiaryDate(date)) throw new Error("Choose today or an earlier diary date.");
   const entries = new Map<string, any>();
   for (let skip = 0; skip < 10000; skip += 500) {
-    const page = await base44.entities.FoodEntry.filter({ date }, "created_date", 500, skip);
+    const page = await limitApi.entities.FoodEntry.filter({ date }, "created_date", 500, skip);
     if (!Array.isArray(page)) throw new Error("Your diary could not be loaded completely.");
     for (const entry of page) {
       if (!entry.id || entries.has(entry.id))

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 
 // The single source of truth for the active program.
 // Reading a schedule must never mutate it. Server activation owns all writes.
@@ -13,13 +13,13 @@ export default function useActivePlan() {
     queryKey: ["activePlan"],
     staleTime: 60000,
     queryFn: async (): Promise<ActivePlanData> => {
-      const active: any[] = await base44.entities.WorkoutPlan.filter(
+      const active: any[] = await limitApi.entities.WorkoutPlan.filter(
         { active: true },
         "-created_date"
       );
       const plan = active[0] || null;
       if (!plan) return { plan: null, days: [] };
-      const days = (await base44.entities.WorkoutDay.filter({ planId: plan.id })).sort(
+      const days = (await limitApi.entities.WorkoutDay.filter({ planId: plan.id })).sort(
         (a: any, b: any) => a.weekday - b.weekday
       );
       // one day per weekday within the active plan

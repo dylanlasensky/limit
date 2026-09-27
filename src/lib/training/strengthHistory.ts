@@ -1,5 +1,8 @@
-import { exerciseCatalog, normalizeExerciseName } from "../../../base44/shared/exerciseCatalog.js";
-import { catalogMatch, isPowerExercise } from "../../../base44/shared/exerciseLibrary.js";
+import {
+  exerciseCatalog,
+  normalizeExerciseName,
+} from "../../../packages/domain/exerciseCatalog.js";
+import { catalogMatch, isPowerExercise } from "../../../packages/domain/exerciseLibrary.js";
 import { epley } from "@/lib/training/e1rm";
 
 export const POUNDS_PER_KILOGRAM = 2.20462;

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { exerciseCatalog } from "../../base44/shared/exerciseCatalog.js";
+import { exerciseCatalog } from "../../packages/domain/exerciseCatalog.js";
 import { createPersonalizedPlan } from "@/lib/training/planService";
 import {
   buildDayExercises,
@@ -18,8 +18,8 @@ const sdk = vi.hoisted(() => ({
   rows: vi.fn(),
   invoke: vi.fn(),
 }));
-vi.mock("@/api/base44Client", () => ({
-  base44: {
+vi.mock("@/api/client", () => ({
+  limitApi: {
     entities: {
       Exercise: { list: sdk.list },
       WorkoutSession: { filter: sdk.sessions },

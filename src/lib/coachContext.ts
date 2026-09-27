@@ -1,4 +1,4 @@
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { epley } from "@/lib/training/e1rm";
 
 // Compact, structured coach context. Small targeted queries — never raw record dumps.
@@ -6,20 +6,20 @@ export async function buildCoachContext() {
   const now = new Date();
   const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const [profiles, plans, foods, sessions, records, snapshots, weights, diets] = await Promise.all([
-    base44.entities.UserProfile.list(),
-    base44.entities.WorkoutPlan.filter({ active: true }, "-created_date", 1),
-    base44.entities.FoodEntry.filter({ date }),
-    base44.entities.WorkoutSession.filter({ status: "completed" }, "-date", 5),
-    base44.entities.PersonalRecord.list("-date", 8),
-    base44.entities.MuscleRatingSnapshot.list("-date", 1),
-    base44.entities.WeightEntry.list("-date", 8),
-    base44.entities.DietaryProfile.list(),
+    limitApi.entities.UserProfile.list(),
+    limitApi.entities.WorkoutPlan.filter({ active: true }, "-created_date", 1),
+    limitApi.entities.FoodEntry.filter({ date }),
+    limitApi.entities.WorkoutSession.filter({ status: "completed" }, "-date", 5),
+    limitApi.entities.PersonalRecord.list("-date", 8),
+    limitApi.entities.MuscleRatingSnapshot.list("-date", 1),
+    limitApi.entities.WeightEntry.list("-date", 8),
+    limitApi.entities.DietaryProfile.list(),
   ]);
   const p: any = profiles[0] || {},
     plan = plans[0],
     snap = snapshots[0],
     diet: any = diets[0] || {};
-  const days: any[] = plan ? await base44.entities.WorkoutDay.filter({ planId: plan.id }) : [];
+  const days: any[] = plan ? await limitApi.entities.WorkoutDay.filter({ planId: plan.id }) : [];
   const todayDay = days.find((d) => d.weekday === (new Date().getDay() + 6) % 7);
   const macros = foods.reduce(
     (a, f: any) => ({

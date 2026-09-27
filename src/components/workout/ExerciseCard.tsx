@@ -1,3 +1,5 @@
+import ExerciseMedia from "./ExerciseMedia";
+import WorkoutHelp from "./WorkoutHelp";
 import React, { useState } from "react";
 import { Calculator, Trash2 } from "lucide-react";
 import SetRow from "@/components/workout/SetRow";
@@ -38,6 +40,7 @@ export default function ExerciseCard({
   onReplace,
   onSkip,
 }: ExerciseCardProps) {
+  const [compact, setCompact] = useState(false);
   const [calculatorOpen, setCalculatorOpen] = useState(false);
   const usesPlates = /barbell|smith|trap bar|landmine/i.test(
     exercise?.equipment || workoutExercise.equipment || workoutExercise.exerciseName || ""
@@ -50,7 +53,7 @@ export default function ExerciseCard({
       : suggestProgression(previousSets, workoutExercise.repMin, workoutExercise.repMax);
   return (
     <section
-      className={`limit-surface mt-5 min-w-0 rounded-[2rem] p-5 transition-opacity ${workoutExercise.skipped ? "opacity-55" : ""}`}
+      className={`limit-surface mt-5 min-w-0 rounded-[1.5rem] p-3 sm:p-5 transition-opacity ${workoutExercise.skipped ? "opacity-55" : ""}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -84,6 +87,31 @@ export default function ExerciseCard({
         </button>
       ) : (
         <>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              aria-pressed={compact}
+              onClick={() => setCompact(!compact)}
+              className="min-h-11 rounded-xl bg-secondary px-3 text-xs font-semibold"
+            >
+              {compact ? "Show movement guide" : "Compact logger"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onSkip();
+              }}
+              className="min-h-11 rounded-xl px-3 text-xs font-semibold text-primary"
+            >
+              Pain or discomfort? Skip this movement
+            </button>
+          </div>
+          {!compact && (
+            <>
+              <ExerciseMedia exercise={exercise || workoutExercise} />
+              <WorkoutHelp />
+            </>
+          )}
           {previousSets.length > 0 ? (
             <p className="mt-3 text-[11px] text-muted-foreground">
               LAST TIME{" "}
@@ -120,12 +148,12 @@ export default function ExerciseCard({
               </button>
             )}
           </div>
-          <div className="mt-4 grid grid-cols-[20px_54px_minmax(0,1fr)_minmax(0,1fr)_36px_40px] gap-2 text-center text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+          <div className="mt-4 grid grid-cols-[22px_48px_minmax(0,1fr)_minmax(0,1fr)_40px_44px] gap-2 text-center text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
             <span>Set</span>
             <span>Prev</span>
             <span>Lb</span>
             <span>Reps</span>
-            <span>RIR</span>
+            <span>Left</span>
             <span />
           </div>
           {rows.map((row, index) => (

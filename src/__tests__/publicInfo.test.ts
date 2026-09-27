@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { validatedPublicUrl } from "@/lib/public-info";
-import { adultNutritionAvailable } from "../../base44/shared/coachSafety.js";
+import { adultNutritionAvailable } from "../../packages/domain/coachSafety.js";
 
 describe("public policy configuration", () => {
   it("accepts real HTTPS pages without inventing a default", () => {
-    expect(validatedPublicUrl(" https://docs.base44.com/privacy ")).toBe(
-      "https://docs.base44.com/privacy"
+    expect(validatedPublicUrl(" https://developers.cloudflare.com/privacy ")).toBe(
+      "https://developers.cloudflare.com/privacy"
     );
     expect(validatedPublicUrl(undefined)).toBeNull();
   });

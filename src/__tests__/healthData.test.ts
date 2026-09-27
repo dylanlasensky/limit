@@ -34,8 +34,8 @@ const healthConnection = vi.hoisted(() => ({
 }));
 const healthImport = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn() }));
 const weightEntry = vi.hoisted(() => ({ filter: vi.fn(), create: vi.fn(), update: vi.fn() }));
-vi.mock("@/api/base44Client", () => ({
-  base44: {
+vi.mock("@/api/client", () => ({
+  limitApi: {
     entities: {
       HealthMetric: healthMetric,
       DailyCheckIn: dailyCheckIn,

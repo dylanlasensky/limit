@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { validateFoodEntry } from "@/lib/food-entry";
 import { buildWeek } from "@/components/limit/data";
-vi.mock("@/api/base44Client", () => ({ base44: {} }));
+vi.mock("@/api/client", () => ({ limitApi: {} }));
 const valid = {
   foodName: " Rice ",
   mealType: "Lunch",

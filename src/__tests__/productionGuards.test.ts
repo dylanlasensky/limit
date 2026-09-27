@@ -36,26 +36,12 @@ describe("production source integrity", () => {
       expect(icon.type).toBe("image/png");
     }
   });
-  it("all private data schemas have read rules; workouts are server-write only", () => {
-    for (const name of [
-      "UserProfile",
-      "DietaryProfile",
-      "FoodEntry",
-      "WeightEntry",
-      "HealthMetric",
-      "DailyCheckIn",
-      "HealthConnection",
-      "WorkoutSession",
-      "ExerciseSet",
-      "MuscleRatingSnapshot",
-    ]) {
-      const schema = JSON.parse(
-        readFileSync(path.join(root, "base44/entities", name + ".jsonc"), "utf8")
-      );
-      expect(schema.rls.read).toBeTruthy();
-      if (["WorkoutSession", "ExerciseSet", "MuscleRatingSnapshot"].includes(name)) {
-        expect(schema.rls.create).toEqual({ user_condition: { role: "admin" } });
-      }
-    }
+  it("stores private records with owner references and restricts server mutations", () => {
+    const schema = readFileSync("worker/migrations/0001_initial.sql", "utf8");
+    const repo = readFileSync("worker/repository.ts", "utf8");
+    expect(schema).toContain("REFERENCES user(id) ON DELETE CASCADE");
+    for (const name of ["WorkoutSession", "ExerciseSet", "MuscleRatingSnapshot"])
+      expect(repo).toContain(name);
+    expect(repo).toContain("owner_id = ?");
   });
 });

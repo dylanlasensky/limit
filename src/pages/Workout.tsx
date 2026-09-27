@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { listExercises } from "@/lib/training/exerciseLibrary";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
@@ -51,7 +51,7 @@ export default function Workout() {
     queryKey: ["workoutExercises", planQuery.data?.plan?.id],
     enabled: !!planQuery.data?.days?.length,
     queryFn: () =>
-      base44.entities.WorkoutExercise.filter(
+      limitApi.entities.WorkoutExercise.filter(
         { workoutDayId: { $in: (planQuery.data?.days || []).map((d) => d.id) } },
         "order",
         500
@@ -62,19 +62,19 @@ export default function Workout() {
     queryKey: ["workoutHistory", user?.id],
     initialPageParam: 0,
     queryFn: ({ pageParam }) =>
-      base44.entities.WorkoutSession.filter({ status: "completed" }, "-date", 30, pageParam),
+      limitApi.entities.WorkoutSession.filter({ status: "completed" }, "-date", 30, pageParam),
     getNextPageParam: (last, _pages, offset) => (last.length === 30 ? offset + 30 : undefined),
     staleTime: 30000,
   });
   const activeQuery = useQuery({
     queryKey: ["activeSession"],
-    queryFn: () => base44.entities.WorkoutSession.filter({ status: "active" }, "-created_date"),
+    queryFn: () => limitApi.entities.WorkoutSession.filter({ status: "active" }, "-created_date"),
     staleTime: 15000,
   });
   const recentSetsQuery = useQuery({
     queryKey: ["libraryRecentSets", user?.id],
     enabled: tab === "Exercises" && !!user?.id,
-    queryFn: () => base44.entities.ExerciseSet.filter({ completed: true }, "-timestamp", 300),
+    queryFn: () => limitApi.entities.ExerciseSet.filter({ completed: true }, "-timestamp", 300),
     staleTime: 30000,
   });
 

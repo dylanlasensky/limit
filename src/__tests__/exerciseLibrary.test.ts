@@ -1,20 +1,21 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from "vitest";
 import { execFileSync } from "node:child_process";
-import { runInNewContext } from "node:vm";
-import { exerciseCatalog, normalizeExerciseName } from "../../base44/shared/exerciseCatalog.js";
+import { DatabaseSync } from "node:sqlite";
+import { readFileSync } from "node:fs";
+import { exerciseCatalog, normalizeExerciseName } from "../../packages/domain/exerciseCatalog.js";
 import {
   readExercisePages,
   enrichExercise,
   exerciseSearch,
   syncExerciseCatalog,
-} from "../../base44/shared/exerciseLibrary.js";
+} from "../../packages/domain/exerciseLibrary.js";
 import { selectExercise, suitableReplacement } from "@/lib/training/exerciseSelection";
 import { matchRegimen } from "@/lib/training/importRegimen";
-import { personalBests } from "../../base44/shared/workoutAnalytics.js";
+import { personalBests } from "../../packages/domain/workoutAnalytics.js";
 import { suggestProgression } from "@/lib/training/e1rm";
-import { calculateMuscleRating } from "../../base44/shared/muscleRating";
-vi.mock("@/api/base44Client", () => ({ base44: { entities: {} } }));
+import { calculateMuscleRating } from "../../packages/domain/muscleRating";
+vi.mock("@/api/client", () => ({ limitApi: { entities: {} } }));
 const catalog = exerciseCatalog.map((row) => ({ ...row, id: row.catalogKey }));
 const named = (name: string) => catalog.find((row) => row.name === name)!;
 
@@ -160,45 +161,17 @@ describe("curated exercise coverage", () => {
 });
 
 describe("catalog loading and migration", () => {
-  it("runs the exact emitted deployment script and verifies the saved catalog", async () => {
-    const script = execFileSync(process.execPath, ["scripts/seed-exercises.mjs"], {
-      encoding: "utf8",
-    });
-    const rows: any[] = [];
-    const log = vi.fn();
-    const context = {
-      console: { log },
-      base44: {
-        entities: {
-          Exercise: {
-            list: async (_sort, limit, skip) => rows.slice(skip, skip + limit),
-            update: async (id, patch) =>
-              Object.assign(
-                rows.find((row) => row.id === id),
-                patch
-              ),
-            bulkCreate: async (items) => {
-              const saved = items.map((item) => ({ ...item, id: item.catalogKey }));
-              rows.push(...saved);
-              return saved;
-            },
-          },
-        },
-      },
-    };
-    await runInNewContext(`(async () => { ${script} })()`, context);
-    expect(JSON.parse(log.mock.calls[0][0])).toMatchObject({
-      curated: 365,
-      total: 365,
-      created: 365,
-      verified: true,
-    });
-    await runInNewContext(`(async () => { ${script} })()`, context);
-    expect(JSON.parse(log.mock.calls[1][0])).toMatchObject({
-      created: 0,
-      unchanged: 365,
-      verified: true,
-    });
+  it("applies the real schema and seeds stable catalog IDs repeatably", () => {
+    const db = new DatabaseSync(":memory:");
+    db.exec(readFileSync("worker/migrations/0001_initial.sql", "utf8"));
+    const sql = execFileSync(process.execPath, ["scripts/seed-d1.mjs"], { encoding: "utf8" });
+    db.exec(sql);
+    db.exec(sql);
+    expect(db.prepare("SELECT count(*) AS total FROM exercise").get()?.total).toBe(365);
+    const rows = db.prepare("SELECT id, data FROM exercise ORDER BY id").all();
+    for (const row of rows) expect(JSON.parse(String(row.data)).catalogKey).toBe(row.id);
+    expect(db.prepare("PRAGMA foreign_key_check").all()).toEqual([]);
+    db.close();
   });
   it("loads past 500 entries without replacing database IDs", async () => {
     const rows = Array.from({ length: 1201 }, (_, i) => ({ id: String(i), name: `Exercise ${i}` }));

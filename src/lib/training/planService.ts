@@ -1,4 +1,4 @@
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { listExercises } from "@/lib/training/exerciseLibrary";
 import {
   scoreProgramStructures,
@@ -35,7 +35,7 @@ export async function createPersonalizedPlan(profile: any, recommendation?: Prog
     throw new Error("Choose 2–6 training days in Profile before building your program.");
   const chosen = orderedTrainingDays(profile);
   const input = { ...profile, days: chosen.length, availableDays: chosen.map((i) => WEEKDAYS[i]) };
-  const sessions = await base44.entities.WorkoutSession.filter(
+  const sessions = await limitApi.entities.WorkoutSession.filter(
     { status: "active" },
     "-created_date",
     1
@@ -52,7 +52,7 @@ export async function createPersonalizedPlan(profile: any, recommendation?: Prog
     throw new Error(
       "No suitable exercises were found for this split and equipment. Your current program hasn’t changed. Update your equipment in Profile and try again."
     );
-  const plan = await base44.entities.WorkoutPlan.create({
+  const plan = await limitApi.entities.WorkoutPlan.create({
     name: rec.name,
     description: [
       rec.why,
@@ -80,7 +80,7 @@ export async function createPersonalizedPlan(profile: any, recommendation?: Prog
       isRest: idx < 0,
     };
   });
-  const createdDays = await base44.entities.WorkoutDay.bulkCreate(dayRecords);
+  const createdDays = await limitApi.entities.WorkoutDay.bulkCreate(dayRecords);
   if (
     !Array.isArray(createdDays) ||
     createdDays.length !== 7 ||
@@ -106,7 +106,7 @@ export async function createPersonalizedPlan(profile: any, recommendation?: Prog
       ? []
       : templates[chosen.indexOf(day.weekday)].map((row) => ({ ...row, workoutDayId: day.id }))
   );
-  const savedRows = await base44.entities.WorkoutExercise.bulkCreate(workoutExercises);
+  const savedRows = await limitApi.entities.WorkoutExercise.bulkCreate(workoutExercises);
   const key = (row: any) => `${row.workoutDayId}:${row.order}`;
   const expectedRows = new Map(workoutExercises.map((row) => [key(row), row]));
   if (
@@ -136,7 +136,7 @@ export async function createPersonalizedPlan(profile: any, recommendation?: Prog
     })
   )
     throw incomplete();
-  const { data } = await base44.functions.invoke("workoutCommand", {
+  const { data } = await limitApi.functions.invoke("workoutCommand", {
     action: "activatePlan",
     planId: plan.id,
   });

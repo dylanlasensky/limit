@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Trash2 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
 import { clearPrivateState } from "@/lib/storage";
 import {
@@ -20,7 +20,7 @@ export default function AccountDeletion() {
     setDeleting(true);
     setError("");
     try {
-      const { data } = await base44.functions.invoke("deleteAccount", { confirm: true });
+      const { data } = await limitApi.functions.invoke("deleteAccount", { confirm: true });
       if (!data?.ok) throw new Error("Account deletion did not finish. Please retry.");
       clearPrivateState(user?.id);
       logout();

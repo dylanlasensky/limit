@@ -30,6 +30,8 @@ export function clearPrivateState(userId?: string) {
         if (
           key.startsWith("limit-tab-route:") ||
           key.startsWith("limit-scroll:") ||
+          key.startsWith("limit-workout-ui:") ||
+          key === "limit-offline-identity" ||
           (userId && key === "limit-exercise-favorites:" + userId) ||
           (userId && key.startsWith("limit-workout-v2:" + userId + ":"))
         )

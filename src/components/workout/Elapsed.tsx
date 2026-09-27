@@ -1,14 +1,23 @@
+import { elapsedMilliseconds } from "./useWorkoutClock";
 import React, { useEffect, useState } from "react";
 interface ElapsedProps {
   startedAt: string | number | Date;
+  pausedAt?: number | null;
+  pausedMs?: number;
 }
-export default function Elapsed({ startedAt }: ElapsedProps) {
+export default function Elapsed({ startedAt, pausedAt = null, pausedMs = 0 }: ElapsedProps) {
   const [, tick] = useState(0);
   useEffect(() => {
     const t = setInterval(() => tick((n) => n + 1), 1000);
     return () => clearInterval(t);
   }, []);
-  const seconds = Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000)) || 0;
+  const seconds =
+    Math.max(
+      0,
+      Math.floor(
+        elapsedMilliseconds(new Date(startedAt).getTime(), Date.now(), pausedAt, pausedMs) / 1000
+      )
+    ) || 0;
   return (
     <span className="font-mono tabular-nums">
       {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")}

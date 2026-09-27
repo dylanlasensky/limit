@@ -60,16 +60,16 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
               <p>
                 Your account identifies you by name and email. Your profile can include birth date,
                 body measurements, training goals and dietary preferences. Workouts, sets, food
-                entries and progress are stored with your account on Base44 so LIMIT can show your
-                history and plans. Optional activity, sleep, body measurements and daily check-ins
-                are also stored with your account, along with their source and your health-view
-                preferences.
+                entries and progress are stored with your account on Cloudflare so LIMIT can show
+                your history and plans. Optional activity, sleep, body measurements and daily
+                check-ins are also stored with your account, along with their source and your
+                health-view preferences.
               </p>
             </InfoSection>
             <InfoSection title="Optional AI features">
               <p>
                 Coach questions, food-photo analysis and plan import can send the information
-                described in their consent prompt to Base44 and OpenAI. They require an explicit
+                described in their consent prompt to Cloudflare Workers AI. They require an explicit
                 choice before sharing. Manual workout and food logging remain available without AI.
                 Do not upload someone else’s private information or medical documents.
               </p>

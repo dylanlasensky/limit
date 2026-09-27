@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import useWorkoutRows from "@/components/workout/useWorkoutRows";
 import type { WorkoutSetRow } from "@/components/workout/workoutDraft";
 const { invoke } = vi.hoisted(() => ({ invoke: vi.fn() }));
-vi.mock("@/api/base44Client", () => ({ base44: { functions: { invoke } } }));
+vi.mock("@/api/client", () => ({ limitApi: { functions: { invoke } } }));
 const row = (key: string): WorkoutSetRow => ({
   key,
   workoutExerciseId: "we",

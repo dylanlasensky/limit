@@ -1,5 +1,6 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { exerciseCatalog } from "../base44/shared/exerciseCatalog.js";
+import { exerciseCatalog } from "../packages/domain/exerciseCatalog.js";
 
 type Row = Record<string, any>;
 async function mockApp(
@@ -104,13 +105,9 @@ async function mockApp(
     // Explicitly block all non-local traffic, including analytics and AI uploads.
     if (url.origin !== "http://127.0.0.1:4173") return route.abort();
     if (!url.pathname.startsWith("/api/")) return route.continue();
-    const reply = (body: any, status = 200) => route.fulfill({ status, json: body });
-    if (url.pathname.includes("public-settings"))
-      return failPublicSettings
-        ? reply({ message: "Unavailable" }, 503)
-        : reply({ id: "limit-browser-test", public_settings: {} });
-    if (url.pathname.endsWith("/User/me"))
-      return reply(signedIn ? user : { message: "Unauthorized" }, signedIn ? 200 : 401);
+    const enrich=(value:any):any=>Array.isArray(value)?value.map(enrich):value&&typeof value==='object'?{...(value.id?{ownerId:"qa-user",created_by_id:"qa-user",created_date:"2026-09-27T00:00:00Z",updated_date:"2026-09-27T00:00:00Z"}:{}),...Object.fromEntries(Object.entries(value).map(([k,v])=>[k,enrich(v)]))}:value;
+    const reply = (body: any, status = 200) => route.fulfill({ status, json: enrich(body) });
+    if(url.pathname==="/api/auth/get-session")return failPublicSettings?reply({message:"Unavailable"},503):reply(signedIn?{session:{id:"qa-session",userId:user.id,expiresAt:"2099-01-01T00:00:00Z"},user:{...user,name:user.full_name,emailVerified:true}}:null);
     if (url.pathname.includes("/functions/exportAccount")) {
       writes.push({ function: "exportAccount" });
       if (control.failExport) return reply({ error: "Unavailable" }, 503);
@@ -200,7 +197,7 @@ async function mockApp(
             rows.find((row) => row.id === id) || {},
             rows.some((row) => row.id === id) ? 200 : 404
           );
-        const query = JSON.parse(url.searchParams.get("q") || "{}");
+        const query = JSON.parse(url.searchParams.get("filter") || "{}");
         return reply(
           rows
             .filter((row) =>
@@ -220,6 +217,19 @@ async function mockApp(
             )
         );
       }
+      if (request.method() === "POST" && id === "updateMany") {
+        const body = request.postDataJSON();
+        writes.push({ entity: name, action: "updateMany", ...body });
+        if (name === "GroceryList" && control.failGrocerySave)
+          return reply({ message: "Unavailable" }, 503);
+        let updated = 0;
+        entities[name] = rows.map((row) => {
+          if (!Object.entries(body.filter).every(([key, value]) => row[key] === value)) return row;
+          updated++;
+          return { ...row, ...body.update.$set, updated_date: new Date().toISOString() };
+        });
+        return reply({ success: true, updated });
+      }
       if (request.method() === "POST") {
         const body = request.postDataJSON();
         writes.push({ entity: name, ...body });
@@ -234,7 +244,7 @@ async function mockApp(
         entities[name] = [...rows, saved];
         return reply(saved);
       }
-      if (request.method() === "PUT" && id) {
+      if (request.method() === "PATCH" && id) {
         const body = request.postDataJSON();
         writes.push({ entity: name, action: "update", id, ...body });
         if (name === "FoodEntry" && control.failFoodEdit)
@@ -252,19 +262,7 @@ async function mockApp(
         entities[name] = rows.filter((row) => row.id !== id);
         return reply({ success: true });
       }
-      if (request.method() === "PATCH" && id === "update-many") {
-        const body = request.postDataJSON();
-        writes.push({ entity: name, action: "updateMany", ...body });
-        if (name === "GroceryList" && control.failGrocerySave)
-          return reply({ message: "Unavailable" }, 503);
-        let updated = 0;
-        entities[name] = rows.map((row) => {
-          if (!Object.entries(body.query).every(([key, value]) => row[key] === value)) return row;
-          updated++;
-          return { ...row, ...body.data.$set, updated_date: new Date().toISOString() };
-        });
-        return reply({ success: true, updated });
-      }
+
     }
     return reply({ error: "Unmocked API request: " + url.pathname }, 500);
   });
@@ -286,9 +284,8 @@ test("expanded exercise library searches aliases, filters power and shows techni
   await page.getByRole("button", { name: "Done", exact: true }).click();
   await page.getByRole("button", { name: "Clear filters", exact: true }).click();
   await page.getByRole("button", { name: "More filters", exact: true }).click();
-  await page
-    .getByRole("combobox", { name: "Training focus", exact: true })
-    .selectOption("Athletic power");
+  await page.getByRole("button", {name:"Training focus",exact:true}).click();
+  await page.getByRole("dialog").last().getByRole("button", {name:"Athletic power",exact:true}).click();
   await expect(page.getByText("39 results · 365 total", { exact: true })).toBeVisible();
   await page.getByRole("textbox", { name: "Search exercises", exact: true }).fill("Power Clean");
   await page.getByRole("button", { name: /^Power Clean Quads/ }).click();
@@ -298,9 +295,11 @@ test("expanded exercise library searches aliases, filters power and shows techni
     await page.screenshot({ path: testInfo.outputPath("exercise-details.png"), fullPage: true });
   await page.getByRole("button", { name: "Done", exact: true }).click();
   await page.getByRole("button", { name: "Clear filters", exact: true }).click();
-  await page.getByRole("combobox", { name: "Muscle", exact: true }).selectOption("Adductors");
+  await page.getByRole("button", { name: "Muscle", exact: true }).click();
+  await page.getByRole("dialog").last().getByRole("button", {name:"Adductors",exact:true}).click();
   await expect(page.getByRole("button", { name: /^Seated Hip Adduction/ })).toBeVisible();
-  await page.getByRole("combobox", { name: "Equipment", exact: true }).selectOption("Barbell");
+  await page.getByRole("button", { name: "Equipment", exact: true }).click();
+  await page.getByRole("dialog").last().getByRole("button", {name:"Barbell",exact:true}).click();
   await expect(page.getByRole("heading", { name: "No exercises found" })).toBeVisible();
   await page.getByRole("button", { name: "Clear filters", exact: true }).first().click();
   await noOverflow(page);
@@ -321,7 +320,7 @@ test("workout previews are read-only until an explicit start", async ({ page }, 
   await page.getByRole("button", { name: "Preview today’s workout", exact: true }).click();
   const preview = page.getByRole("dialog");
   await expect(preview.getByRole("heading", { name: "Bench Press", exact: true })).toBeVisible();
-  await expect(preview.getByText("3 sets × 8-12 reps", { exact: true })).toBeVisible();
+  await expect(preview.getByText("3 sets × 8–12 reps", { exact: true })).toBeVisible();
   await expect(preview.getByText(/Barbell · Chest · 60s rest/)).toBeVisible();
   expect(writes).toEqual([]);
   await noOverflow(page);
@@ -714,8 +713,8 @@ test("legacy muscles and duplicate saved IDs stay discoverable in recent exercis
     primaryMuscle: "Back",
   });
   entities.ExerciseSet = [
-    { id: "one", exerciseId: bench.catalogKey, completed: true, timestamp: "2026-09-14T11:00:00Z" },
-    { id: "two", exerciseId: lat.catalogKey, completed: true, timestamp: "2026-09-14T12:00:00Z" },
+    { id: "one", workoutSessionId:"previous", exerciseName:"Barbell Bench Press",setNumber:1,exerciseId: bench.catalogKey, completed: true, timestamp: "2026-09-14T11:00:00Z" },
+    { id: "two",workoutSessionId:"previous",exerciseName:"Lat Pulldown",setNumber:1,exerciseId: lat.catalogKey, completed: true, timestamp: "2026-09-14T12:00:00Z" },
   ];
   await page.goto("/workout?tab=exercises");
   await page.getByRole("button", { name: "Back", exact: true }).click();
@@ -725,7 +724,8 @@ test("legacy muscles and duplicate saved IDs stay discoverable in recent exercis
   await page.getByRole("button", { name: "Recent", exact: true }).click();
   await expect(page.getByTestId("exercise-row")).toHaveCount(2);
   await expect(page.getByTestId("exercise-row").first()).toContainText("Lat Pulldown");
-  await page.getByRole("combobox", { name: "Sort", exact: true }).selectOption("name");
+  await page.getByRole("button", { name: "Sort", exact: true }).click();
+  await page.getByRole("dialog").last().getByRole("button", {name:"A–Z",exact:true}).click();
   await expect(page.getByTestId("exercise-row").first()).toContainText("Bench Press");
   expect(errors).toEqual([]);
 });
@@ -1043,7 +1043,8 @@ test("health preferences select one source, hide metrics and remove only health 
   await page.getByRole("button", { name: "Health settings & data", exact: true }).click();
   const drawer = page.getByRole("dialog");
   await drawer.getByText("Preferred sources · optional", { exact: true }).click();
-  await drawer.getByLabel("Preferred source for Steps", { exact: true }).selectOption("oura");
+  await drawer.getByLabel("Preferred source for Steps", { exact: true }).click();
+  await page.getByRole("dialog").last().getByRole("button", {name:"Oura",exact:true}).click();
   await drawer.getByRole("button", { name: "Save health preferences", exact: true }).click();
   await expect(drawer.getByText("Health preferences saved.", { exact: true })).toBeVisible();
   await drawer.getByRole("button", { name: "Close health settings", exact: true }).click();
@@ -1261,7 +1262,7 @@ test("Coach, photo scanning and import require optional consent and retain manua
   await drawer.getByRole("button", { name: "Send question" }).click();
   await expect(drawer.getByRole("status")).toContainText("Your last logged workout");
   expect(writes.filter((row) => row.function === "askLimitCoach")).toMatchObject([
-    { aiConsent: "openai-v1", question: "What did I log?" },
+    { aiConsent: "cloudflare-ai-v1", question: "What did I log?" },
   ]);
   await drawer.getByRole("button", { name: "Close coach" }).click();
   await page.getByRole("button", { name: "Open LIMIT Coach" }).click();
@@ -1394,3 +1395,5 @@ test("desktop pages use columns and keep profile actions clear of Coach", async 
     await noOverflow(page);
   }
 });
+
+ test("main journeys have no automated WCAG A/AA violations",async({page})=>{await mockApp(page);for(const route of ["home","workout","progress","nutrition","profile","live-workout/day"]){await page.goto('/'+route);await expect(page.locator('main')).toBeVisible();await expect(page.getByText("Loading",{exact:true})).toHaveCount(0);const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(result.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]);}});

@@ -10,8 +10,8 @@ const mocks = vi.hoisted(() => ({
   activePlans: [] as any[],
 }));
 
-vi.mock("@/api/base44Client", () => ({
-  base44: {
+vi.mock("@/api/client", () => ({
+  limitApi: {
     entities: {
       UserProfile: {
         list: vi.fn().mockResolvedValue([{ id: "profile" }]),

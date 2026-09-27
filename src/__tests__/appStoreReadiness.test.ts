@@ -16,14 +16,14 @@ function verifiedFixture(): any {
   return {
     schemaVersion: 1,
     platform: "ios",
-    packaging: "base44",
+    packaging: "expo",
     candidate: {
       sourceRevision: revision,
       appVersion: "1.0.0",
       buildNumber: "1",
       bundleIdentifier: "com.synthetic.fixture",
       developerTeamId: "TESTTEAM01",
-      publishedUrl: "https://limit-55abb6d1.base44.app",
+      publishedUrl: "https://limit-55abb6d1.limitApi.app",
     },
     legal: {
       businessName: "Synthetic test fixture",

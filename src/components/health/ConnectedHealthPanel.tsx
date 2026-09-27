@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, RefreshCw, ShieldCheck, Smartphone, Watch } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import { disconnectHealthBridge, sourceLabel, syncHealthBridge } from "@/lib/health/health-data";
 import { connectionFreshness, healthDataQueryKeys } from "@/lib/health/health-preferences";
 import HealthPreferences from "@/components/health/HealthPreferences";
@@ -34,7 +34,7 @@ export default function ConnectedHealthPanel({ compact = false }: { compact?: bo
       : undefined;
   const query = useQuery({
     queryKey: ["healthConnections"],
-    queryFn: () => base44.entities.HealthConnection.list("-lastSyncedAt", 20),
+    queryFn: () => limitApi.entities.HealthConnection.list("-lastSyncedAt", 20),
     staleTime: 30000,
   });
   const nativeStatus = useQuery({

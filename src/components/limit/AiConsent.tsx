@@ -1,7 +1,7 @@
 import React from "react";
 import { ShieldCheck } from "lucide-react";
 
-export { AI_CONSENT_VERSION } from "../../../base44/shared/aiConsent.js";
+export { AI_CONSENT_VERSION } from "../../../packages/domain/aiConsent.js";
 
 export default function AiConsent({
   checked,
@@ -23,9 +23,9 @@ export default function AiConsent({
         Optional AI assistance
       </p>
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-        To {purpose}, LIMIT sends {dataDescription} to Base44 and OpenAI for AI processing. Don’t
-        include other people’s personal information. AI can make mistakes; review every result.
-        Manual tracking and program building work without AI.
+        To {purpose}, LIMIT sends {dataDescription} to Cloudflare Workers AI for AI processing.
+        Don’t include other people’s personal information. AI can make mistakes; review every
+        result. Manual tracking and program building work without AI.
       </p>
       <a
         href="/privacy"

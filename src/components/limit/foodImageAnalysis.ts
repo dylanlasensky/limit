@@ -1,6 +1,6 @@
-import { base44 } from "@/api/base44Client";
+import { limitApi } from "@/api/client";
 import type { DietaryProfile } from "@/components/limit/data";
-import { AI_CONSENT_VERSION, requireAiConsent } from "../../../base44/shared/aiConsent.js";
+import { AI_CONSENT_VERSION, requireAiConsent } from "../../../packages/domain/aiConsent.js";
 
 export type ScanMode = "food" | "meal";
 
@@ -45,7 +45,7 @@ export async function uploadFoodImage(
   requireAiConsent({ aiConsent });
   if (!file.type.startsWith("image/")) throw new Error("Choose an image file.");
   if (file.size > 10 * 1024 * 1024) throw new Error("Choose a photo smaller than 10 MB.");
-  const { file_uri } = await base44.integrations.Core.UploadPrivateFile({ file });
+  const { file_uri } = await limitApi.integrations.Core.UploadPrivateFile({ file });
   return { fileUri: file_uri, previewUrl: URL.createObjectURL(file) };
 }
 export async function analyzeFoodImage({
@@ -56,7 +56,7 @@ export async function analyzeFoodImage({
   aiConsent,
 }: AnalyzeFoodImageParams): Promise<FoodScanResult> {
   requireAiConsent({ aiConsent });
-  const { data } = await base44.functions.invoke("analyzeFoodPhoto", {
+  const { data } = await limitApi.functions.invoke("analyzeFoodPhoto", {
     fileUri,
     scanMode,
     allergies: dietaryProfile?.allergies || [],

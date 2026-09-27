@@ -30,7 +30,6 @@ const ImportWorkout = lazy(() => import("@/pages/ImportWorkout"));
 const Nutrition = lazy(() => import("@/pages/Nutrition"));
 const Progress = lazy(() => import("@/pages/Progress"));
 const Profile = lazy(() => import("@/pages/Profile"));
-const OAuthConsent = lazy(() => import("@/pages/OAuthConsent"));
 import LimitShell from "@/components/limit/LimitShell";
 // Add page imports here
 
@@ -66,7 +65,6 @@ const AuthenticatedApp = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/oauth-consent" element={<OAuthConsent />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/" element={<Entry />} />
         <Route path="/onboarding" element={<Onboarding />} />

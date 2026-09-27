@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import AiConsent from "@/components/limit/AiConsent";
-import { AI_CONSENT_VERSION, requireAiConsent } from "../../base44/shared/aiConsent.js";
+import { AI_CONSENT_VERSION, requireAiConsent } from "../../packages/domain/aiConsent.js";
 import { uploadFoodImage, analyzeFoodImage } from "@/components/limit/foodImageAnalysis";
 import { parseRegimen } from "@/lib/training/importRegimen";
 const mocks = vi.hoisted(() => ({ upload: vi.fn(), invoke: vi.fn() }));
-vi.mock("@/api/base44Client", () => ({
-  base44: {
+vi.mock("@/api/client", () => ({
+  limitApi: {
     integrations: { Core: { UploadPrivateFile: mocks.upload } },
     functions: { invoke: mocks.invoke },
   },
@@ -31,7 +31,7 @@ describe("explicit optional AI consent", () => {
     }
     render(<Example />);
     expect(screen.getByRole("checkbox")).not.toBeChecked();
-    expect(screen.getByText(/Base44 and OpenAI/)).toHaveTextContent("your selected photo");
+    expect(screen.getByText(/Cloudflare Workers AI/)).toHaveTextContent("your selected photo");
     expect(screen.getByText(/Manual tracking/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("checkbox"));
     expect(screen.getByRole("checkbox")).toBeChecked();

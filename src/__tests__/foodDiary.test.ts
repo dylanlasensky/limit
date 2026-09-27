@@ -12,7 +12,7 @@ const api = vi.hoisted(() => ({
   delete: vi.fn(),
   filter: vi.fn(),
 }));
-vi.mock("@/api/base44Client", () => ({ base44: { entities: { FoodEntry: api } } }));
+vi.mock("@/api/client", () => ({ limitApi: { entities: { FoodEntry: api } } }));
 const entry = {
   id: "food-1",
   date: "2020-06-01",

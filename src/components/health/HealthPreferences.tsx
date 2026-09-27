@@ -109,7 +109,10 @@ function PreferenceControls({
                   }
                   options={[
                     { value: "automatic", label: "Automatic" },
-                    ...healthSources.map((source) => ({ value: source, label: sourceLabel(source) })),
+                    ...healthSources.map((source) => ({
+                      value: source,
+                      label: sourceLabel(source),
+                    })),
                   ]}
                   className="mt-1 h-11 text-sm text-foreground"
                 />

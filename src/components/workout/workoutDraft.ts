@@ -5,6 +5,7 @@ export interface WorkoutSetRow {
   exerciseName: string;
   primaryMuscle: string;
   setNumber: number;
+  setType?: "working" | "warmup";
   weight: string;
   reps: string;
   rir: string | number;
@@ -16,9 +17,11 @@ export interface WorkoutSetRow {
   removed?: boolean;
 }
 
-export type EditableSetField = "weight" | "reps" | "rir";
+export type EditableSetField = "weight" | "reps" | "rir" | "setType";
 
-export function validateSet(row: Pick<WorkoutSetRow, "weight" | "reps" | "rir">): string | null {
+export function validateSet(
+  row: Pick<WorkoutSetRow, "weight" | "reps" | "rir" | "setType">
+): string | null {
   if (
     !String(row.weight).trim() ||
     !Number.isFinite(+row.weight) ||
@@ -126,6 +129,7 @@ export function initialRows(
         exerciseName: we.exerciseName,
         primaryMuscle: exercisesById[we.exerciseId]?.primaryMuscle || "",
         setNumber: number,
+        setType: record?.setType === "warmup" ? "warmup" : "working",
         weight: record ? String(record.weight) : "",
         reps: record ? String(record.reps) : "",
         rir: record?.rir ?? "",

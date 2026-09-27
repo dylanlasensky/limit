@@ -27,9 +27,7 @@ function cssDarkFallback(): boolean {
 }
 
 function isDark(appearance: Appearance, media = deviceTheme()): boolean {
-  return appearance === "system"
-    ? media?.matches ?? cssDarkFallback()
-    : appearance === "dark";
+  return appearance === "system" ? (media?.matches ?? cssDarkFallback()) : appearance === "dark";
 }
 
 export function setAppearance(appearance: Appearance) {

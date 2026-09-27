@@ -1,0 +1,171 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "limit-local",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-09-27",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "vars": {
+    "ENVIRONMENT": "local",
+    "APP_ORIGIN": "http://localhost:8787",
+    "EMAIL_FROM": "",
+    "EMAIL_ENABLED": "false",
+    "AI_ENABLED": "false"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "limit-local",
+      "database_id": "00000000-0000-0000-0000-000000000001",
+      "migrations_dir": "worker/migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "limit-local-private"
+    },
+    {
+      "binding": "MEDIA",
+      "bucket_name": "limit-local-media"
+    }
+  ],
+  "env": {
+    "preview": {
+      "name": "limit-preview",
+      "vars": {
+        "ENVIRONMENT": "preview",
+        "APP_ORIGIN": "https://limit-preview.limit-dylanlasensky.workers.dev",
+        "EMAIL_FROM": "",
+        "EMAIL_ENABLED": "false",
+        "AI_ENABLED": "true"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "limit-preview",
+          "migrations_dir": "worker/migrations",
+          "database_id": "8de46663-99d3-435d-8a8d-d2d46ec7a562"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "FILES",
+          "bucket_name": "limit-preview-private"
+        },
+        {
+          "binding": "MEDIA",
+          "bucket_name": "limit-preview-media"
+        }
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "ACCOUNT_COORDINATOR",
+            "class_name": "AccountCoordinator"
+          },
+          {
+            "name": "COACH",
+            "class_name": "LimitCoach"
+          }
+        ]
+      },
+      "ai": {
+        "binding": "AI"
+      },
+      "assets": {
+        "directory": "./dist",
+        "binding": "ASSETS",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": [
+          "/api/*"
+        ]
+      }
+    },
+    "production": {
+      "name": "limit",
+      "vars": {
+        "ENVIRONMENT": "production",
+        "APP_ORIGIN": "https://limit.limit-dylanlasensky.workers.dev",
+        "EMAIL_FROM": "",
+        "EMAIL_ENABLED": "false",
+        "AI_ENABLED": "true"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "limit-production",
+          "migrations_dir": "worker/migrations",
+          "database_id": "2b1a9fb7-ad6b-41c9-834e-d6095d7fe70f"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "FILES",
+          "bucket_name": "limit-production-private"
+        },
+        {
+          "binding": "MEDIA",
+          "bucket_name": "limit-production-media"
+        }
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "ACCOUNT_COORDINATOR",
+            "class_name": "AccountCoordinator"
+          },
+          {
+            "name": "COACH",
+            "class_name": "LimitCoach"
+          }
+        ]
+      },
+      "ai": {
+        "binding": "AI"
+      },
+      "assets": {
+        "directory": "./dist",
+        "binding": "ASSETS",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": [
+          "/api/*"
+        ]
+      }
+    }
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "ACCOUNT_COORDINATOR",
+        "class_name": "AccountCoordinator"
+      },
+      {
+        "name": "COACH",
+        "class_name": "LimitCoach"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "AccountCoordinator",
+        "LimitCoach"
+      ]
+    }
+  ]
+}

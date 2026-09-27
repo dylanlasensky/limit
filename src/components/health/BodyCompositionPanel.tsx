@@ -61,30 +61,30 @@ export default function BodyCompositionPanel({
   const cards = [...mainMetrics, ...moreMetrics]
     .filter(isMetricVisible)
     .flatMap<BodyMetricCard>((metric) => {
-    if (optimisticCards[metric]) return [optimisticCards[metric]!];
-    if (metric === "weight" && latestWeight)
-      return [
-        {
-          metric,
-          label: "Weight",
-          value: latestWeight.weight + " " + latestWeight.unit,
-          date: latestWeight.date,
-          source: sourceLabel(latestWeight.source || "manual"),
-        },
-      ];
-    const row = latest[metric];
-    return row
-      ? [
+      if (optimisticCards[metric]) return [optimisticCards[metric]!];
+      if (metric === "weight" && latestWeight)
+        return [
           {
             metric,
-            label: healthMetricDefinitions[metric].label,
-            value: formatHealthValue(row),
-            date: row.date,
-            source: sourceLabel(row.source),
+            label: "Weight",
+            value: latestWeight.weight + " " + latestWeight.unit,
+            date: latestWeight.date,
+            source: sourceLabel(latestWeight.source || "manual"),
           },
-        ]
-      : [];
-  });
+        ];
+      const row = latest[metric];
+      return row
+        ? [
+            {
+              metric,
+              label: healthMetricDefinitions[metric].label,
+              value: formatHealthValue(row),
+              date: row.date,
+              source: sourceLabel(row.source),
+            },
+          ]
+        : [];
+    });
   const start = () => {
     const manual = preferredDailyMetrics(
       rows.filter((row) => row.source === "manual"),
@@ -123,19 +123,20 @@ export default function BodyCompositionPanel({
           source: "manual",
         })
       );
-      const optimisticUpdates = payloads.reduce<
-        Partial<Record<HealthMetricName, BodyMetricCard>>
-      >((updates, row) => {
-        const metric = row.metric as HealthMetricName;
-        updates[metric] = {
-          metric,
-          label: healthMetricDefinitions[metric].label,
-          value: formatHealthValue(row),
-          date,
-          source: sourceLabel("manual"),
-        };
-        return updates;
-      }, {});
+      const optimisticUpdates = payloads.reduce<Partial<Record<HealthMetricName, BodyMetricCard>>>(
+        (updates, row) => {
+          const metric = row.metric as HealthMetricName;
+          updates[metric] = {
+            metric,
+            label: healthMetricDefinitions[metric].label,
+            value: formatHealthValue(row),
+            date,
+            source: sourceLabel("manual"),
+          };
+          return updates;
+        },
+        {}
+      );
       setOptimisticCards((current) => ({ ...current, ...optimisticUpdates }));
       const weight = payloads.find((row) => row.metric === "weight");
       if (weight) await saveDailyWeight({ date, weight: weight.value, unit: "lb" });

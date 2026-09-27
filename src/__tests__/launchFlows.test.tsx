@@ -16,8 +16,8 @@ const mocks = vi.hoisted(() => ({
   buildPlan: vi.fn(),
 }));
 
-vi.mock("@/api/base44Client", () => ({
-  base44: {
+vi.mock("@/api/client", () => ({
+  limitApi: {
     entities: {
       UserProfile: {
         list: mocks.profileList,

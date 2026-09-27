@@ -15,9 +15,9 @@ async function mockWorkout(page: Page) {
     completed: true,
   };
   const entities: Record<string, Record<string, any>[]> = {
-    UserProfile: [{ id: "profile", onboardingComplete: true, equipment: ["Full gym"] }],
-    WorkoutDay: [{ id: "day", planId: "plan", name: "Upper body" }],
-    WorkoutPlan: [{ id: "plan", active: true }],
+    UserProfile: [{ id: "profile",name:"Jordan", onboardingComplete: true, equipment: ["Full gym"] }],
+    WorkoutDay: [{ id: "day", planId: "plan", name: "Upper body",weekday:0 }],
+    WorkoutPlan: [{ id: "plan",name:"Strength", active: true }],
     WorkoutExercise: [
       {
         id: "template",
@@ -39,7 +39,7 @@ async function mockWorkout(page: Page) {
         category: "Compound",
       },
     ],
-    WorkoutSession: [{ id: "previous-session", status: "completed" }],
+    WorkoutSession: [{ id: "previous-session",name:"Upper body",date:"2026-09-26", status: "completed" }],
     ExerciseSet: [previous],
   };
   page.on("pageerror", (error) => errors.push(error.message));
@@ -48,16 +48,9 @@ async function mockWorkout(page: Page) {
     const url = new URL(request.url());
     if (url.origin !== "http://127.0.0.1:4173") return route.abort();
     if (!url.pathname.startsWith("/api/")) return route.continue();
-    const reply = (body: unknown, status = 200) => route.fulfill({ status, json: body });
-    if (url.pathname.includes("public-settings"))
-      return reply({ id: "limit-browser-test", public_settings: {} });
-    if (url.pathname.endsWith("/User/me"))
-      return reply({
-        id: "tools-user",
-        full_name: "Jordan",
-        email: "tools@example.invalid",
-        role: "user",
-      });
+    const enrich=(value:any):any=>Array.isArray(value)?value.map(enrich):value&&typeof value==='object'?{...(value.id?{ownerId:"qa-user",created_by_id:"qa-user",created_date:"2026-09-27T00:00:00Z",updated_date:"2026-09-27T00:00:00Z"}:{}),...Object.fromEntries(Object.entries(value).map(([k,v])=>[k,enrich(v)]))}:value;
+    const reply = (body: any, status = 200) => route.fulfill({ status, json: enrich(body) });
+    if(url.pathname==="/api/auth/get-session")return reply({session:{id:"qa-session",userId:"qa-user",expiresAt:"2099-01-01T00:00:00Z"},user:{id:"qa-user",name:"Jordan",email:"qa@example.invalid",emailVerified:true}});
     if (url.pathname.includes("/functions/workoutCommand")) {
       const body = request.postDataJSON();
       writes.push(body);
@@ -74,7 +67,7 @@ async function mockWorkout(page: Page) {
       const [, name, id] = match;
       const rows = entities[name] || [];
       if (id) return reply(rows.find((row) => row.id === id) || {});
-      const query = JSON.parse(url.searchParams.get("q") || "{}");
+      const query = JSON.parse(url.searchParams.get("filter") || "{}");
       return reply(
         rows.filter((row) =>
           Object.entries(query).every(([key, value]) =>
@@ -108,7 +101,7 @@ for (const appearance of ["light", "dark"]) {
       .click();
     await expect(page.getByLabel("Set 1 weight in pounds", { exact: true })).toHaveValue("135");
     await expect(page.getByLabel("Set 1 repetitions", { exact: true })).toHaveValue("8");
-    await expect(page.getByLabel("Set 1 reps in reserve, optional", { exact: true })).toHaveValue(
+    await expect(page.getByLabel("Set 1 reps left (reps in reserve), optional", { exact: true })).toHaveValue(
       ""
     );
     await expect(page.getByRole("button", { name: "Finish", exact: true })).toBeDisabled();
