@@ -14,3 +14,9 @@ No queue is required for bounded text imports or small exports. Larger imports/m
 Private queries always include the authenticated account ID. Client ownership fields are rejected. Public catalog writes and raw session/set writes are forbidden. All mutations reject foreign browser origins. Authentication and AI have D1-backed rate limits. Logs include only request ID, method, status and duration, never prompts, health data or credentials.
 
 See the decisions in `docs/decisions`. No account migration is part of this system.
+
+## Shared interface
+
+`packages/design/tokens.json` is the common palette, spacing, typography and touch-target source. `scripts/build-design-tokens.mjs` generates web CSS; native components consume the same JSON. Existing web navigation and cards retain the LIMIT visual direction while authentication, coaching proposals and the workout logger use consistent controls and focus states. MotionConfig and CSS honor reduced motion; exercise playback is always user controlled.
+
+The optional movement-limitations field is saved with the profile and blocks automatic plan generation. Coaching uses recent completed sessions, the saved schedule, dietary constraints and validated adult-only existing nutrition targets. The model only chooses a bounded category; it cannot output arbitrary exercise prescriptions, allergy assurances or new nutrition numbers. Explicit discomfort rules take precedence over its classification.

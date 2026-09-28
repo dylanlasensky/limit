@@ -62,7 +62,7 @@ export default function ResetPassword() {
       )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="password">New Password</Label>
+          <Label htmlFor="password">New Password · at least 12 characters</Label>
           <div className="relative">
             <Lock
               className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
@@ -72,6 +72,8 @@ export default function ResetPassword() {
               id="password"
               type="password"
               autoComplete="new-password"
+              minLength={12}
+              maxLength={128}
               autoFocus
               placeholder="••••••••"
               value={newPassword}
@@ -92,6 +94,8 @@ export default function ResetPassword() {
               id="confirm"
               type="password"
               autoComplete="new-password"
+              minLength={12}
+              maxLength={128}
               placeholder="••••••••"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

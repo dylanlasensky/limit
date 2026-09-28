@@ -1,3 +1,4 @@
+import {ACCOUNT_ENTITIES} from "../packages/domain/accountData.js";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { exerciseCatalog } from "../packages/domain/exerciseCatalog.js";
@@ -113,13 +114,14 @@ async function mockApp(
       if (control.failExport) return reply({ error: "Unavailable" }, 503);
       return reply({
         schemaVersion: 1,
-        account: { id: control.wrongExportAccount ? "not-my-account" : user.id },
-        entities,
+        exportedAt:new Date().toISOString(),scope:"Saved LIMIT records",
+        account: { id: control.wrongExportAccount ? "not-my-account" : user.id, name:"Jordan",email:user.email },
+        entities:Object.fromEntries(ACCOUNT_ENTITIES.map(name=>[name,entities[name]||[]])),
       });
     }
     if (url.pathname.includes("/functions/askLimitCoach")) {
       writes.push({ function: "askLimitCoach", ...request.postDataJSON() });
-      return reply({ answer: "Your last logged workout is ready to review." });
+      return reply({ answer: "Your last logged workout is ready to review.",source:"deterministic",proposal:null,proposalError:null,before:null });
     }
     if (url.pathname.includes("/functions/deleteAccount")) {
       writes.push({ function: "deleteAccount", ...request.postDataJSON() });
@@ -134,6 +136,7 @@ async function mockApp(
       if (body.action === "start") {
         const session = entities.WorkoutSession[0] || {
           id: "session",
+          name:"Full body A",
           ownerId: user.id,
           workoutDayId: "day",
           planId: "plan",
@@ -147,6 +150,7 @@ async function mockApp(
       if (body.action === "saveSet") {
         const saved = {
           ...body.row,
+          weight:Number(body.row.weight),reps:Number(body.row.reps),rir:body.row.rir===""||body.row.rir==null?undefined:Number(body.row.rir),
           id: "set-" + body.row.setNumber,
           revision: body.row.operationId,
           workoutSessionId: "session",
@@ -166,6 +170,7 @@ async function mockApp(
             volume: 1080,
             prs: [],
             ratingChanges: [],
+            analyticsPending:false,
           },
         });
       return reply({ error: "Unexpected command" }, 400);

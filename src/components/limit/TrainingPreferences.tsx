@@ -33,6 +33,19 @@ export default function TrainingPreferences({ profile, onChange }: TrainingPrefe
       </label>
       <p className="mt-4 text-xs text-muted-foreground">Available equipment</p>
       <EquipmentPicker value={profile.equipment} onChange={(value) => set("equipment", value)} />
+      <label className="mt-5 block text-sm font-medium">
+        Movement limitations · optional
+        <input
+          className="mt-2 min-h-12 w-full rounded-xl border border-input bg-background px-3 text-base"
+          maxLength={200}
+          value={(profile.injuries || []).join(", ")}
+          onChange={(e) => set("injuries", e.target.value ? [e.target.value] : [])}
+          placeholder="For example, a movement you were told to avoid"
+        />
+        <span className="mt-2 block text-xs font-normal text-muted-foreground">
+          The coach will pause automatic new plans while limitations are listed.
+        </span>
+      </label>
       <details className="mt-4 rounded-xl border border-border p-3">
         <summary className="cursor-pointer text-sm font-medium">
           Muscle priorities

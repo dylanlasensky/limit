@@ -14,6 +14,7 @@ const profileFields = new Set([
   "activityLevel",
   "fitnessGoal",
   "experienceLevel",
+  "injuries",
   "trainingDays",
   "availableDays",
   "sessionLength",

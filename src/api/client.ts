@@ -1,3 +1,4 @@
+import { functionResponseSchema } from "../../packages/contracts/functions";
 import { z } from "zod";
 import { createAuthClient } from "better-auth/react";
 import {
@@ -147,7 +148,7 @@ export const limitApi = {
     invoke: async (name: string, input: unknown) => ({
       data: await apiRequest(
         "/functions/" + encodeURIComponent(name),
-        z.record(z.string(), z.any()),
+        functionResponseSchema(name, input),
         { method: "POST", body: JSON.stringify(input) }
       ),
     }),

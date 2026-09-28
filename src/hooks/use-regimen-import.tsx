@@ -23,7 +23,7 @@ export interface BeginRegimenInput {
 }
 
 export default function useRegimenImport(planId?: string | null) {
-  const parsing = useRef<AbortController>();
+  const parsing = useRef<AbortController | undefined>(undefined);
   useEffect(() => () => parsing.current?.abort(), []);
   const client = useQueryClient(),
     catalog = useQuery({

@@ -2,7 +2,7 @@
 
 Release acceptance is not complete until the release record confirms hosted checks.
 
-- R2 activation is required in the Cloudflare account before remote storage buckets can be created.
+- R2 is enabled with private preview/production buckets and conservative app usage caps. Account-wide activity outside LIMIT still shares the metered free allowance.
 - Email verification and recovery require a verified Resend sender and secret. Local testing permits fresh unverified accounts; recovery requests return an explicit configuration error until enabled.
 - All 365 exercise demonstrations need licensed human-produced assets and real review. Written cues work today.
 - Photo nutrition estimation is not enabled without an evaluated vision model. Manual food logging remains available. Text workout import supports pasted text and owned plain-text files; PDF OCR is not included.

@@ -56,10 +56,10 @@ async function mockWorkout(page: Page) {
       writes.push(body);
       if (body.action === "start")
         return reply({
-          session: { id: "session", status: "active", startedAt: new Date().toISOString() },
+          session: { id: "session",name:"Upper body",date:"2026-09-27", status: "active", startedAt: new Date().toISOString() },
         });
       if (body.action === "saveSet")
-        return reply({ set: { ...body.row, id: "saved-set", revision: body.row.operationId } });
+        return reply({ set: { ...body.row,workoutSessionId:"session",exerciseName:"Bench Press",weight:Number(body.row.weight),reps:Number(body.row.reps),rir:body.row.rir===""||body.row.rir==null?undefined:Number(body.row.rir), id: "saved-set", revision: body.row.operationId } });
       return reply({ error: "Unexpected command" }, 400);
     }
     const match = url.pathname.match(/\/entities\/([^/]+)(?:\/([^/]+))?/);

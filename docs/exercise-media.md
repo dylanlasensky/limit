@@ -17,3 +17,5 @@ For each movement:
 - Check reduced motion, pause/play, captions, layout, slow connection and text-only fallback at phone sizes.
 
 Private uploads use FILES, with an 8 MB cap and content-signature checks. They are served only through authenticated `/api/uploads/:id` requests. Do not reuse private upload URLs for public exercise assets.
+
+The full production ledger is [exercise-media-checklist.csv](exercise-media-checklist.csv), one row for each of the 365 stable keys. Regenerate the initial inventory with `node scripts/media-checklist.mjs` only before adding human review evidence; do not overwrite a completed ledger. Before any media upload, check account-wide R2 storage/operations. Keep each environment's complete media collection, including older versions, below 500 MiB under the owner's no-overage constraint. Do not change storage class or enable a public bucket URL.
