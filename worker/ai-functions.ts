@@ -1,3 +1,4 @@
+import { aiResponse } from "../packages/domain/aiResponse";
 import { aiBudget, storageBudget } from "./budget";
 import { z } from "zod";
 import { ApiError } from "./errors";
@@ -56,9 +57,7 @@ export async function aiFunction(name: string, input: unknown, env: Env, userId:
       max_tokens: 2500,
       response_format: { type: "json_object" },
     });
-    const text =
-      typeof result === "string" ? result : "response" in result ? String(result.response) : "";
-    const parsed = parsedPlan.safeParse(JSON.parse(text));
+    const parsed = parsedPlan.safeParse(aiResponse(result));
     if (!parsed.success)
       throw new ApiError("The import could not be validated. Review your text and try again.", 422);
     return parsed.data;

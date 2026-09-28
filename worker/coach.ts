@@ -1,3 +1,4 @@
+import { aiResponse } from "../packages/domain/aiResponse";
 import { guidanceChoice } from "../packages/domain/guidanceChoice";
 import { coachingContext } from "../packages/domain/coachingContext";
 import { aiBudget } from "./budget";
@@ -41,12 +42,9 @@ export class LimitCoach extends Agent<Env, CoachState> {
                 { role: "user", content: question.slice(0, 1000) },
               ],
               max_tokens: 50,
+              response_format: { type: "json_object" },
             });
-            return typeof result === "string"
-              ? result
-              : "response" in result
-                ? String(result.response)
-                : "";
+            return aiResponse(result);
           }
         : undefined
     );
