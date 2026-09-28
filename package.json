@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/build-offline.mjs",
+    "build": "node scripts/build-design-tokens.mjs && vite build && node scripts/build-offline.mjs",
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc -p tsconfig.json",
@@ -22,7 +22,9 @@
     "dev:worker": "wrangler dev --port 8787",
     "db:migrate": "wrangler d1 migrations apply DB --local",
     "db:seed": "node scripts/seed-d1.mjs worker/seed.sql && wrangler d1 execute DB --local --file worker/seed.sql",
-    "test:api": "node --test tests/api/*.test.mjs"
+    "test:api": "node --test tests/api/*.test.mjs",
+    "postinstall": "node scripts/patch-native-decoder.mjs",
+    "test:native": "node --test tests/native/*.test.mjs"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.6",
@@ -39,8 +41,8 @@
     "framer-motion": "^11.16.4",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.475.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-router-dom": "^7.18.3",
     "recharts": "^2.15.4",
     "tailwind-merge": "^3.0.2",
@@ -56,8 +58,8 @@
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^22.13.5",
-    "@types/react": "^18.2.66",
-    "@types/react-dom": "^18.2.22",
+    "@types/react": "~19.2.2",
+    "@types/react-dom": "~19.2.0",
     "@vitejs/plugin-react": "^4.3.4",
     "ajv": "^8.20.0",
     "autoprefixer": "^10.4.20",
@@ -77,5 +79,13 @@
     "vite": "^6.1.0",
     "vitest": "^5.0.0",
     "wrangler": "^4.142.0"
+  },
+  "workspaces": [
+    "apps/mobile",
+    "packages/*"
+  ],
+  "overrides": {
+    "uuid": "11.1.1",
+    "decode-uri-component": "0.5.0"
   }
 }

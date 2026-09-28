@@ -9,7 +9,7 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,6 +20,11 @@ jobs:
       - run: npm run worker:types
       - run: npm run lint && npm run format:check
       - run: npm run typecheck && npm run typecheck:worker
+      - run: npm run lint --workspace limit-mobile && npm run typecheck --workspace limit-mobile
+      - run: npm run test:native
+      - name: Native JavaScript bundles
+        working-directory: apps/mobile
+        run: npx expo export --platform ios --platform android --output-dir /tmp/limit-native-export
       - run: npm test
       - run: npm run build
       - run: npm run db:migrate && npm run db:seed

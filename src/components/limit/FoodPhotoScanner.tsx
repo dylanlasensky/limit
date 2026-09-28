@@ -30,7 +30,7 @@ export default function FoodPhotoScanner({
   entryDate,
   onSavingChange,
 }: FoodPhotoScannerProps) {
-  const pending = useRef<AbortController>();
+  const pending = useRef<AbortController | undefined>(undefined);
   useEffect(() => () => pending.current?.abort(), []);
   const [url, setUrl] = useState(""),
     [fileUri, setFileUri] = useState(""),

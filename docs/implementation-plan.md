@@ -24,7 +24,7 @@ Starting revision: `104aa32f4f431ae284b316172fad9af483ae25db` (2026-09-27 audit)
 
 - Cloudflare account access confirmed; account initially has no D1 databases or Workers.
 - Registered `limit-dylanlasensky.workers.dev` for deployment.
-- R2 API reports storage is not enabled; owner must enable R2 before remote buckets can be provisioned. Local R2 integration can be completed independently.
+- R2 was enabled by the owner. Preview/production private and media buckets are provisioned with public access disabled.
 - Transactional email credentials are not assumed. Recovery and verification integrations must be complete, with missing configuration visible.
 
 Each release records its checks and remaining acceptance criteria. A partial release is not completion of this plan.

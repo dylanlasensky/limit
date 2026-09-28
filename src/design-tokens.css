@@ -1,0 +1,19 @@
+/* Generated from packages/design/tokens.json. */
+:root, .dark {
+  --background: 221.3 50.0% 6.3%;
+  --card: 217.8 44.3% 12.0%;
+  --foreground: 217.5 44.4% 96.5%;
+  --muted-foreground: 215.6 20.8% 69.8%;
+  --primary: 216.1 100.0% 71.0%;
+  --primary-foreground: 221.3 50.0% 6.3%;
+  --border: 216.3 31.1% 23.9%;
+}
+html.light {
+  --background: 220.0 42.9% 97.3%;
+  --card: 0.0 0.0% 100.0%;
+  --foreground: 218.8 45.9% 14.5%;
+  --muted-foreground: 216.3 21.2% 39.8%;
+  --primary: 217.9 78.9% 44.5%;
+  --primary-foreground: 0.0 0.0% 100.0%;
+  --border: 217.1 34.4% 88.0%;
+}

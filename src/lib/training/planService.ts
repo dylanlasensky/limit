@@ -24,6 +24,10 @@ const incomplete = () =>
 
 // Build inactive, validate the entire graph, then activate on the server.
 export async function createPersonalizedPlan(profile: any, recommendation?: ProgramOption | null) {
+  if (profile.injuries?.length)
+    throw new Error(
+      "Get appropriate professional guidance for your listed movement limitations before generating a new program."
+    );
   const explicitDays = profile.availableDays?.length ? profile.availableDays : profile.trainingDays;
   if (
     explicitDays &&

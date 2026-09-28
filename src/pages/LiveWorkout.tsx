@@ -1,5 +1,4 @@
 import useWorkoutClock from "@/components/workout/useWorkoutClock";
-import WorkoutHelp from "@/components/workout/WorkoutHelp";
 import React, { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { X } from "lucide-react";
@@ -302,9 +301,7 @@ export default function LiveWorkout() {
           Next
         </button>
       </nav>
-      <div className="mx-auto max-w-2xl">
-        <WorkoutHelp />
-      </div>
+
       {rest && !paused && (
         <RestTimer
           endsAt={rest}

@@ -1,4 +1,4 @@
-import { proposalSchema, type PlanProposal } from "../../../packages/domain/proposals";
+import { proposalSchema, type PlanProposal } from "../../../packages/contracts/proposals";
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useState } from "react";
 import { Sparkles, Send, X } from "lucide-react";
@@ -99,7 +99,7 @@ export default function CoachButton() {
                 onChange={setConsent}
                 disabled={loading}
                 purpose="answer your question"
-                dataDescription="your question, fitness goals, adult-age eligibility, recent workouts and records, dietary restrictions, and (for adults) weight trends and nutrition totals"
+                dataDescription="your question. LIMIT also uses your saved profile, recent workouts and dietary restrictions to personalize the response"
               />
             </div>
             <div

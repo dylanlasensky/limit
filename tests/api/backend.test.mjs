@@ -53,14 +53,15 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
   const first=await call('/functions/workoutCommand',{cookie,method:'POST',body});assert.equal(first.status,200,JSON.stringify(first.data));set=first.data.set;
   const retry=await call('/functions/workoutCommand',{cookie,method:'POST',body});assert.equal(retry.data.set.id,set.id);
   assert.equal((await call('/functions/workoutCommand',{cookie,method:'POST',body:{...body,row:{...body.row,operationId:crypto.randomUUID()}}})).status,409);
-  const finish={action:'finish',sessionId:session.id,expectedSets:[{id:set.id,revision:set.revision}]};
-  const done=await call('/functions/workoutCommand',{cookie,method:'POST',body:finish});assert.equal(done.status,200,JSON.stringify(done.data));assert.equal(done.data.summary.workingSets,1);
+  const warmup=await call('/functions/workoutCommand',{cookie,method:'POST',body:{...body,row:{...body.row,setNumber:2,operationId:crypto.randomUUID(),weight:'50',reps:'5',setType:'warmup'}}});assert.equal(warmup.status,200);
+  const finish={action:'finish',sessionId:session.id,expectedSets:[{id:set.id,revision:set.revision},{id:warmup.data.set.id,revision:warmup.data.set.revision}]};
+  const done=await call('/functions/workoutCommand',{cookie,method:'POST',body:finish});assert.equal(done.status,200,JSON.stringify(done.data));assert.equal(done.data.summary.workingSets,1);assert.equal(done.data.summary.volume,0);
   const again=await call('/functions/workoutCommand',{cookie,method:'POST',body:finish});assert.deepEqual(again.data.summary,done.data.summary);
  });
  await t.test('coach fails closed on missing consent and only activates explicitly approved proposals',async()=>{
   assert.equal((await call('/functions/askLimitCoach',{cookie,method:'POST',body:{question:'Build a plan'}})).status,403);
   const answer=await call('/functions/askLimitCoach',{cookie,method:'POST',body:{question:'Build a plan',propose:true,aiConsent:'cloudflare-ai-v1'}});
-  assert.equal(answer.status,200,JSON.stringify(answer.data));if(base.startsWith('http://localhost'))assert.equal(answer.data.source,'deterministic');else assert.ok(['workers-ai','deterministic'].includes(answer.data.source));assert.ok(answer.data.proposal,JSON.stringify(answer.data));
+  assert.equal(answer.status,200,JSON.stringify(answer.data));if(base.startsWith('http://localhost'))assert.equal(answer.data.source,'deterministic');else assert.ok(['workers-ai','deterministic'].includes(answer.data.source));assert.ok(answer.data.proposal,JSON.stringify(answer.data));t.diagnostic('Coach response source: '+answer.data.source);
   const before=(await call('/entities/WorkoutPlan?filter='+encodeURIComponent('{"active":true}'),{cookie})).data;assert.equal(before[0].id,plan.id);
   assert.equal((await call('/functions/approvePlan',{cookie,method:'POST',body:{proposalId:answer.data.proposal.id,approved:false}})).status,400);
   const approved=await call('/functions/approvePlan',{cookie,method:'POST',body:{proposalId:answer.data.proposal.id,approved:true}});assert.equal(approved.status,200,JSON.stringify(approved.data));assert.equal(approved.data.plan.active,true);
