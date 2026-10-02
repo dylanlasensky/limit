@@ -9,6 +9,7 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+        update-types: [minor, patch]
       radix-ui:
         patterns:
           - "@radix-ui/*"
@@ -23,3 +24,11 @@ updates:
     labels:
       - dependencies
       - ci
+
+  - package-ecosystem: npm
+    directory: /worker
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    labels: [dependencies]

@@ -1,7 +1,8 @@
+import { aiTelemetry } from "../packages/domain/aiTelemetry";
 import { aiResponse } from "../packages/domain/aiResponse";
 import { guidanceChoice } from "../packages/domain/guidanceChoice";
 import { coachingContext } from "../packages/domain/coachingContext";
-import { aiBudget } from "./budget";
+import { runModel } from "./model";
 import { Agent } from "agents";
 import { Repository } from "./repository";
 import { proposePlan, type PlanProposal } from "../packages/domain/proposals";
@@ -31,8 +32,7 @@ export class LimitCoach extends Agent<Env, CoachState> {
       !!profile.injuries?.length,
       this.env.AI_ENABLED === "true"
         ? async () => {
-            await aiBudget(this.env);
-            const result = await this.env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
+            const result = await runModel(this.env, "coach", {
               messages: [
                 {
                   role: "system",
@@ -59,6 +59,7 @@ export class LimitCoach extends Agent<Env, CoachState> {
         proposal = proposePlan(profile, await repo.entity("Exercise").list(), active?.id || null);
         this.setState({ proposal });
       } catch (error) {
+        console.log(JSON.stringify(aiTelemetry("coach", "safety-refusal", crypto.randomUUID(), 0)));
         proposalError = (error as Error).message;
       }
     return JSON.stringify({

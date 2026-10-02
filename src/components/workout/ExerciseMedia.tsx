@@ -1,6 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { BookOpen, PlayCircle } from "lucide-react";
-import { mediaSchema, type ExerciseMedia as Media } from "../../../packages/contracts/media";
+import {
+  mediaSchema,
+  playableMedia,
+  type ExerciseMedia as Media,
+} from "../../../packages/contracts/media";
 import LimitLogo from "@/components/limit/LimitLogo";
 export default function ExerciseMedia({
   exercise,
@@ -53,7 +57,7 @@ export default function ExerciseMedia({
           "Start with a comfortable setup and a light practice set.",
           "Move with control through a comfortable range. Stop if you feel sharp or unusual pain.",
         ];
-  const video = media?.reviewStatus === "approved" && media.source && !failed;
+  const video = media && playableMedia(media) && !failed;
   return (
     <div
       ref={ref}
@@ -101,6 +105,15 @@ export default function ExerciseMedia({
           </div>
         ))}
       <div className="p-4">
+        {video && media.generated && (
+          <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
+            Generated schematic ·{" "}
+            {media.reviewStatus === "approved"
+              ? "Human movement review recorded"
+              : "Not human fitness-reviewed"}
+            . Use the written cues and qualified guidance for your setup.
+          </p>
+        )}
         <p className="mb-2 flex items-center gap-2 text-xs font-semibold text-primary">
           {video ? (
             <PlayCircle className="h-4 w-4" aria-hidden />

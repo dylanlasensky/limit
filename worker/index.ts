@@ -20,9 +20,20 @@ export default {
     let response: Response;
     try {
       if (url.pathname === "/api/health")
-        return Response.json({ status: "ok", environment: env.ENVIRONMENT });
+        return Response.json(
+          {
+            status: "ok",
+            environment: env.ENVIRONMENT,
+            sourceRevision: env.SOURCE_REVISION,
+            version: env.CF_VERSION_METADATA?.id || "local",
+          },
+          { headers: { "Cache-Control": "no-store" } }
+        );
       if (url.pathname === "/api/config")
-        return Response.json({ emailEnabled: env.EMAIL_ENABLED === "true", socialProviders: [] });
+        return Response.json({
+          emailEnabled: env.EMAIL_ENABLED === "true" && !!env.EMAIL_FROM && !!env.RESEND_API_KEY,
+          socialProviders: [],
+        });
       if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
         const origin = request.headers.get("origin");
         if (
@@ -38,7 +49,7 @@ export default {
       }
       if (url.pathname.startsWith("/api/auth/")) {
         if (
-          env.EMAIL_ENABLED !== "true" &&
+          !(env.EMAIL_ENABLED === "true" && env.EMAIL_FROM && env.RESEND_API_KEY) &&
           /request-password-reset|send-verification-email/.test(url.pathname)
         )
           throw new ApiError(
@@ -202,6 +213,8 @@ export default {
     const headers = new Headers(response.headers);
     headers.set("X-Request-Id", requestId);
     headers.set("X-Content-Type-Options", "nosniff");
+    headers.set("Referrer-Policy", "no-referrer");
+    headers.set("X-Frame-Options", "DENY");
     if (!headers.has("Cache-Control")) headers.set("Cache-Control", "no-store");
     // Log operational metadata only. Never log paths with user IDs, bodies, prompts or cookies.
     console.log(

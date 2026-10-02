@@ -1,3 +1,4 @@
+import { reserveEmailBudget, type EmailBudget } from "../packages/domain/emailBudget";
 import { reserveBudget, type Budget } from "../packages/domain/freeBudget";
 import { authFor } from "./auth";
 import { validateProposal } from "../packages/domain/proposals";
@@ -16,6 +17,15 @@ export class AccountCoordinator extends DurableObject<Env> {
       const next = reserveBudget(await txn.get<Budget>("budget"), kind, bytes);
       if (!next) return false;
       await txn.put("budget", next);
+      return true;
+    });
+  }
+
+  async reserveEmail(): Promise<boolean> {
+    return this.ctx.storage.transaction(async (txn) => {
+      const next = reserveEmailBudget(await txn.get<EmailBudget>("email-budget"));
+      if (!next) return false;
+      await txn.put("email-budget", next);
       return true;
     });
   }

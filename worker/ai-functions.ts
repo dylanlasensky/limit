@@ -1,5 +1,7 @@
+import { aiTelemetry } from "../packages/domain/aiTelemetry";
 import { aiResponse } from "../packages/domain/aiResponse";
-import { aiBudget, storageBudget } from "./budget";
+import { storageBudget } from "./budget";
+import { runModel } from "./model";
 import { z } from "zod";
 import { ApiError } from "./errors";
 import { requireAiConsent } from "../packages/domain/aiConsent.js";
@@ -44,8 +46,7 @@ export async function aiFunction(name: string, input: unknown, env: Env, userId:
         503,
         "AI_UNAVAILABLE"
       );
-    await aiBudget(env);
-    const result = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
+    const result = await runModel(env, "text-import", {
       messages: [
         {
           role: "system",
@@ -58,8 +59,12 @@ export async function aiFunction(name: string, input: unknown, env: Env, userId:
       response_format: { type: "json_object" },
     });
     const parsed = parsedPlan.safeParse(aiResponse(result));
-    if (!parsed.success)
+    if (!parsed.success) {
+      console.log(
+        JSON.stringify(aiTelemetry("text-import", "safety-refusal", crypto.randomUUID(), 0))
+      );
       throw new ApiError("The import could not be validated. Review your text and try again.", 422);
+    }
     return parsed.data;
   }
   if (name === "analyzeFoodPhoto") {

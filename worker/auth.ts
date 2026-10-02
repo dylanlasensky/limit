@@ -1,28 +1,12 @@
+import { emailConfigured, sendAuthEmail } from "./email";
 import { betterAuth } from "better-auth";
 import { expo } from "@better-auth/expo";
 import { ApiError } from "./errors";
 export function authFor(env: Env) {
   if (!env.BETTER_AUTH_SECRET || env.BETTER_AUTH_SECRET.length < 32)
     throw new ApiError("Account service is not configured.", 503, "AUTH_NOT_CONFIGURED");
-  const emailEnabled = env.EMAIL_ENABLED === "true" && !!env.RESEND_API_KEY && !!env.EMAIL_FROM;
-  const send = async (to: string, subject: string, url: string) => {
-    if (!emailEnabled)
-      throw new ApiError("Email delivery is not configured.", 503, "EMAIL_NOT_CONFIGURED");
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: env.EMAIL_FROM,
-        to: [to],
-        subject,
-        text: `${subject}\n\n${url}\n\nIf you did not request this, ignore this email.`,
-      }),
-    });
-    if (!response.ok) throw new ApiError("Email could not be delivered. Please retry.", 503);
-  };
+  const emailEnabled = emailConfigured(env);
+  const send = (to: string, subject: string, url: string) => sendAuthEmail(env, to, subject, url);
   return betterAuth({
     database: env.DB,
     secret: env.BETTER_AUTH_SECRET,
@@ -44,6 +28,7 @@ export function authFor(env: Env) {
     },
     emailVerification: {
       sendOnSignUp: emailEnabled,
+      sendOnSignIn: emailEnabled,
       autoSignInAfterVerification: true,
       sendVerificationEmail: async ({ user, url }) =>
         send(user.email, "Verify your LIMIT email", url),

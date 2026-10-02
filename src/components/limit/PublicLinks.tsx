@@ -15,6 +15,15 @@ export default function PublicLinks() {
       <Link className="grid min-h-11 place-items-center hover:text-primary" to="/support">
         Help & support
       </Link>
+      <Link className="grid min-h-11 place-items-center hover:text-primary" to="/data-export">
+        Data export
+      </Link>
+      <Link className="grid min-h-11 place-items-center hover:text-primary" to="/account-deletion">
+        Account deletion
+      </Link>
+      <Link className="grid min-h-11 place-items-center hover:text-primary" to="/ai-disclosure">
+        AI & movement guides
+      </Link>
     </nav>
   );
 }

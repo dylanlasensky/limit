@@ -1,6 +1,6 @@
 import { storageBudget } from "./budget";
 import { ApiError } from "./errors";
-import { mediaSchema } from "../packages/contracts/media";
+import { mediaSchema, playableMedia } from "../packages/contracts/media";
 import { Repository } from "./repository";
 export async function upload(request: Request, env: Env, userId: string) {
   if (!env.FILES)
@@ -96,9 +96,11 @@ export async function mediaInfo(env: Env, key: string) {
     textFallback: exercise.instructions || [],
     license: null,
   });
-  const parsed = stored ? mediaSchema.safeParse(JSON.parse(stored.data)) : null;
+  const parsed = parseMedia(stored?.data);
   return Response.json(
-    parsed?.success && parsed.data.reviewStatus === "approved" ? parsed.data : fallback,
+    parsed && parsed.catalogKey === key
+      ? { ...parsed, source: playableMedia(parsed) ? parsed.source : null }
+      : fallback,
     { headers: { "Cache-Control": "public,max-age=300" } }
   );
 }
@@ -113,9 +115,10 @@ export async function mediaAsset(
     .bind(key)
     .first<{ data: string }>();
   if (!stored) throw new ApiError("Media not found.", 404);
-  const media = mediaSchema.parse(JSON.parse(stored.data));
+  const media = parseMedia(stored.data);
+  if (!media || media.catalogKey !== key) throw new ApiError("Media not found.", 404);
   const objectKey = kind === "poster" ? media.poster : kind === "video" ? media.source : null;
-  if (media.reviewStatus !== "approved" || media.version !== version || !objectKey)
+  if ((kind === "video" && !playableMedia(media)) || media.version !== version || !objectKey)
     throw new ApiError("Media not found.", 404);
   await storageBudget(env);
   const object = await env.MEDIA.get(objectKey, { range: request.headers });
@@ -143,4 +146,13 @@ export async function mediaAsset(
   }
   headers.set("Content-Length", String(object.size));
   return new Response(object.body, { headers });
+}
+
+function parseMedia(data?: string) {
+  try {
+    const parsed = mediaSchema.safeParse(data ? JSON.parse(data) : null);
+    return parsed.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
 }

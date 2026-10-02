@@ -46,7 +46,7 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
         >
           Pre-release information:{" "}
           {kind === "support"
-            ? "a verified support contact has not been configured yet. The guides below are available now."
+            ? "a private support address is awaiting owner configuration. Use the guides below or report non-sensitive bugs through the project issue tracker."
             : "the business-approved " +
               (kind === "privacy" ? "privacy policy" : "terms of use") +
               " has not been configured yet. This summary is not a substitute for it."}{" "}
@@ -68,18 +68,19 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
             </InfoSection>
             <InfoSection title="Optional AI features">
               <p>
-                Coach questions, food-photo analysis and plan import can send the information
-                described in their consent prompt to Cloudflare Workers AI. They require an explicit
-                choice before sharing. Manual workout and food logging remain available without AI.
-                Do not upload someone else’s private information or medical documents.
+                Coach questions and pasted workout text can send the information described in their
+                consent prompt to Cloudflare Workers AI. They require an explicit choice before
+                sharing. Manual workout and food logging remain available without AI. Do not upload
+                someone else’s private information or medical documents.
               </p>
             </InfoSection>
             <InfoSection title="Photos and uploaded files">
               <p>
-                Only a file you select is uploaded. Uploads use private storage and short-lived
-                access links for analysis. Storage-provider retention, deletion and backup behavior
-                still require release verification; do not assume that deleting an account has
-                already erased every uploaded file or provider backup.
+                Only a file you select is uploaded. Files are stored in private R2 buckets and every
+                download checks the signed-in account. Successful account deletion removes that
+                account’s uploaded files and database records. Provider backups may outlast live
+                records; no immediate backup-erasure promise is made. Photo nutrition estimation and
+                PDF OCR are not enabled.
               </p>
             </InfoSection>
             <InfoSection title="Your controls">
@@ -90,9 +91,9 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
                 health logs without removing workouts or nutrition. Hiding a metric does not delete
                 its records, and removing LIMIT health logs does not erase device records or revoke
                 device permissions. Appearance, exercise favorites, and recovery drafts are saved on
-                your device. Signing out clears the active account session and cached data, but
-                retains account-specific favorites and recovery drafts so unfinished work is not
-                lost. Account deletion also removes those favorites and drafts from this device.
+                your device. Signing out clears the active account session and cached data, but also
+                clears private favorites and recovery drafts on this device. Save unfinished work
+                before signing out. Account deletion clears this local state too.
               </p>
               <Link
                 to="/profile#account"
@@ -132,9 +133,10 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
             <InfoSection title="Food and nutrition estimates">
               <p>
                 Check quantities, nutrition labels and allergen/cross-contact information yourself.
-                Photo analysis and meal suggestions cannot guarantee allergy safety. Automatic
-                calorie targets are not provided for under-18s; qualified guidance may be needed for
-                minors, pregnancy, breastfeeding, eating disorders and other health conditions.
+                LIMIT cannot establish allergy safety. Photo nutrition estimation is unavailable;
+                use manual entry. Automatic calorie targets are not provided for under-18s;
+                qualified guidance may be needed for minors, pregnancy, breastfeeding, eating
+                disorders and other health conditions.
               </p>
             </InfoSection>
             <InfoSection title="Connectivity and saving">
@@ -157,6 +159,17 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
         )}
         {kind === "support" && (
           <>
+            <InfoSection title="Report a problem">
+              <p>
+                Report reproducible bugs at{" "}
+                <a className="underline" href="https://github.com/dylanlasensky/limit/issues">
+                  the LIMIT issue tracker
+                </a>
+                . It is public: do not include account emails, health information, passwords, tokens
+                or exports. A private support contact and the operator’s legal identity still
+                require owner approval.
+              </p>
+            </InfoSection>
             <InfoSection title="Finding every exercise">
               <p>
                 Open Workout → Exercises. “All” includes the complete reference library. Clear
@@ -199,8 +212,8 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
             <InfoSection title="Your data">
               <p>
                 Profile → Account contains data export and account deletion. Deletion is permanent
-                for the account records removed. See Privacy for the current limits on verifying
-                uploaded-file and backup deletion.
+                for the account records removed. Live uploaded files are removed with the account;
+                provider backup retention is separate. See Privacy for details.
               </p>
               <Link
                 to="/profile#account"

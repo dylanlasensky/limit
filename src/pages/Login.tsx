@@ -19,6 +19,7 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (loading) return;
     setError("");
     setLoading(true);
     try {
@@ -49,8 +50,16 @@ export default function Login() {
       }
     >
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+        <div
+          role="alert"
+          className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm"
+        >
           {error}
+          {/verif/i.test(error) && (
+            <p className="mt-2">
+              Check your inbox for a verification link. Signing in again requests a fresh link.
+            </p>
+          )}
         </div>
       )}
 
