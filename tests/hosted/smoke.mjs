@@ -3,8 +3,13 @@ import assert from "node:assert/strict";
 import { mkdir } from "node:fs/promises";
 const origin = process.env.LIMIT_API_URL || "http://localhost:8787";
 const output = process.env.LIMIT_SCREENSHOTS || "/tmp/limit-hosted-screenshots";
-const email = `browser-${crypto.randomUUID()}@example.invalid`,
-  password = crypto.randomUUID() + "Aa1!";
+const configResponse=await fetch(origin+'/api/config');
+assert.ok(configResponse.ok);
+const emailEnabled=(await configResponse.json()).emailEnabled===true;
+if(emailEnabled)assert.equal(process.env.LIMIT_TEST_ACCOUNTS_DISPOSABLE,'true','Email-enabled acceptance deletes its account; explicitly mark the verified mailbox disposable');
+const email = emailEnabled?process.env.LIMIT_TEST_EMAIL_BROWSER:`browser-${crypto.randomUUID()}@example.invalid`,
+  password = emailEnabled?process.env.LIMIT_TEST_PASSWORD_BROWSER:crypto.randomUUID() + "Aa1!";
+assert.ok(email&&password,'A verified disposable browser test account is required when email is enabled');
 let cookie = "";
 async function api(path, body) {
   const response = await fetch(origin + "/api" + path, {
@@ -16,8 +21,8 @@ async function api(path, body) {
   assert.ok(response.ok, `${path}: ${response.status} ${JSON.stringify(value)}`);
   return { value, response };
 }
-const signup = await api("/auth/sign-up/email", { name: "Browser test", email, password });
-cookie = signup.response.headers
+const auth = await api(emailEnabled?"/auth/sign-in/email":"/auth/sign-up/email", emailEnabled?{email,password}:{ name: "Browser test", email, password });
+cookie = auth.response.headers
   .getSetCookie()
   .map((v) => v.split(";")[0])
   .join("; ");
