@@ -4,6 +4,8 @@ The canonical inventory is `media/manifest.json`: 365 exact exercise keys. The r
 
 The second movement-family batch adds floor, kneeling, hands-elevated bench and feet-elevated bench push-ups. Each has a fixed hand and lower-body support, a distinct setup and a controlled descent/return. All four exact keys were rendered individually, fully decoded, played through in Chromium from 0 to 8 seconds, and checked at setup, descent, bottom and return frames. These are **technical** checks only. Close-grip, weighted, deficit, suspension, pike, handstand and plyometric push-ups remain blocked because this side-view template cannot faithfully show their grip, added load, support geometry, inverted line or ballistic flight/landing.
 
+The [side-by-side setup and bottom frames](evidence/push-up-family.png) show the four exact variants used for visual inspection.
+
 ## Reproduce and inspect
 
 Use Python 3.12+ and Node 24 from the repository root:
