@@ -1,6 +1,11 @@
 # LIMIT completion ledger
 
-Started 2026-10-01 from verified `origin/main` `65f3a7a2a9ac51bb7fb23ae8737b0a682ec17c1e`. The remote has not advanced beyond the previous release. Work is isolated on `codex/finalize-limit`; no unrelated working changes were present.
+## Current follow-up — 2026-10-02
+
+| Finding | Severity | Decision / change | Evidence | Remaining owner action |
+|---|---|---|---|---|
+| Hosted acceptance used undeliverable `example.invalid` signups even when email verification is enabled | High for email activation | API and browser suites now select three distinct, preverified disposable accounts when `/api/config` reports enabled email, require an explicit deletion guard, and retain synthetic signups only while email is disabled. Delivered verification/reset remain a separate required gate. | Node 24 syntax, root ESLint, web/Worker types, media manifest, secret scan, two native bridge tests and source guards passed locally. Full Vitest cannot start because this checkout lacks the Rolldown native binding and npm registry access; local Worker integration cannot bind a loopback port in this sandbox. CI and hosted acceptance remain unverified for this follow-up. Earlier release baseline: [PR #43 acceptance](https://github.com/dylanlasensky/limit/pull/43#issuecomment-5946096278). | Owned sender/domain, separate restricted keys through Wrangler prompts, controlled mailboxes and real delivered-email acceptance; see [email setup](email-setup.md). |
+Historical 2026-10-01 snapshot: work started from `origin/main` `65f3a7a2a9ac51bb7fb23ae8737b0a682ec17c1e` on `codex/finalize-limit`. Its findings and pending cells below describe that historical stage; the 2026-10-02 release and follow-up entries supersede them. Current verified GitHub main remains `11cc1c34b8142f5403f1db4c4cd998dd8cce925d` as of this follow-up.
 
 | Finding | Severity | Decision / change | Validation evidence | Owner-only action |
 |---|---|---|---|---|
