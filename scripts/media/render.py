@@ -76,13 +76,16 @@ def draw_pose(d,kind,option,u):
    d.rounded_rectangle((425,344,505,359),5,fill=FAR)
    for x in (442,490):d.line((x,359,x,460),fill=FAR,width=8)
   top={'floor':335,'knees':345,'incline-bench':265,'decline-bench':345}[option]
-  shoulder=(270,top+49*u)
   support=(420,440) if option=='knees' else foot
+  shoulder_y=top+49*u
+  body_length=math.hypot(support[0]-270,support[1]-top)
+  shoulder=(support[0]-math.sqrt(body_length**2-(support[1]-shoulder_y)**2),shoulder_y)
   hip=(shoulder[0]+.68*(support[0]-shoulder[0]),shoulder[1]+.68*(support[1]-shoulder[1]))
-  elbow=ik(shoulder,wrist,56,56,side=-1)
+  if abs(math.dist(shoulder,hip)-.68*body_length)>1e-6 or abs(math.dist(hip,support)-.32*body_length)>1e-6:raise ValueError('Push-up body segment changed length')
+  elbow=ik(shoulder,wrist,56,56,side=1)
+  limb(d,[shoulder,hip,support],BLUE,25)
   limb(d,[shoulder,elbow,wrist],INK,13)
   line(d,wrist,(wrist[0]-18,wrist[1]+2),INK,9)
-  limb(d,[shoulder,hip,support],BLUE,25)
   if option=='knees':
    line(d,support,foot,BLUE,14)
    line(d,foot,(492,449),INK,9)

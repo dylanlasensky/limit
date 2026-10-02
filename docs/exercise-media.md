@@ -2,7 +2,7 @@
 
 The canonical inventory is `media/manifest.json`: 365 exact exercise keys. The renderer now generates 14 original side-view schematics and 365 posters with free local Pillow/FFmpeg tooling. The other 351 movements are **blocked**, not completed videos: the renderer has no reliable exact setup, grip, support and motion template for them. Each CSV/manifest row records the specific exercise and equipment. Written instructions remain available. No video has human fitness approval.
 
-The second movement-family batch adds floor, kneeling, hands-elevated bench and feet-elevated bench push-ups. Each has a fixed hand and lower-body support, a distinct setup and a controlled descent/return. All four exact keys were rendered individually, fully decoded, played through in Chromium from 0 to 8 seconds, and checked at setup, descent, bottom and return frames. These are **technical** checks only. Close-grip, weighted, deficit, suspension, pike, handstand and plyometric push-ups remain blocked because this side-view template cannot faithfully show their grip, added load, support geometry, inverted line or ballistic flight/landing.
+The second movement-family batch adds floor, kneeling, hands-elevated bench and feet-elevated bench push-ups. Each has a fixed hand and lower-body support, fixed torso and leg segment lengths, a distinct setup and a controlled descent/return. A pre-release geometry review caught stretching in the first draft; the renderer now moves the shoulder on a fixed-radius path around its foot or knee support and checks segment lengths at every rendered frame. All four corrected exact keys must be fully decoded, played through in Chromium from 0 to 8 seconds, and checked at setup, descent, bottom and return frames before publishing. These are **technical** checks only. Close-grip, weighted, deficit, suspension, pike, handstand and plyometric push-ups remain blocked because this side-view template cannot faithfully show their grip, added load, support geometry, inverted line or ballistic flight/landing.
 
 The [side-by-side setup and bottom frames](evidence/push-up-family.png) show the four exact variants used for visual inspection.
 
@@ -14,13 +14,15 @@ Use Python 3.12+ and Node 24 from the repository root:
 python3 -m venv .venv-media
 .venv-media/bin/pip install -r scripts/media/requirements.txt
 node scripts/media/catalog.mjs
-.venv-media/bin/python scripts/media/render.py --ffmpeg "$(.venv-media/bin/python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')"
+export FFMPEG="$(.venv-media/bin/python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')"
+.venv-media/bin/python scripts/media/render.py --ffmpeg "$FFMPEG"
+node scripts/media/probe.mjs --write
 node scripts/media/validate.mjs --files
 npm run media:review
 python3 -m http.server 8090 --directory media-output --bind 127.0.0.1
 ```
 
-Open `http://127.0.0.1:8090/review.html`. Rendering uses Pillow's bundled font, exact-key allowlists, controlled motion phases, the approved master logo, fixed 960×540 framing, 24 fps, eight seconds, silent H.264/yuv420p and fast-start MP4. All generated videos are fully decoded after encoding. Encoding may vary across FFmpeg/platform builds; checksums identify the exact output, and versions derive from content hashes. Large binaries stay in ignored `media-output`, never Git. Use only the pinned tools; review tool/font licenses when redistributing the renderer or binaries.
+Open `http://127.0.0.1:8090/review.html`. Rendering uses Pillow's bundled font, exact-key allowlists, controlled motion phases, the approved master logo, fixed 960×540 framing, 24 fps, eight seconds, silent H.264/yuv420p and fast-start MP4. `media/technical-evidence.json` records each MP4 checksum and actual probe/full-decode result. `validate.mjs --files` repeats the decode and compares it with that checksum-bound record; the ordinary CI check verifies the recorded checksums and metadata because large binaries are ignored by Git. Encoding may vary across FFmpeg/platform builds; checksums identify the exact output, and versions derive from content hashes. Large binaries stay in ignored `media-output`, never Git. Use only the pinned tools; review tool/font licenses when redistributing the renderer or binaries.
 
 Technical checks establish mapping, bytes and playback only. Inspect the starting, peak and return frames for every supported template before publishing. Never reuse an approximate movement for a different catalog key. Add a new exact-key template only when equipment, support, grip, limb path and comfortable range can be represented faithfully. Complex cable/machine/rotation, unilateral balance and ballistic movements remain blocked until that is possible. Test every parameterized variation, not only its family.
 
