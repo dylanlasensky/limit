@@ -1,0 +1,7 @@
+{
+  "GHSA-86w9-cpqp-85rv": {
+    "package": "node-forge",
+    "expires": "2026-10-15",
+    "reason": "No patched release exists as of 2026-10-01. Only Expo CLI code-signing tooling depends on forge; it is absent from the Worker and application imports. No signed native release or OTA code-signing acceptance is enabled. Do not consume untrusted signing certificates. Recheck upstream before expiry; any different advisory fails CI."
+  }
+}
