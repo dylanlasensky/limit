@@ -1,6 +1,7 @@
 """Original parametric 2-D teaching schematics. Never mark human fitness review automatically."""
 import argparse, csv, hashlib, json, math, os, pathlib, subprocess, textwrap
 from PIL import Image, ImageDraw, ImageFont
+from blockers import reason_for
 parser=argparse.ArgumentParser();parser.add_argument('--output',default='media-output');parser.add_argument('--ffmpeg',default=os.getenv('FFMPEG','ffmpeg'));parser.add_argument('--only');args=parser.parse_args()
 root=pathlib.Path(__file__).resolve().parents[2];out=pathlib.Path(args.output);out.mkdir(parents=True,exist_ok=True)
 catalog=json.loads((out/'catalog.json').read_text());W,H,FPS,DURATION=960,540,24,8
@@ -19,6 +20,8 @@ TEMPLATES={
  'kneeling-push-up':('push-up','knees'),
  'incline-push-up':('push-up','incline-bench'),
  'decline-push-up':('push-up','decline-bench'),
+ 'single-leg-calf-raise':('single-calf',None),
+ 'dumbbell-seated-calf-raise':('seated-calf',None),
 }
 BLOCK_REASONS={
  'deficit-push-up':'needs both parallettes at a fixed stable height and a shoulder path below hand level without clipping the supports',
@@ -63,7 +66,39 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='push-up':
+ if kind=='single-calf':
+  # The working forefoot and balance hand remain planted. The other foot never
+  # contacts the ground; only the working heel and body rise.
+  toe=(340,450);ankle=(304,441-18*u)
+  hip=(302,295-18*u);shoulder=(296,169-18*u);head=(296,136-18*u)
+  if abs(math.dist(hip,ankle)-math.hypot(2,146))>1e-6 or 407-18*u>=toe[1]:raise ValueError('Single-leg calf support changed')
+  d.line((432,185,432,460),fill=FAR,width=8)
+  d.line((420,185,455,185),fill=FAR,width=8)
+  limb(d,[hip,(303,370-18*u),ankle],BLUE,17)
+  line(d,ankle,toe,INK,10)
+  limb(d,[hip,(251,355-18*u),(270,407-18*u)],FAR,12)
+  line(d,(270,407-18*u),(286,409-18*u),INK,7)
+  hand=(420,248)
+  limb(d,[shoulder,ik(shoulder,hand,97,76,side=1),hand],INK,11)
+  body(d,hip,shoulder,head)
+ elif kind=='seated-calf':
+  # Hip, seat and forefoot are fixed. Constant thigh/shin/foot lengths allow
+  # the knee to rise as the loaded heel plantar-flexes around the forefoot.
+  d.rounded_rectangle((243,323,330,340),5,fill=FAR)
+  d.rounded_rectangle((244,205,260,338),5,fill=FAR)
+  d.line((260,340,260,459),fill=FAR,width=8)
+  toe=(430,450);ankle_y=440-16*u
+  ankle=(toe[0]-math.sqrt(48**2-(toe[1]-ankle_y)**2),ankle_y)
+  hip=(296,320);shoulder=(291,196);head=(291,162)
+  knee=ik(hip,ankle,80,110,side=1)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,knee,80),(knee,ankle,110),(ankle,toe,48))):raise ValueError('Seated calf segment changed length')
+  limb(d,[hip,knee,ankle],BLUE,16)
+  line(d,ankle,toe,INK,10)
+  body(d,hip,shoulder,head)
+  load=(knee[0]-11,knee[1]-20)
+  limb(d,[shoulder,(320,263),load],INK,10)
+  weight(d,load)
+ elif kind=='push-up':
   # Side view: hand and foot/knee supports stay fixed; shoulder, hips, and
   # elbows travel together. Elevated supports are drawn at their actual ends.
   wrist=(270,442);foot=(470,442)
@@ -159,7 +194,7 @@ for e in catalog:
   subprocess.run([args.ffmpeg,'-v','error','-i',str(video),'-f','null','-'],check=True)
   print('Rendered and decoded',key,flush=True)
  complete=bool(template and video.exists())
- reason='' if complete else (f"{e['name']}: {BLOCK_REASONS[key]}." if key in BLOCK_REASONS else f"{e['name']}: no exact verified motion template for {e.get('equipment','this setup')}. Rendering must preserve the catalog's setup, grip, support and joint path; an approximate animation is not substituted.")
+ reason='' if complete else (f"{e['name']}: {BLOCK_REASONS[key]}." if key in BLOCK_REASONS else reason_for(e))
  caption=' '.join(e.get('instructions',[])[:3])
  version=int(hashlib.sha256((sha(poster)+(sha(video) if complete else '')).encode()).hexdigest()[:12],16) or 1
  record={'catalogKey':key,'name':e['name'],'poster':f'exercises/{key}/v{version}/{sha(poster)}.png','source':f'exercises/{key}/v{version}/{sha(video)}.mp4' if complete else None,'format':'mp4' if complete else None,'caption':caption,'angle':'side' if complete else 'unspecified','duration':DURATION if complete else 0,'version':version,'reviewStatus':'technical' if complete else 'blocked','reviewer':None,'safetyClassification':'coaching-recommended' if e.get('coachingRecommended') else 'general','textFallback':e.get('instructions',[]),'license':'Original LIMIT-generated schematic; no third-party footage','generated':True,'width':W,'height':H,'fps':FPS if complete else 0,'posterSha256':sha(poster),'videoSha256':sha(video) if complete else None,'bytes':poster.stat().st_size+(video.stat().st_size if complete else 0),'blockReason':reason,'template':template[0] if template else None,'technicalChecks':['exact-catalog-key','fixed-framing','silent','h264-yuv420p','full-decode'] if complete else ['exact-catalog-key','written-fallback']}
