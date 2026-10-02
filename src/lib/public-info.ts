@@ -23,4 +23,5 @@ export const publicInfo = {
   privacyUrl: validatedPublicUrl(import.meta.env.VITE_LIMIT_PRIVACY_URL),
   termsUrl: validatedPublicUrl(import.meta.env.VITE_LIMIT_TERMS_URL),
   supportUrl: validatedPublicUrl(import.meta.env.VITE_LIMIT_SUPPORT_URL),
+  supportEmail: "limitfitnessapp@gmail.com",
 };

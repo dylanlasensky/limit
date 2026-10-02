@@ -14,7 +14,7 @@
     "businessName": null,
     "privacyUrl": null,
     "termsUrl": null,
-    "supportUrl": null
+    "supportUrl": "https://limit.limit-dylanlasensky.workers.dev/support"
   },
   "commerce": {
     "mode": "unconfigured"

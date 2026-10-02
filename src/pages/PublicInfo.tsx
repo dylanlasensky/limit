@@ -1,6 +1,6 @@
 import LimitLogo from "@/components/limit/LimitLogo";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, Mail } from "lucide-react";
 import PublicLinks from "@/components/limit/PublicLinks";
 import { publicInfo } from "@/lib/public-info";
 
@@ -13,7 +13,9 @@ const destinations = {
 };
 
 export default function PublicInfo({ kind }: { kind: InfoKind }) {
-  const destination = destinations[kind];
+  const destination =
+    destinations[kind] || (kind === "support" ? `mailto:${publicInfo.supportEmail}` : null);
+  const external = destination?.startsWith("https:");
   return (
     <main className="mx-auto min-h-dvh max-w-xl px-5 pb-10 md:max-w-3xl md:px-8 lg:max-w-5xl pt-[max(1rem,env(safe-area-inset-top))] text-foreground">
       <Link
@@ -23,13 +25,15 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
         <ArrowLeft aria-hidden className="h-4 w-4" />
         Back to LIMIT
       </Link>
-      <LimitLogo size="sm" />
+      <div>
+        <LimitLogo size="sm" />
+      </div>
       <h1 className="mt-3 text-3xl font-bold tracking-tight">{titles[kind]}</h1>
       {destination ? (
         <a
           href={destination}
-          target="_blank"
-          rel="noopener noreferrer"
+          target={external ? "_blank" : undefined}
+          rel={external ? "noopener noreferrer" : undefined}
           className="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground"
         >
           {kind === "support"
@@ -37,7 +41,11 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
             : kind === "privacy"
               ? "Read the full privacy policy"
               : "Read the full terms of use"}
-          <ExternalLink aria-hidden className="h-4 w-4" />
+          {external ? (
+            <ExternalLink aria-hidden className="h-4 w-4" />
+          ) : (
+            <Mail aria-hidden className="h-4 w-4" />
+          )}
         </a>
       ) : (
         <p
@@ -45,11 +53,9 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
           className="mt-5 rounded-2xl border border-border bg-secondary/40 p-4 text-sm leading-relaxed text-muted-foreground"
         >
           Pre-release information:{" "}
-          {kind === "support"
-            ? "a private support address is awaiting owner configuration. Use the guides below or report non-sensitive bugs through the project issue tracker."
-            : "the business-approved " +
-              (kind === "privacy" ? "privacy policy" : "terms of use") +
-              " has not been configured yet. This summary is not a substitute for it."}{" "}
+          {"the business-approved " +
+            (kind === "privacy" ? "privacy policy" : "terms of use") +
+            " has not been configured yet. This summary is not a substitute for it."}{" "}
           App Store release remains blocked until this is completed.
         </p>
       )}
@@ -166,8 +172,12 @@ export default function PublicInfo({ kind }: { kind: InfoKind }) {
                   the LIMIT issue tracker
                 </a>
                 . It is public: do not include account emails, health information, passwords, tokens
-                or exports. A private support contact and the operator’s legal identity still
-                require owner approval.
+                or exports. For private help, write to{" "}
+                <a className="underline" href={`mailto:${publicInfo.supportEmail}`}>
+                  {publicInfo.supportEmail}
+                </a>
+                . The operator’s legal identity and full store policies still require owner
+                approval.
               </p>
             </InfoSection>
             <InfoSection title="Finding every exercise">
