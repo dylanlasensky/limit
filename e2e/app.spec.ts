@@ -1194,7 +1194,13 @@ test("public information and the full exercise library work without sign-in or a
   ]) {
     await page.goto(path);
     await expect(page.getByRole("heading", { name: title, exact: true })).toBeVisible();
-    await expect(page.getByText(/Pre-release information:/)).toBeVisible();
+    if (path === "/support") {
+      await expect(page.getByRole("link", { name: "Contact support" })).toHaveAttribute(
+        "href",
+        "mailto:limitfitnessapp@gmail.com"
+      );
+      await expect(page.getByText("limitfitnessapp@gmail.com")).toBeVisible();
+    } else await expect(page.getByText(/Pre-release information:/)).toBeVisible();
     await noOverflow(page);
   }
   await page.goto("/exercises");

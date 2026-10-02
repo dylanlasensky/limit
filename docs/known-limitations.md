@@ -11,4 +11,4 @@ Release acceptance is not complete until the release record confirms hosted chec
 - Offline drafts live on the device. Clearing browser/app storage removes unsynced drafts. Account logout clears private local state. Cross-device concurrent edits fail visibly rather than overwrite silently.
 
 - One unpatched native tooling advisory remains under the narrow exception expiring 2026-10-15; signed/OTA native releases remain blocked. Worker audit has no findings.
-- Operator legal identity, approved store privacy/terms and a private support contact remain owner-deferred. First-party data/export/deletion/disclosure pages describe current behavior honestly.
+- Operator legal identity and approved store privacy/terms remain owner-deferred. The owner supplied `limitfitnessapp@gmail.com` as the private support contact; delivered transactional email still needs a verified sender/domain and separate keys. First-party data/export/deletion/disclosure pages describe current behavior honestly.
