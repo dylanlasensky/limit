@@ -1455,3 +1455,11 @@ test("password recovery never claims delivery when the provider is unavailable",
   await page.getByRole("button",{name:/Send reset/i}).click();
   await expect(page.getByText(/If an account exists with that email/)).toBeVisible();
 });
+
+test("unverified sign-in explains how to obtain a fresh verification link",async({page})=>{
+ await mockApp(page,{signedIn:false});
+ await page.route("**/api/auth/sign-in/email",route=>route.fulfill({status:403,json:{code:"EMAIL_NOT_VERIFIED",message:"Email not verified"}}));
+ await page.goto("/login");await page.getByLabel("Email",{exact:true}).fill("verify@example.invalid");await page.getByLabel("Password",{exact:true}).fill("test-password-12345");await page.getByRole("button",{name:"Log in",exact:true}).click();
+ await expect(page.getByRole("alert")).toContainText("Signing in again requests a fresh link");
+ await expect(page).toHaveURL(/\/login$/);
+});

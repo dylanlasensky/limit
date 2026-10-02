@@ -28,6 +28,7 @@ export function authFor(env: Env) {
     },
     emailVerification: {
       sendOnSignUp: emailEnabled,
+      sendOnSignIn: emailEnabled,
       autoSignInAfterVerification: true,
       sendVerificationEmail: async ({ user, url }) =>
         send(user.email, "Verify your LIMIT email", url),
