@@ -20,6 +20,17 @@ TEMPLATES={
  'incline-push-up':('push-up','incline-bench'),
  'decline-push-up':('push-up','decline-bench'),
 }
+BLOCK_REASONS={
+ 'deficit-push-up':'needs both parallettes at a fixed stable height and a shoulder path below hand level without clipping the supports',
+ 'close-grip-push-up':'needs a front or oblique view that shows narrow hand placement and elbow tracking; the side view hides grip width',
+ 'weighted-push-up':'needs a secure, visible external load on the torso that remains stable during the entire descent and return',
+ 'suspension-push-up':'needs suspended handles, anchor lines and changing strap angles while preserving a stable body line',
+ 'pike-push-up':'needs the inverted hip setup and near-vertical shoulder press path rather than a horizontal push-up path',
+ 'wall-handstand-push-up':'needs a wall, inverted body support and vertical pressing path with a controlled head clearance',
+ 'plank-shoulder-tap':'needs a unilateral hand transfer and visible anti-rotation control while the support hand remains planted',
+ 'side-plank-hip-lift':'needs a lateral view of the forearm and foot support with vertical hip travel',
+ 'plyometric-push-up':'needs separate takeoff, unsupported flight and controlled bilateral hand landing phases',
+}
 BG='#080d18';CARD='#131e30';INK='#eaf1fc';MUTED='#aab9d0';BLUE='#73acff';FAR='#425873'
 def xy(p):return tuple(round(v) for v in p)
 def add(a,b):return(a[0]+b[0],a[1]+b[1])
@@ -145,7 +156,7 @@ for e in catalog:
   subprocess.run([args.ffmpeg,'-v','error','-i',str(video),'-f','null','-'],check=True)
   print('Rendered and decoded',key,flush=True)
  complete=bool(template and video.exists())
- reason='' if complete else f"{e['name']}: no exact verified motion template for {e.get('equipment','this setup')}. Rendering must preserve the catalog's setup, grip, support and joint path; an approximate animation is not substituted."
+ reason='' if complete else (f"{e['name']}: {BLOCK_REASONS[key]}." if key in BLOCK_REASONS else f"{e['name']}: no exact verified motion template for {e.get('equipment','this setup')}. Rendering must preserve the catalog's setup, grip, support and joint path; an approximate animation is not substituted.")
  caption=' '.join(e.get('instructions',[])[:3])
  version=int(hashlib.sha256((sha(poster)+(sha(video) if complete else '')).encode()).hexdigest()[:12],16) or 1
  record={'catalogKey':key,'name':e['name'],'poster':f'exercises/{key}/v{version}/{sha(poster)}.png','source':f'exercises/{key}/v{version}/{sha(video)}.mp4' if complete else None,'format':'mp4' if complete else None,'caption':caption,'angle':'side' if complete else 'unspecified','duration':DURATION if complete else 0,'version':version,'reviewStatus':'technical' if complete else 'blocked','reviewer':None,'safetyClassification':'coaching-recommended' if e.get('coachingRecommended') else 'general','textFallback':e.get('instructions',[]),'license':'Original LIMIT-generated schematic; no third-party footage','generated':True,'width':W,'height':H,'fps':FPS if complete else 0,'posterSha256':sha(poster),'videoSha256':sha(video) if complete else None,'bytes':poster.stat().st_size+(video.stat().st_size if complete else 0),'blockReason':reason,'template':template[0] if template else None,'technicalChecks':['exact-catalog-key','fixed-framing','silent','h264-yuv420p','full-decode'] if complete else ['exact-catalog-key','written-fallback']}
