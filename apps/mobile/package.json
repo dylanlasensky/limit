@@ -7,7 +7,7 @@
     "@limit/contracts": "*",
     "@limit/design": "*",
     "better-auth": "1.7.6",
-    "eslint": "^9",
+    "eslint": "^10",
     "eslint-config-expo": "~57.0.2",
     "expo": "~57.0.26",
     "expo-constants": "~57.0.19",
