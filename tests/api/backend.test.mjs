@@ -7,16 +7,31 @@ async function call(path,{cookie='',method='GET',body,origin=base}={}) {
  const r=await fetch(base+'/api'+path,{method,headers:{cookie,origin,...(body?{'content-type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});
  const data=await r.json();return {status:r.status,data,cookie:r.headers.getSetCookie().map(s=>s.split(';')[0]).join('; ')};
 }
-async function account(label){const result=await call('/auth/sign-up/email',{method:'POST',body:{name:label,email:`${label}-${crypto.randomUUID()}@example.invalid`,password}});assert.equal(result.status,200);assert.ok(result.cookie);return result;}
+const config=await call('/config');
+assert.equal(config.status,200);
+const emailEnabled=config.data.emailEnabled===true;
+if(emailEnabled){
+ assert.equal(process.env.LIMIT_TEST_ACCOUNTS_DISPOSABLE,'true','Email-enabled acceptance deletes its accounts; explicitly mark the supplied verified mailboxes disposable');
+ const emails=['A','B','BROWSER'].map(suffix=>process.env[`LIMIT_TEST_EMAIL_${suffix}`]?.toLowerCase());
+ assert.ok(emails.every(Boolean)&&new Set(emails).size===3,'Three distinct verified disposable mailboxes are required');
+}
+async function account(label){
+ const suffix=label==='api-a'?'A':'B';
+ const email=emailEnabled?process.env[`LIMIT_TEST_EMAIL_${suffix}`]:`${label}-${crypto.randomUUID()}@example.invalid`;
+ const accountPassword=emailEnabled?process.env[`LIMIT_TEST_PASSWORD_${suffix}`]:password;
+ assert.ok(email&&accountPassword,`Verified disposable test account ${suffix} is required when email is enabled`);
+ const result=await call(emailEnabled?'/auth/sign-in/email':'/auth/sign-up/email',{method:'POST',body:emailEnabled?{email,password:accountPassword}:{name:label,email,password:accountPassword}});
+ assert.equal(result.status,200,`Cannot authenticate disposable account ${suffix}`);assert.ok(result.cookie);return result;
+}
 test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
  const a=await account('api-a'),b=await account('api-b'),cookie=a.cookie;
  let profile,plan,days,exercise,session,set;
  await t.test('login, logout and invalid credentials enforce sessions',async()=>{
-  const signed=await call('/auth/sign-in/email',{method:'POST',body:{email:a.data.user.email,password}});assert.equal(signed.status,200);assert.equal((await call('/me',{cookie:signed.cookie})).status,200);
+  const signed=await call('/auth/sign-in/email',{method:'POST',body:{email:a.data.user.email,password:emailEnabled?process.env.LIMIT_TEST_PASSWORD_A:password}});assert.equal(signed.status,200);assert.equal((await call('/me',{cookie:signed.cookie})).status,200);
   assert.equal((await call('/auth/sign-out',{cookie:signed.cookie,method:'POST',body:{}})).status,200);assert.equal((await call('/me',{cookie:signed.cookie})).status,401);
   const wrong=await call('/auth/sign-in/email',{method:'POST',body:{email:a.data.user.email,password:'wrong-password-12345'}});assert.equal(wrong.status,401);
   const absent=await call('/me',{cookie:'better-auth.session_token=invalid'});assert.equal(absent.status,401);
-  const reset=await call('/auth/request-password-reset',{method:'POST',body:{email:a.data.user.email,redirectTo:base+'/reset-password'}});assert.equal(reset.status,503);
+  if(!emailEnabled){const reset=await call('/auth/request-password-reset',{method:'POST',body:{email:a.data.user.email,redirectTo:base+'/reset-password'}});assert.equal(reset.status,503);}
  });
  await t.test('requires a session and rejects untrusted mutation origins',async()=>{
   assert.equal((await call('/entities/UserProfile')).status,401);
