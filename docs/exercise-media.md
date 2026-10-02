@@ -1,6 +1,10 @@
 # Exercise media
 
-The canonical inventory is `media/manifest.json`: 365 exact exercise keys. This release generates ten original side-view schematics and 365 posters with free local Pillow/FFmpeg tooling. The other 355 movements are **blocked**, not completed videos: the renderer has no reliable exact setup, grip, support and motion template for them. Each CSV/manifest row records the specific exercise and equipment. Written instructions remain available. No video has human fitness approval.
+The canonical inventory is `media/manifest.json`: 365 exact exercise keys. The renderer now generates 14 original side-view schematics and 365 posters with free local Pillow/FFmpeg tooling. The other 351 movements are **blocked**, not completed videos: the renderer has no reliable exact setup, grip, support and motion template for them. Each CSV/manifest row records the specific exercise and equipment. Written instructions remain available. No video has human fitness approval.
+
+The second movement-family batch adds floor, kneeling, hands-elevated bench and feet-elevated bench push-ups. Each has a fixed hand and lower-body support, a distinct setup and a controlled descent/return. All four exact keys were rendered individually, fully decoded, played through in Chromium from 0 to 8 seconds, and checked at setup, descent, bottom and return frames. These are **technical** checks only. Close-grip, weighted, deficit, suspension, pike, handstand and plyometric push-ups remain blocked because this side-view template cannot faithfully show their grip, added load, support geometry, inverted line or ballistic flight/landing.
+
+The [side-by-side setup and bottom frames](evidence/push-up-family.png) show the four exact variants used for visual inspection.
 
 ## Reproduce and inspect
 
@@ -28,7 +32,7 @@ A human uses the review page to mark only videos they actually inspected, record
 
 ## R2 publishing
 
-Check **account-wide** R2 usage, Standard storage and existing bucket sizes before every release. No paid Images/Stream, public bucket, external footage or generation API is needed. Each release is approximately 15 MB and 375 objects per environment; runtime requests also pass the existing monthly storage-operation guard. The publish command enforces a 500 MiB asset set and at most 1,000 entries, retries conservatively, and checkpoints successful objects. Content-addressed keys prevent overwrites. Historical versions count toward storage; keep each media bucket under 500 MiB and remove old unused versions only after rollback retention review.
+Check **account-wide** R2 usage, Standard storage and existing bucket sizes before every release. No paid Images/Stream, public bucket, external footage or generation API is needed. This manifest is approximately 15.8 MB and 379 objects per environment; runtime requests also pass the existing monthly storage-operation guard. The publish command enforces a 500 MiB asset set and at most 1,000 entries, retries conservatively, and checkpoints successful objects. Content-addressed keys prevent overwrites. Historical versions count toward storage; keep each media bucket under 500 MiB and remove old unused versions only after rollback retention review.
 
 ```sh
 node scripts/media/publish.mjs preview
