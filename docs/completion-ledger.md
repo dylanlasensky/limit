@@ -2,7 +2,7 @@
 
 ## Current follow-up — 2026-10-02
 
-The current web release is merged main `6b8002fcf39ac19b99aec499e8bfab1ebab91688`, accepted in testing at 19:30:22 UTC and production at 19:34:43 UTC. [PR #49 release evidence](https://github.com/dylanlasensky/limit/pull/49#issuecomment-5960002920) records exact Worker versions, complete CI, hosted checks, and rollback versions. Both hosted health endpoints and GitHub main returned this same source revision after promotion. Email remains disabled, native device acceptance remains open, and exercise media has no human approval.
+The PR #49 functional web release was merged main `6b8002fcf39ac19b99aec499e8bfab1ebab91688`, accepted in testing at 19:30:22 UTC and production at 19:34:43 UTC. [PR #49 release evidence](https://github.com/dylanlasensky/limit/pull/49#issuecomment-5960002920) records exact Worker versions, complete CI, hosted checks, and rollback versions. Both hosted health endpoints and GitHub main returned this same source revision at that checkpoint. Any subsequent ledger-only source promotion is recorded on [PR #50](https://github.com/dylanlasensky/limit/pull/50). Email remains disabled, native device acceptance remains open, and exercise media has no human approval.
 
 | Finding | Severity | Decision / change | Evidence | Remaining owner action |
 |---|---|---|---|---|
