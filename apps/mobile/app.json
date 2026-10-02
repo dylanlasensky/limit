@@ -30,7 +30,8 @@
           "backgroundColor": "#080d18"
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-video"
     ],
     "scheme": "limit"
   }

@@ -20,6 +20,8 @@ Open `http://127.0.0.1:8090/review.html`. Rendering uses Pillow's bundled font, 
 
 Technical checks establish mapping, bytes and playback only. Inspect the starting, peak and return frames for every supported template before publishing. Never reuse an approximate movement for a different catalog key. Add a new exact-key template only when equipment, support, grip, limb path and comfortable range can be represented faithfully. Complex cable/machine/rotation, unilateral balance and ballistic movements remain blocked until that is possible. Test every parameterized variation, not only its family.
 
+The Expo workout screen now requests the same validated public media contract for each catalog key. It offers manual load/play/pause for playable assets, shows the caption and review state, and keeps written cues visible through loading or playback errors. This source implementation needs a real development build and physical-device playback check; native export and web playback alone are not device evidence.
+
 ## Genuine review
 
 A human uses the review page to mark only videos they actually inspected, recording their name, decision and observations. Export the JSON, then run `node scripts/media/record-review.mjs /path/to/review.json`. This binds the evidence to exact video checksums and saves it under `media/reviews/`. Commit the evidence and updated manifest/checklist before publishing. Rejected videos become drafts and cannot play through the API. Rendering changed bytes invalidates review; do not transfer approval to a changed animation. Automated agents must not fill out human approval.

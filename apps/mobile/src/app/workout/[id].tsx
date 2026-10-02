@@ -5,6 +5,7 @@ import * as Crypto from "expo-crypto";
 import { auth, command, list } from "../../lib/api";
 import { loadDraft, saveDraft, removeDraft } from "../../lib/drafts";
 import { Page, Title, Copy, Card, Input, Action, styles } from "../../ui";
+import { MediaGuide } from "../../media-guide";
 import { recordSchema, type SavedRecord } from "../../../../../packages/contracts/entities";
 type Row = {
   workoutExerciseId: string;
@@ -246,12 +247,13 @@ export default function Workout() {
       <Card>
         <Title>{exercise?.exerciseName}</Title>
         <Copy>{catalog?.primaryMuscle || exercise?.primaryMuscle}</Copy>
-        <Copy>Video not available yet. Follow these setup cues:</Copy>
-        {catalog?.instructions?.map((cue, i) => (
-          <Copy key={i}>
-            {i + 1}. {cue}
-          </Copy>
-        ))}
+        {!!catalog && (
+          <MediaGuide
+            key={catalog.id}
+            catalogKey={catalog.id}
+            instructions={catalog.instructions || []}
+          />
+        )}
         <Copy>A set is one group of repetitions. Leave two or three comfortable reps left.</Copy>
       </Card>
       {!draft.paused &&
