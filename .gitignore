@@ -41,3 +41,5 @@ worker-configuration.d.ts
 /media-output/
 
 /.venv-media/
+__pycache__/
+*.pyc
