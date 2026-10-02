@@ -130,6 +130,45 @@
     "audio": false
   },
   {
+    "catalogKey": "bodyweight-split-squat",
+    "videoSha256": "41b9369e1ff0debd0ae991ed22382bd28e35cd3f6b0daf5b4709b739dcca3ecc",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "bodyweight-bulgarian-split-squat",
+    "videoSha256": "deb73aebe47affc87eef04cf6ae7062b086a63741b3052e6b9471c26d63cdd08",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "bodyweight-reverse-lunge",
+    "videoSha256": "2c656aed83d5eadb5dc6de089e64928ab2817e8932bb04cdb26a08a90a8608a5",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "glute-bridge",
     "videoSha256": "2733f3b8234070d70ba571b059abbd3dc18a5009a861af81f1075b88ee77d5a4",
     "duration": 8,
