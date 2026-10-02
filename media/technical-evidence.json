@@ -169,6 +169,32 @@
     "audio": false
   },
   {
+    "catalogKey": "dumbbell-step-up",
+    "videoSha256": "56cfa566ef98619499d04037a1612904501772a8643adae45b1604411193e726",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "bodyweight-step-up",
+    "videoSha256": "e62f970d95c9980323470a65f9eeed4a1be79fb9d430b3f9a16f03e7207745af",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "glute-bridge",
     "videoSha256": "2733f3b8234070d70ba571b059abbd3dc18a5009a861af81f1075b88ee77d5a4",
     "duration": 8,

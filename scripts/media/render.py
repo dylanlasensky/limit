@@ -25,6 +25,8 @@ TEMPLATES={
  'bodyweight-split-squat':('split-squat','floor'),
  'bodyweight-bulgarian-split-squat':('split-squat','rear-bench'),
  'bodyweight-reverse-lunge':('reverse-lunge',None),
+ 'bodyweight-step-up':('step-up','bodyweight'),
+ 'dumbbell-step-up':('step-up','dumbbell'),
 }
 BLOCK_REASONS={
  'deficit-push-up':'needs both parallettes at a fixed stable height and a shoulder path below hand level without clipping the supports',
@@ -69,7 +71,35 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind in ('split-squat','reverse-lunge'):
+ if kind=='step-up':
+  # The lead foot stays on the platform. The trailing foot lifts outside the
+  # box, clears its edge, and only then lands on top; neither leg stretches.
+  d.rounded_rectangle((340,395,480,460),5,fill=FAR)
+  d.line((340,395,480,395),fill=INK,width=7)
+  lead_ankle=(390,389)
+  hip=(280+85*u,295-70*u)
+  if u<.5:
+   q=u/.5;trail_ankle=(245+35*q,445-95*q)
+  elif u<.7:
+   q=(u-.5)/.2;trail_ankle=(280+60*q,350+5*q)
+  else:
+   q=(u-.7)/.3;trail_ankle=(340+100*q,355+34*q)
+  lead_knee=ik(hip,lead_ankle,100,100,side=1)
+  trail_knee=ik(hip,trail_ankle,100,100,side=1)
+  if any(abs(math.dist(a,b)-100)>1e-6 for a,b in ((hip,lead_knee),(lead_knee,lead_ankle),(hip,trail_knee),(trail_knee,trail_ankle))):raise ValueError('Step-up leg segment changed length')
+  if .5<=u<=1 and trail_ankle[0]>=340 and trail_ankle[1]>395:raise ValueError('Trailing foot intersects step')
+  limb(d,[hip,trail_knee,trail_ankle],FAR,17)
+  limb(d,[hip,lead_knee,lead_ankle],BLUE,19)
+  line(d,lead_ankle,(420,390),INK,10)
+  line(d,trail_ankle,(trail_ankle[0]+24,trail_ankle[1]+2),INK,9)
+  shoulder=(hip[0]-6,hip[1]-90);head=(shoulder[0],shoulder[1]-27)
+  body(d,hip,shoulder,head)
+  for offset,color in ((-35,FAR),(35,INK)):
+   elbow=(shoulder[0]+offset,shoulder[1]+61)
+   hand=(elbow[0]+5,elbow[1]+48)
+   limb(d,[shoulder,elbow,hand],color,10)
+   if option=='dumbbell':weight(d,hand)
+ elif kind in ('split-squat','reverse-lunge'):
   front_ankle=(393,440);front_toe=(432,450)
   if kind=='reverse-lunge':
    # Step back first while the moving foot is clear of the floor; only then
