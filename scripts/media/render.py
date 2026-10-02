@@ -15,6 +15,10 @@ TEMPLATES={
  'seated-dumbbell-curl':('seated-curl',False),
  'dumbbell-front-raise':('front-raise',False),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
+ 'push-up':('push-up','floor'),
+ 'kneeling-push-up':('push-up','knees'),
+ 'incline-push-up':('push-up','incline-bench'),
+ 'decline-push-up':('push-up','decline-bench'),
 }
 BG='#080d18';CARD='#131e30';INK='#eaf1fc';MUTED='#aab9d0';BLUE='#73acff';FAR='#425873'
 def xy(p):return tuple(round(v) for v in p)
@@ -48,7 +52,34 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='squat':
+ if kind=='push-up':
+  # Side view: hand and foot/knee supports stay fixed; shoulder, hips, and
+  # elbows travel together. Elevated supports are drawn at their actual ends.
+  wrist=(270,442);foot=(470,442)
+  if option=='incline-bench':
+   wrist=(270,365)
+   d.rounded_rectangle((215,372,325,387),5,fill=FAR)
+   for x in (235,305):d.line((x,387,x,460),fill=FAR,width=8)
+  if option=='decline-bench':
+   foot=(470,336)
+   d.rounded_rectangle((425,344,505,359),5,fill=FAR)
+   for x in (442,490):d.line((x,359,x,460),fill=FAR,width=8)
+  top={'floor':335,'knees':345,'incline-bench':265,'decline-bench':345}[option]
+  shoulder=(270,top+49*u)
+  support=(420,440) if option=='knees' else foot
+  hip=(shoulder[0]+.68*(support[0]-shoulder[0]),shoulder[1]+.68*(support[1]-shoulder[1]))
+  elbow=ik(shoulder,wrist,56,56,side=-1)
+  limb(d,[shoulder,elbow,wrist],INK,13)
+  line(d,wrist,(wrist[0]-18,wrist[1]+2),INK,9)
+  limb(d,[shoulder,hip,support],BLUE,25)
+  if option=='knees':
+   line(d,support,foot,BLUE,14)
+   line(d,foot,(492,449),INK,9)
+  else:line(d,foot,(492,foot[1]+3),INK,9)
+  head=(shoulder[0]-35,shoulder[1]-8)
+  d.ellipse((head[0]-23,head[1]-17,head[0]+12,head[1]+17),fill=INK)
+  d.line((head[0]-14,head[1]+12,head[0]-4,head[1]+12),fill=BG,width=3)
+ elif kind=='squat':
   hip=(302-72*u,294+68*u);shoulder=polar(hip,126,-math.pi/2+.32*u);head=polar(shoulder,33,-math.pi/2+.15*u)
   if option:d.rounded_rectangle((130,378,245,399),7,fill=FAR);d.line((150,399,150,452),fill=FAR,width=9);d.line((225,399,225,452),fill=FAR,width=9)
   knee=ik(hip,ankle,79,78);limb(d,[hip,knee,ankle]);line(d,ankle,(347,450),INK,10)
