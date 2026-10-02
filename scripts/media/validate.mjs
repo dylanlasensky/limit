@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { exerciseCatalog } from "../../packages/domain/exerciseCatalog.js";
+import { probeVideo } from "./probe.mjs";
 const rows = JSON.parse(readFileSync("media/manifest.json"));
+const evidence = JSON.parse(readFileSync("media/technical-evidence.json"));
+assert.equal(new Set(evidence.map((e) => e.catalogKey)).size, evidence.length);
+const evidenceByKey = new Map(evidence.map((e) => [e.catalogKey, e]));
 assert.equal(rows.length, exerciseCatalog.length);
 assert.equal(new Set(rows.map((r) => r.catalogKey)).size, rows.length);
 const byKey = new Map(exerciseCatalog.map((e) => [e.catalogKey, e]));
@@ -24,6 +28,24 @@ for (const row of rows) {
     assert.equal(row.duration, 8);
     assert.equal(row.fps, 24);
     assert.ok(row.technicalChecks.includes("full-decode"));
+    const checked = evidenceByKey.get(row.catalogKey);
+    assert.ok(checked, `Missing full-decode evidence for ${row.catalogKey}`);
+    assert.equal(checked.videoSha256, row.videoSha256);
+    assert.equal(checked.duration, row.duration);
+    assert.equal(checked.width, row.width);
+    assert.equal(checked.height, row.height);
+    assert.equal(checked.fps, row.fps);
+    assert.equal(checked.frames, row.duration * row.fps);
+    assert.equal(checked.decodedMicros, row.duration * 1_000_000);
+    assert.equal(checked.codec, "h264");
+    assert.equal(checked.pixelFormat, "yuv420p");
+    assert.equal(checked.audio, false);
+    if (process.argv.includes("--files"))
+      assert.deepEqual(
+        { catalogKey: row.catalogKey, videoSha256: row.videoSha256, ...probeVideo(`media-output/${row.catalogKey}/movement.mp4`) },
+        checked,
+        `${row.catalogKey}: video probe differs from checksum-bound evidence`
+      );
     assert.ok(!videos.has(row.videoSha256), "Duplicate video identity");
     videos.add(row.videoSha256);
   } else {
@@ -68,6 +90,7 @@ for (const row of rows) {
       );
   }
 }
+assert.equal(evidence.length, videos.size, "Unexpected technical evidence entries");
 assert.ok(bytes < 500 * 1024 * 1024, "Media exceeds per-environment free-tier allocation");
 console.log(
   JSON.stringify({
