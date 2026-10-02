@@ -7,8 +7,9 @@ describe("media evidence boundary", () => {
     expect(manifest).toHaveLength(365);
     for (const row of manifest) {
       const media = mediaSchema.parse(row);
-      expect(playableMedia(media)).toBe(row.reviewStatus === "technical");
-      expect(media.reviewer).toBeNull();
+      expect(playableMedia(media)).toBe(["technical", "approved"].includes(row.reviewStatus));
+      if (row.reviewStatus !== "approved" && row.reviewStatus !== "draft")
+        expect(media.reviewer).toBeNull();
     }
   });
   it("refuses draft, missing proof, and fabricated human approval", () => {

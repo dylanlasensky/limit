@@ -1,3 +1,4 @@
+import { exerciseCatalog } from "../../packages/domain/exerciseCatalog.js";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
@@ -26,7 +27,7 @@ console.log(
 );
 
 const cell = (value) => '"' + String(value ?? "").replaceAll('"', '""') + '"';
-const catalog = JSON.parse(readFileSync("media-output/catalog.json"));
+const catalog = exerciseCatalog;
 writeFileSync(
   "docs/exercise-media-checklist.csv",
   [

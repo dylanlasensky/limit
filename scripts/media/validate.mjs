@@ -32,7 +32,26 @@ for (const row of rows) {
   }
   if (["approved", "draft"].includes(row.reviewStatus)) {
     assert.ok(row.reviewer);
-    assert.ok(row.reviewEvidence);
+    assert.ok(/^media\/reviews\/[a-f0-9]{64}\.json$/.test(row.reviewEvidence));
+    const evidence = JSON.parse(readFileSync(row.reviewEvidence));
+    assert.equal(
+      row.reviewEvidence,
+      `media/reviews/${createHash("sha256").update(JSON.stringify(evidence)).digest("hex")}.json`
+    );
+    assert.equal(evidence.reviewer, row.reviewer);
+    assert.ok(
+      Number.isFinite(Date.parse(evidence.reviewedAt)) &&
+        Date.parse(evidence.reviewedAt) <= Date.now()
+    );
+    assert.ok(
+      evidence.decisions.some(
+        (decision) =>
+          decision.catalogKey === row.catalogKey &&
+          decision.videoSha256 === row.videoSha256 &&
+          decision.decision === (row.reviewStatus === "approved" ? "approve" : "reject") &&
+          decision.notes?.trim().length >= 20
+      )
+    );
   } else assert.equal(row.reviewer, null);
   for (const [name, checksum] of [
     ["poster.png", row.posterSha256],
