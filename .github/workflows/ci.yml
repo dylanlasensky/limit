@@ -2,8 +2,9 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, "codex/**"]
   workflow_dispatch:
+  workflow_call:
 permissions:
   contents: read
 jobs:
@@ -11,20 +12,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
           cache: npm
       - run: npm ci && npm ci --prefix worker
+      - run: npm run security:check
+      - run: npm run media:check
       - run: npm run worker:types
       - run: npm run lint && npm run format:check
       - run: npm run typecheck && npm run typecheck:worker
       - run: npm run lint --workspace limit-mobile && npm run typecheck --workspace limit-mobile
+      - name: Expo compatibility
+        working-directory: apps/mobile
+        run: npx --yes expo-doctor@1.20.4
       - run: npm run test:native
       - name: Native JavaScript bundles
         working-directory: apps/mobile
-        run: npx expo export --platform ios --platform android --output-dir /tmp/limit-native-export
+        run: npx expo export --platform ios --platform android --platform web --output-dir /tmp/limit-native-export
+      - run: npm run check:release-source
       - run: npm test
       - run: npm run build
       - run: npm run db:migrate && npm run db:seed
@@ -37,7 +44,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: node tests/hosted/smoke.mjs
       - run: npm run test:e2e
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         if: always()
         with:
           name: browser-report
