@@ -121,7 +121,11 @@ export async function mediaAsset(
   if ((kind === "video" && !playableMedia(media)) || media.version !== version || !objectKey)
     throw new ApiError("Media not found.", 404);
   await storageBudget(env);
-  const object = await env.MEDIA.get(objectKey, { range: request.headers });
+  const requestedRange = request.headers.has("range");
+  const object = await env.MEDIA.get(
+    objectKey,
+    requestedRange ? { range: request.headers } : undefined
+  );
   if (!object) throw new ApiError("Media not found.", 404);
   const headers = new Headers({
     "Cache-Control": "public,max-age=31536000,immutable",
@@ -131,6 +135,7 @@ export async function mediaAsset(
   });
   object.writeHttpMetadata(headers);
   if (
+    requestedRange &&
     object.range &&
     "offset" in object.range &&
     "length" in object.range &&
