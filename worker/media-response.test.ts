@@ -1,10 +1,10 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from "vitest";
-import { mediaAsset } from "../../worker/files";
-import manifest from "../../media/manifest.json";
+import { mediaAsset } from "./files";
+import manifest from "../media/manifest.json";
 
-vi.mock("../../worker/budget", () => ({ storageBudget: vi.fn() }));
-vi.mock("../../worker/repository", () => ({ Repository: vi.fn() }));
+vi.mock("./budget", () => ({ storageBudget: vi.fn() }));
+vi.mock("./repository", () => ({ Repository: vi.fn() }));
 
 describe("R2 media HTTP range semantics", () => {
   it.each([false, true])(
