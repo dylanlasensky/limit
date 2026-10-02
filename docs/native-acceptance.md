@@ -23,7 +23,7 @@ Record build/SHA, device, OS, date, tester and actual outcomes. Use two ordinary
 3. Build a plan on web and view it on device. Start workout, log warm-up/working sets, copy prior values, pause/rest/resume. Background and lock screen; verify timer follows elapsed time.
 4. Disconnect, log a set, force-close and reopen, reconnect and synchronize. Create a conflicting edit on web and resolve explicitly. Repeated Finish must create one completion. Drafts must disappear on logout/deletion.
 5. Account B must not see A's plan, workout, draft, export or upload; verify direct API denial as well as UI. Delete A and confirm its sessions and private files are inaccessible while B remains intact.
-6. Check manual nutrition/text fallback and explicit AI consent on web handoff. Camera/photo estimation and native media playback are not claimed as implemented; do not fabricate a camera test. Verify unsupported native features are absent.
+6. Check native instructional media on a technically checked movement: manual load, play, pause, caption, loading/error/retry and written fallback. Also check a blocked movement has written cues without a substituted video. Check manual nutrition/text fallback and explicit AI consent on web handoff. Camera/photo estimation is not implemented; do not fabricate a camera test. Verify unsupported native features are absent. Source/export checks alone do not establish native playback on a physical device.
 7. Repeat on a physical iPhone in TestFlight after owner-approved signing/upload. Record crash logs, network failures, accessibility observations and corrections. Only the actual reviewer may mark evidence verified.
 
 ## Store metadata draft
