@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import {ACCOUNT_ENTITIES} from "../packages/domain/accountData.js";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
@@ -1402,3 +1403,55 @@ test("desktop pages use columns and keep profile actions clear of Coach", async 
 });
 
  test("main journeys have no automated WCAG A/AA violations",async({page})=>{await mockApp(page);for(const route of ["home","workout","progress","nutrition","profile","live-workout/day"]){await page.goto('/'+route);await expect(page.locator('main')).toBeVisible();await expect(page.getByText("Loading",{exact:true})).toHaveCount(0);const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(result.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]);}});
+
+test("public data controls and AI disclosure are readable and accessible", async ({ page }) => {
+  await mockApp(page, { signedIn: false });
+  for (const [route,title] of [["data-export","Export your data"],["account-deletion","Delete your account"],["ai-disclosure","AI and movement guides"]]) {
+    await page.goto("/"+route);
+    await expect(page.getByRole("heading",{name:title,exact:true})).toBeVisible();
+    expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  }
+});
+
+test("generated exercise media plays only on request and remains honestly labeled", async ({page},testInfo)=>{
+  await mockApp(page,{signedIn:false});
+  const manifest: any[] = JSON.parse(readFileSync("media/manifest.json", "utf8"));
+  const media=manifest.find(row=>row.catalogKey==="bodyweight-squat")!;
+  await page.route("**/api/media/bodyweight-squat",route=>route.fulfill({json:media}));
+  await page.route("**/api/media/bodyweight-squat/*/poster",route=>route.fulfill({path:"tests/fixtures/generated-squat.png",contentType:"image/png"}));
+  await page.route("**/api/media/bodyweight-squat/*/video",route=>route.fulfill({path:"tests/fixtures/generated-squat.mp4",contentType:"video/mp4"}));
+  await page.goto("/exercises");
+  await page.getByRole("textbox",{name:"Search exercises",exact:true}).fill("Bodyweight Squat");
+  await page.getByRole("button",{name:/^Bodyweight Squat /}).click();
+  const video=page.locator("video");
+  await expect(video).toBeVisible();
+  await expect(page.getByText(/Generated schematic · Not human fitness-reviewed/)).toBeVisible();
+  expect(await video.evaluate((v:HTMLVideoElement)=>v.paused&&!v.autoplay)).toBe(true);
+  await video.evaluate((v:HTMLVideoElement)=>v.play());
+  await expect.poll(()=>video.evaluate((v:HTMLVideoElement)=>v.currentTime)).toBeGreaterThan(0);
+  await video.evaluate((v:HTMLVideoElement)=>v.pause());
+  await page.getByText("Video transcript",{exact:true}).click();
+  await expect(page.locator("details").getByText(media.caption,{exact:true})).toBeVisible();
+  if(testInfo.project.name==="phone"){await page.getByRole("dialog").getByRole("heading",{name:"Bodyweight Squat",exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:testInfo.outputPath("generated-media.png"),fullPage:true});}
+  await page.route("**/api/media/bodyweight-squat/*/video",route=>route.abort());
+  await page.reload();
+  await page.getByRole("textbox",{name:"Search exercises",exact:true}).fill("Bodyweight Squat");
+  await page.getByRole("button",{name:/^Bodyweight Squat /}).click();
+  await page.locator("video").evaluate((v:HTMLVideoElement)=>v.load());
+  await expect(page.getByText("Video not available yet")).toBeVisible();
+  await expect(page.getByText(media.textFallback[0],{exact:true})).toBeVisible();
+});
+
+test("password recovery never claims delivery when the provider is unavailable",async({page})=>{
+  await mockApp(page,{signedIn:false});
+  await page.route("**/api/auth/request-password-reset",route=>route.fulfill({status:503,json:{error:"Email delivery has not been configured yet.",code:"EMAIL_NOT_CONFIGURED"}}));
+  await page.goto("/forgot-password");
+  await page.getByLabel("Email address").fill("private@example.invalid");
+  await page.getByRole("button",{name:/Send reset/i}).click();
+  await expect(page.getByRole("alert")).toContainText("Password recovery is temporarily unavailable");
+  await expect(page.getByText(/you'll receive a password reset link shortly/)).toHaveCount(0);
+  await page.route("**/api/auth/request-password-reset",route=>route.fulfill({json:{status:true,message:"Check your email"}}));
+  await page.getByRole("button",{name:/Send reset/i}).click();
+  await expect(page.getByText(/If an account exists with that email/)).toBeVisible();
+});

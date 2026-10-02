@@ -19,6 +19,7 @@ import Entry from "@/pages/Entry";
 const Register = lazy(() => import("@/pages/Register"));
 const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
+const DataInfo = lazy(() => import("@/pages/DataInfo"));
 const PublicInfo = lazy(() => import("@/pages/PublicInfo"));
 const PublicExercises = lazy(() => import("@/pages/PublicExercises"));
 const Onboarding = lazy(() => import("@/pages/Onboarding"));
@@ -99,6 +100,9 @@ function App() {
                   <Route path="/privacy" element={<PublicInfo kind="privacy" />} />
                   <Route path="/terms" element={<PublicInfo kind="terms" />} />
                   <Route path="/support" element={<PublicInfo kind="support" />} />
+                  <Route path="/data-export" element={<DataInfo kind="export" />} />
+                  <Route path="/account-deletion" element={<DataInfo kind="deletion" />} />
+                  <Route path="/ai-disclosure" element={<DataInfo kind="disclosure" />} />
                   <Route path="/exercises" element={<PublicExercises />} />
                   <Route path="*" element={<AuthenticatedApp />} />
                 </Routes>

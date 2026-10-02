@@ -17,3 +17,5 @@ npm run dev:worker
 Open http://localhost:8787. Create a fresh account and complete onboarding. Local email delivery and live AI are disabled by default. For UI hot reload use `npm run dev` alongside the Worker.
 
 See [architecture](docs/architecture.md), [deployment](docs/deployment.md), [testing](docs/testing.md), [media workflow](docs/exercise-media.md), [mobile](docs/expo.md), and [known limitations](docs/known-limitations.md).
+
+Release operations: [completion ledger](docs/completion-ledger.md), [dependency decisions](docs/dependency-review.md), [email activation](docs/email-setup.md), [incident and restore runbook](docs/operations.md), and [native acceptance](docs/native-acceptance.md). The deployed web application and owner-deferred App Store release are separate tracks.

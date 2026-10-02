@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 const base=process.env.LIMIT_API_URL||'http://localhost:8787';
@@ -10,6 +11,13 @@ async function account(label){const result=await call('/auth/sign-up/email',{met
 test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
  const a=await account('api-a'),b=await account('api-b'),cookie=a.cookie;
  let profile,plan,days,exercise,session,set;
+ await t.test('login, logout and invalid credentials enforce sessions',async()=>{
+  const signed=await call('/auth/sign-in/email',{method:'POST',body:{email:a.data.user.email,password}});assert.equal(signed.status,200);assert.equal((await call('/me',{cookie:signed.cookie})).status,200);
+  assert.equal((await call('/auth/sign-out',{cookie:signed.cookie,method:'POST',body:{}})).status,200);assert.equal((await call('/me',{cookie:signed.cookie})).status,401);
+  const wrong=await call('/auth/sign-in/email',{method:'POST',body:{email:a.data.user.email,password:'wrong-password-12345'}});assert.equal(wrong.status,401);
+  const absent=await call('/me',{cookie:'better-auth.session_token=invalid'});assert.equal(absent.status,401);
+  const reset=await call('/auth/request-password-reset',{method:'POST',body:{email:a.data.user.email,redirectTo:base+'/reset-password'}});assert.equal(reset.status,503);
+ });
  await t.test('requires a session and rejects untrusted mutation origins',async()=>{
   assert.equal((await call('/entities/UserProfile')).status,401);
   assert.equal((await call('/entities/UserProfile',{cookie,method:'POST',origin:'https://attacker.invalid',body:{name:'Injected'}})).status,403);
@@ -31,7 +39,7 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
  });
  await t.test('seeds all catalog keys and returns honest media fallbacks',async()=>{
   const rows=await call('/entities/Exercise');assert.equal(rows.status,200);assert.equal(rows.data.length,365);exercise=rows.data.find(e=>e.equipment==='Bodyweight'&&e.programEligible!==false);
-  const media=await call('/media/'+exercise.id);assert.equal(media.status,200);assert.equal(media.data.reviewStatus,'missing');assert.equal(media.data.source,null);assert.ok(media.data.textFallback.length);
+  const media=await call('/media/'+exercise.id);assert.equal(media.status,200);const expected=base.startsWith('http://localhost')?null:JSON.parse(readFileSync('media/manifest.json')).find(row=>row.catalogKey===exercise.id);assert.equal(media.data.reviewStatus,expected?.reviewStatus||'missing');assert.equal(media.data.source,expected?.source||null);assert.equal(media.data.reviewer,null);assert.deepEqual(media.data.textFallback,exercise.instructions);
  });
  await t.test('creates a complete plan and prevents cross-account graph links',async()=>{
   const p=await call('/entities/WorkoutPlan',{cookie,method:'POST',body:{name:'API plan',daysPerWeek:2,active:false}});assert.equal(p.status,200);plan=p.data;
