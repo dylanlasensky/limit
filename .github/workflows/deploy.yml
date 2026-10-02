@@ -32,6 +32,13 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          LIMIT_TEST_ACCOUNTS_DISPOSABLE: ${{ vars.LIMIT_TEST_ACCOUNTS_DISPOSABLE }}
+          LIMIT_TEST_EMAIL_A: ${{ secrets.LIMIT_TEST_EMAIL_A }}
+          LIMIT_TEST_PASSWORD_A: ${{ secrets.LIMIT_TEST_PASSWORD_A }}
+          LIMIT_TEST_EMAIL_B: ${{ secrets.LIMIT_TEST_EMAIL_B }}
+          LIMIT_TEST_PASSWORD_B: ${{ secrets.LIMIT_TEST_PASSWORD_B }}
+          LIMIT_TEST_EMAIL_BROWSER: ${{ secrets.LIMIT_TEST_EMAIL_BROWSER }}
+          LIMIT_TEST_PASSWORD_BROWSER: ${{ secrets.LIMIT_TEST_PASSWORD_BROWSER }}
         run: node scripts/deploy-release.mjs preview
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
@@ -56,6 +63,13 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          LIMIT_TEST_ACCOUNTS_DISPOSABLE: ${{ vars.LIMIT_TEST_ACCOUNTS_DISPOSABLE }}
+          LIMIT_TEST_EMAIL_A: ${{ secrets.LIMIT_TEST_EMAIL_A }}
+          LIMIT_TEST_PASSWORD_A: ${{ secrets.LIMIT_TEST_PASSWORD_A }}
+          LIMIT_TEST_EMAIL_B: ${{ secrets.LIMIT_TEST_EMAIL_B }}
+          LIMIT_TEST_PASSWORD_B: ${{ secrets.LIMIT_TEST_PASSWORD_B }}
+          LIMIT_TEST_EMAIL_BROWSER: ${{ secrets.LIMIT_TEST_EMAIL_BROWSER }}
+          LIMIT_TEST_PASSWORD_BROWSER: ${{ secrets.LIMIT_TEST_PASSWORD_BROWSER }}
         run: node scripts/deploy-release.mjs production
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
