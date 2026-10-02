@@ -22,6 +22,9 @@ TEMPLATES={
  'decline-push-up':('push-up','decline-bench'),
  'single-leg-calf-raise':('single-calf',None),
  'dumbbell-seated-calf-raise':('seated-calf',None),
+ 'bodyweight-split-squat':('split-squat','floor'),
+ 'bodyweight-bulgarian-split-squat':('split-squat','rear-bench'),
+ 'bodyweight-reverse-lunge':('reverse-lunge',None),
 }
 BLOCK_REASONS={
  'deficit-push-up':'needs both parallettes at a fixed stable height and a shoulder path below hand level without clipping the supports',
@@ -66,7 +69,32 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='single-calf':
+ if kind in ('split-squat','reverse-lunge'):
+  front_ankle=(393,440);front_toe=(432,450)
+  if kind=='reverse-lunge':
+   # Step back first while the moving foot is clear of the floor; only then
+   # descend. The return reverses these phases as phase() reduces u.
+   step=min(1,2*u);lower=max(0,min(1,2*u-1))
+   rear_ankle=(355-120*step,440-22*math.sin(math.pi*step))
+   hip=(320,280+50*lower)
+  else:
+   rear_ankle=(235,365) if option=='rear-bench' else (238,440)
+   hip=(320,(270 if option=='rear-bench' else 280)+50*u)
+  if option=='rear-bench':
+   d.rounded_rectangle((193,370,277,385),5,fill=FAR)
+   for x in (208,265):d.line((x,385,x,459),fill=FAR,width=8)
+  front_knee=ik(hip,front_ankle,100,100,side=1)
+  rear_knee=ik(hip,rear_ankle,100,100,side=1)
+  if any(abs(math.dist(a,b)-100)>1e-6 for a,b in ((hip,front_knee),(front_knee,front_ankle),(hip,rear_knee),(rear_knee,rear_ankle))):raise ValueError('Lunge leg segment changed length')
+  limb(d,[hip,rear_knee,rear_ankle],FAR,17)
+  limb(d,[hip,front_knee,front_ankle],BLUE,19)
+  line(d,front_ankle,front_toe,INK,10)
+  rear_toe=(rear_ankle[0]-20,rear_ankle[1]+9)
+  line(d,rear_ankle,rear_toe,INK,9)
+  shoulder=(316,hip[1]-112);head=(316,hip[1]-145)
+  body(d,hip,shoulder,head)
+  limb(d,[shoulder,(346,shoulder[1]+54),(362,shoulder[1]+85)],INK,11)
+ elif kind=='single-calf':
   # The working forefoot and balance hand remain planted. The other foot never
   # contacts the ground; only the working heel and body rise.
   toe=(340,450);ankle=(304,441-18*u)
