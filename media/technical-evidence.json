@@ -247,6 +247,19 @@
     "audio": false
   },
   {
+    "catalogKey": "dumbbell-hip-thrust",
+    "videoSha256": "a1d5c20d38a5f16fd7c31e0a41593cc243b447ea9ad605beb940b8931b8be5f8",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "glute-bridge",
     "videoSha256": "2733f3b8234070d70ba571b059abbd3dc18a5009a861af81f1075b88ee77d5a4",
     "duration": 8,
