@@ -74,6 +74,7 @@ TEMPLATES={
  'resistance-band-row':('band-row',None),
  'resistance-band-overhead-press':('band-overhead-press',None),
  'resistance-band-pulldown':('band-straight-arm-pulldown',None),
+ 'resistance-band-chest-press':('band-chest-press',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -140,7 +141,27 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='band-straight-arm-pulldown':
+ if kind=='band-chest-press':
+  # Behind-the-body chest-height anchor, planted staggered stance and two
+  # separately tensioned arms pressing forward without trunk lean.
+  anchor=(148,248);hip=(300,334);shoulder=(300,212);head=(297,174)
+  d.line((127,87,127,456),fill=FAR,width=5)
+  d.line((127,248,anchor[0],anchor[1]),fill=INK,width=8)
+  d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
+  limb(d,[hip,(277,388),(264,445)],FAR,16)
+  line(d,(264,445),(244,448),INK,8)
+  limb(d,[hip,(333,388),(351,445)],BLUE,17)
+  line(d,(351,445),(373,448),INK,8)
+  body(d,hip,shoulder,head)
+  for offset,color in ((-9,FAR),(9,INK)):
+   start=(shoulder[0]+offset,shoulder[1]);hand=(335+96*u+offset,254)
+   elbow=ik(start,hand,75,68,side=-1)
+   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((start,elbow,75),(elbow,hand,68))):raise ValueError('Band chest press arm length changed')
+   if hand[1]!=254 or anchor!=(148,248):raise ValueError('Band chest press support changed')
+   d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
+   limb(d,[start,elbow,hand],color,11)
+   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
+ elif kind=='band-straight-arm-pulldown':
   # A high fixed anchor and near-straight arms distinguish the shoulder
   # pulldown from an elbow-driven triceps pushdown.
   anchor=(443,111);hip=(301,334);shoulder=(300,212);head=(298,173)

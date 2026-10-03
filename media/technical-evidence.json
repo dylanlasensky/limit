@@ -52,6 +52,19 @@
     "audio": false
   },
   {
+    "catalogKey": "resistance-band-chest-press",
+    "videoSha256": "83680bec411a1dfed3088534a2a6d59e6ed5ae6487d30715952e0ac4e0f36bb2",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "push-up",
     "videoSha256": "fadeacdca2c2f0843a982323bd91841f17a7aee59616aa538cbed4992f8a4742",
     "duration": 8,

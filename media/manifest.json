@@ -740,14 +740,14 @@
   {
     "catalogKey": "resistance-band-chest-press",
     "name": "Resistance Band Chest Press",
-    "poster": "exercises/resistance-band-chest-press/v29339168163995/9c792e78965dd2507c5a5b7761b8d5f10b68987d01d6c71a438afcb62c7f322a.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/resistance-band-chest-press/v208342855244263/664f497b9a3e4cf890e237e97e37c9a36f6c47bd534bf9748419dcb44e0a0fb7.png",
+    "source": "exercises/resistance-band-chest-press/v208342855244263/83680bec411a1dfed3088534a2a6d59e6ed5ae6487d30715952e0ac4e0f36bb2.mp4",
+    "format": "mp4",
     "caption": "Set your support points before lifting and keep your wrists stacked over your forearms. Lower through a comfortable range, then press without bouncing or losing your setup. Use a secure anchor and inspect the band for damage.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 29339168163995,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 208342855244263,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -759,15 +759,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "9c792e78965dd2507c5a5b7761b8d5f10b68987d01d6c71a438afcb62c7f322a",
-    "videoSha256": null,
-    "bytes": 45063,
-    "blockReason": "Resistance Band Chest Press: current renderer lacks shoulder support, grip width, elbow track and load path through the press; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires \"Use a secure anchor and inspect the band for damage\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "664f497b9a3e4cf890e237e97e37c9a36f6c47bd534bf9748419dcb44e0a0fb7",
+    "videoSha256": "83680bec411a1dfed3088534a2a6d59e6ed5ae6487d30715952e0ac4e0f36bb2",
+    "bytes": 91416,
+    "blockReason": "",
+    "template": "band-chest-press",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
