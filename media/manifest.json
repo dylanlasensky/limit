@@ -5456,14 +5456,14 @@
   {
     "catalogKey": "overhead-cable-triceps-extension",
     "name": "Overhead Cable Triceps Extension",
-    "poster": "exercises/overhead-cable-triceps-extension/v106934179506909/79f5f879cd9478c249747173f2a92b25089ea5cf93d944267fe680061e158545.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/overhead-cable-triceps-extension/v7514806615265/65923f075e5047e964c6a36ca908807346713b4202bb1757b3f40dd80c94773e.png",
+    "source": "exercises/overhead-cable-triceps-extension/v7514806615265/794924f466548d500ceade549cbf0ebfbdd4c2258a0c8984e5c8c6260de3539b.mp4",
+    "format": "mp4",
     "caption": "Set a comfortable shoulder position and keep your upper arms steady. Straighten your elbows without snapping them, then return under control. Keep your ribs down and use a comfortable shoulder angle.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 106934179506909,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 7514806615265,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -5475,15 +5475,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "79f5f879cd9478c249747173f2a92b25089ea5cf93d944267fe680061e158545",
-    "videoSha256": null,
-    "bytes": 45526,
-    "blockReason": "Overhead Cable Triceps Extension: current renderer lacks fixed upper arm, elbow hinge and full load path; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires \"Keep your ribs down and use a comfortable shoulder angle\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "65923f075e5047e964c6a36ca908807346713b4202bb1757b3f40dd80c94773e",
+    "videoSha256": "794924f466548d500ceade549cbf0ebfbdd4c2258a0c8984e5c8c6260de3539b",
+    "bytes": 124643,
+    "blockReason": "",
+    "template": "cable-overhead-triceps",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

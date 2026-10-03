@@ -611,6 +611,19 @@
     "audio": false
   },
   {
+    "catalogKey": "overhead-cable-triceps-extension",
+    "videoSha256": "794924f466548d500ceade549cbf0ebfbdd4c2258a0c8984e5c8c6260de3539b",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-overhead-triceps-extension",
     "videoSha256": "b02020b27b846877bd8fb38282f429622b68be4b370ecb13e7a2f6604523ac54",
     "duration": 8,

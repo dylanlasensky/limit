@@ -87,6 +87,7 @@ TEMPLATES={
  'standing-cable-row':('standing-cable-row',None),
  'half-kneeling-cable-row':('half-kneeling-cable-row',None),
  'cable-triceps-pushdown':('cable-triceps-pushdown',None),
+ 'overhead-cable-triceps-extension':('cable-overhead-triceps',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -282,13 +283,19 @@ def draw_pose(d,kind,option,u):
   limb(d,[hip,knee,working_ankle],FAR,16)
   line(d,working_ankle,(working_ankle[0]-18,working_ankle[1]+4),INK,8)
   d.rounded_rectangle((working_ankle[0]-9,working_ankle[1]-8,working_ankle[0]+9,working_ankle[1]+8),3,outline=INK,width=2)
- elif kind=='band-overhead-triceps':
-  # A low fixed anchor behind the athlete tensions two band strands. Upper
-  # arms stay near the head while only the forearms extend overhead.
+ elif kind in ('band-overhead-triceps','cable-overhead-triceps'):
+  # A low anchor behind the athlete tensions two band strands or cable lines.
+  # Upper arms stay near the head while only forearms extend overhead.
+  cable=kind=='cable-overhead-triceps'
   anchor=(140,435);hip=(303,331);shoulder=(300,209);head=(300,170)
   d.line((118,84,118,456),fill=FAR,width=5)
-  d.line((118,435,anchor[0],anchor[1]),fill=INK,width=8)
-  d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
+  if cable:
+   d.rounded_rectangle((92,308,126,395),5,fill=FAR,outline=INK,width=2)
+   for y in (326,345,364,383):d.line((95,y,123,y),fill=INK,width=2)
+   d.ellipse((anchor[0]-12,anchor[1]-12,anchor[0]+12,anchor[1]+12),fill=FAR,outline=INK,width=3)
+  else:
+   d.line((118,435,anchor[0],anchor[1]),fill=INK,width=8)
+   d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
   limb(d,[hip,(280,388),(267,445)],FAR,16)
   line(d,(267,445),(246,448),INK,8)
   limb(d,[hip,(325,387),(345,445)],BLUE,17)
@@ -299,9 +306,10 @@ def draw_pose(d,kind,option,u):
    hand=polar(elbow,69,2.2-3.32*u)
    if abs(math.dist(elbow,hand)-69)>1e-6 or elbow[1]!=157:raise ValueError('Band overhead triceps elbow changed')
    if hand[1]<87 or hand[1]>227:raise ValueError('Band overhead triceps path changed')
-   d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
+   d.line([xy(anchor),xy(hand)],fill=INK if cable else FAR,width=3 if cable else 4)
    limb(d,[start,elbow,hand],color,11)
-   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
+   if cable:d.rounded_rectangle((hand[0]-6,hand[1]-7,hand[0]+6,hand[1]+7),3,fill=FAR,outline=INK,width=2)
+   else:d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
  elif kind=='band-chest-press':
   # Behind-the-body chest-height anchor, planted staggered stance and two
   # separately tensioned arms pressing forward without trunk lean.
