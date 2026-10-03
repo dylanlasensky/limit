@@ -561,6 +561,11 @@ groups.find((entry) => entry.catalogKey === "barbell-good-morning").instructions
   "Keep soft knees and a braced, steady spine while hinging your hips backward.",
   "Stand tall under control without leaning backward at the top.",
 ];
+groups.find((entry) => entry.catalogKey === "resistance-band-good-morning").instructions = [
+  "Stand on a secure band with both feet and place it across your upper back, away from your neck.",
+  "Keep soft knees and a braced, steady spine as you hinge your hips backward.",
+  "Stand tall under control while both feet keep the band anchored.",
+];
 group(
   "Hamstrings",
   ["Calves"],

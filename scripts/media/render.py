@@ -261,6 +261,7 @@ TEMPLATES={
  'trap-bar-romanian-deadlift':('barbell-hinge','trapbar-romanian'),
  'smith-machine-romanian-deadlift':('barbell-hinge','smith-romanian'),
  'barbell-good-morning':('barbell-hinge','good-morning'),
+ 'resistance-band-good-morning':('barbell-hinge','band-good-morning'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -484,7 +485,7 @@ def draw_pose(d,kind,option,u):
   hand=(bar_x,bar_y)
   reach=math.dist(hip,ankle)
   knee_flex=2*math.degrees(math.acos(reach/(2*leg)))
-  if option in ('romanian','dumbbell-romanian','kettlebell-romanian','trapbar-romanian','smith-romanian','good-morning') and (knee_flex>28 or knee_flex<20 or abs(reach-math.dist((300,295),ankle))>1e-6):raise ValueError('RDL knee bend or foot reach changed')
+  if option in ('romanian','dumbbell-romanian','kettlebell-romanian','trapbar-romanian','smith-romanian','good-morning','band-good-morning') and (knee_flex>28 or knee_flex<20 or abs(reach-math.dist((300,295),ankle))>1e-6):raise ValueError('RDL knee bend or foot reach changed')
   if option in ('conventional','kettlebell-conventional','paused','snatch-grip','sumo','deficit','trapbar-conventional') and not 25<=knee_flex<=70:raise ValueError('Deadlift knee path changed')
   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,knee,leg),(knee,ankle,leg),(hip,shoulder,torso),(shoulder,hand,arm))):raise ValueError('Hinge segment length changed')
   if bar_y>430 or bar_y<(290 if option.startswith('kettlebell') else 320) or head[0]>455:raise ValueError('Hinge load or head clearance changed')
@@ -499,7 +500,20 @@ def draw_pose(d,kind,option,u):
   line(d,ankle,(344,448),INK,9)
   line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,10)
   d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
-  if option=='good-morning':
+  if option=='band-good-morning':
+   upper_back=(shoulder[0]-11,shoulder[1]+2)
+   anchor_far=(304,445);anchor_near=(334,445)
+   if any(segment_distance(head,anchor,upper_back)<27 for anchor in (anchor_far,anchor_near)):raise ValueError('Band crossed head or neck')
+   for anchor,color in ((anchor_far,FAR),(anchor_near,BLUE)):
+    d.line((*anchor,*upper_back),fill=color,width=5)
+    d.ellipse((anchor[0]-5,anchor[1]-5,anchor[0]+5,anchor[1]+5),fill=INK)
+   d.line((upper_back[0]-10,upper_back[1],upper_back[0]+10,upper_back[1]),fill=BLUE,width=7)
+   d.rounded_rectangle((45,183,189,231),4,outline=MUTED,width=2)
+   d.text((51,188),'FEET / UPPER BACK',font=FONTS[14],fill=MUTED)
+   d.line((82,207,95,219),fill=BLUE,width=3);d.line((136,207,123,219),fill=BLUE,width=3)
+   for fx in (84,134):d.rounded_rectangle((fx-10,216,fx+10,225),2,fill=FAR)
+   d.rounded_rectangle((96,202,122,210),2,fill=BLUE)
+  elif option=='good-morning':
    bar_at=(shoulder[0]-9,shoulder[1]-2)
    if bar_at[1]<129 or bar_at[1]>256:raise ValueError('Good morning shoulder bar path changed')
    d.line((211,bar_at[1],439,bar_at[1]),fill=INK,width=7)
@@ -582,7 +596,7 @@ def draw_pose(d,kind,option,u):
     d.rectangle((60,215,151,225),fill=FAR,outline=INK,width=1)
     d.rounded_rectangle((101,206,130,215),2,fill=BLUE)
    else:draw_curl_grip_inset(d,False,True,upper=True)
-  d.text((47,242),'FLOOR START / BELL CENTER' if option=='kettlebell-conventional' else ('FLOOR START / BAR CLOSE' if option in ('conventional','paused','snatch-grip','sumo','deficit','trapbar-conventional') else ('BACK BAR / HIP HINGE' if option=='good-morning' else 'SOFT KNEES / HIP HINGE')),font=FONTS[14],fill=MUTED)
+  d.text((47,242),'FLOOR START / BELL CENTER' if option=='kettlebell-conventional' else ('FLOOR START / BAR CLOSE' if option in ('conventional','paused','snatch-grip','sumo','deficit','trapbar-conventional') else ('UPPER BACK / FOOT ANCHOR' if option=='band-good-morning' else ('BACK BAR / HIP HINGE' if option=='good-morning' else 'SOFT KNEES / HIP HINGE'))),font=FONTS[14],fill=MUTED)
  elif kind=='machine-triceps-extension':
   hip=(287,335);shoulder=(281,215);head=(279,176);elbow=(354,273)
   d.rounded_rectangle((247,342,332,357),4,fill=FAR)
