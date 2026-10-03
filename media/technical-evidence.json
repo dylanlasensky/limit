@@ -52,6 +52,32 @@
     "audio": false
   },
   {
+    "catalogKey": "single-arm-dumbbell-row",
+    "videoSha256": "f4db2c0ad25a6e5715b307a8e32338aef7d493d3633c9a08255bc92ef3ecceb8",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "dumbbell-bent-over-row",
+    "videoSha256": "f7a3279f945c5b608eb47b5dba850983c68036c296700b26e40adb248f71ccb8",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-pullover",
     "videoSha256": "e5617e548fadba1d978eae061578aac40c4dcaa436a3022cdf5600672f757ce0",
     "duration": 8,

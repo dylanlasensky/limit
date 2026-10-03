@@ -30,6 +30,8 @@ TEMPLATES={
  'dumbbell-skull-crusher':('skull-crusher',None),
  'dumbbell-triceps-kickback':('triceps-kickback',None),
  'dumbbell-pullover':('dumbbell-pullover',None),
+ 'single-arm-dumbbell-row':('dumbbell-row','bench-supported'),
+ 'dumbbell-bent-over-row':('dumbbell-row','unsupported'),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -90,7 +92,37 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='dumbbell-pullover':
+ if kind=='dumbbell-row':
+  # Both rows keep the trunk steady while the elbow travels toward the hip.
+  # The unilateral key fixes a separate bench hand; the bilateral key uses
+  # two dumbbells and both feet with no bench contact.
+  supported=option=='bench-supported'
+  if supported:
+   d.rounded_rectangle((174,387,268,401),5,fill=FAR)
+   for x in (190,252):d.line((x,401,x,456),fill=FAR,width=7)
+   shoulder=(302,273);hip=(390,300);head=(268,265)
+   support_hand=(229,383)
+   support_elbow=ik(shoulder,support_hand,75,70,side=-1)
+   limb(d,[shoulder,support_elbow,support_hand],FAR,12)
+   limb(d,[hip,(391,383),(399,444)],BLUE,18)
+   line(d,(399,444),(428,447),INK,9)
+  else:
+   shoulder=(272,270);hip=(360,305);head=(236,260)
+   for direction in (-1,1):
+    knee=(360+direction*26,386);foot=(360+direction*53,445)
+    limb(d,[hip,knee,foot],BLUE,16)
+    line(d,foot,(foot[0]+direction*18,448),INK,8)
+  line(d,hip,shoulder,BLUE,27)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
+  starts=[shoulder] if supported else [(shoulder[0]-18,shoulder[1]),(shoulder[0]+18,shoulder[1])]
+  for i,start in enumerate(starts):
+   elbow=polar(start,70,1.35-1.15*u)
+   hand=polar(elbow,60,math.pi/2)
+   if abs(math.dist(start,elbow)-70)>1e-6 or abs(math.dist(elbow,hand)-60)>1e-6:raise ValueError('Row arm length changed')
+   limb(d,[start,elbow,hand],INK if i else FAR,12)
+   weight(d,hand,hammer=True)
+ elif kind=='dumbbell-pullover':
   # Head and upper back stay on the bench. Two hands keep one dumbbell secure;
   # almost-straight arms pivot around the shoulders without moving the trunk.
   d.rounded_rectangle((160,360,405,376),5,fill=FAR)
