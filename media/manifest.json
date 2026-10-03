@@ -3959,14 +3959,14 @@
   {
     "catalogKey": "resistance-band-pull-apart",
     "name": "Resistance Band Pull-Apart",
-    "poster": "exercises/resistance-band-pull-apart/v267593916576487/82bec4b48c31b4039742406299ea10073b0798c3f20bc1bb3d7752033e692c45.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/resistance-band-pull-apart/v262875484591921/b39951fd2494a0f0ba3b73b10ab81f1f2f1b55e78f32409a25a7c8a2d8062f09.png",
+    "source": "exercises/resistance-band-pull-apart/v262875484591921/9297d48455244e95837503a6ab088e43d6b5afbf8964cff41a2322146912d1eb.mp4",
+    "format": "mp4",
     "caption": "Keep your torso stable and your elbows slightly bent. Open your arms without shrugging or using momentum; return under control. Keep the band around chest height without arching.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 267593916576487,
-    "reviewStatus": "blocked",
+    "angle": "front",
+    "duration": 8,
+    "version": 262875484591921,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -3978,15 +3978,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "82bec4b48c31b4039742406299ea10073b0798c3f20bc1bb3d7752033e692c45",
-    "videoSha256": null,
-    "bytes": 41486,
-    "blockReason": "Resistance Band Pull-Apart: current renderer lacks supported trunk angle and shoulder horizontal-abduction arc; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires \"Keep the band around chest height without arching\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "b39951fd2494a0f0ba3b73b10ab81f1f2f1b55e78f32409a25a7c8a2d8062f09",
+    "videoSha256": "9297d48455244e95837503a6ab088e43d6b5afbf8964cff41a2322146912d1eb",
+    "bytes": 74427,
+    "blockReason": "",
+    "template": "band-pull-apart",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

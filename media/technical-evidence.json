@@ -273,6 +273,19 @@
     "audio": false
   },
   {
+    "catalogKey": "resistance-band-pull-apart",
+    "videoSha256": "9297d48455244e95837503a6ab088e43d6b5afbf8964cff41a2322146912d1eb",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-shrug",
     "videoSha256": "e4bc27a54e652732f0b1fa1ede6284feaf2adae70a7700945017c9d0ceff7ceb",
     "duration": 8,
