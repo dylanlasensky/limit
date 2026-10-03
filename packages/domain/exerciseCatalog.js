@@ -229,6 +229,16 @@ groups.find((entry) => entry.catalogKey === "wall-handstand-push-up").instructio
   "Bend your elbows to lower your head toward the floor, then press back to a stable handstand.",
   "Learn an exit with a coach and avoid loading the neck.",
 ];
+groups.find((entry) => entry.catalogKey === "single-arm-landmine-press").instructions = [
+  "Stand with both feet planted, brace your trunk, and hold the bar end near your chest.",
+  "Press the bar up and forward through a comfortable range without leaning back.",
+  "Secure the landmine pivot and log repetitions per side.",
+];
+groups.find((entry) => entry.catalogKey === "half-kneeling-landmine-press").instructions = [
+  "Place one knee on padding and plant the opposite foot; brace before gripping the bar end.",
+  "Press the bar up and forward through a comfortable range without leaning back.",
+  "Keep your ribs down and pelvis level; log each side.",
+];
 group(
   "Side delts",
   [],

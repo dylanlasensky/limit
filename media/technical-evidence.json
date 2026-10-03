@@ -1249,7 +1249,7 @@
   },
   {
     "catalogKey": "single-arm-landmine-press",
-    "videoSha256": "8e4bff6c25886581eddf0dbc3524ecf031b6eb3d51fadfa8971c897d4d4991f1",
+    "videoSha256": "b6e4b59ec7582513f74ab63235969bd12aadd0bdd11364ed47c58fa2cac6b347",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -1262,7 +1262,7 @@
   },
   {
     "catalogKey": "half-kneeling-landmine-press",
-    "videoSha256": "03b928f93c75d3e338e552123dfd233d75702ded8a9a10a63bc36845a72d5974",
+    "videoSha256": "496865adb3997abe3592004a986203bb2e090d9fb3500e1cc81b3dbdb1609934",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
