@@ -143,6 +143,32 @@
     "audio": false
   },
   {
+    "catalogKey": "dumbbell-overhead-triceps-extension",
+    "videoSha256": "77158c3fc61132402ca7ef960cce068ff4f69ffc04285a02a2dea85f5148bc12",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "single-arm-dumbbell-triceps-extension",
+    "videoSha256": "f7abe52777250f4455c8732a6c98dcb3e7457ac68d5844df922c9a84059a9237",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "bodyweight-squat",
     "videoSha256": "e590251124e10dfd1cb1c5f25cba07da92ea0ea3ce05b62c595fba56d2a1009d",
     "duration": 8,

@@ -25,6 +25,8 @@ TEMPLATES={
  'dumbbell-shrug':('dumbbell-shrug',None),
  'dumbbell-lateral-raise':('dumbbell-lateral-raise',False),
  'seated-dumbbell-lateral-raise':('dumbbell-lateral-raise',True),
+ 'dumbbell-overhead-triceps-extension':('overhead-triceps',2),
+ 'single-arm-dumbbell-triceps-extension':('overhead-triceps',1),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -42,6 +44,7 @@ TEMPLATES={
  'dumbbell-step-up':('step-up','dumbbell'),
 }
 BLOCK_REASONS={
+ 'dumbbell-romanian-deadlift':'the current side-view draft over-bends the knee at the bottom of the hinge; keep this blocked until fixed foot contact, near-straight knee travel, hip displacement and two close dumbbell paths are jointly constrained',
  'deficit-push-up':'needs both parallettes at a fixed stable height and a shoulder path below hand level without clipping the supports',
  'close-grip-push-up':'needs a front or oblique view that shows narrow hand placement and elbow tracking; the side view hides grip width',
  'weighted-push-up':'needs a secure, visible external load on the torso that remains stable during the entire descent and return',
@@ -84,7 +87,30 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind in ('dumbbell-shrug','dumbbell-lateral-raise'):
+ if kind=='overhead-triceps':
+  # Side view: elbows and upper arms stay anchored as forearms extend.
+  # The two-hand key grips one shared dumbbell; the one-arm key uses one.
+  hip=(300,346);shoulder=(300,246);head=(282,210)
+  limb(d,[hip,(305,392),(320,445)],BLUE,18)
+  line(d,(320,445),(351,448),INK,9)
+  line(d,hip,shoulder,BLUE,28)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-21,head[0]+18,head[1]+13),fill=INK)
+  angle=.9-u*(.9+math.pi/2)
+  elbows=[(318,190),(342,190)] if option==2 else [(330,190)]
+  hands=[]
+  for i,elbow in enumerate(elbows):
+   arm_start=(shoulder[0]+(i*12 if option==2 else 12),shoulder[1]-4)
+   hand=polar(elbow,70,angle);hands.append(hand)
+   if abs(math.dist(elbow,hand)-70)>1e-6 or elbow[1]!=190:raise ValueError('Triceps upper-arm support changed')
+   limb(d,[arm_start,elbow,hand],INK if i else FAR,11)
+  if option==2:
+   center=((hands[0][0]+hands[1][0])/2,(hands[0][1]+hands[1][1])/2)
+   line(d,hands[0],hands[1],INK,6);weight(d,center)
+  else:
+   limb(d,[shoulder,(275,302),(280,354)],FAR,10)
+   weight(d,hands[0],hammer=True)
+ elif kind in ('dumbbell-shrug','dumbbell-lateral-raise'):
   # Front view exposes both dumbbells and the shoulder-height limit. The
   # seated variant uses a fixed bench and still torso rather than leg drive.
   seated=bool(option) if kind=='dumbbell-lateral-raise' else False
