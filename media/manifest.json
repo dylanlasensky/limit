@@ -5003,14 +5003,14 @@
   {
     "catalogKey": "spider-curl",
     "name": "Spider Curl",
-    "poster": "exercises/spider-curl/v113968105764879/b2fa357fdd331ba08afaed02b53ef35dad351f593cdd39396cfa0b28fc4fde5e.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/spider-curl/v54773475788299/4f2ab49dc25a8c4e401fce26f295c9741d97c02497f93e3a647a5eafe3cc9ab7.png",
+    "source": "exercises/spider-curl/v54773475788299/a25e34b6d27483bc133c6fed8c8bff10043f560d9a159271a40d18db58dd85f2.mp4",
+    "format": "mp4",
     "caption": "Keep your upper arms steady and wrists comfortable. Bend your elbows without swinging your torso, then lower under control. Support your chest on an incline bench.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 113968105764879,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 54773475788299,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -5022,15 +5022,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "b2fa357fdd331ba08afaed02b53ef35dad351f593cdd39396cfa0b28fc4fde5e",
-    "videoSha256": null,
-    "bytes": 38559,
-    "blockReason": "Spider Curl: current renderer lacks fixed or supported upper arm, elbow hinge and full load path; it also lacks the dumbbell grip, position and changing load path. This variation requires \"Support your chest on an incline bench\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "4f2ab49dc25a8c4e401fce26f295c9741d97c02497f93e3a647a5eafe3cc9ab7",
+    "videoSha256": "a25e34b6d27483bc133c6fed8c8bff10043f560d9a159271a40d18db58dd85f2",
+    "bytes": 83702,
+    "blockReason": "",
+    "template": "spider-curl",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

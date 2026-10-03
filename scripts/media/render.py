@@ -52,6 +52,7 @@ TEMPLATES={
  'incline-dumbbell-curl':('supported-curl','incline'),
  'concentration-curl':('supported-curl','thigh'),
  'dumbbell-preacher-curl':('supported-curl','preacher'),
+ 'spider-curl':('spider-curl',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -118,7 +119,25 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='supported-curl':
+ if kind=='spider-curl':
+  # Chest stays against an incline bench. Both upper arms hang fixed in front
+  # of the bench while forearms curl two separate dumbbells upward.
+  d.line((185,346,344,252),fill=FAR,width=18)
+  for x in (204,331):d.line((x,354,x,457),fill=FAR,width=7)
+  shoulder=(222,302);hip=(315,248);head=(181,315)
+  limb(d,[hip,(355,353),(376,443)],BLUE,17)
+  line(d,(376,443),(404,447),INK,9)
+  line(d,hip,shoulder,BLUE,27)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
+  for offset,color in ((-12,FAR),(12,INK)):
+   elbow=(230+offset,357);arm_start=(shoulder[0]+offset,shoulder[1])
+   line(d,arm_start,elbow,color,12)
+   hand=polar(elbow,70,1.35-2.55*u)
+   if abs(math.dist(elbow,hand)-70)>1e-6 or hand[1]>430:raise ValueError('Spider curl arm or floor clearance changed')
+   line(d,elbow,hand,INK,11)
+   weight(d,hand,hammer=True)
+ elif kind=='supported-curl':
   # The shoulder/upper arm remains fixed on each distinct support while the
   # hand rotates around the elbow with a constant forearm length.
   if option=='incline':
