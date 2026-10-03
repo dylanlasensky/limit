@@ -5765,14 +5765,14 @@
   {
     "catalogKey": "resistance-band-triceps-pushdown",
     "name": "Resistance Band Triceps Pushdown",
-    "poster": "exercises/resistance-band-triceps-pushdown/v54110813997503/a015ff4477a75a9b0aa4fdbbf98d2cbb9430c92368364e5fe7fa2f00074945ef.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/resistance-band-triceps-pushdown/v154516753268411/7c37d4e9795f96e2faadbc7e2adc4cd43ddb432f902b6f9e9a7dcd114090d36b.png",
+    "source": "exercises/resistance-band-triceps-pushdown/v154516753268411/16ea3811bc1f1a8b2cc7635144039d69bd93b7dcaf3fdca6cc5ff936dbd862b5.mp4",
+    "format": "mp4",
     "caption": "Set a comfortable shoulder position and keep your upper arms steady. Straighten your elbows without snapping them, then return under control. Check the high anchor before starting.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 54110813997503,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 154516753268411,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -5784,15 +5784,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "a015ff4477a75a9b0aa4fdbbf98d2cbb9430c92368364e5fe7fa2f00074945ef",
-    "videoSha256": null,
-    "bytes": 43540,
-    "blockReason": "Resistance Band Triceps Pushdown: current renderer lacks fixed upper arm, elbow hinge and full load path; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires \"Check the high anchor before starting\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "7c37d4e9795f96e2faadbc7e2adc4cd43ddb432f902b6f9e9a7dcd114090d36b",
+    "videoSha256": "16ea3811bc1f1a8b2cc7635144039d69bd93b7dcaf3fdca6cc5ff936dbd862b5",
+    "bytes": 93213,
+    "blockReason": "",
+    "template": "band-triceps-pushdown",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

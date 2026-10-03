@@ -70,6 +70,7 @@ TEMPLATES={
  'resistance-band-lateral-raise':('band-lateral-raise',None),
  'resistance-band-front-raise':('band-front-raise',None),
  'resistance-band-curl':('band-curl',None),
+ 'resistance-band-triceps-pushdown':('band-triceps-pushdown',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -136,7 +137,27 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='band-curl':
+ if kind=='band-triceps-pushdown':
+  # Side view: a high fixed wall anchor tensions the band while both elbows
+  # remain close to the ribs and the forearms extend without shoulder swing.
+  anchor=(438,123);hip=(302,333);shoulder=(298,213);head=(296,174)
+  d.line((457,91,457,456),fill=FAR,width=5)
+  d.line((457,123,anchor[0],anchor[1]),fill=INK,width=8)
+  d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
+  limb(d,[hip,(285,389),(274,444)],FAR,16)
+  line(d,(274,444),(253,448),INK,8)
+  limb(d,[hip,(319,388),(340,444)],BLUE,17)
+  line(d,(340,444),(362,448),INK,8)
+  body(d,hip,shoulder,head)
+  for offset,color in ((-10,FAR),(10,INK)):
+   start=(shoulder[0]+offset,shoulder[1]);elbow=(321+offset,294)
+   angle=-1.1+2.4*u
+   hand=polar(elbow,69,angle)
+   if abs(math.dist(elbow,hand)-69)>1e-6 or elbow[1]!=294:raise ValueError('Band pushdown elbow path changed')
+   d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
+   limb(d,[start,elbow,hand],color,11)
+   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
+ elif kind=='band-curl':
   # Front view: the under-foot band lengthens as each forearm rotates about
   # a fixed elbow; shoulders, torso and feet do not swing or lift.
   hip=(300,336);head=(300,171)

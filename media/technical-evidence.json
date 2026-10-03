@@ -520,6 +520,19 @@
     "audio": false
   },
   {
+    "catalogKey": "resistance-band-triceps-pushdown",
+    "videoSha256": "16ea3811bc1f1a8b2cc7635144039d69bd93b7dcaf3fdca6cc5ff936dbd862b5",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-wrist-curl",
     "videoSha256": "aa8aedab741537545451e9d3f33e9d096909a33f7a0586593625acadb73fb4e6",
     "duration": 8,
