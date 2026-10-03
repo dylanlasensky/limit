@@ -290,6 +290,7 @@ TEMPLATES={
  'half-kneeling-cable-pulldown':('half-kneeling-cable-pulldown',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'dumbbell-hip-thrust':('bench-hip-thrust','dumbbell'),
+ 'barbell-hip-thrust':('bench-hip-thrust','barbell'),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
  'incline-push-up':('push-up','incline-bench'),
@@ -3777,8 +3778,24 @@ def draw_pose(d,kind,option,u):
   body(d,hip,shoulder,(170,295))
   load=(hip[0],hip[1]-22)
   elbow=ik(shoulder,load,82,77,side=-1)
-  limb(d,[shoulder,elbow,load],INK,10)
-  weight(d,load)
+  hand=load
+  if abs(math.dist(elbow,hand)-77)>1e-6 or abs(hand[0]-hip[0])>1e-6 or abs(hand[1]-(hip[1]-22))>1e-6:raise ValueError('Hip-thrust hand lost load contact')
+  limb(d,[shoulder,elbow,hand],INK,10)
+  if option=='barbell':
+   # A padded bar follows the hip, held at both sides; a top inset shows its
+   # actual transverse direction, which a sagittal silhouette cannot show.
+   d.rounded_rectangle((load[0]-17,load[1]-9,load[0]+17,load[1]+9),4,fill=BLUE,outline=INK,width=2)
+   d.ellipse((load[0]-21,load[1]-21,load[0]+21,load[1]+21),outline=INK,width=4)
+   d.rounded_rectangle((43,185,223,260),5,fill=BG,outline=FAR,width=2)
+   d.text((50,190),'TOP / PADDED BAR',font=FONTS[14],fill=MUTED)
+   d.line((61,231,207,231),fill=INK,width=5)
+   for px in (69,199):d.rounded_rectangle((px-8,215,px+8,247),3,fill=FAR,outline=INK,width=2)
+   d.rounded_rectangle((119,222,150,240),4,fill=BLUE,outline=INK,width=2)
+   for px in (103,166):d.rounded_rectangle((px-6,223,px+6,239),3,fill=INK)
+   if abs(load[0]-hip[0])>1e-6 or abs(load[1]-(hip[1]-22))>1e-6:raise ValueError('Hip-thrust bar lost pelvis contact')
+  else:weight(d,load)
+  # Draw the near gripping hand last so the load cannot hide its contact.
+  d.rounded_rectangle((hand[0]-6,hand[1]-5,hand[0]+6,hand[1]+5),3,fill=INK,outline=BG,width=1)
  elif kind=='bridge':
   shoulder=(170,435);hip=polar(shoulder,135,-.31*u);foot=(408,447);knee=ik(hip,foot,85,85,side=1)
   # Knee stays above the supported foot; shoulders and foot remain on the floor.
