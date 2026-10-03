@@ -1287,6 +1287,19 @@
     "audio": false
   },
   {
+    "catalogKey": "behind-the-body-cable-lateral-raise",
+    "videoSha256": "02fdf0433bb38f136b6d098304796c5871977ef52b4ba0ac3103c57d21060ba6",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "leaning-cable-lateral-raise",
     "videoSha256": "8bd704ad1f95a1bf06836da9ae6c9409dacf63bd6df399116d4ed20300731473",
     "duration": 8,

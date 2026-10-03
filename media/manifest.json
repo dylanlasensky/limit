@@ -3764,14 +3764,14 @@
   {
     "catalogKey": "behind-the-body-cable-lateral-raise",
     "name": "Behind-the-Body Cable Lateral Raise",
-    "poster": "exercises/behind-the-body-cable-lateral-raise/v63347295912414/08d3a7cef8af7258ab80db8291a7a41b4d69b4e54d8fda5bc9bc508d347c00b0.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/behind-the-body-cable-lateral-raise/v120256526091604/beb444cb573d62308011104744662289a8607c75508f41da5399ca191fb0c92a.png",
+    "source": "exercises/behind-the-body-cable-lateral-raise/v120256526091604/02fdf0433bb38f136b6d098304796c5871977ef52b4ba0ac3103c57d21060ba6.mp4",
+    "format": "mp4",
     "caption": "Use a light load, soft elbows, and a stable trunk. Raise your arms out in a comfortable plane, then lower without swinging. Use a comfortable starting position, not an exaggerated stretch.",
     "angle": "unspecified",
-    "duration": 0,
-    "version": 63347295912414,
-    "reviewStatus": "blocked",
+    "duration": 8,
+    "version": 120256526091604,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -3783,15 +3783,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "08d3a7cef8af7258ab80db8291a7a41b4d69b4e54d8fda5bc9bc508d347c00b0",
-    "videoSha256": null,
-    "bytes": 43463,
-    "blockReason": "Behind-the-Body Cable Lateral Raise: current renderer lacks arm travel out to the side with stable trunk and elbow angle; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires \"Use a comfortable starting position, not an exaggerated stretch\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "beb444cb573d62308011104744662289a8607c75508f41da5399ca191fb0c92a",
+    "videoSha256": "02fdf0433bb38f136b6d098304796c5871977ef52b4ba0ac3103c57d21060ba6",
+    "bytes": 102508,
+    "blockReason": "",
+    "template": "behind-cable-lateral",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

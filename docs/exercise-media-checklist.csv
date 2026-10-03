@@ -104,7 +104,7 @@ wall-handstand-push-up,Wall Handstand Push-Up,Bodyweight,blocked,Original LIMIT-
 dumbbell-lateral-raise,Dumbbell Lateral Raise,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 seated-dumbbell-lateral-raise,Seated Dumbbell Lateral Raise,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 single-arm-cable-lateral-raise,Single-Arm Cable Lateral Raise,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
-behind-the-body-cable-lateral-raise,Behind-the-Body Cable Lateral Raise,Cable,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Behind-the-Body Cable Lateral Raise: current renderer lacks arm travel out to the side with stable trunk and elbow angle; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires ""Use a comfortable starting position, not an exaggerated stretch"". Add exact setup and phase-specific joint/support constraints before generating a video."
+behind-the-body-cable-lateral-raise,Behind-the-Body Cable Lateral Raise,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 leaning-cable-lateral-raise,Leaning Cable Lateral Raise,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 machine-lateral-raise,Machine Lateral Raise,Machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
 resistance-band-lateral-raise,Resistance Band Lateral Raise,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,

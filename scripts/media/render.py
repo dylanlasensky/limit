@@ -168,6 +168,7 @@ TEMPLATES={
  'arnold-press':('overhead-press','arnold-seated'),
  'single-arm-cable-lateral-raise':('cable-shoulder-raise','lateral'),
  'leaning-cable-lateral-raise':('leaning-cable-lateral',None),
+ 'behind-the-body-cable-lateral-raise':('behind-cable-lateral',None),
  'machine-lateral-raise':('machine-lateral',None),
  'cable-front-raise':('cable-shoulder-raise','front'),
  'barbell-bench-press':('barbell-horizontal-press','flat'),
@@ -1696,6 +1697,37 @@ def draw_pose(d,kind,option,u):
    d.ellipse((hand[0]+8*math.cos(math.pi*u)-3,hand[1]+8*math.sin(math.pi*u)-3,hand[0]+8*math.cos(math.pi*u)+3,hand[1]+8*math.sin(math.pi*u)+3),fill=BLUE)
   else:d.rounded_rectangle((hand[0]-12,hand[1]-5,hand[0]+12,hand[1]+5),3,fill=FAR,outline=INK,width=2)
   d.text((52,237),{'barbell-standing':'STRICT / LEGS STILL','barbell-seated':'SEATED / FRONT PATH','smith-seated':'GUIDED RAIL / STOPS','machine-seated':'SEAT / MOVING LEVER','kettlebell-standing':'BELL RACK TO LOCKOUT','arnold-seated':'ROTATE WHILE PRESSING'}[option],font=FONTS[14],fill=MUTED)
+ elif kind=='behind-cable-lateral':
+  # A low pulley and cable begin behind the pelvis in depth. The working
+  # hand moves outward to shoulder height while the trunk and feet stay put.
+  anchor=(94,416);shoulder=(337,218);angle=math.pi/2-math.pi*u/2
+  behind=35*(1-u)
+  elbow=polar(shoulder,math.sqrt(73**2-behind**2),angle)
+  hand=polar(elbow,65,angle+.05)
+  if abs(math.dist((shoulder[0],shoulder[1],0),(elbow[0],elbow[1],-behind))-73)>1e-6 or abs(math.dist((elbow[0],elbow[1],-behind),(hand[0],hand[1],-behind))-65)>1e-6:raise ValueError('Behind-body cable arm length changed')
+  if hand[1]>360 or hand[0]>510:raise ValueError('Behind-body cable hand left safe arc')
+  d.line((76,90,76,456),fill=FAR,width=6)
+  d.rounded_rectangle((61,349,94,421),4,fill=FAR,outline=INK,width=2)
+  d.ellipse((anchor[0]-10,anchor[1]-10,anchor[0]+10,anchor[1]+10),fill=FAR,outline=INK,width=2)
+  # Rear cable layer is drawn before the body so the torso occludes it.
+  d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
+  hip=(300,330);neck=(300,213);head=(300,175)
+  for dx,color in ((-31,FAR),(31,BLUE)):
+   limb(d,[hip,(300+dx,386),(300+dx*1.45,444)],color,16)
+   line(d,(300+dx*1.45,444),(320+dx*1.45,448),INK,8)
+  line(d,hip,neck,BLUE,29);line(d,neck,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-20,head[0]+18,head[1]+14),fill=INK)
+  line(d,neck,shoulder,BLUE,12)
+  limb(d,[(263,218),(248,293),(259,348)],FAR,11)
+  limb(d,[shoulder,elbow,hand],INK,12)
+  d.rounded_rectangle((hand[0]-8,hand[1]-5,hand[0]+8,hand[1]+5),3,fill=FAR,outline=INK,width=2)
+  d.rounded_rectangle((43,370,201,456),7,fill=BG,outline=FAR,width=2)
+  d.text((50,375),'SIDE / REAR CABLE',font=FONTS[14],fill=MUTED)
+  d.ellipse((60,427,72,439),outline=INK,width=2)
+  d.line((68,433,114+46*u,418-25*u),fill=INK,width=3)
+  d.line((137,408,137,444),fill=BLUE,width=10)
+  d.rounded_rectangle((108+46*u,413-25*u,120+46*u,423-25*u),3,fill=INK)
+  d.text((45,188),'START BEHIND HIP / RAISE OUT',font=FONTS[14],fill=MUTED)
  elif kind=='machine-lateral':
   # Front-view seated machine: shoulder-aligned independent lever pivots
   # carry elbow pads on fixed arcs, with bent forearms gripping the handles.
@@ -4215,6 +4247,7 @@ for e in catalog:
  if key=='single-arm-cable-lateral-raise':record['angle']='front'
  if key=='leaning-cable-lateral-raise':record['angle']='front'
  if key=='machine-lateral-raise':record['angle']='front'
+ if key=='behind-the-body-cable-lateral-raise':record['angle']='unspecified'
  if key=='scapular-pull-up':record['angle']='front'
  if key in ('seated-hip-abduction','seated-hip-adduction','standing-cable-hip-abduction','standing-cable-hip-adduction'):record['angle']='front'
  if key in ('high-cable-curl','cross-body-cable-triceps-extension'):record['angle']='front'
