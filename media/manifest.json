@@ -7916,14 +7916,14 @@
   {
     "catalogKey": "dumbbell-forward-lunge",
     "name": "Dumbbell Forward Lunge",
-    "poster": "exercises/dumbbell-forward-lunge/v118644043914084/c55c8df5b67fe57138de9cdda9b9099924de98e6567f5c5adba60eb0b62f9dc3.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/dumbbell-forward-lunge/v152203234370795/6e8a203ea812db59b07e6985cff4b423bfec26bc48270696814a5104f77bf50e.png",
+    "source": "exercises/dumbbell-forward-lunge/v152203234370795/d3365a26bc49a56b97691ade3ef6f0d796ce251813a6136236e41fbe32d41091.mp4",
+    "format": "mp4",
     "caption": "Keep your working foot stable and your pelvis level. Lower with control and drive through the working leg; count repetitions per side. Control the landing of the front foot.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 118644043914084,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 152203234370795,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -7935,15 +7935,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "c55c8df5b67fe57138de9cdda9b9099924de98e6567f5c5adba60eb0b62f9dc3",
-    "videoSha256": null,
-    "bytes": 39452,
-    "blockReason": "Dumbbell Forward Lunge: current renderer lacks each foot or box contact, pelvis level and the specified step or descent direction; it also lacks the dumbbell grip, position and changing load path. This variation requires \"Control the landing of the front foot\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "6e8a203ea812db59b07e6985cff4b423bfec26bc48270696814a5104f77bf50e",
+    "videoSha256": "d3365a26bc49a56b97691ade3ef6f0d796ce251813a6136236e41fbe32d41091",
+    "bytes": 91629,
+    "blockReason": "",
+    "template": "forward-lunge",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

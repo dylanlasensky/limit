@@ -2691,6 +2691,19 @@
     "audio": false
   },
   {
+    "catalogKey": "dumbbell-forward-lunge",
+    "videoSha256": "d3365a26bc49a56b97691ade3ef6f0d796ce251813a6136236e41fbe32d41091",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-lateral-lunge",
     "videoSha256": "d7a254f52da740520f52b904346244aa836602c0217338735eca2e67b15978e3",
     "duration": 8,
