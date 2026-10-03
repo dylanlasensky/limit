@@ -92,6 +92,9 @@ TEMPLATES={
  'leg-extension':('machine-leg-extension',None),
  'single-leg-extension':('machine-single-leg-extension',None),
  'resistance-band-leg-extension':('band-leg-extension',None),
+ 'seated-leg-curl':('machine-seated-leg-curl',None),
+ 'lying-leg-curl':('machine-lying-leg-curl',None),
+ 'standing-leg-curl':('machine-standing-leg-curl',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -158,7 +161,65 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind in ('machine-leg-extension','machine-single-leg-extension','band-leg-extension'):
+ if kind=='machine-standing-leg-curl':
+  # A fixed working thigh, knee pivot, shin roller, hand rail and planted
+  # opposite foot distinguish the unilateral standing machine from a band.
+  hip=(310,312);shoulder=(299,209);head=(296,173);knee=(288,365)
+  d.line((466,85,466,456),fill=FAR,width=8)
+  d.line((466,274,445,274),fill=INK,width=8)
+  d.rounded_rectangle((135,344,168,422),5,fill=FAR,outline=INK,width=2)
+  for y in (360,379,398,415):d.line((138,y,165,y),fill=INK,width=2)
+  d.line((167,365,knee[0],365),fill=FAR,width=5)
+  d.ellipse((knee[0]-11,knee[1]-11,knee[0]+11,knee[1]+11),fill=FAR,outline=INK,width=3)
+  limb(d,[hip,(337,380),(345,445)],BLUE,18)
+  line(d,(345,445),(367,448),INK,9)
+  line(d,hip,shoulder,BLUE,28);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
+  limb(d,[shoulder,(358,256),(466,274)],INK,11)
+  working_ankle=polar(knee,70,1.1+1.5*u)
+  if abs(math.dist(knee,working_ankle)-70)>1e-6 or working_ankle[1]>=443:raise ValueError('Standing curl knee or clearance changed')
+  limb(d,[hip,knee,working_ankle],FAR,16)
+  d.ellipse((working_ankle[0]-13,working_ankle[1]-13,working_ankle[0]+13,working_ankle[1]+13),fill=FAR,outline=INK,width=3)
+  line(d,working_ankle,(working_ankle[0]-18,working_ankle[1]+4),INK,8)
+ elif kind=='machine-seated-leg-curl':
+  # A fixed seat, thigh restraint and knee pivot constrain the seated curl.
+  hip=(301,333);shoulder=(301,214);head=(300,176);knee=(374,325)
+  d.rounded_rectangle((253,337,341,352),5,fill=FAR)
+  d.rounded_rectangle((250,210,266,350),5,fill=FAR)
+  for x in (269,330):d.line((x,352,x,456),fill=FAR,width=8)
+  d.rounded_rectangle((135,342,168,421),5,fill=FAR,outline=INK,width=2)
+  for y in (358,377,396,414):d.line((138,y,165,y),fill=INK,width=2)
+  d.line((165,325,374,325),fill=FAR,width=5)
+  d.ellipse((knee[0]-13,knee[1]-13,knee[0]+13,knee[1]+13),fill=FAR,outline=INK,width=3)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
+  limb(d,[shoulder,(309,283),(300,333)],INK,10)
+  line(d,hip,knee,BLUE,18)
+  d.rounded_rectangle((333,297,385,309),4,fill=FAR,outline=INK,width=2)
+  angle=1.8*u;foot=polar(knee,79,angle);roller=polar(knee,62,angle)
+  if abs(math.dist(knee,foot)-79)>1e-6 or foot[1]>405:raise ValueError('Seated curl knee or clearance changed')
+  line(d,knee,foot,BLUE,18)
+  d.ellipse((roller[0]-13,roller[1]-13,roller[0]+13,roller[1]+13),fill=FAR,outline=INK,width=3)
+  line(d,foot,(foot[0]+19,foot[1]+4),INK,8)
+ elif kind=='machine-lying-leg-curl':
+  # Prone trunk/hip contact and a knee pivot stay fixed as the heel rises.
+  hip=(286,286);shoulder=(211,286);head=(176,276);knee=(388,288)
+  d.rounded_rectangle((175,307,411,323),5,fill=FAR)
+  for x in (198,385):d.line((x,323,x,456),fill=FAR,width=9)
+  d.rounded_rectangle((100,352,133,426),5,fill=FAR,outline=INK,width=2)
+  for y in (367,386,405,419):d.line((103,y,130,y),fill=INK,width=2)
+  d.line((132,288,388,288),fill=FAR,width=5)
+  d.ellipse((knee[0]-12,knee[1]-12,knee[0]+12,knee[1]+12),fill=FAR,outline=INK,width=3)
+  line(d,shoulder,hip,BLUE,24)
+  d.ellipse((head[0]-18,head[1]-16,head[0]+18,head[1]+16),fill=INK)
+  limb(d,[shoulder,(207,319),(226,323)],INK,10)
+  line(d,hip,knee,BLUE,18)
+  angle=-1.7*u;foot=polar(knee,79,angle);roller=polar(knee,62,angle)
+  if abs(math.dist(knee,foot)-79)>1e-6 or foot[1]>370:raise ValueError('Lying curl knee or clearance changed')
+  line(d,knee,foot,BLUE,18)
+  d.ellipse((roller[0]-13,roller[1]-13,roller[0]+13,roller[1]+13),fill=FAR,outline=INK,width=3)
+  line(d,foot,(foot[0]+18,foot[1]+3),INK,8)
+ elif kind in ('machine-leg-extension','machine-single-leg-extension','band-leg-extension'):
   # The seat/back and machine knee pivot remain fixed; a roller contacts the
   # lower shin above the ankle while the shin extends without hip movement.
   hip=(301,333);shoulder=(301,214);head=(300,176);knee=(374,325)
