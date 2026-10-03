@@ -116,6 +116,8 @@ TEMPLATES={
  'weighted-pull-up':('suspended-pull','weight-overhand'),
  'weighted-chin-up':('suspended-pull','weight-underhand'),
  'band-assisted-pull-up':('suspended-pull','band-assisted'),
+ 'hanging-knee-raise':('hanging-raise','bent-knee'),
+ 'hanging-leg-raise':('hanging-raise','straight-leg'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -241,7 +243,33 @@ def draw_grip_inset(d,orientation,u=0):
  d.text((50,339),label,font=FONTS[14],fill=INK)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='suspended-pull':
+ if kind=='hanging-raise':
+  # Bar/hand/shoulder supports remain fixed. Pelvis rotates slightly while
+  # bent knees or straight legs rise without foot-ground contact or swing.
+  d.line((190,75,190,460),fill=FAR,width=8)
+  d.line((410,75,410,460),fill=FAR,width=8)
+  d.line((190,96,410,96),fill=INK,width=8)
+  shoulder=(300,190);head=(300,155)
+  hip=polar(shoulder,110,math.pi/2-.12*u)
+  for offset,color in ((-8,FAR),(8,INK)):
+   start=(shoulder[0]+offset,shoulder[1]);hand=(300+offset,96)
+   elbow=(300+offset,143)
+   if abs(math.dist(start,elbow)-47)>1e-6 or abs(math.dist(elbow,hand)-47)>1e-6:raise ValueError('Hanging raise hand support changed')
+   limb(d,[start,elbow,hand],color,11)
+   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=INK)
+  line(d,shoulder,hip,BLUE,28)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-19,head[1]-20,head[0]+19,head[1]+20),fill=INK)
+  angle=math.pi/2-1.45*u
+  for offset,color in ((-8,FAR),(8,BLUE)):
+   start=(hip[0]+offset,hip[1]);knee=polar(start,70,angle)
+   shin_angle=angle if option=='straight-leg' else math.pi/2+.08*u
+   foot=polar(knee,65,shin_angle)
+   if abs(math.dist(start,knee)-70)>1e-6 or abs(math.dist(knee,foot)-65)>1e-6:raise ValueError('Hanging raise leg changed length')
+   if foot[1]>=456 or foot[0]>482:raise ValueError('Hanging raise lost clearance')
+   limb(d,[start,knee,foot],color,15)
+   line(d,foot,(foot[0]+17,foot[1]+2),INK,8)
+ elif kind=='suspended-pull':
   # Hands and bar stay fixed; the body rises without a foot support or kip.
   rise=93*u;bar_y=130
   d.line((155,77,155,459),fill=FAR,width=8)

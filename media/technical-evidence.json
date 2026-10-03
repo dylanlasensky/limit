@@ -1651,6 +1651,32 @@
     "audio": false
   },
   {
+    "catalogKey": "hanging-knee-raise",
+    "videoSha256": "6a1e357519549d5d18f00ed491850b30fdbfbb686a1f8f38451a040308014b05",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "hanging-leg-raise",
+    "videoSha256": "57446b4ddb4c25a5d1f959501f76497c6ccd54be65abe8fe09d5b178e2a42a9c",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "lying-leg-raise",
     "videoSha256": "cd14a654f3661f2eab5e598061f461c7c4fa61b2873f7bb7a5cf3d6f3ec603c6",
     "duration": 8,
