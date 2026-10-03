@@ -116,6 +116,7 @@ TEMPLATES={
  'weighted-pull-up':('suspended-pull','weight-overhand'),
  'weighted-chin-up':('suspended-pull','weight-underhand'),
  'band-assisted-pull-up':('suspended-pull','band-assisted'),
+ 'scapular-pull-up':('scapular-pull',None),
  'hanging-knee-raise':('hanging-raise','bent-knee'),
  'hanging-leg-raise':('hanging-raise','straight-leg'),
  'bird-dog':('bird-dog',None),
@@ -2152,6 +2153,37 @@ def draw_pose(d,kind,option,u):
    if foot[1]>=456 or foot[0]>482:raise ValueError('Hanging raise lost clearance')
    limb(d,[start,knee,foot],color,15)
    line(d,foot,(foot[0]+17,foot[1]+2),INK,8)
+ elif kind=='scapular-pull':
+  # Fixed overhead hands and near-straight arms. The small body rise is
+  # scapular depression; 3-D shoulder depth keeps each arm length invariant.
+  d.line((155,77,155,459),fill=FAR,width=8)
+  d.line((445,77,445,459),fill=FAR,width=8)
+  d.line((155,130,445,130),fill=INK,width=8)
+  rise=20*u;hip=(300,350-rise);shoulder_y=240-rise;head=(300,204-rise)
+  limb(d,[hip,(258,395-rise),(248,439-rise)],BLUE,17)
+  line(d,(248,439-rise),(229,443-rise),INK,8)
+  limb(d,[hip,(342,395-rise),(352,439-rise)],BLUE,17)
+  line(d,(352,439-rise),(371,443-rise),INK,8)
+  line(d,hip,(300,shoulder_y),BLUE,29)
+  d.line((269,shoulder_y,331,shoulder_y),fill=BLUE,width=23)
+  line(d,(300,shoulder_y),head,BLUE,11)
+  d.ellipse((head[0]-19,head[1]-20,head[0]+19,head[1]+20),fill=INK)
+  for side in (-1,1):
+   shoulder_xy=(300+side*31,shoulder_y);hand_xy=(300+side*90,130)
+   projected=math.dist(shoulder_xy,hand_xy)
+   depth=math.sqrt(130**2-projected**2)
+   shoulder=(shoulder_xy[0],shoulder_xy[1],-depth)
+   hand=(hand_xy[0],hand_xy[1],0)
+   if not 20<depth<80 or abs(math.dist(shoulder,hand)-130)>1e-6:raise ValueError('Scapular pull-up arm length changed')
+   line(d,shoulder_xy,hand_xy,INK if side>0 else FAR,12)
+   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=INK)
+  draw_grip_inset(d,'pronated')
+  d.rounded_rectangle((43,369,186,456),7,fill=BG,outline=FAR,width=2)
+  d.text((50,375),'SIDE / ARM DEPTH',font=FONTS[14],fill=MUTED)
+  d.line((67,400,93,400),fill=INK,width=6)
+  d.line((80,400,138+14*u,432-12*u),fill=BLUE,width=7)
+  d.ellipse((132+14*u,426-12*u,144+14*u,438-12*u),fill=BLUE)
+  d.text((47,248),'STRAIGHT ELBOWS / SMALL RISE',font=FONTS[14],fill=MUTED)
  elif kind=='suspended-pull':
   # Hands and bar stay fixed; the body rises without a foot support or kip.
   rise=93*u;bar_y=130
@@ -4047,6 +4079,7 @@ for e in catalog:
   # The schema has no top/end-on value; avoid mislabeling these as side views.
   record['angle']='unspecified'
  if key=='single-arm-cable-lateral-raise':record['angle']='front'
+ if key=='scapular-pull-up':record['angle']='front'
  if key in ('seated-hip-abduction','seated-hip-adduction','standing-cable-hip-abduction','standing-cable-hip-adduction'):record['angle']='front'
  if key in ('high-cable-curl','cross-body-cable-triceps-extension'):record['angle']='front'
  if key in ('cable-face-pull','resistance-band-face-pull'):record['angle']='unspecified' # oblique main view with frontal inset

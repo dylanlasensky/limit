@@ -1,11 +1,10 @@
 # Remaining exercise media engineering gaps
 
-Snapshot from `media/manifest.json` at 310 technical videos, 55 blocked variants and zero human fitness approvals. These are exact-key engineering gaps. Written movement instructions remain available. A block reason is not a failed human fitness review.
+Snapshot from `media/manifest.json` at 311 technical videos, 54 blocked variants and zero human fitness approvals. These are exact-key engineering gaps. Written movement instructions remain available. A block reason is not a failed human fitness review.
 
 | Exact key | Current blocking reason |
 | --- | --- |
 | `suspension-push-up` | Suspension Push-Up: needs suspended handles, anchor lines and changing strap angles while preserving a stable body line. |
-| `scapular-pull-up` | Scapular Pull-Up: current renderer lacks overhead hand anchor, scapular motion and full body or handle travel; it also lacks a fixed overhead bar and the specified hand spacing. This variation requires "Keep your elbows straight and use a small shoulder-blade motion". Add exact setup and phase-specific joint/support constraints before generating a video. |
 | `machine-pullover` | Machine Pullover: current renderer lacks shoulder-driven arm path past the trunk without an elbow curl; it also lacks the actual seat, pads, lever or sled and safe contact points. This variation requires "Adjust the seat and pad to the machine's pivot". Add exact setup and phase-specific joint/support constraints before generating a video. |
 | `single-arm-landmine-press` | Single-Arm Landmine Press: the fixed-pivot press trial folds the elbow behind the torso at the chest start; a coupled bar/shoulder/forearm rig is still needed. |
 | `half-kneeling-landmine-press` | Half-Kneeling Landmine Press: the fixed-pivot press trial folds the elbow behind the torso at the chest start despite stable knee and foot contacts; a coupled bar/shoulder/forearm rig is still needed. |

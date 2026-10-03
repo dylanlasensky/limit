@@ -2051,14 +2051,14 @@
   {
     "catalogKey": "scapular-pull-up",
     "name": "Scapular Pull-Up",
-    "poster": "exercises/scapular-pull-up/v130968366206931/bae2baa15a2e0e1c0030f63f6fd63235b7c64584baf558de9bc77ed3d5cd107a.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/scapular-pull-up/v89675192298992/739e7707659e62840c56cab3443962428bc0f649dfe9a1716df89374a81dde86.png",
+    "source": "exercises/scapular-pull-up/v89675192298992/d38dcc7b768a221de394b37f9b4ec0a863d5cf17d850a5d349fd89dc24ae05ab.mp4",
+    "format": "mp4",
     "caption": "Set your grip and let your shoulder blades move naturally as you reach. Draw your elbows toward your sides without swinging or pulling behind your neck. Keep your elbows straight and use a small shoulder-blade motion.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 130968366206931,
-    "reviewStatus": "blocked",
+    "angle": "front",
+    "duration": 8,
+    "version": 89675192298992,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -2070,15 +2070,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "bae2baa15a2e0e1c0030f63f6fd63235b7c64584baf558de9bc77ed3d5cd107a",
-    "videoSha256": null,
-    "bytes": 42561,
-    "blockReason": "Scapular Pull-Up: current renderer lacks overhead hand anchor, scapular motion and full body or handle travel; it also lacks a fixed overhead bar and the specified hand spacing. This variation requires \"Keep your elbows straight and use a small shoulder-blade motion\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "739e7707659e62840c56cab3443962428bc0f649dfe9a1716df89374a81dde86",
+    "videoSha256": "d38dcc7b768a221de394b37f9b4ec0a863d5cf17d850a5d349fd89dc24ae05ab",
+    "bytes": 91647,
+    "blockReason": "",
+    "template": "scapular-pull",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

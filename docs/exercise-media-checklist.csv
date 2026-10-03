@@ -56,7 +56,7 @@ assisted-chin-up,Assisted Chin-Up,Machine,technical,Original LIMIT-generated sch
 band-assisted-pull-up,Band-Assisted Pull-Up,Pull-up bar,technical,Original LIMIT-generated schematic; no third-party footage,,,
 weighted-pull-up,Weighted Pull-Up,Pull-up bar,technical,Original LIMIT-generated schematic; no third-party footage,,,
 weighted-chin-up,Weighted Chin-Up,Pull-up bar,technical,Original LIMIT-generated schematic; no third-party footage,,,
-scapular-pull-up,Scapular Pull-Up,Pull-up bar,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Scapular Pull-Up: current renderer lacks overhead hand anchor, scapular motion and full body or handle travel; it also lacks a fixed overhead bar and the specified hand spacing. This variation requires ""Keep your elbows straight and use a small shoulder-blade motion"". Add exact setup and phase-specific joint/support constraints before generating a video."
+scapular-pull-up,Scapular Pull-Up,Pull-up bar,technical,Original LIMIT-generated schematic; no third-party footage,,,
 barbell-bent-over-row,Barbell Bent-Over Row,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 underhand-barbell-row,Underhand Barbell Row,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 pendlay-row,Pendlay Row,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,

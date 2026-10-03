@@ -728,6 +728,19 @@
     "audio": false
   },
   {
+    "catalogKey": "scapular-pull-up",
+    "videoSha256": "d38dcc7b768a221de394b37f9b4ec0a863d5cf17d850a5d349fd89dc24ae05ab",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "barbell-bent-over-row",
     "videoSha256": "e4d948ca85937f40b7d54c2ff36d9598c62e3ab9c1eb61fe77adc0d0ea34676c",
     "duration": 8,
