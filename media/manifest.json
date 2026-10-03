@@ -1253,14 +1253,14 @@
   {
     "catalogKey": "cable-chest-fly",
     "name": "Cable Chest Fly",
-    "poster": "exercises/cable-chest-fly/v166535144559147/6436a35f056f74aedc1f3ae679c8d03b9113e7f32dd0c236b287f05769b2ce7a.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/cable-chest-fly/v155893028633344/a5fa9370d9c42e134b5c4d2c95f4a9f35cd4571ccbbf16997d69c14534bdaa3a.png",
+    "source": "exercises/cable-chest-fly/v155893028633344/eac02952978c8a3e674f4e1fc38796544db0e12311e077652c8beccab3d2c8a5.mp4",
+    "format": "mp4",
     "caption": "Keep a soft bend in your elbows and a stable rib cage. Bring your arms together in an arc; avoid forcing a deep shoulder stretch. Keep the handles at a comfortable chest height.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 166535144559147,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 155893028633344,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -1272,15 +1272,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "6436a35f056f74aedc1f3ae679c8d03b9113e7f32dd0c236b287f05769b2ce7a",
-    "videoSha256": null,
-    "bytes": 39612,
-    "blockReason": "Cable Chest Fly: current renderer lacks shoulder arc, elbow angle and bilateral or unilateral hand path; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires \"Keep the handles at a comfortable chest height\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "a5fa9370d9c42e134b5c4d2c95f4a9f35cd4571ccbbf16997d69c14534bdaa3a",
+    "videoSha256": "eac02952978c8a3e674f4e1fc38796544db0e12311e077652c8beccab3d2c8a5",
+    "bytes": 92204,
+    "blockReason": "",
+    "template": "depth-fly",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

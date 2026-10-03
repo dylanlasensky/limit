@@ -264,6 +264,7 @@ TEMPLATES={
  'resistance-band-good-morning':('barbell-hinge','band-good-morning'),
  'dumbbell-fly':('depth-fly','flat-dumbbell'),
  'incline-dumbbell-fly':('depth-fly','incline-dumbbell'),
+ 'cable-chest-fly':('depth-fly','cable-chest'),
  'b-stance-romanian-deadlift':('barbell-hinge','b-stance-romanian'),
  'single-leg-dumbbell-romanian-deadlift':('barbell-hinge','single-leg-romanian'),
  'supported-single-leg-romanian-deadlift':('barbell-hinge','supported-single-leg-romanian'),
@@ -504,13 +505,21 @@ def draw_pose(d,kind,option,u):
  elif kind=='depth-fly':
   # Foot-end projection plus a side inset preserve the supine bench setup.
   # Hands follow mirrored arcs at invariant reach; IK fixes the soft elbow.
-  d.rounded_rectangle((266,188,334,425),10,fill=FAR)
-  for bx in (275,325):d.line((bx,422,bx,453),fill=FAR,width=6)
+  standing=option=='cable-chest'
+  if standing:
+   for tower in (89,511):
+    d.line((tower,205,tower,453),fill=FAR,width=6)
+    d.ellipse((tower-9,266,tower+9,284),fill=FAR,outline=INK,width=2)
+    d.rounded_rectangle((tower-13,354,tower+13,415),3,fill=FAR,outline=INK,width=2)
+  else:
+   d.rounded_rectangle((266,188,334,425),10,fill=FAR)
+   for bx in (275,325):d.line((bx,422,bx,453),fill=FAR,width=6)
   d.rounded_rectangle((279,239,321,386),13,fill=BLUE)
+  if standing:d.line((300,191,300,246),fill=BLUE,width=13)
   d.ellipse((280,154,320,194),fill=INK)
-  for hip_x,foot_x in ((284,253),(316,347)):
-   limb(d,[(hip_x,379),(hip_x+(foot_x-hip_x)*.45,411),(foot_x,445)],BLUE,11)
-   d.line((foot_x-13,448,foot_x+13,448),fill=INK,width=7)
+  for hip_x,foot_x,foot_y in ((284,253,445),(316,347,427 if standing else 445)):
+   limb(d,[(hip_x,379),(hip_x+(foot_x-hip_x)*.45,411),(foot_x,foot_y)],BLUE,11)
+   d.line((foot_x-13,foot_y+3,foot_x+13,foot_y+3),fill=INK,width=7)
   angle=math.pi-.12-(math.pi-.12-1.42)*u
   for side in (-1,1):
    shoulder=(300+45*side,275)
@@ -521,13 +530,27 @@ def draw_pose(d,kind,option,u):
    if abs(math.dist(shoulder3,elbow3)-80)>1e-6 or abs(math.dist(elbow3,hand3)-75)>1e-6 or abs(math.dist(shoulder3,hand3)-150)>1e-6:raise ValueError('Fly shoulder arc or soft elbow changed')
    elbow=(elbow3[0],275-.24*elbow3[1]);hand=(hand3[0],275-.24*hand3[1])
    if segment_distance((300,174),elbow,hand)<20:raise ValueError('Fly load crossed head')
+   if standing:
+    anchor=(89 if side<0 else 511,275)
+    if math.dist(anchor,hand)<12:raise ValueError('Fly cable lost tension')
+    d.line((*anchor,*hand),fill=BLUE,width=4)
    limb(d,[shoulder,elbow,hand],INK,10)
-   d.line((hand[0]-13,hand[1],hand[0]+13,hand[1]),fill=INK,width=5)
-   for px in (hand[0]-12,hand[0]+12):d.rounded_rectangle((px-5,hand[1]-11,px+5,hand[1]+11),2,fill=FAR,outline=INK,width=2)
+   if standing:d.rounded_rectangle((hand[0]-9,hand[1]-6,hand[0]+9,hand[1]+6),2,fill=FAR,outline=INK,width=2)
+   else:
+    d.line((hand[0]-13,hand[1],hand[0]+13,hand[1]),fill=INK,width=5)
+    for px in (hand[0]-12,hand[0]+12):d.rounded_rectangle((px-5,hand[1]-11,px+5,hand[1]+11),2,fill=FAR,outline=INK,width=2)
   d.rounded_rectangle((45,154,220,231),5,outline=MUTED,width=2)
-  if option=='incline-dumbbell':d.text((151,160),'INCLINE',font=FONTS[14],fill=MUTED)
+  if standing:
+   d.text((52,161),'CHEST PULLEY',font=FONTS[14],fill=MUTED)
+   d.line((62,184,62,220),fill=FAR,width=5)
+   d.ellipse((55,184,69,198),fill=FAR,outline=INK,width=1)
+   d.line((62,191,175,191),fill=BLUE,width=3)
+   d.line((175,183,175,218),fill=BLUE,width=12)
+   d.ellipse((167,166,183,182),fill=INK)
+  elif option=='incline-dumbbell':d.text((151,160),'INCLINE',font=FONTS[14],fill=MUTED)
   else:d.text((52,161),'SIDE / HAND HEIGHT',font=FONTS[14],fill=MUTED)
-  if option=='incline-dumbbell':
+  if standing:pass
+  elif option=='incline-dumbbell':
    d.line((66,212,181,180),fill=FAR,width=6)
    d.line((74,199,170,172),fill=BLUE,width=9)
    d.ellipse((55,188,76,209),fill=INK)

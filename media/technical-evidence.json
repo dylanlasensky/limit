@@ -416,6 +416,19 @@
     "audio": false
   },
   {
+    "catalogKey": "cable-chest-fly",
+    "videoSha256": "eac02952978c8a3e674f4e1fc38796544db0e12311e077652c8beccab3d2c8a5",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "lat-pulldown",
     "videoSha256": "1467a291c2820831a8dd10ea1b2a5508aa3d5f39d46b88db3d8e80d81477afdc",
     "duration": 8,
