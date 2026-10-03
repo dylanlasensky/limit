@@ -2579,14 +2579,14 @@
   {
     "catalogKey": "resistance-band-row",
     "name": "Resistance Band Row",
-    "poster": "exercises/resistance-band-row/v230640858995275/ba02cb08a1bf3a07856bdb960d058a2675929e533c465f5bd3b1526158d11641.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/resistance-band-row/v63253275907109/88614d1270df150f3baa0cb9877f0aaf20a635c54cbf4bf3be3a656cf1ae0852.png",
+    "source": "exercises/resistance-band-row/v63253275907109/c80c1c8e89eb846b4f18d01008cdc513ef846c7bf8ed5ee39ca2cc2d775b389f.mp4",
+    "format": "mp4",
     "caption": "Use a stable torso position and keep your neck in line with your spine. Row your elbows back, then reach forward under control without jerking the weight. Use a secure anchor and inspect the band.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 230640858995275,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 63253275907109,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -2598,15 +2598,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "ba02cb08a1bf3a07856bdb960d058a2675929e533c465f5bd3b1526158d11641",
-    "videoSha256": null,
-    "bytes": 41362,
-    "blockReason": "Resistance Band Row: current renderer lacks torso support or hinge angle, elbow track and load path toward the trunk; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires \"Use a secure anchor and inspect the band\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "88614d1270df150f3baa0cb9877f0aaf20a635c54cbf4bf3be3a656cf1ae0852",
+    "videoSha256": "c80c1c8e89eb846b4f18d01008cdc513ef846c7bf8ed5ee39ca2cc2d775b389f",
+    "bytes": 84234,
+    "blockReason": "",
+    "template": "band-row",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

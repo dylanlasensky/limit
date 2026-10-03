@@ -156,6 +156,19 @@
     "audio": false
   },
   {
+    "catalogKey": "resistance-band-row",
+    "videoSha256": "c80c1c8e89eb846b4f18d01008cdc513ef846c7bf8ed5ee39ca2cc2d775b389f",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-pullover",
     "videoSha256": "221b5c1a65e0d3b4653abc388b55da76e20ec1171bb4c9c756d87e3a8a7ff3a4",
     "duration": 8,

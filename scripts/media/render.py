@@ -71,6 +71,7 @@ TEMPLATES={
  'resistance-band-front-raise':('band-front-raise',None),
  'resistance-band-curl':('band-curl',None),
  'resistance-band-triceps-pushdown':('band-triceps-pushdown',None),
+ 'resistance-band-row':('band-row',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -137,7 +138,27 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='band-triceps-pushdown':
+ if kind=='band-row':
+  # A fixed chest-height wall anchor tensions two band strands. A stable
+  # staggered stance and torso stay put as elbows travel behind the hands.
+  anchor=(132,273);hip=(340,332);shoulder=(315,213);head=(302,174)
+  d.line((113,88,113,456),fill=FAR,width=5)
+  d.line((113,273,anchor[0],anchor[1]),fill=INK,width=8)
+  d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
+  limb(d,[hip,(307,386),(292,445)],FAR,16)
+  line(d,(292,445),(269,448),INK,8)
+  limb(d,[hip,(373,386),(389,445)],BLUE,17)
+  line(d,(389,445),(410,448),INK,8)
+  body(d,hip,shoulder,head)
+  for offset,color in ((-9,FAR),(9,INK)):
+   start=(shoulder[0]+offset,shoulder[1]);hand=(219+80*u+offset,276)
+   elbow=ik(start,hand,77,69,side=1)
+   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((start,elbow,77),(elbow,hand,69))):raise ValueError('Band row arm length changed')
+   if hand[1]!=276 or anchor!=(132,273):raise ValueError('Band row support changed')
+   d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
+   limb(d,[start,elbow,hand],color,11)
+   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
+ elif kind=='band-triceps-pushdown':
   # Side view: a high fixed wall anchor tensions the band while both elbows
   # remain close to the ribs and the forearms extend without shoulder swing.
   anchor=(438,123);hip=(302,333);shoulder=(298,213);head=(296,174)
