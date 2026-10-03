@@ -90,6 +90,7 @@ TEMPLATES={
  'overhead-cable-triceps-extension':('cable-overhead-triceps',None),
  'cable-triceps-kickback':('cable-triceps-kickback',None),
  'leg-extension':('machine-leg-extension',None),
+ 'single-leg-extension':('machine-single-leg-extension',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -156,7 +157,7 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='machine-leg-extension':
+ if kind in ('machine-leg-extension','machine-single-leg-extension'):
   # The seat/back and machine knee pivot remain fixed; a roller contacts the
   # lower shin above the ankle while the shin extends without hip movement.
   hip=(301,333);shoulder=(301,214);head=(300,176);knee=(374,325)
@@ -171,6 +172,12 @@ def draw_pose(d,kind,option,u):
   line(d,shoulder,head,BLUE,11)
   d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
   limb(d,[shoulder,(309,283),(300,333)],INK,10)
+  if kind=='machine-single-leg-extension':
+   # The opposite leg rests vertically and does not follow the working lever.
+   rest_knee=(358,313);rest_foot=(358,394)
+   line(d,hip,rest_knee,FAR,14)
+   line(d,rest_knee,rest_foot,FAR,14)
+   line(d,rest_foot,(rest_foot[0]+20,rest_foot[1]+3),FAR,7)
   line(d,hip,knee,BLUE,18)
   angle=math.pi/2-1.53*u
   foot=polar(knee,79,angle)

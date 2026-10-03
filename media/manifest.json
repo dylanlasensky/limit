@@ -7094,14 +7094,14 @@
   {
     "catalogKey": "single-leg-extension",
     "name": "Single-Leg Extension",
-    "poster": "exercises/single-leg-extension/v25872418701860/3e613d78545227daaf5614e245c41fe898e90fb52f9cec8a29953d770203b207.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/single-leg-extension/v165496539522359/2a11d878ba8f520fb47ec4e296c18ee67cad2db9bf4c18e2443d10b08dd8dd2d.png",
+    "source": "exercises/single-leg-extension/v165496539522359/8719641dafe684e0dba3046d03c5b1229b1a3eab4512e5d85a1e1af9c5311d8a.mp4",
+    "format": "mp4",
     "caption": "Align your knee with the machine pivot or set a stable supported position. Straighten your knee under control and lower without dropping the resistance. Keep your hips on the seat; log each side.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 25872418701860,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 165496539522359,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -7113,15 +7113,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "3e613d78545227daaf5614e245c41fe898e90fb52f9cec8a29953d770203b207",
-    "videoSha256": null,
-    "bytes": 41616,
-    "blockReason": "Single-Leg Extension: current renderer lacks fixed thigh support and knee-driven lower-leg travel; it also lacks the actual seat, pads, lever or sled and safe contact points. This variation requires \"Keep your hips on the seat; log each side\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "2a11d878ba8f520fb47ec4e296c18ee67cad2db9bf4c18e2443d10b08dd8dd2d",
+    "videoSha256": "8719641dafe684e0dba3046d03c5b1229b1a3eab4512e5d85a1e1af9c5311d8a",
+    "bytes": 76028,
+    "blockReason": "",
+    "template": "machine-single-leg-extension",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
