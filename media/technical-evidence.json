@@ -676,6 +676,19 @@
     "audio": false
   },
   {
+    "catalogKey": "cable-triceps-kickback",
+    "videoSha256": "58cc498be7ff0e04daa4f2664e0260c5a126f93ed73b842f2fc127e1130064bf",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "resistance-band-triceps-pushdown",
     "videoSha256": "16ea3811bc1f1a8b2cc7635144039d69bd93b7dcaf3fdca6cc5ff936dbd862b5",
     "duration": 8,

@@ -5735,14 +5735,14 @@
   {
     "catalogKey": "cable-triceps-kickback",
     "name": "Cable Triceps Kickback",
-    "poster": "exercises/cable-triceps-kickback/v28981806188517/580b238ca784c2bf186e3f093f34e68c68ed7c774cd5efa2da958687dc7ef299.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/cable-triceps-kickback/v110376008822205/39fc41bac85b6279a9d03a73bec332c42f776524482de2a9dc952608a9b9526c.png",
+    "source": "exercises/cable-triceps-kickback/v110376008822205/58cc498be7ff0e04daa4f2664e0260c5a126f93ed73b842f2fc127e1130064bf.mp4",
+    "format": "mp4",
     "caption": "Set a comfortable shoulder position and keep your upper arms steady. Straighten your elbows without snapping them, then return under control. Keep your shoulder stable; log each side.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 28981806188517,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 110376008822205,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -5754,15 +5754,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "580b238ca784c2bf186e3f093f34e68c68ed7c774cd5efa2da958687dc7ef299",
-    "videoSha256": null,
-    "bytes": 41676,
-    "blockReason": "Cable Triceps Kickback: current renderer lacks fixed upper arm, elbow hinge and full load path; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires \"Keep your shoulder stable; log each side\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "39fc41bac85b6279a9d03a73bec332c42f776524482de2a9dc952608a9b9526c",
+    "videoSha256": "58cc498be7ff0e04daa4f2664e0260c5a126f93ed73b842f2fc127e1130064bf",
+    "bytes": 82901,
+    "blockReason": "",
+    "template": "cable-triceps-kickback",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

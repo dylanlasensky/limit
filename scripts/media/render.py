@@ -88,6 +88,7 @@ TEMPLATES={
  'half-kneeling-cable-row':('half-kneeling-cable-row',None),
  'cable-triceps-pushdown':('cable-triceps-pushdown',None),
  'overhead-cable-triceps-extension':('cable-overhead-triceps',None),
+ 'cable-triceps-kickback':('cable-triceps-kickback',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -983,9 +984,16 @@ def draw_pose(d,kind,option,u):
    if abs(math.dist(elbow,hand)-72)>1e-6 or math.dist(hand,head)<46:raise ValueError('Skull crusher face clearance changed')
    limb(d,[arm_start,elbow,hand],color,11)
    weight(d,hand,hammer=True)
- elif kind=='triceps-kickback':
+ elif kind in ('triceps-kickback','cable-triceps-kickback'):
   # One hand braces on a stable bench and one foot remains planted. The
   # loaded upper arm stays alongside the trunk; only the elbow extends.
+  cable=kind=='cable-triceps-kickback'
+  if cable:
+   anchor=(142,340)
+   d.line((116,90,116,456),fill=FAR,width=5)
+   d.rounded_rectangle((93,362,125,421),5,fill=FAR,outline=INK,width=2)
+   for y in (378,397,415):d.line((96,y,122,y),fill=INK,width=2)
+   d.ellipse((anchor[0]-12,anchor[1]-12,anchor[0]+12,anchor[1]+12),fill=FAR,outline=INK,width=3)
   d.rounded_rectangle((170,395,260,410),5,fill=FAR)
   for x in (186,245):d.line((x,410,x,458),fill=FAR,width=7)
   hip=(340,278);shoulder=(238,300);head=(196,297)
@@ -1000,8 +1008,10 @@ def draw_pose(d,kind,option,u):
   angle=1.24-u*1.15
   hand=polar(elbow,70,angle)
   if abs(math.dist(elbow,hand)-70)>1e-6 or elbow!=(318,288):raise ValueError('Kickback upper arm changed')
+  if cable:d.line([xy(anchor),xy(hand)],fill=INK,width=3)
   line(d,elbow,hand,INK,11)
-  weight(d,hand,hammer=True)
+  if cable:d.rounded_rectangle((hand[0]-6,hand[1]-7,hand[0]+6,hand[1]+7),3,fill=FAR,outline=INK,width=2)
+  else:weight(d,hand,hammer=True)
  elif kind=='overhead-triceps':
   # Side view: elbows and upper arms stay anchored as forearms extend.
   # The two-hand key grips one shared dumbbell; the one-arm key uses one.
