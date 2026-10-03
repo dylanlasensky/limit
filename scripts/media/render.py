@@ -212,6 +212,7 @@ TEMPLATES={
  'single-arm-landmine-press':('landmine-press','standing'),
  'half-kneeling-landmine-press':('landmine-press','half-kneeling'),
  'landmine-squat':('landmine-squat',None),
+ 'landmine-reverse-lunge':('landmine-reverse-lunge',None),
  'cable-crunch':('supported-trunk-crunch','kneeling-cable'),
  'machine-abdominal-crunch':('supported-trunk-crunch','machine'),
  'captain-s-chair-knee-raise':('captain-chair-raise',None),
@@ -1880,6 +1881,30 @@ def draw_pose(d,kind,option,u):
   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,elbow,74 if option=='front' else 73),(elbow,hand,65))):raise ValueError('Cable raise arm changed length')
   d.line([xy(anchor),xy(hand)],fill=INK,width=3)
   d.rounded_rectangle((hand[0]-8,hand[1]-5,hand[0]+8,hand[1]+5),3,fill=FAR,outline=INK,width=2)
+ elif kind=='landmine-reverse-lunge':
+  # A rear foot lifts and steps back before descent. The working foot stays
+  # planted and the chest-held end remains on its fixed landmine arc.
+  step=min(1,2*u);depth=max(0,(u-.5)*2)
+  pivot=(80,440);radius=math.hypot(270,220)
+  hand_y=220+60*depth;hand=(pivot[0]+math.sqrt(radius**2-(hand_y-pivot[1])**2),hand_y)
+  shoulder=(hand[0]-10,hand[1]-50);hip=(shoulder[0],shoulder[1]+125);head=(shoulder[0],shoulder[1]-33)
+  front_ankle=(300,445);rear_ankle=(355+65*step,445-18*math.sin(math.pi*step))
+  front_knee=ik(hip,front_ankle,90,90,side=-1);rear_knee=ik(hip,rear_ankle,90,90,side=-1)
+  if abs(math.dist(pivot,hand)-radius)>1e-6 or abs(math.dist(hip,shoulder)-125)>1e-6:raise ValueError('Landmine lunge bar or torso changed length')
+  if any(abs(math.dist(a,b)-90)>1e-6 for a,b in ((hip,front_knee),(front_knee,front_ankle),(hip,rear_knee),(rear_knee,rear_ankle))):raise ValueError('Landmine lunge leg length changed')
+  if rear_ankle[1]>445 or front_knee[1]>440 or rear_knee[1]>440:raise ValueError('Landmine lunge contact or knee path changed')
+  d.rounded_rectangle((59,428,100,458),5,fill=FAR,outline=INK,width=2)
+  d.ellipse((pivot[0]-10,pivot[1]-10,pivot[0]+10,pivot[1]+10),fill=FAR,outline=INK,width=2)
+  d.line([xy(pivot),xy(hand)],fill=FAR,width=9)
+  d.ellipse((hand[0]-13,hand[1]-13,hand[0]+13,hand[1]+13),fill=FAR,outline=INK,width=2)
+  limb(d,[hip,rear_knee,rear_ankle],FAR,16)
+  limb(d,[hip,front_knee,front_ankle],BLUE,18)
+  line(d,front_ankle,(278,448),INK,9);line(d,rear_ankle,(rear_ankle[0]+19,rear_ankle[1]+2),INK,9)
+  body(d,hip,shoulder,head)
+  elbow=(shoulder[0]+35,shoulder[1]+38)
+  limb(d,[shoulder,elbow,hand],INK,10)
+  d.rounded_rectangle((hand[0]-10,hand[1]-6,hand[0]+10,hand[1]+6),3,fill=INK)
+  d.text((45,188),'FIXED PIVOT / STEP BACK',font=FONTS[14],fill=MUTED)
  elif kind=='landmine-squat':
   # The chest-held bar end follows the arc from its fixed floor pivot.
   # The torso translates with the bar while feet stay planted.

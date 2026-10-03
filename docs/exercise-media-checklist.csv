@@ -231,7 +231,7 @@ bodyweight-step-up,Bodyweight Step-Up,Plyo box,technical,Original LIMIT-generate
 barbell-step-up,Barbell Step-Up,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 lateral-step-up,Lateral Step-Up,Plyo box,technical,Original LIMIT-generated schematic; no third-party footage,,,
 lateral-step-down,Lateral Step-Down,Plyo box,technical,Original LIMIT-generated schematic; no third-party footage,,,
-landmine-reverse-lunge,Landmine Reverse Lunge,Landmine,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Landmine Reverse Lunge: current renderer lacks each foot or box contact, pelvis level and the specified step or descent direction; it also lacks a fixed bar pivot and its arcing load path. This variation requires ""Secure the attachment and keep the bar end near your chest"". Add exact setup and phase-specific joint/support constraints before generating a video."
+landmine-reverse-lunge,Landmine Reverse Lunge,Landmine,technical,Original LIMIT-generated schematic; no third-party footage,,,
 barbell-deadlift,Barbell Deadlift,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 sumo-deadlift,Sumo Deadlift,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 romanian-deadlift,Romanian Deadlift,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,

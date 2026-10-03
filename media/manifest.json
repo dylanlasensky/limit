@@ -8354,14 +8354,14 @@
   {
     "catalogKey": "landmine-reverse-lunge",
     "name": "Landmine Reverse Lunge",
-    "poster": "exercises/landmine-reverse-lunge/v41836641486993/ab4227f6d6f263b1ae7f1e74cb9a3ff2f26c7541f496d5d1e44968ce5d6da2f4.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/landmine-reverse-lunge/v213659854232002/dbda41a107c5d0fa985a8dfdff2401421422958e2079c1c7d602ca0987c2d75a.png",
+    "source": "exercises/landmine-reverse-lunge/v213659854232002/756748b03df8507b066c42f55b05b4a62cc1db3546fa57806d23850a3e35aa8a.mp4",
+    "format": "mp4",
     "caption": "Keep your working foot stable and your pelvis level. Lower with control and drive through the working leg; count repetitions per side. Secure the attachment and keep the bar end near your chest.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 41836641486993,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 213659854232002,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -8373,15 +8373,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "ab4227f6d6f263b1ae7f1e74cb9a3ff2f26c7541f496d5d1e44968ce5d6da2f4",
-    "videoSha256": null,
-    "bytes": 41013,
-    "blockReason": "Landmine Reverse Lunge: current renderer lacks each foot or box contact, pelvis level and the specified step or descent direction; it also lacks a fixed bar pivot and its arcing load path. This variation requires \"Secure the attachment and keep the bar end near your chest\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "dbda41a107c5d0fa985a8dfdff2401421422958e2079c1c7d602ca0987c2d75a",
+    "videoSha256": "756748b03df8507b066c42f55b05b4a62cc1db3546fa57806d23850a3e35aa8a",
+    "bytes": 95196,
+    "blockReason": "",
+    "template": "landmine-reverse-lunge",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
