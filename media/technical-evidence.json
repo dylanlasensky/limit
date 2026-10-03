@@ -260,6 +260,19 @@
     "audio": false
   },
   {
+    "catalogKey": "side-lying-dumbbell-external-rotation",
+    "videoSha256": "965a5d0beddca2a4c63aa9fca3c034e2c48eaddd55fdff00f05160ef7006f829",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-curl",
     "videoSha256": "fd58f7fe3c8e1c763e3203a1fc1e1ed9d9c64fd955fbd29936e56d6ab6b08f95",
     "duration": 8,
@@ -782,6 +795,19 @@
   {
     "catalogKey": "lying-leg-raise",
     "videoSha256": "2e15dd284ba0da293a660721d34edc91e18168546f20c527812cd84dc0a7f264",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "dumbbell-side-bend",
+    "videoSha256": "5fbd2a62a4c4bf3796ac12063beaad328dd7e35bcfb878233987915eaa1a0574",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
