@@ -100,6 +100,8 @@ TEMPLATES={
  'cable-curl':('low-cable-curl','bilateral'),
  'single-arm-cable-curl':('low-cable-curl','unilateral'),
  'bayesian-cable-curl':('low-cable-curl','behind-body'),
+ 'rope-hammer-curl':('low-cable-curl','rope-neutral'),
+ 'reverse-cable-curl':('low-cable-curl','reverse'),
  'straight-arm-cable-pulldown':('cable-straight-arm','bilateral'),
  'single-arm-cable-pullover':('cable-straight-arm','unilateral'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
@@ -188,6 +190,13 @@ def draw_grip_inset(d,orientation):
    d.rounded_rectangle((x-12,304,x+12,329),5,fill=BLUE,outline=INK,width=2)
    for k in (-5,0,5):d.ellipse((x+k-1,308,x+k+1,310),fill=INK)
   label='PALMS TO BODY'
+ elif orientation=='reverse':
+  d.line((63,314,160,314),fill=INK,width=6)
+  for x in (88,135):
+   d.rounded_rectangle((x-12,302,x+12,330),5,fill=BLUE,outline=INK,width=2)
+   d.line((x-4,305,x-4,327),fill=INK,width=2)
+   d.line((x+4,305,x+4,327),fill=INK,width=2)
+  label='PALMS DOWN'
  else:raise ValueError('Unsupported grip inset')
  d.text((50,339),label,font=FONTS[14],fill=INK)
 def draw_pose(d,kind,option,u):
@@ -274,7 +283,7 @@ def draw_pose(d,kind,option,u):
  elif kind=='low-cable-curl':
   # Low pulley, taut cable and elbow hinge are shared; the Bayesian variant
   # anchors behind the body with a fixed, gently extended upper arm.
-  behind=option=='behind-body';single=option!='bilateral'
+  behind=option=='behind-body';single=option in ('unilateral','behind-body')
   anchor=(144,416) if behind else (462,416)
   tower_x=126 if behind else 480
   d.line((tower_x,95,tower_x,456),fill=FAR,width=7)
@@ -288,7 +297,11 @@ def draw_pose(d,kind,option,u):
   if single:limb(d,[shoulder,(287,291),(292,354)],FAR,10)
   if not single:
    shared_hand=polar((321,294),66,math.pi/2-2.24*u)
-   d.line([xy(anchor),xy(shared_hand)],fill=INK,width=3)
+   if option=='rope-neutral':
+    split=add(shared_hand,(25,21))
+    d.line([xy(anchor),xy(split)],fill=INK,width=3)
+    for dx in (-9,9):d.line([xy(split),xy(add(shared_hand,(dx,0)))],fill=FAR,width=4)
+   else:d.line([xy(anchor),xy(shared_hand)],fill=INK,width=3)
   for offset,color in (((9,INK),) if single else ((-9,FAR),(9,INK))):
    start=(shoulder[0]+offset,shoulder[1]);elbow=((272 if behind else 321)+offset,294)
    angle=math.pi/2-2.24*u
@@ -296,8 +309,10 @@ def draw_pose(d,kind,option,u):
    if abs(math.dist(elbow,hand)-66)>1e-6 or elbow[1]!=294:raise ValueError('Cable curl elbow or forearm changed')
    if single:d.line([xy(anchor),xy(hand)],fill=INK,width=3)
    limb(d,[start,elbow,hand],color,11)
-   if single:d.rounded_rectangle((hand[0]-7,hand[1]-5,hand[0]+7,hand[1]+5),3,fill=FAR,outline=INK,width=2)
-  if not single:d.rounded_rectangle((shared_hand[0]-15,shared_hand[1]-5,shared_hand[0]+15,shared_hand[1]+5),3,fill=FAR,outline=INK,width=2)
+   if single or option=='rope-neutral':d.rounded_rectangle((hand[0]-7,hand[1]-5,hand[0]+7,hand[1]+5),3,fill=FAR,outline=INK,width=2)
+  if not single and option!='rope-neutral':d.rounded_rectangle((shared_hand[0]-15,shared_hand[1]-5,shared_hand[0]+15,shared_hand[1]+5),3,fill=FAR,outline=INK,width=2)
+  if option=='rope-neutral':draw_grip_inset(d,'neutral')
+  elif option=='reverse':draw_grip_inset(d,'reverse')
  elif kind=='machine-standing-calf':
   # The toe stays on a fixed raised step; the heel and carriage rise together
   # with a constant foot length and an unchanged long-leg/trunk silhouette.

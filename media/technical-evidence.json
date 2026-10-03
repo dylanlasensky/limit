@@ -676,6 +676,19 @@
     "audio": false
   },
   {
+    "catalogKey": "rope-hammer-curl",
+    "videoSha256": "9f2e7947d83e1297da1dbbf2a384a0f91c7e6703e7eb95e10bdeb1b5ffdbaa09",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "single-arm-cable-curl",
     "videoSha256": "3af5551e5412221f56be7e5415f3fb6eb814b89f9588ebf8b5e2d11235652652",
     "duration": 8,
@@ -704,6 +717,19 @@
   {
     "catalogKey": "spider-curl",
     "videoSha256": "f0f69c97c6af5935664e72bc1fd0f54711863b6b04ebd4d883e39191d1fb5a56",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "reverse-cable-curl",
+    "videoSha256": "7f0ea49a76c55809b049e8e824b7396d80e14ceab973ac6ae58d7721d3574983",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
