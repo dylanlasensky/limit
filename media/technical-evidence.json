@@ -2756,6 +2756,19 @@
     "audio": false
   },
   {
+    "catalogKey": "cable-pull-through",
+    "videoSha256": "58b3752214ffae3fdca7cd4eab9e948480595c9e583951efddc15cfb514323f2",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "resistance-band-good-morning",
     "videoSha256": "983d4e98b3230c40b31ac600223a6a7db3c528dfd192bf609f6c416512a7fba3",
     "duration": 8,

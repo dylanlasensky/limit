@@ -8888,14 +8888,14 @@
   {
     "catalogKey": "cable-pull-through",
     "name": "Cable Pull-Through",
-    "poster": "exercises/cable-pull-through/v226832178118670/40f7f510f0b84196a1891fd3e13266e222a9fc8d7e330e8b446361500c7ef8e7.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/cable-pull-through/v273325370259092/613941b27056d75af16880dea96825e8427c30d0f4a6fbf92339d71a226545d4.png",
+    "source": "exercises/cable-pull-through/v273325370259092/58b3752214ffae3fdca7cd4eab9e948480595c9e583951efddc15cfb514323f2.mp4",
+    "format": "mp4",
     "caption": "Brace your trunk and move your hips backward while keeping the load close. Use a range you can control with a steady spine; stand tall without leaning backward. Face away from the stack and drive the movement from your hips.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 226832178118670,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 273325370259092,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -8907,15 +8907,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "40f7f510f0b84196a1891fd3e13266e222a9fc8d7e330e8b446361500c7ef8e7",
-    "videoSha256": null,
-    "bytes": 44056,
-    "blockReason": "Cable Pull-Through: current renderer lacks fixed foot pressure, hip travel, trunk angle and load path through the hinge; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires \"Face away from the stack and drive the movement from your hips\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "613941b27056d75af16880dea96825e8427c30d0f4a6fbf92339d71a226545d4",
+    "videoSha256": "58b3752214ffae3fdca7cd4eab9e948480595c9e583951efddc15cfb514323f2",
+    "bytes": 107585,
+    "blockReason": "",
+    "template": "cable-pull-through",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

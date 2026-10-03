@@ -266,6 +266,7 @@ TEMPLATES={
  'b-stance-romanian-deadlift':('barbell-hinge','b-stance-romanian'),
  'single-leg-dumbbell-romanian-deadlift':('barbell-hinge','single-leg-romanian'),
  'supported-single-leg-romanian-deadlift':('barbell-hinge','supported-single-leg-romanian'),
+ 'cable-pull-through':('cable-pull-through',None),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -470,7 +471,36 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='depth-fly':
+ if kind=='cable-pull-through':
+  ankle=(315,445);leg=77.5;hip_x=300-65*u
+  reach=math.dist((300,295),ankle)
+  hip=(hip_x,445-math.sqrt(reach**2-(315-hip_x)**2))
+  knee=ik(hip,ankle,leg,leg,side=1)
+  trunk_angle=-math.pi/2+(math.pi/2-.7)*u
+  shoulder=polar(hip,120,trunk_angle);head=polar(shoulder,34,trunk_angle)
+  hand_x=320-90*u;hand=(hand_x,shoulder[1]+math.sqrt(170**2-(hand_x-shoulder[0])**2))
+  pulley=(91,416)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,knee,leg),(knee,ankle,leg),(hip,shoulder,120),(shoulder,hand,170))):raise ValueError('Cable pull-through body or arm length changed')
+  if hand[1]>=pulley[1]-15 or segment_distance(head,pulley,hand)<32:raise ValueError('Cable pull-through line crossed head or lost low pull')
+  d.line((51,453,453,453),fill=FAR,width=3)
+  d.line((72,192,72,452),fill=FAR,width=7)
+  d.rounded_rectangle((58,349,86,407),3,fill=FAR,outline=INK,width=2)
+  d.ellipse((pulley[0]-10,pulley[1]-10,pulley[0]+10,pulley[1]+10),fill=FAR,outline=INK,width=2)
+  d.line((*pulley,*hand),fill=BLUE,width=4)
+  limb(d,[hip,knee,ankle],BLUE,17)
+  d.line((315,445,344,448),fill=INK,width=9)
+  d.line((*hip,*shoulder),fill=BLUE,width=27)
+  d.line((*shoulder,*head),fill=BLUE,width=10)
+  d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
+  limb(d,[shoulder,hand],INK,10)
+  d.rounded_rectangle((hand[0]-11,hand[1]-6,hand[0]+11,hand[1]+6),3,fill=FAR,outline=INK,width=2)
+  d.rounded_rectangle((45,183,205,231),4,outline=MUTED,width=2)
+  d.text((51,188),'ROPE BETWEEN FEET',font=FONTS[14],fill=MUTED)
+  for fx in (69,169):d.rounded_rectangle((fx-9,207,fx+9,225),2,fill=BLUE)
+  d.line((90,217,147,217),fill=INK,width=4)
+  d.rounded_rectangle((115,211,128,223),2,fill=FAR)
+  d.text((47,242),'FACE AWAY / LOW PULLEY',font=FONTS[14],fill=MUTED)
+ elif kind=='depth-fly':
   # Foot-end projection plus a side inset preserve the supine bench setup.
   # Hands follow mirrored arcs at invariant reach; IK fixes the soft elbow.
   d.rounded_rectangle((266,188,334,425),10,fill=FAR)

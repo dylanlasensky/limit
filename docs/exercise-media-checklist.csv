@@ -249,7 +249,7 @@ paused-deadlift,Paused Deadlift,Barbell,technical,Original LIMIT-generated schem
 snatch-grip-deadlift,Snatch-Grip Deadlift,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 barbell-good-morning,Barbell Good Morning,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 smith-machine-romanian-deadlift,Smith Machine Romanian Deadlift,Smith machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
-cable-pull-through,Cable Pull-Through,Cable,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Cable Pull-Through: current renderer lacks fixed foot pressure, hip travel, trunk angle and load path through the hinge; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires ""Face away from the stack and drive the movement from your hips"". Add exact setup and phase-specific joint/support constraints before generating a video."
+cable-pull-through,Cable Pull-Through,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 resistance-band-good-morning,Resistance Band Good Morning,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,
 seated-leg-curl,Seated Leg Curl,Machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
 lying-leg-curl,Lying Leg Curl,Machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
