@@ -183,6 +183,14 @@ TEMPLATES={
  'plate-loaded-chest-press':('machine-horizontal-press','plate-loaded'),
  'single-arm-machine-chest-press':('machine-horizontal-press','single'),
  'smith-machine-incline-press':('barbell-horizontal-press','smith-incline'),
+ 'leg-press':('leg-press-sled','incline'),
+ 'horizontal-leg-press':('leg-press-sled','horizontal'),
+ 'single-leg-press':('leg-press-sled','single'),
+ 'wide-stance-leg-press':('leg-press-sled','wide'),
+ 'leg-press-calf-raise':('leg-press-calf',None),
+ 'smith-machine-calf-raise':('smith-calf',None),
+ 'donkey-calf-raise':('donkey-calf',None),
+ 'machine-tibialis-raise':('machine-tibialis',None),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -374,7 +382,112 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='dumbbell-bench-variant':
+ if kind in ('leg-press-sled','leg-press-calf'):
+  # Seat/back never move. A translating sled changes hip-to-foot reach in
+  # presses; the calf guide instead fixes the sled and pivots only the heel.
+  hip=(205,345);shoulder=(146,253);head=(124,222)
+  d.line((125,227,220,375),fill=FAR,width=22)
+  d.rounded_rectangle((175,348,258,364),5,fill=FAR)
+  for x in (187,245):d.line((x,364,x,455),fill=FAR,width=7)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  limb(d,[shoulder,(175,313),(191,361)],INK,10)
+  calf=kind=='leg-press-calf';horizontal=option=='horizontal'
+  if horizontal:
+   d.line((286,263,492,263),fill=FAR,width=7)
+   d.line((286,398,492,398),fill=FAR,width=7)
+   platform=(355+85*u,325)
+   d.line((platform[0],261,platform[0],399),fill=INK,width=12)
+   foot=(platform[0],platform[1]);ankle=(foot[0]-25,foot[1])
+   toe=(foot[0]+1,foot[1])
+  else:
+   d.line((323,436,500,115),fill=FAR,width=7)
+   d.line((354,453,515,158),fill=FAR,width=7)
+   platform=(420,265) if calf else (365+55*u,360-100*u)
+   d.line((platform[0]-55,platform[1]-30,platform[0]+55,platform[1]+30),fill=INK,width=12)
+   if calf:
+    toe=platform;ankle_y=276-18*u
+    ankle=(toe[0]-math.sqrt(48**2-(toe[1]-ankle_y)**2),ankle_y)
+   else:
+    ankle=(platform[0]-30,platform[1]-16)
+    toe=(platform[0]+15,platform[1]+8)
+  if calf:
+   knee=ik(hip,ankle,100,100,side=1)
+   if abs(math.dist(ankle,toe)-48)>1e-6 or toe!=(420,265):raise ValueError('Leg press calf forefoot lost contact')
+   d.text((51,166),'FIXED SLED / HEEL PIVOTS',font=FONTS[14],fill=MUTED)
+  else:
+   knee=ik(hip,ankle,115,110,side=1)
+   if option=='single':
+    limb(d,[hip,(252,381),(281,425)],FAR,13)
+    line(d,(281,425),(303,430),INK,7)
+   if option in ('single','wide'):
+    d.rounded_rectangle((40,133,190,199),7,fill=BG,outline=FAR,width=2)
+    d.text((50,138),'PLATFORM VIEW',font=FONTS[14],fill=MUTED)
+    positions=(98,) if option=='single' else (70,155)
+    for x in positions:d.rounded_rectangle((x-10,158,x+10,180),5,fill=BLUE,outline=INK,width=2)
+    d.text((50,183),'ONE FOOT' if option=='single' else 'WIDE / TOES TRACK',font=FONTS[14],fill=INK)
+   if option=='horizontal':d.text((50,167),'HORIZONTAL SLED',font=FONTS[14],fill=MUTED)
+   else:d.text((50,267),'INCLINED SLED',font=FONTS[14],fill=MUTED)
+  lengths=(100,100) if calf else (115,110)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,knee,lengths[0]),(knee,ankle,lengths[1]))):raise ValueError('Leg press segment changed length')
+  limb(d,[hip,knee,ankle],BLUE,17)
+  line(d,ankle,toe,INK,10)
+ elif kind=='smith-calf':
+  # Raised forefoot is fixed; heel, body and guided bar rise together.
+  toe=(365,443);ankle_y=432-18*u
+  ankle=(toe[0]-math.sqrt(48**2-(toe[1]-ankle_y)**2),ankle_y)
+  dx=ankle[0]-(toe[0]-math.sqrt(48**2-(toe[1]-432)**2));dy=ankle_y-432
+  hip=(301+dx,290+dy);shoulder=(296+dx,169+dy);head=(296+dx,135+dy)
+  d.rounded_rectangle((345,446,400,457),4,fill=FAR)
+  for x in (215,415):
+   d.line((x,89,x,457),fill=FAR,width=7)
+   d.line((x-15,400,x+15,400),fill=INK,width=5)
+  limb(d,[hip,(305+dx,361+dy),ankle],BLUE,18)
+  line(d,ankle,toe,INK,10)
+  body(d,hip,shoulder,head)
+  bar_y=shoulder[1]+12
+  d.line((215,bar_y,415,bar_y),fill=INK,width=7)
+  for x in (231,399):d.rounded_rectangle((x-8,bar_y-20,x+8,bar_y+20),4,fill=FAR,outline=INK,width=2)
+  for x in (215,415):d.rounded_rectangle((x-5,bar_y-9,x+5,bar_y+9),2,fill=INK)
+  limb(d,[shoulder,(shoulder[0]+37,shoulder[1]+55),(shoulder[0]+47,bar_y)],INK,10)
+  d.text((52,232),'STEP / GUIDED BAR / STOPS',font=FONTS[14],fill=MUTED)
+ elif kind=='donkey-calf':
+  # Hip pad loads a supported, forward-bent torso; forefoot remains on step.
+  toe=(365,443);ankle_y=432-18*u
+  ankle=(toe[0]-math.sqrt(48**2-(toe[1]-ankle_y)**2),ankle_y)
+  dx=ankle[0]-(toe[0]-math.sqrt(48**2-(toe[1]-432)**2));dy=ankle_y-432
+  hip=(301+dx,300+dy);shoulder=(198+dx,292+dy);head=(161+dx,284+dy)
+  d.rounded_rectangle((345,446,400,457),4,fill=FAR)
+  d.line((250,88,250,456),fill=FAR,width=7)
+  d.rounded_rectangle((hip[0]-28,hip[1]-33,hip[0]+31,hip[1]-17),5,fill=FAR,outline=INK,width=2)
+  d.line((250,hip[1]-23,hip[0]-28,hip[1]-23),fill=FAR,width=8)
+  d.line((104,370,104,457),fill=FAR,width=7)
+  d.line((104,370,161,370),fill=INK,width=7)
+  limb(d,[hip,(305+dx,367+dy),ankle],BLUE,18)
+  line(d,ankle,toe,INK,10)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  hand=(155,370);elbow=ik(shoulder,hand,72,69,side=-1)
+  limb(d,[shoulder,elbow,hand],INK,11)
+  d.text((52,226),'HIP PAD / TRUNK SUPPORTED',font=FONTS[14],fill=MUTED)
+ elif kind=='machine-tibialis':
+  # Seated hip/knee/heel remain fixed; toes lift against a moving foot pad.
+  d.rounded_rectangle((243,329,335,346),5,fill=FAR)
+  d.rounded_rectangle((244,203,261,342),5,fill=FAR)
+  for x in (257,326):d.line((x,346,x,458),fill=FAR,width=7)
+  hip=(292,329);shoulder=(287,205);head=(287,170)
+  knee=(371,332);heel=(408,438)
+  limb(d,[hip,knee,heel],BLUE,17)
+  body(d,hip,shoulder,head)
+  d.rounded_rectangle((391,442,423,456),4,fill=FAR)
+  toe=polar(heel,48,.1-.78*u)
+  if abs(math.dist(heel,toe)-48)>1e-6 or heel!=(408,438):raise ValueError('Tibialis heel support changed')
+  line(d,heel,toe,INK,10)
+  d.line((482,235,482,457),fill=FAR,width=7)
+  d.rounded_rectangle((toe[0]-13,toe[1]-11,toe[0]+13,toe[1]-1),3,fill=FAR,outline=INK,width=2)
+  d.line((482,313,toe[0]+10,toe[1]-6),fill=FAR,width=5)
+  d.text((53,267),'HEEL FIXED / TOES LIFT',font=FONTS[14],fill=MUTED)
+ elif kind=='dumbbell-bench-variant':
   # Separate dumbbells, neutral grip, unilateral trunk control, and a
   # continuously contacting squeeze pair are distinct flat-bench mechanics.
   shoulder=(230,345);hip=(330,345);head=(185,340)

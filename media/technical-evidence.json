@@ -1859,6 +1859,58 @@
     "audio": false
   },
   {
+    "catalogKey": "leg-press",
+    "videoSha256": "b1b48e3139a021bad78e88d9f0e01bba8caa273feabca6f45aa06903325cc755",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "horizontal-leg-press",
+    "videoSha256": "d1f899aaee93b18d99158a4886e18c2e0b865fa740840858fbaffe8b7768772d",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "single-leg-press",
+    "videoSha256": "d5b0ade806a5db4ee94373f8616f427e755e82277d0cc68c09f90b69159002ae",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "wide-stance-leg-press",
+    "videoSha256": "f74a46bc1bb7431cee37112d40fffbd6ae82b995a3b62dfc23efd91975fa95bd",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "leg-extension",
     "videoSha256": "ca00a23c32a9d686bee3af602189d7236e9e671c4f1a6d479c332b35b03e8344",
     "duration": 8,
@@ -2275,6 +2327,32 @@
     "audio": false
   },
   {
+    "catalogKey": "leg-press-calf-raise",
+    "videoSha256": "98180a9696df333ad3aae4a4c40cbc31c363142370b8ed4560f5f15a9da6b001",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "smith-machine-calf-raise",
+    "videoSha256": "992134a9f75cf02fbae5e7ec7f08fd5cfb138bfb6380fb8d5d2f6e810b6b5286",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-standing-calf-raise",
     "videoSha256": "3cde2a272d1b9f3321b94c7590b3a502e3a578b99890fa901e24d96f8c587e2d",
     "duration": 8,
@@ -2327,8 +2405,34 @@
     "audio": false
   },
   {
+    "catalogKey": "donkey-calf-raise",
+    "videoSha256": "47629cf88f7a5dbf9e367cf2c8f32620bd94f843551971f9b99dcb783ebfa8de",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "wall-tibialis-raise",
     "videoSha256": "6272c98211a2b6ecf5b060e8f6b8bf9d052d8923fcca2ce8c8d7291e80784c9c",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "machine-tibialis-raise",
+    "videoSha256": "9c0f8031225b93674de55fd2967c9f51c533ef50f2f2e90ca59bc2e904a9ec51",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
