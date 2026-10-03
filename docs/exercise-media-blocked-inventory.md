@@ -1,12 +1,11 @@
 # Remaining exercise media engineering gaps
 
-Snapshot from `media/manifest.json` at 319 technical videos, 46 blocked variants and zero human fitness approvals. These are exact-key engineering gaps. Written movement instructions remain available. A block reason is not a failed human fitness review.
+Snapshot from `media/manifest.json` at 320 technical videos, 45 blocked variants and zero human fitness approvals. These are exact-key engineering gaps. Written movement instructions remain available. A block reason is not a failed human fitness review.
 
 | Exact key | Current blocking reason |
 | --- | --- |
 | `single-arm-landmine-press` | Single-Arm Landmine Press: the fixed-pivot press trial folds the elbow behind the torso at the chest start; a coupled bar/shoulder/forearm rig is still needed. |
 | `half-kneeling-landmine-press` | Half-Kneeling Landmine Press: the fixed-pivot press trial folds the elbow behind the torso at the chest start despite stable knee and foot contacts; a coupled bar/shoulder/forearm rig is still needed. |
-| `wall-handstand-push-up` | Wall Handstand Push-Up: needs a wall, inverted body support and vertical pressing path with a controlled head clearance. |
 | `pendulum-squat` | Pendulum Squat: current renderer lacks foot support, knee tracking, hip depth and the specified stance/load setup; it also lacks the actual seat, pads, lever or sled and safe contact points. This variation requires "Set the safety stop before adding load". Add exact setup and phase-specific joint/support constraints before generating a video. |
 | `landmine-squat` | Landmine Squat: a constant-length bar from the fixed pivot currently drives the chest-held end away from the squat torso at depth; this needs a coupled pivot, torso and foot-contact rig before a video can be generated. |
 | `landmine-reverse-lunge` | Landmine Reverse Lunge: current renderer lacks each foot or box contact, pelvis level and the specified step or descent direction; it also lacks a fixed bar pivot and its arcing load path. This variation requires "Secure the attachment and keep the bar end near your chest". Add exact setup and phase-specific joint/support constraints before generating a video. |

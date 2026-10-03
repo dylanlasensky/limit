@@ -3632,14 +3632,14 @@
   {
     "catalogKey": "wall-handstand-push-up",
     "name": "Wall Handstand Push-Up",
-    "poster": "exercises/wall-handstand-push-up/v262926986811054/9ed3b88a75f56ecf63e6d135d925822062e12debc87c3d4afb61142cf1e85ce9.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/wall-handstand-push-up/v166230072911192/15883e1f140a78fd65003c4db1b3883408f5599d30ab6f5e7b14a344953937f4.png",
+    "source": "exercises/wall-handstand-push-up/v166230072911192/0fdfe14d5318dc7c97ba3c4625d89c39761fe01f9f98d1a2a0b83bd2d405f33b.mp4",
+    "format": "mp4",
     "caption": "Brace your trunk and position your wrists above your forearms. Press upward through a comfortable path without leaning back to finish the repetition. Learn an exit with a coach and avoid loading the neck.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 262926986811054,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 166230072911192,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "coaching-recommended",
     "textFallback": [
@@ -3651,15 +3651,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "9ed3b88a75f56ecf63e6d135d925822062e12debc87c3d4afb61142cf1e85ce9",
-    "videoSha256": null,
-    "bytes": 41972,
-    "blockReason": "Wall Handstand Push-Up: needs a wall, inverted body support and vertical pressing path with a controlled head clearance.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "15883e1f140a78fd65003c4db1b3883408f5599d30ab6f5e7b14a344953937f4",
+    "videoSha256": "0fdfe14d5318dc7c97ba3c4625d89c39761fe01f9f98d1a2a0b83bd2d405f33b",
+    "bytes": 86721,
+    "blockReason": "",
+    "template": "wall-handstand-push-up",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

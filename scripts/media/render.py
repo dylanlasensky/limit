@@ -206,6 +206,7 @@ TEMPLATES={
  'weighted-push-up':('push-up','weighted'),
  'pike-push-up':('pike-push-up',None),
  'suspension-push-up':('suspension-push-up',None),
+ 'wall-handstand-push-up':('wall-handstand-push-up',None),
  'cable-crunch':('supported-trunk-crunch','kneeling-cable'),
  'machine-abdominal-crunch':('supported-trunk-crunch','machine'),
  'captain-s-chair-knee-raise':('captain-chair-raise',None),
@@ -4045,6 +4046,23 @@ def draw_pose(d,kind,option,u):
   load=(knee[0]-11,knee[1]-20)
   limb(d,[shoulder,(320,263),load],INK,10)
   weight(d,load)
+ elif kind=='wall-handstand-push-up':
+  # Palms stay fixed on the floor as the inverted body travels down.
+  # Feet slide on a fixed wall by the same amount, preserving body length.
+  wall_x=430;wrist=(300,445);shoulder=(340,290+80*u)
+  hip=(372,194+80*u);ankle=(405,105+80*u);toe=(430,105+80*u)
+  head=(338,325+80*u)
+  elbow=ik(shoulder,wrist,82,82,side=1)
+  if abs(math.dist(shoulder,hip)-math.hypot(32,96))>1e-6 or abs(math.dist(hip,ankle)-math.hypot(33,89))>1e-6:raise ValueError('Handstand body length changed')
+  if abs(math.dist(shoulder,elbow)-82)>1e-6 or abs(math.dist(elbow,wrist)-82)>1e-6 or toe[0]!=wall_x:raise ValueError('Handstand arm or wall contact changed')
+  if head[1]+18>=437:raise ValueError('Handstand head clearance changed')
+  d.line((wall_x,90,wall_x,457),fill=FAR,width=9)
+  d.line((wall_x-35,450,wall_x+15,450),fill=FAR,width=3)
+  limb(d,[shoulder,hip,ankle,toe],BLUE,22)
+  limb(d,[shoulder,elbow,wrist],INK,12)
+  line(d,wrist,(wrist[0]-19,447),INK,9)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  d.text((45,249),'FIXED WALL / PALMS ON FLOOR',font=FONTS[14],fill=MUTED)
  elif kind=='suspension-push-up':
   # Two overhead anchors hold fixed-length straps. The suspended handles
   # swing slightly as a rigid shoulder-to-foot plank descends toward them.
