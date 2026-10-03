@@ -27,6 +27,8 @@ TEMPLATES={
  'seated-dumbbell-lateral-raise':('dumbbell-lateral-raise',True),
  'dumbbell-overhead-triceps-extension':('overhead-triceps',2),
  'single-arm-dumbbell-triceps-extension':('overhead-triceps',1),
+ 'dumbbell-skull-crusher':('skull-crusher',None),
+ 'dumbbell-triceps-kickback':('triceps-kickback',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -87,7 +89,44 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='overhead-triceps':
+ if kind=='skull-crusher':
+  # Supine on a bench; upper arms and elbows stay fixed while separate
+  # dumbbells lower beside the head and return without crossing the face.
+  d.rounded_rectangle((170,360,405,376),5,fill=FAR)
+  for x in (190,390):d.line((x,376,x,455),fill=FAR,width=7)
+  hip=(329,350);shoulder=(234,350);head=(187,343)
+  line(d,hip,shoulder,BLUE,26)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  limb(d,[hip,(358,318),(396,347)],BLUE,16)
+  line(d,(396,347),(421,352),INK,9)
+  for offset,color in ((-13,FAR),(13,INK)):
+   elbow=(290+offset,263);arm_start=(shoulder[0]+offset,shoulder[1])
+   angle=2.85-u*4.25
+   hand=polar(elbow,72,angle)
+   if abs(math.dist(elbow,hand)-72)>1e-6 or math.dist(hand,head)<46:raise ValueError('Skull crusher face clearance changed')
+   limb(d,[arm_start,elbow,hand],color,11)
+   weight(d,hand,hammer=True)
+ elif kind=='triceps-kickback':
+  # One hand braces on a stable bench and one foot remains planted. The
+  # loaded upper arm stays alongside the trunk; only the elbow extends.
+  d.rounded_rectangle((170,395,260,410),5,fill=FAR)
+  for x in (186,245):d.line((x,410,x,458),fill=FAR,width=7)
+  hip=(340,278);shoulder=(238,300);head=(196,297)
+  line(d,hip,shoulder,BLUE,26)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
+  limb(d,[shoulder,(219,351),(218,394)],FAR,12)
+  limb(d,[hip,(365,371),(380,443)],BLUE,17)
+  line(d,(380,443),(410,447),INK,9)
+  elbow=(318,288)
+  line(d,shoulder,elbow,INK,13)
+  angle=1.24-u*1.15
+  hand=polar(elbow,70,angle)
+  if abs(math.dist(elbow,hand)-70)>1e-6 or elbow!=(318,288):raise ValueError('Kickback upper arm changed')
+  line(d,elbow,hand,INK,11)
+  weight(d,hand,hammer=True)
+ elif kind=='overhead-triceps':
   # Side view: elbows and upper arms stay anchored as forearms extend.
   # The two-hand key grips one shared dumbbell; the one-arm key uses one.
   hip=(300,346);shoulder=(300,246);head=(282,210)

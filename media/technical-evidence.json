@@ -169,6 +169,32 @@
     "audio": false
   },
   {
+    "catalogKey": "dumbbell-skull-crusher",
+    "videoSha256": "945fad09acb70b4d8add8b86a8b0433bcb6597583a2cca64400815a65eb5e16b",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "dumbbell-triceps-kickback",
+    "videoSha256": "5e4ae37491801dbe9564ee5dcf21e04269893048e77b622f05dfa87f9144cf7c",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "bodyweight-squat",
     "videoSha256": "e590251124e10dfd1cb1c5f25cba07da92ea0ea3ce05b62c595fba56d2a1009d",
     "duration": 8,
