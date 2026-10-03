@@ -8771,14 +8771,14 @@
   {
     "catalogKey": "dumbbell-hip-thrust",
     "name": "Dumbbell Hip Thrust",
-    "poster": "exercises/dumbbell-hip-thrust/v51193339881124/092ff876fbc8462c2aefd5857c9517aca9129daf40c86596f68dd8d96a544eb2.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/dumbbell-hip-thrust/v205148977783620/1ccc44d86d4b719387a9b0b756a41e150f8714762ce688bad32235c78a52c5d0.png",
+    "source": "exercises/dumbbell-hip-thrust/v205148977783620/a1d5c20d38a5f16fd7c31e0a41593cc243b447ea9ad605beb940b8931b8be5f8.mp4",
+    "format": "mp4",
     "caption": "Set your feet and upper-body support securely, keeping your ribs stacked over your pelvis. Extend your hips and finish with your glutes rather than arching your lower back. Hold the weight securely across your hips.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 51193339881124,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 205148977783620,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -8790,15 +8790,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "092ff876fbc8462c2aefd5857c9517aca9129daf40c86596f68dd8d96a544eb2",
-    "videoSha256": null,
-    "bytes": 43005,
-    "blockReason": "Dumbbell Hip Thrust: current renderer lacks secure shoulder or floor contact, the working foot contact and a hip-driven ascent and return; it also lacks the dumbbell grip, position and changing load path. This variation requires \"Hold the weight securely across your hips\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "1ccc44d86d4b719387a9b0b756a41e150f8714762ce688bad32235c78a52c5d0",
+    "videoSha256": "a1d5c20d38a5f16fd7c31e0a41593cc243b447ea9ad605beb940b8931b8be5f8",
+    "bytes": 89993,
+    "blockReason": "",
+    "template": "bench-hip-thrust",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
