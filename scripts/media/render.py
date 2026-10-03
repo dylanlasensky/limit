@@ -232,6 +232,14 @@ TEMPLATES={
  'standing-cable-hip-abduction':('standing-cable-hip','abduction'),
  'standing-cable-hip-adduction':('standing-cable-hip','adduction'),
  'band-clamshell':('band-clamshell',None),
+ 'single-leg-seated-curl':('machine-seated-leg-curl','single'),
+ 'single-leg-lying-curl':('machine-lying-leg-curl','single'),
+ 'cable-leg-curl':('cable-leg-curl',None),
+ 'nordic-hamstring-curl':('nordic-hamstring-curl',None),
+ '45-degree-back-extension':('incline-back-extension','bodyweight'),
+ 'weighted-back-extension':('incline-back-extension','weighted'),
+ 'machine-back-extension':('machine-back-extension',None),
+ 'reverse-hyperextension':('reverse-hyperextension',None),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -424,7 +432,84 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='supported-kickback':
+ if kind=='cable-leg-curl':
+  anchor=(126,426);hip=(310,312);shoulder=(299,209);head=(296,173);knee=(288,365)
+  line(d,(126,91),(126,454),FAR,6)
+  d.rounded_rectangle((110,350,142,433),4,fill=FAR,outline=INK,width=2)
+  d.ellipse((anchor[0]-10,anchor[1]-10,anchor[0]+10,anchor[1]+10),outline=INK,width=3)
+  line(d,(466,89),(466,454),FAR,6);line(d,(440,272),(466,272),INK,7)
+  limb(d,[hip,(337,380),(345,445)],BLUE,17);line(d,(345,445),(365,448),INK,8)
+  line(d,hip,shoulder,BLUE,28);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  limb(d,[shoulder,(353,256),(454,272)],INK,10)
+  foot=polar(knee,70,1.1+1.5*u)
+  if abs(math.dist(knee,foot)-70)>1e-6 or foot[1]>=443:raise ValueError('Cable curl knee or floor clearance changed')
+  limb(d,[hip,knee,foot],FAR,15)
+  line(d,anchor,foot,FAR,3)
+  d.ellipse((foot[0]-10,foot[1]-10,foot[0]+10,foot[1]+10),outline=INK,width=3)
+  d.text((45,181),'LOW PULLEY / ANKLE CUFF',font=FONTS[14],fill=MUTED)
+ elif kind=='nordic-hamstring-curl':
+  knee=(250,435);heel=(199,445);angle=-math.pi/2+1.27*u
+  hip=polar(knee,94,angle);shoulder=polar(hip,114,angle);head=polar(shoulder,32,angle)
+  d.rounded_rectangle((171,431,220,453),4,fill=FAR,outline=INK,width=2)
+  line(d,(198,453),(198,457),FAR,7)
+  if abs(math.dist(knee,hip)-94)>1e-6 or abs(math.dist(hip,shoulder)-114)>1e-6 or head[0]>497:raise ValueError('Nordic knee hinge or head clearance changed')
+  limb(d,[knee,hip,shoulder],BLUE,27);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-17,head[1]-17,head[0]+17,head[1]+17),fill=INK)
+  line(d,knee,heel,FAR,15)
+  elbow=polar(shoulder,30,1.4);hand=polar(elbow,30,1.4)
+  limb(d,[shoulder,elbow,hand],INK,9)
+  d.text((45,181),'ANKLES SECURED / KNEE HINGE',font=FONTS[14],fill=MUTED)
+ elif kind=='incline-back-extension':
+  hip=(280,285);knee=(205,350);foot=(148,410)
+  d.line((224,340,265,302),fill=FAR,width=23)
+  line(d,(238,337),(235,454),FAR,7)
+  line(d,(148,410),(148,454),FAR,8)
+  d.rounded_rectangle((121,403,165,417),4,fill=FAR)
+  limb(d,[hip,knee,foot],BLUE,17);line(d,foot,(128,414),INK,8)
+  angle=.06-.84*u
+  shoulder=polar(hip,120,angle);head=polar(shoulder,32,angle)
+  if abs(math.dist(hip,shoulder)-120)>1e-6 or angle<-.79:raise ValueError('Back extension hip hinge changed')
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-17,head[1]-17,head[0]+17,head[1]+17),fill=INK)
+  chest=polar(hip,73,angle)
+  if option=='weighted':
+   d.ellipse((chest[0]-18,chest[1]-18,chest[0]+18,chest[1]+18),fill=FAR,outline=INK,width=3)
+   d.ellipse((chest[0]-5,chest[1]-5,chest[0]+5,chest[1]+5),fill=BG)
+   limb(d,[shoulder,polar(shoulder,36,2.2),chest],INK,9)
+   d.text((45,181),'PLATE HELD AT CHEST',font=FONTS[14],fill=MUTED)
+  else:limb(d,[shoulder,polar(shoulder,35,2.2),(chest[0],chest[1]+10)],INK,9)
+  d.text((45,204),'PAD BELOW HIP CREASE / 45 DEG',font=FONTS[14],fill=MUTED)
+ elif kind=='machine-back-extension':
+  hip=(300,343);angle=-math.pi/2+.55*(1-u)
+  d.rounded_rectangle((262,348,346,363),4,fill=FAR)
+  for x in (273,335):line(d,(x,363),(x,455),FAR,6)
+  limb(d,[hip,(373,371),(412,441)],BLUE,16)
+  line(d,(412,441),(436,446),INK,8)
+  shoulder=polar(hip,112,angle);head=polar(shoulder,33,angle)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-17,head[1]-17,head[0]+17,head[1]+17),fill=INK)
+  pad=polar(hip,90,angle)
+  if abs(math.dist(hip,pad)-90)>1e-6:raise ValueError('Back extension machine lever radius changed')
+  line(d,hip,pad,FAR,6)
+  d.rounded_rectangle((pad[0]-13,pad[1]-8,pad[0]+13,pad[1]+8),4,fill=FAR,outline=INK,width=2)
+  d.ellipse((hip[0]-10,hip[1]-10,hip[0]+10,hip[1]+10),outline=INK,width=3)
+  limb(d,[shoulder,(shoulder[0]+30,shoulder[1]+45),(shoulder[0]+25,shoulder[1]+71)],INK,9)
+  d.text((45,181),'SEATED HIP PIVOT / BACK PAD',font=FONTS[14],fill=MUTED)
+ elif kind=='reverse-hyperextension':
+  hip=(310,284);shoulder=(219,284);head=(185,277)
+  d.rounded_rectangle((195,306,341,323),5,fill=FAR)
+  for x in (212,326):line(d,(x,323),(x,455),FAR,7)
+  d.rounded_rectangle((178,300,202,319),4,fill=FAR)
+  line(d,shoulder,hip,BLUE,27);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-17,head[1]-17,head[0]+17,head[1]+17),fill=INK)
+  limb(d,[shoulder,(205,319),(190,313)],INK,10)
+  angle=1.17-1.10*u
+  knee=polar(hip,77,angle);foot=polar(knee,69,angle)
+  if abs(math.dist(hip,knee)-77)>1e-6 or abs(math.dist(knee,foot)-69)>1e-6 or foot[1]>437:raise ValueError('Reverse hyper leg or clearance changed')
+  limb(d,[hip,knee,foot],BLUE,17);line(d,foot,(foot[0]+14,foot[1]+3),INK,8)
+  d.text((45,181),'PELVIS ON PAD / NO SWING',font=FONTS[14],fill=MUTED)
+ elif kind=='supported-kickback':
   # Side view: hand grip, torso, pelvis and support foot never travel. A
   # separate working leg extends back without tilting the lower back.
   hip=(336,304);shoulder=(250,278);head=(215,267)
@@ -1791,6 +1876,10 @@ def draw_pose(d,kind,option,u):
   line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,11)
   d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
   limb(d,[shoulder,(309,283),(300,333)],INK,10)
+  if option=='single':
+   limb(d,[hip,(358,325),(366,401)],FAR,13)
+   line(d,(366,401),(385,403),FAR,7)
+   d.text((45,181),'OTHER LEG RESTS / HIPS LEVEL',font=FONTS[14],fill=MUTED)
   line(d,hip,knee,BLUE,18)
   d.rounded_rectangle((333,297,385,309),4,fill=FAR,outline=INK,width=2)
   angle=1.8*u;foot=polar(knee,79,angle);roller=polar(knee,62,angle)
@@ -1810,6 +1899,10 @@ def draw_pose(d,kind,option,u):
   line(d,shoulder,hip,BLUE,24)
   d.ellipse((head[0]-18,head[1]-16,head[0]+18,head[1]+16),fill=INK)
   limb(d,[shoulder,(207,319),(226,323)],INK,10)
+  if option=='single':
+   limb(d,[hip,(389,302),(467,302)],FAR,13)
+   line(d,(467,302),(484,304),FAR,7)
+   d.text((45,181),'OTHER LEG RESTS / PELVIS LEVEL',font=FONTS[14],fill=MUTED)
   line(d,hip,knee,BLUE,18)
   angle=-1.7*u;foot=polar(knee,79,angle);roller=polar(knee,62,angle)
   if abs(math.dist(knee,foot)-79)>1e-6 or foot[1]>370:raise ValueError('Lying curl knee or clearance changed')
