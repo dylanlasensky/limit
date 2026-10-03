@@ -263,6 +263,7 @@ TEMPLATES={
  'barbell-good-morning':('barbell-hinge','good-morning'),
  'resistance-band-good-morning':('barbell-hinge','band-good-morning'),
  'dumbbell-fly':('depth-fly','flat-dumbbell'),
+ 'incline-dumbbell-fly':('depth-fly','incline-dumbbell'),
  'b-stance-romanian-deadlift':('barbell-hinge','b-stance-romanian'),
  'single-leg-dumbbell-romanian-deadlift':('barbell-hinge','single-leg-romanian'),
  'supported-single-leg-romanian-deadlift':('barbell-hinge','supported-single-leg-romanian'),
@@ -524,12 +525,20 @@ def draw_pose(d,kind,option,u):
    d.line((hand[0]-13,hand[1],hand[0]+13,hand[1]),fill=INK,width=5)
    for px in (hand[0]-12,hand[0]+12):d.rounded_rectangle((px-5,hand[1]-11,px+5,hand[1]+11),2,fill=FAR,outline=INK,width=2)
   d.rounded_rectangle((45,154,220,231),5,outline=MUTED,width=2)
-  d.text((52,161),'SIDE / HAND HEIGHT',font=FONTS[14],fill=MUTED)
-  d.line((65,209,181,209),fill=FAR,width=6)
-  d.line((76,190,171,190),fill=BLUE,width=10)
-  d.ellipse((55,178,76,199),fill=INK)
-  d.line((134,189,134,187-30*u),fill=INK,width=5)
-  d.ellipse((128,181-30*u,140,193-30*u),fill=BLUE)
+  if option=='incline-dumbbell':d.text((151,160),'INCLINE',font=FONTS[14],fill=MUTED)
+  else:d.text((52,161),'SIDE / HAND HEIGHT',font=FONTS[14],fill=MUTED)
+  if option=='incline-dumbbell':
+   d.line((66,212,181,180),fill=FAR,width=6)
+   d.line((74,199,170,172),fill=BLUE,width=9)
+   d.ellipse((55,188,76,209),fill=INK)
+   d.line((137,181,137,178-18*u),fill=INK,width=5)
+   d.ellipse((131,172-18*u,143,184-18*u),fill=BLUE)
+  else:
+   d.line((65,209,181,209),fill=FAR,width=6)
+   d.line((76,190,171,190),fill=BLUE,width=10)
+   d.ellipse((55,178,76,199),fill=INK)
+   d.line((134,189,134,187-30*u),fill=INK,width=5)
+   d.ellipse((128,181-30*u,140,193-30*u),fill=BLUE)
   d.text((47,242),'TOP VIEW',font=FONTS[14],fill=MUTED)
  elif kind=='barbell-hinge':
   # Side view with a fixed planted foot, invariant thigh/shin/torso/arm

@@ -1217,14 +1217,14 @@
   {
     "catalogKey": "incline-dumbbell-fly",
     "name": "Incline Dumbbell Fly",
-    "poster": "exercises/incline-dumbbell-fly/v183843784324379/3ac0fb148e3ae8bb12bd2d7c12f1815be611d02cfcf1189e59c98b9a2e1740bc.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/incline-dumbbell-fly/v86786875741273/34580ce82faf4236ed11d9ec11bf47cd915436a5b6bccb914d1b454874954a9a.png",
+    "source": "exercises/incline-dumbbell-fly/v86786875741273/d7dac070f0b720ed9b081fdfdbc2052adc4430e23e2e0181d95b651b7332e461.mp4",
+    "format": "mp4",
     "caption": "Keep a soft bend in your elbows and a stable rib cage. Bring your arms together in an arc; avoid forcing a deep shoulder stretch. Keep the bench at a modest incline.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 183843784324379,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 86786875741273,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -1236,15 +1236,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "3ac0fb148e3ae8bb12bd2d7c12f1815be611d02cfcf1189e59c98b9a2e1740bc",
-    "videoSha256": null,
-    "bytes": 38469,
-    "blockReason": "Incline Dumbbell Fly: current renderer lacks shoulder arc, elbow angle and bilateral or unilateral hand path; it also lacks the dumbbell grip, position and changing load path. This variation requires \"Keep the bench at a modest incline\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "34580ce82faf4236ed11d9ec11bf47cd915436a5b6bccb914d1b454874954a9a",
+    "videoSha256": "d7dac070f0b720ed9b081fdfdbc2052adc4430e23e2e0181d95b651b7332e461",
+    "bytes": 87011,
+    "blockReason": "",
+    "template": "depth-fly",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
