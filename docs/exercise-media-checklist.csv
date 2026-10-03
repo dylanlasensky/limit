@@ -19,8 +19,8 @@ plate-loaded-chest-press,Plate-Loaded Chest Press,Machine,technical,Original LIM
 single-arm-machine-chest-press,Single-Arm Machine Chest Press,Machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
 smith-machine-bench-press,Smith Machine Bench Press,Smith machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
 smith-machine-incline-press,Smith Machine Incline Press,Smith machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
-standing-cable-chest-press,Standing Cable Chest Press,Cable,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Standing Cable Chest Press: current renderer lacks shoulder support, grip width, elbow track and load path through the press; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires ""Use a staggered stance and resist arching your lower back"". Add exact setup and phase-specific joint/support constraints before generating a video."
-single-arm-cable-chest-press,Single-Arm Cable Chest Press,Cable,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Single-Arm Cable Chest Press: current renderer lacks shoulder support, grip width, elbow track and load path through the press; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires ""Keep your ribs stacked over your pelvis; log each side"". Add exact setup and phase-specific joint/support constraints before generating a video."
+standing-cable-chest-press,Standing Cable Chest Press,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
+single-arm-cable-chest-press,Single-Arm Cable Chest Press,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 resistance-band-chest-press,Resistance Band Chest Press,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,
 push-up,Push-Up,Bodyweight,technical,Original LIMIT-generated schematic; no third-party footage,,,
 incline-push-up,Incline Push-Up,Bench,technical,Original LIMIT-generated schematic; no third-party footage,,,
@@ -118,8 +118,8 @@ reverse-pec-deck,Reverse Pec Deck,Machine,blocked,Original LIMIT-generated schem
 cable-reverse-fly,Cable Reverse Fly,Cable,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Cable Reverse Fly: current renderer lacks supported trunk angle and shoulder horizontal-abduction arc; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires ""Cross the handles and use a light load"". Add exact setup and phase-specific joint/support constraints before generating a video."
 single-arm-cable-rear-delt-fly,Single-Arm Cable Rear Delt Fly,Cable,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Single-Arm Cable Rear Delt Fly: current renderer lacks supported trunk angle and shoulder horizontal-abduction arc; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires ""Keep your torso square; log each side"". Add exact setup and phase-specific joint/support constraints before generating a video."
 resistance-band-pull-apart,Resistance Band Pull-Apart,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,
-cable-face-pull,Cable Face Pull,Cable,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Cable Face Pull: current renderer lacks elbow flare, shoulder rotation and hands reaching face level; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires ""Keep the rope clear of your face"". Add exact setup and phase-specific joint/support constraints before generating a video."
-resistance-band-face-pull,Resistance Band Face Pull,Resistance band,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Resistance Band Face Pull: current renderer lacks elbow flare, shoulder rotation and hands reaching face level; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires ""Secure the band at around face height"". Add exact setup and phase-specific joint/support constraints before generating a video."
+cable-face-pull,Cable Face Pull,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
+resistance-band-face-pull,Resistance Band Face Pull,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,
 barbell-shrug,Barbell Shrug,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 dumbbell-shrug,Dumbbell Shrug,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 trap-bar-shrug,Trap Bar Shrug,Trap bar,technical,Original LIMIT-generated schematic; no third-party footage,,,
@@ -147,7 +147,7 @@ cable-curl,Cable Curl,Cable,technical,Original LIMIT-generated schematic; no thi
 rope-hammer-curl,Rope Hammer Curl,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 single-arm-cable-curl,Single-Arm Cable Curl,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 bayesian-cable-curl,Bayesian Cable Curl,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
-high-cable-curl,High Cable Curl,Cable,blocked,Original LIMIT-generated schematic; no third-party footage,,,"High Cable Curl: current renderer lacks fixed or supported upper arm, elbow hinge and full load path; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires ""Keep your upper arms stable at a comfortable height"". Add exact setup and phase-specific joint/support constraints before generating a video."
+high-cable-curl,High Cable Curl,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 spider-curl,Spider Curl,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 ez-bar-spider-curl,EZ-Bar Spider Curl,EZ bar,technical,Original LIMIT-generated schematic; no third-party footage,,,
 zottman-curl,Zottman Curl,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
@@ -162,14 +162,14 @@ reverse-grip-triceps-pushdown,Reverse-Grip Triceps Pushdown,Cable,technical,Orig
 single-arm-cable-pushdown,Single-Arm Cable Pushdown,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 overhead-cable-triceps-extension,Overhead Cable Triceps Extension,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 single-arm-overhead-cable-extension,Single-Arm Overhead Cable Extension,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
-cross-body-cable-triceps-extension,Cross-Body Cable Triceps Extension,Cable,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Cross-Body Cable Triceps Extension: current renderer lacks fixed upper arm, elbow hinge and full load path; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires ""Move from the elbow without pulling your shoulder forward"". Add exact setup and phase-specific joint/support constraints before generating a video."
+cross-body-cable-triceps-extension,Cross-Body Cable Triceps Extension,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 dumbbell-overhead-triceps-extension,Dumbbell Overhead Triceps Extension,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 single-arm-dumbbell-triceps-extension,Single-Arm Dumbbell Triceps Extension,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 dumbbell-skull-crusher,Dumbbell Skull Crusher,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
-ez-bar-skull-crusher,EZ-Bar Skull Crusher,EZ bar,blocked,Original LIMIT-generated schematic; no third-party footage,,,"EZ-Bar Skull Crusher: current renderer lacks fixed upper arm, elbow hinge and full load path; it also lacks the angled bar grip and visible plates. This variation requires ""Use a controlled path and a spotter when needed"". Add exact setup and phase-specific joint/support constraints before generating a video."
+ez-bar-skull-crusher,EZ-Bar Skull Crusher,EZ bar,technical,Original LIMIT-generated schematic; no third-party footage,,,
 dumbbell-triceps-kickback,Dumbbell Triceps Kickback,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 cable-triceps-kickback,Cable Triceps Kickback,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
-machine-triceps-extension,Machine Triceps Extension,Machine,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Machine Triceps Extension: current renderer lacks fixed upper arm, elbow hinge and full load path; it also lacks the actual seat, pads, lever or sled and safe contact points. This variation requires ""Align your elbows with the machine pivot"". Add exact setup and phase-specific joint/support constraints before generating a video."
+machine-triceps-extension,Machine Triceps Extension,Machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
 resistance-band-triceps-pushdown,Resistance Band Triceps Pushdown,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,
 resistance-band-overhead-triceps-extension,Resistance Band Overhead Triceps Extension,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,
 dumbbell-wrist-curl,Dumbbell Wrist Curl,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,

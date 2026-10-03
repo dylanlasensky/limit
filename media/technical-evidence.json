@@ -260,6 +260,32 @@
     "audio": false
   },
   {
+    "catalogKey": "standing-cable-chest-press",
+    "videoSha256": "01730e7915c1ce1e3d3ce0b8333e697da8707661f407dcd8d5f1bd832ba53299",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "single-arm-cable-chest-press",
+    "videoSha256": "d6a2abe1d667526f2b77d823ab6a9751fd5e898816d001e4c5a129187978b6d6",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "resistance-band-chest-press",
     "videoSha256": "83680bec411a1dfed3088534a2a6d59e6ed5ae6487d30715952e0ac4e0f36bb2",
     "duration": 8,
@@ -1170,6 +1196,32 @@
     "audio": false
   },
   {
+    "catalogKey": "cable-face-pull",
+    "videoSha256": "f73ac9d6f37b9ae5bcc841a110e3835c6fd866fc599aa46c0c408a4e7fdb8dc5",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "resistance-band-face-pull",
+    "videoSha256": "9dad9015e2ba21411806d9119dfcfc489a01c67b652e7012f63ab4ff27f1a55d",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "barbell-shrug",
     "videoSha256": "cc0954ca76621320f75fe83913bf63bcc5ba738f20ed6d519a177b1cea69fdc8",
     "duration": 8,
@@ -1521,6 +1573,19 @@
     "audio": false
   },
   {
+    "catalogKey": "high-cable-curl",
+    "videoSha256": "fa72ef8836634ad6b0ef402236ee5d6a5e1f15b4363da3325edc365fa8b3eabc",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "spider-curl",
     "videoSha256": "f0f69c97c6af5935664e72bc1fd0f54711863b6b04ebd4d883e39191d1fb5a56",
     "duration": 8,
@@ -1703,6 +1768,19 @@
     "audio": false
   },
   {
+    "catalogKey": "cross-body-cable-triceps-extension",
+    "videoSha256": "5e2aa18fe188ae5b3acff626524cd72e257cca049dbbd4665a83b21f9b96795d",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-overhead-triceps-extension",
     "videoSha256": "b02020b27b846877bd8fb38282f429622b68be4b370ecb13e7a2f6604523ac54",
     "duration": 8,
@@ -1742,6 +1820,19 @@
     "audio": false
   },
   {
+    "catalogKey": "ez-bar-skull-crusher",
+    "videoSha256": "5c3aadf94affbcc86bddd024ad4b57e524337569315647437a581554e9c17f55",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-triceps-kickback",
     "videoSha256": "5c6622545ec845b803800f133e68669bfa0fd6f986c1eaeea69d4ad4cc2984a5",
     "duration": 8,
@@ -1757,6 +1848,19 @@
   {
     "catalogKey": "cable-triceps-kickback",
     "videoSha256": "58cc498be7ff0e04daa4f2664e0260c5a126f93ed73b842f2fc127e1130064bf",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "machine-triceps-extension",
+    "videoSha256": "3a981349590be4d7eacf004d337107637269217c0ede926c4ed6cf9ef13a84ac",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",

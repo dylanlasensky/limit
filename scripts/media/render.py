@@ -240,6 +240,14 @@ TEMPLATES={
  'weighted-back-extension':('incline-back-extension','weighted'),
  'machine-back-extension':('machine-back-extension',None),
  'reverse-hyperextension':('reverse-hyperextension',None),
+ 'ez-bar-skull-crusher':('skull-crusher','ez'),
+ 'machine-triceps-extension':('machine-triceps-extension',None),
+ 'high-cable-curl':('high-cable-curl',None),
+ 'cross-body-cable-triceps-extension':('cross-body-cable-triceps',None),
+ 'standing-cable-chest-press':('cable-chest-press','bilateral'),
+ 'single-arm-cable-chest-press':('cable-chest-press','single'),
+ 'cable-face-pull':('anchored-face-pull','cable'),
+ 'resistance-band-face-pull':('anchored-face-pull','band'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -432,7 +440,105 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='cable-leg-curl':
+ if kind=='machine-triceps-extension':
+  hip=(287,335);shoulder=(281,215);head=(279,176);elbow=(354,273)
+  d.rounded_rectangle((247,342,332,357),4,fill=FAR)
+  for x in (259,320):line(d,(x,357),(x,455),FAR,6)
+  line(d,(251,221),(251,341),FAR,12)
+  limb(d,[hip,(335,391),(356,445)],BLUE,16);line(d,(356,445),(378,448),INK,8)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  d.rounded_rectangle((305,273,369,287),4,fill=FAR)
+  hand=polar(elbow,70,-2.1+2.9*u)
+  if abs(math.dist(elbow,hand)-70)>1e-6:raise ValueError('Triceps machine lever radius changed')
+  limb(d,[shoulder,elbow,hand],INK,11)
+  d.ellipse((elbow[0]-10,elbow[1]-10,elbow[0]+10,elbow[1]+10),fill=FAR,outline=INK,width=3)
+  d.rounded_rectangle((hand[0]-13,hand[1]-6,hand[0]+13,hand[1]+6),3,fill=FAR,outline=INK,width=2)
+  d.rounded_rectangle((452,348,486,419),4,fill=FAR,outline=INK,width=2)
+  line(d,(365,273),(459,378),FAR,3)
+  d.text((45,181),'ELBOW ALIGNED / MACHINE LEVER',font=FONTS[14],fill=MUTED)
+ elif kind=='high-cable-curl':
+  hip=(300,333);shoulder=(300,213);head=(300,173)
+  for side in (-1,1):
+   tower=95 if side<0 else 485
+   line(d,(tower,89),(tower,454),FAR,6)
+   d.rounded_rectangle((tower-15,350,tower+15,422),4,fill=FAR,outline=INK,width=2)
+   limb(d,[hip,(300+side*35,389),(300+side*55,445)],BLUE,16)
+   line(d,(300+side*55,445),(300+side*74,448),INK,8)
+  line(d,hip,shoulder,BLUE,29);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  for side in (-1,1):
+   start=(300+side*31,213);elbow=(300+side*82,226)
+   theta=(math.pi+(math.pi-.38)*u) if side<0 else (-(math.pi-.38)*u)
+   hand=polar(elbow,65,theta)
+   if abs(math.dist(elbow,hand)-65)>1e-6 or math.dist(hand,head)<31:raise ValueError('High curl elbow or head clearance changed')
+   line(d,(95 if side<0 else 485,146),hand,FAR,3)
+   limb(d,[start,elbow,hand],INK if side>0 else FAR,11)
+   d.rounded_rectangle((hand[0]-8,hand[1]-6,hand[0]+8,hand[1]+6),3,fill=FAR,outline=INK,width=2)
+  d.text((45,181),'TWO HIGH PULLEYS / ELBOWS FIXED',font=FONTS[14],fill=MUTED)
+ elif kind=='cross-body-cable-triceps':
+  hip=(300,333);shoulder=(300,211);head=(300,173);elbow=(344,238)
+  line(d,(107,93),(107,454),FAR,6)
+  d.rounded_rectangle((92,353,122,422),4,fill=FAR,outline=INK,width=2)
+  anchor=(107,238);d.ellipse((98,229,116,247),outline=INK,width=3)
+  for side in (-1,1):
+   limb(d,[hip,(300+side*32,389),(300+side*55,445)],BLUE,16)
+   line(d,(300+side*55,445),(300+side*74,448),INK,8)
+  line(d,hip,shoulder,BLUE,29);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  limb(d,[shoulder,(283,278),(279,338)],FAR,10)
+  hand=polar(elbow,70,2.8-2.3*u)
+  if abs(math.dist(elbow,hand)-70)>1e-6 or hand[1]<230:raise ValueError('Cross-body extension elbow path changed')
+  line(d,anchor,hand,FAR,3)
+  limb(d,[shoulder,elbow,hand],INK,11)
+  d.rounded_rectangle((hand[0]-9,hand[1]-6,hand[0]+9,hand[1]+6),3,fill=FAR,outline=INK,width=2)
+  d.text((45,181),'SINGLE ARM / ACROSS TORSO',font=FONTS[14],fill=MUTED)
+ elif kind=='cable-chest-press':
+  hip=(300,334);shoulder=(300,212);head=(297,174)
+  line(d,(125,88),(125,454),FAR,6)
+  d.rounded_rectangle((108,354,141,423),4,fill=FAR,outline=INK,width=2)
+  anchors=((145,236),(145,266))
+  for anchor in anchors:d.ellipse((anchor[0]-7,anchor[1]-7,anchor[0]+7,anchor[1]+7),outline=INK,width=2)
+  limb(d,[hip,(277,388),(264,445)],FAR,16);line(d,(264,445),(244,448),INK,8)
+  limb(d,[hip,(333,388),(351,445)],BLUE,17);line(d,(351,445),(373,448),INK,8)
+  line(d,hip,shoulder,BLUE,28);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  if option=='single':limb(d,[shoulder,(283,282),(282,344)],FAR,10)
+  for offset,color,anchor in (((9,INK,anchors[1]),) if option=='single' else ((-9,FAR,anchors[0]),(9,INK,anchors[1]))):
+   start=(shoulder[0]+offset,shoulder[1]);hand=(335+96*u+offset,254)
+   elbow=ik(start,hand,75,68,side=-1)
+   if abs(math.dist(start,elbow)-75)>1e-6 or abs(math.dist(elbow,hand)-68)>1e-6 or hand[0]>449:raise ValueError('Cable chest press arm path changed')
+   line(d,anchor,hand,FAR,3)
+   limb(d,[start,elbow,hand],color,11)
+   d.rounded_rectangle((hand[0]-8,hand[1]-6,hand[0]+8,hand[1]+6),3,fill=FAR,outline=INK,width=2)
+  d.text((45,181),'STAGGERED STANCE / TWO CABLES' if option!='single' else 'ONE CABLE / RIBS STACKED',font=FONTS[14],fill=MUTED)
+ elif kind=='anchored-face-pull':
+  # Frontal projection: fixed chest and pelvis, elbows stay wide as rope
+  # ends separate beside the face. Cable/band source remains at face height.
+  hip=(300,334);shoulder=(300,214);head=(300,174)
+  anchor=(99,186)
+  line(d,(99,90),(99,453),FAR,6)
+  if option=='cable':
+   d.rounded_rectangle((84,355,114,421),4,fill=FAR,outline=INK,width=2)
+   d.ellipse((90,177,108,195),outline=INK,width=3)
+  else:
+   line(d,(99,161),(99,211),FAR,7)
+  for side in (-1,1):
+   limb(d,[hip,(300+side*34,391),(300+side*55,445)],BLUE,16)
+   line(d,(300+side*55,445),(300+side*74,448),INK,8)
+  line(d,hip,shoulder,BLUE,29);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  split=(213+28*u,190)
+  line(d,anchor,split,FAR if option=='cable' else BLUE,3)
+  for side in (-1,1):
+   start=(300+side*30,214);elbow=(300+side*79,203)
+   hand=(300+side*(110-60*u),197-9*u)
+   if math.dist(hand,head)<38 or abs(elbow[0]-300)<abs(hand[0]-300) and u>.7:raise ValueError('Face pull hand crossed face or elbow')
+   limb(d,[start,elbow,hand],INK if side>0 else FAR,10)
+   line(d,split,hand,FAR if option=='cable' else BLUE,3)
+   d.rounded_rectangle((hand[0]-7,hand[1]-5,hand[0]+7,hand[1]+5),3,fill=FAR,outline=INK,width=2)
+  d.text((45,246),'FRONT / ELBOWS OUT / FACE CLEAR',font=FONTS[14],fill=MUTED)
+ elif kind=='cable-leg-curl':
   anchor=(126,426);hip=(310,312);shoulder=(299,209);head=(296,173);knee=(288,365)
   line(d,(126,91),(126,454),FAR,6)
   d.rounded_rectangle((110,350,142,433),4,fill=FAR,outline=INK,width=2)
@@ -2832,13 +2938,19 @@ def draw_pose(d,kind,option,u):
   d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
   limb(d,[hip,(358,318),(396,347)],BLUE,16)
   line(d,(396,347),(421,352),INK,9)
+  hands=[]
   for offset,color in ((-13,FAR),(13,INK)):
    elbow=(290+offset,263);arm_start=(shoulder[0]+offset,shoulder[1])
    angle=2.85-u*4.25
    hand=polar(elbow,72,angle)
    if abs(math.dist(elbow,hand)-72)>1e-6 or math.dist(hand,head)<46:raise ValueError('Skull crusher face clearance changed')
    limb(d,[arm_start,elbow,hand],color,11)
-   weight(d,hand,hammer=True)
+   hands.append(hand)
+   if option!='ez':weight(d,hand,hammer=True)
+  if option=='ez':
+   center=((hands[0][0]+hands[1][0])/2,(hands[0][1]+hands[1][1])/2)
+   draw_curl_bar(d,center,True)
+   draw_curl_grip_inset(d,True,False,upper=True)
  elif kind in ('triceps-kickback','cable-triceps-kickback'):
   # One hand braces on a stable bench and one foot remains planted. The
   # loaded upper arm stays alongside the trunk; only the elbow extends.
@@ -3269,6 +3381,7 @@ for e in catalog:
   record['angle']='unspecified'
  if key=='single-arm-cable-lateral-raise':record['angle']='front'
  if key in ('seated-hip-abduction','seated-hip-adduction','standing-cable-hip-abduction','standing-cable-hip-adduction'):record['angle']='front'
+ if key in ('high-cable-curl','cross-body-cable-triceps-extension','cable-face-pull','resistance-band-face-pull'):record['angle']='front'
  if key=='band-clamshell':record['angle']='unspecified'
  old=previous.get(key,{})
  if complete and old.get('videoSha256')==record['videoSha256'] and old.get('posterSha256')==record['posterSha256'] and old.get('reviewStatus') in ['approved','draft']:
