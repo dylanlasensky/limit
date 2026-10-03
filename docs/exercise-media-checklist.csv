@@ -265,7 +265,7 @@ glute-ham-raise,Glute-Ham Raise,GHD,blocked,Original LIMIT-generated schematic; 
 barbell-hip-thrust,Barbell Hip Thrust,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 dumbbell-hip-thrust,Dumbbell Hip Thrust,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 smith-machine-hip-thrust,Smith Machine Hip Thrust,Smith machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
-machine-hip-thrust,Machine Hip Thrust,Machine,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Machine Hip Thrust: current renderer lacks secure shoulder or floor contact, the working foot contact and a hip-driven ascent and return; it also lacks the actual seat, pads, lever or sled and safe contact points. This variation requires ""Secure the belt or pad before starting"". Add exact setup and phase-specific joint/support constraints before generating a video."
+machine-hip-thrust,Machine Hip Thrust,Machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
 single-leg-hip-thrust,Single-Leg Hip Thrust,Bench,technical,Original LIMIT-generated schematic; no third-party footage,,,
 glute-bridge,Glute Bridge,Bodyweight,technical,Original LIMIT-generated schematic; no third-party footage,,,
 barbell-glute-bridge,Barbell Glute Bridge,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,

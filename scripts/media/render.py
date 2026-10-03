@@ -294,6 +294,7 @@ TEMPLATES={
  'barbell-hip-thrust':('bench-hip-thrust','barbell'),
  'single-leg-hip-thrust':('bench-hip-thrust','single-leg'),
  'smith-machine-hip-thrust':('bench-hip-thrust','smith'),
+ 'machine-hip-thrust':('bench-hip-thrust','machine'),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
  'incline-push-up':('push-up','incline-bench'),
@@ -3858,6 +3859,10 @@ def draw_pose(d,kind,option,u):
    for rx in (211,441):
     d.line((rx,88,rx,457),fill=FAR,width=7)
     for stop_y in (280,372):d.line((rx-9,stop_y,rx+9,stop_y),fill=INK,width=3)
+  if option=='machine':
+   d.rounded_rectangle((411,451,484,461),3,fill=FAR,outline=INK,width=2)
+   d.line((132,389,132,457),fill=FAR,width=8)
+   d.line((132,389,207,315),fill=FAR,width=8)
   d.rounded_rectangle((130,320,235,338),5,fill=FAR)
   for x in (149,218):d.line((x,338,x,460),fill=FAR,width=8)
   shoulder=(208,315);foot=(435,444)
@@ -3874,6 +3879,20 @@ def draw_pose(d,kind,option,u):
   limb(d,[hip,knee,foot],BLUE,18)
   line(d,foot,(467,447),INK,10)
   body(d,hip,shoulder,(170,295))
+  if option=='machine':
+   # A rigid lever shares the fixed upper-back pivot and follows the hip arc;
+   # the broad pad is attached at the pelvis rather than a bar in the hands.
+   pivot=(208,344)
+   lever_end=(hip[0],hip[1]+29)
+   if abs(math.dist(pivot,lever_end)-128)>1e-6 or foot!=(435,444):raise ValueError('Hip-thrust machine lever or foot plate changed')
+   d.line((*pivot,*lever_end),fill=FAR,width=8)
+   d.line((lever_end[0],lever_end[1],hip[0],hip[1]+12),fill=FAR,width=7)
+   d.ellipse((pivot[0]-11,pivot[1]-11,pivot[0]+11,pivot[1]+11),fill=FAR,outline=INK,width=3)
+   d.rounded_rectangle((hip[0]-22,hip[1]-13,hip[0]+22,hip[1]+13),6,fill=FAR,outline=INK,width=3)
+   d.line((hip[0]-17,hip[1]-4,hip[0]+17,hip[1]-4),fill=BLUE,width=5)
+   limb(d,[shoulder,(238,343),(262,343)],INK,9)
+   d.rounded_rectangle((255,337,272,349),3,fill=INK)
+   d.text((45,187),'FIXED PIVOT / HIP PAD',font=FONTS[14],fill=MUTED)
   if option=='single-leg':
    limb(d,[shoulder,(238,341),(265,342)],INK,10)
    d.rounded_rectangle((45,185,216,258),5,fill=BG,outline=FAR,width=2)
@@ -3882,7 +3901,7 @@ def draw_pose(d,kind,option,u):
    d.line((105,222,105,244),fill=BLUE,width=9)
    d.line((157,222,167,238),fill=FAR,width=8)
    d.line((167,238,182,233),fill=FAR,width=7)
-  else:
+  elif option!='machine':
    load=(336 if option=='smith' else hip[0],hip[1]-22)
    elbow=ik(shoulder,load,82,77,side=-1)
    hand=load
@@ -3909,7 +3928,7 @@ def draw_pose(d,kind,option,u):
    if load[0]!=336 or not 280<=bar_y<=372 or abs(load[0]-hip[0])>12:raise ValueError('Smith hip thrust guided bar lost pad contact')
    d.text((45,186),'GUIDED BAR / SAFETY STOPS',font=FONTS[14],fill=MUTED)
   elif option=='dumbbell':weight(d,load)
-  if option!='single-leg':
+  if option in ('barbell','dumbbell','smith'):
    # Draw the near gripping hand last so the load cannot hide its contact.
    d.rounded_rectangle((hand[0]-6,hand[1]-5,hand[0]+6,hand[1]+5),3,fill=INK,outline=BG,width=1)
  elif kind=='bridge':

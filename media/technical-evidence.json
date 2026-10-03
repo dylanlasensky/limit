@@ -3250,6 +3250,19 @@
     "audio": false
   },
   {
+    "catalogKey": "machine-hip-thrust",
+    "videoSha256": "d6724f43df263108ed4591a1cb1314c32c9517baff7ae185eea48c70a1d0914b",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "single-leg-hip-thrust",
     "videoSha256": "51dc657beea0d4372f552848dd91a6e3f0195d01cdca95e5bdb5aa5427897002",
     "duration": 8,
