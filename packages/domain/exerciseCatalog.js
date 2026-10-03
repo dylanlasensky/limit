@@ -134,6 +134,11 @@ Weighted Chin-Up|Pull-up bar|A||Use a secure belt or vest and controlled repetit
 Scapular Pull-Up|Pull-up bar|I|Scap Pull-Up|Keep your elbows straight and use a small shoulder-blade motion.
 `
 );
+groups.find((entry) => entry.catalogKey === "scapular-pull-up").instructions = [
+  "Hold a secure overhead bar with straight elbows and let your shoulder blades rise naturally at the bottom.",
+  "Draw your shoulder blades down to lift your torso a small amount without bending your elbows or swinging.",
+  "Lower under control to the hanging start while keeping your grip and feet clear of the floor.",
+];
 group(
   "Upper back",
   ["Lats", "Biceps", "Rear delts"],

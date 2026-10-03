@@ -2051,29 +2051,29 @@
   {
     "catalogKey": "scapular-pull-up",
     "name": "Scapular Pull-Up",
-    "poster": "exercises/scapular-pull-up/v89675192298992/739e7707659e62840c56cab3443962428bc0f649dfe9a1716df89374a81dde86.png",
-    "source": "exercises/scapular-pull-up/v89675192298992/d38dcc7b768a221de394b37f9b4ec0a863d5cf17d850a5d349fd89dc24ae05ab.mp4",
+    "poster": "exercises/scapular-pull-up/v179248859142449/63cb374b2a648012d655a32772cbd3685d7a1730cd34e5490531faea014b986c.png",
+    "source": "exercises/scapular-pull-up/v179248859142449/292d941cbc343492e17bcf8ccf46020593d29999d3494aa77ebaf93d40ee6796.mp4",
     "format": "mp4",
-    "caption": "Set your grip and let your shoulder blades move naturally as you reach. Draw your elbows toward your sides without swinging or pulling behind your neck. Keep your elbows straight and use a small shoulder-blade motion.",
+    "caption": "Hold a secure overhead bar with straight elbows and let your shoulder blades rise naturally at the bottom. Draw your shoulder blades down to lift your torso a small amount without bending your elbows or swinging. Lower under control to the hanging start while keeping your grip and feet clear of the floor.",
     "angle": "front",
     "duration": 8,
-    "version": 89675192298992,
+    "version": 179248859142449,
     "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
-      "Set your grip and let your shoulder blades move naturally as you reach.",
-      "Draw your elbows toward your sides without swinging or pulling behind your neck.",
-      "Keep your elbows straight and use a small shoulder-blade motion."
+      "Hold a secure overhead bar with straight elbows and let your shoulder blades rise naturally at the bottom.",
+      "Draw your shoulder blades down to lift your torso a small amount without bending your elbows or swinging.",
+      "Lower under control to the hanging start while keeping your grip and feet clear of the floor."
     ],
     "license": "Original LIMIT-generated schematic; no third-party footage",
     "generated": true,
     "width": 960,
     "height": 540,
     "fps": 24,
-    "posterSha256": "739e7707659e62840c56cab3443962428bc0f649dfe9a1716df89374a81dde86",
-    "videoSha256": "d38dcc7b768a221de394b37f9b4ec0a863d5cf17d850a5d349fd89dc24ae05ab",
-    "bytes": 91647,
+    "posterSha256": "63cb374b2a648012d655a32772cbd3685d7a1730cd34e5490531faea014b986c",
+    "videoSha256": "292d941cbc343492e17bcf8ccf46020593d29999d3494aa77ebaf93d40ee6796",
+    "bytes": 96994,
     "blockReason": "",
     "template": "scapular-pull",
     "technicalChecks": [
@@ -7988,7 +7988,7 @@
     "videoSha256": null,
     "bytes": 41327,
     "blockReason": "Walking Dumbbell Lunge: current renderer lacks each foot or box contact, pelvis level and the specified step or descent direction; it also lacks the dumbbell grip, position and changing load path. This variation requires \"Use a clear walking lane and count each leg separately\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "template": "walking-lunge",
     "technicalChecks": [
       "exact-catalog-key",
       "written-fallback"
