@@ -2,6 +2,18 @@
 
 Snapshot from `media/manifest.json` at 326 technical videos, 39 blocked variants and zero human fitness approvals. These are exact-key engineering gaps. Written movement instructions remain available. A block reason is not a failed human fitness review.
 
+All 39 remaining keys require phase-specific dynamic motion that this renderer does not yet represent reliably. The exact-key table below adds the apparatus and contact gap for each. Groups are exhaustive:
+
+| Primary dynamic gap | Exact keys | Additional unresolved setup |
+| --- | --- | --- |
+| Explosive pull, extension and reset (6) | `clean-pull`, `hang-clean-pull`, `clean-high-pull`, `snatch-pull`, `hang-snatch-pull`, `jump-shrug` | Bar, plates, grip and floor/hang contact |
+| Ballistic swing and reset (2) | `kettlebell-swing`, `single-arm-kettlebell-swing` | Bell handle, load path and hand contact |
+| Explosive pull, turnover and catch (10) | `power-clean`, `hang-power-clean`, `hang-clean`, `clean`, `power-snatch`, `hang-power-snatch`, `snatch`, `dumbbell-power-snatch`, `kettlebell-clean`, `kettlebell-snatch` | Exact implement grip, rack/overhead catch and floor/hang contact |
+| Leg drive, overhead transfer and reset (5) | `barbell-push-press`, `dumbbell-push-press`, `push-jerk`, `split-jerk`, `landmine-push-press` | Load path, grip, landing stance and landmine pivot where applicable |
+| Takeoff or drop, unsupported flight and landing (10) | `box-jump`, `countermovement-jump`, `squat-jump`, `broad-jump`, `lateral-bound`, `split-squat-jump`, `pogo-jump`, `single-leg-hop`, `depth-drop`, `depth-jump` | Box surfaces where applicable and exact foot/floor contacts |
+| Release, projectile flight and safe reset (5) | `medicine-ball-rotational-throw`, `medicine-ball-scoop-toss`, `medicine-ball-overhead-slam`, `medicine-ball-overhead-throw`, `medicine-ball-chest-pass` | Grasped ball, release, wall/partner or floor impact as applicable |
+| Hand takeoff, unsupported flight and landing (1) | `plyometric-push-up` | Bilateral hand/floor contact |
+
 | Exact key | Current blocking reason |
 | --- | --- |
 | `clean-pull` | Clean Pull: current renderer lacks floor or hang start, bar acceleration, extension and controlled reset; it also lacks a bar with visible plates, hand placement and rack or floor contact. This variation requires "This is a pull without a catch; do not turn it into an arm curl". Add exact setup and phase-specific joint/support constraints before generating a video. |
