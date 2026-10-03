@@ -676,6 +676,19 @@
     "audio": false
   },
   {
+    "catalogKey": "cossack-squat",
+    "videoSha256": "5c6513548b6265cc61d1dc13c8aace8bb34bdf0578a04a28bcb8d92ea079bda8",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-step-up",
     "videoSha256": "56cfa566ef98619499d04037a1612904501772a8643adae45b1604411193e726",
     "duration": 8,

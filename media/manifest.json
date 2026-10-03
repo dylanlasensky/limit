@@ -7616,14 +7616,14 @@
   {
     "catalogKey": "cossack-squat",
     "name": "Cossack Squat",
-    "poster": "exercises/cossack-squat/v199783159837347/aeeb19b5eaaa818a240b73c98079590d3ab24eb7a952bc4a675aaf10233acbff.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/cossack-squat/v54973052061156/838d4a0acecf64d3a48766eef7750c6ba2407d521cab7ce28c89aa0ae87add49.png",
+    "source": "exercises/cossack-squat/v54973052061156/5c6513548b6265cc61d1dc13c8aace8bb34bdf0578a04a28bcb8d92ea079bda8.mp4",
+    "format": "mp4",
     "caption": "Keep your working foot stable and your pelvis level. Lower with control and drive through the working leg; count repetitions per side. Use support if needed and avoid forcing depth.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 199783159837347,
-    "reviewStatus": "blocked",
+    "angle": "front",
+    "duration": 8,
+    "version": 54973052061156,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "coaching-recommended",
     "textFallback": [
@@ -7635,15 +7635,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "aeeb19b5eaaa818a240b73c98079590d3ab24eb7a952bc4a675aaf10233acbff",
-    "videoSha256": null,
-    "bytes": 40455,
-    "blockReason": "Cossack Squat: current renderer lacks each foot or box contact, pelvis level and the specified step or descent direction; it also lacks the required hand, foot or floor supports. This variation requires \"Use support if needed and avoid forcing depth\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "838d4a0acecf64d3a48766eef7750c6ba2407d521cab7ce28c89aa0ae87add49",
+    "videoSha256": "5c6513548b6265cc61d1dc13c8aace8bb34bdf0578a04a28bcb8d92ea079bda8",
+    "bytes": 92733,
+    "blockReason": "",
+    "template": "cossack-squat",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
