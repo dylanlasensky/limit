@@ -8198,14 +8198,14 @@
   {
     "catalogKey": "barbell-step-up",
     "name": "Barbell Step-Up",
-    "poster": "exercises/barbell-step-up/v202230930474525/eb79e4d503fb4fe42064fca0d15ad9deb6add7aa30e95bcb92e673e2ee47332c.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/barbell-step-up/v238593391010576/10946d1dd1aa9b5cc5a7f648c2112f9259bd2c3f17281d3788c140cfcdaed1c4.png",
+    "source": "exercises/barbell-step-up/v238593391010576/ed31b58eabea3bc02f9159ccfe69aa526612a9beb1c6e30b2cb972141abc9974.mp4",
+    "format": "mp4",
     "caption": "Keep your working foot stable and your pelvis level. Lower with control and drive through the working leg; count repetitions per side. Use a stable box and a safe setup for the bar.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 202230930474525,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 238593391010576,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "coaching-recommended",
     "textFallback": [
@@ -8217,15 +8217,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "eb79e4d503fb4fe42064fca0d15ad9deb6add7aa30e95bcb92e673e2ee47332c",
-    "videoSha256": null,
-    "bytes": 39036,
-    "blockReason": "Barbell Step-Up: current renderer lacks each foot or box contact, pelvis level and the specified step or descent direction; it also lacks a bar with visible plates, hand placement and rack or floor contact. This variation requires \"Use a stable box and a safe setup for the bar\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "10946d1dd1aa9b5cc5a7f648c2112f9259bd2c3f17281d3788c140cfcdaed1c4",
+    "videoSha256": "ed31b58eabea3bc02f9159ccfe69aa526612a9beb1c6e30b2cb972141abc9974",
+    "bytes": 97849,
+    "blockReason": "",
+    "template": "step-up",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

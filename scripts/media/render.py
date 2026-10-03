@@ -306,6 +306,7 @@ TEMPLATES={
  'dumbbell-forward-lunge':('forward-lunge','dumbbell'),
  'bodyweight-step-up':('step-up','bodyweight'),
  'dumbbell-step-up':('step-up','dumbbell'),
+ 'barbell-step-up':('step-up','barbell'),
 }
 BLOCK_REASONS={
  'single-arm-landmine-press':'the fixed-pivot press trial folds the elbow behind the torso at the chest start; a coupled bar/shoulder/forearm rig is still needed',
@@ -3630,11 +3631,24 @@ def draw_pose(d,kind,option,u):
   line(d,trail_ankle,(trail_ankle[0]+24,trail_ankle[1]+2),INK,9)
   shoulder=(hip[0]-6,hip[1]-90);head=(shoulder[0],shoulder[1]-27)
   body(d,hip,shoulder,head)
-  for offset,color in ((-35,FAR),(35,INK)):
-   elbow=(shoulder[0]+offset,shoulder[1]+61)
-   hand=(elbow[0]+5,elbow[1]+48)
-   limb(d,[shoulder,elbow,hand],color,10)
-   if option=='dumbbell':weight(d,hand)
+  if option=='barbell':
+   bar_y=shoulder[1]+6
+   d.line((shoulder[0]-81,bar_y,shoulder[0]+81,bar_y),fill=INK,width=6)
+   for px in (shoulder[0]-71,shoulder[0]+71):d.rounded_rectangle((px-8,bar_y-23,px+8,bar_y+23),3,fill=FAR,outline=INK,width=2)
+   d.rounded_rectangle((shoulder[0]-16,bar_y-7,shoulder[0]+16,bar_y+7),3,fill=BLUE,outline=INK,width=2)
+   for side,color in ((-1,FAR),(1,INK)):
+    grip=(shoulder[0]+side*31,bar_y)
+    elbow=(shoulder[0]+side*42,shoulder[1]+42)
+    limb(d,[shoulder,elbow,grip],color,9)
+    d.ellipse((grip[0]-6,grip[1]-6,grip[0]+6,grip[1]+6),fill=INK)
+   if abs(bar_y-(shoulder[1]+6))>1e-6 or lead_ankle!=(390,389):raise ValueError('Barbell step-up support or bar contact changed')
+   d.text((45,187),'BAR / UPPER BACK',font=FONTS[14],fill=MUTED)
+  else:
+   for offset,color in ((-35,FAR),(35,INK)):
+    elbow=(shoulder[0]+offset,shoulder[1]+61)
+    hand=(elbow[0]+5,elbow[1]+48)
+    limb(d,[shoulder,elbow,hand],color,10)
+    if option=='dumbbell':weight(d,hand)
  elif kind in ('split-squat','reverse-lunge','forward-lunge'):
   front_ankle=(393,440);front_toe=(432,450)
   if kind=='forward-lunge':

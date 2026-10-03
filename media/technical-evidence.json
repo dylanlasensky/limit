@@ -2769,6 +2769,19 @@
     "audio": false
   },
   {
+    "catalogKey": "barbell-step-up",
+    "videoSha256": "ed31b58eabea3bc02f9159ccfe69aa526612a9beb1c6e30b2cb972141abc9974",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "barbell-deadlift",
     "videoSha256": "b7e0cb9bd46e8a3eeaa23c4d2e17f535e33cf8e8080606a276a4c486ad46f901",
     "duration": 8,
