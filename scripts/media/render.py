@@ -207,6 +207,7 @@ TEMPLATES={
  'pike-push-up':('pike-push-up',None),
  'suspension-push-up':('suspension-push-up',None),
  'wall-handstand-push-up':('wall-handstand-push-up',None),
+ 'glute-ham-raise':('glute-ham-raise',None),
  'cable-crunch':('supported-trunk-crunch','kneeling-cable'),
  'machine-abdominal-crunch':('supported-trunk-crunch','machine'),
  'captain-s-chair-knee-raise':('captain-chair-raise',None),
@@ -993,6 +994,25 @@ def draw_pose(d,kind,option,u):
   line(d,anchor,foot,FAR,3)
   d.ellipse((foot[0]-10,foot[1]-10,foot[0]+10,foot[1]+10),outline=INK,width=3)
   d.text((45,181),'LOW PULLEY / ANKLE CUFF',font=FONTS[14],fill=MUTED)
+ elif kind=='glute-ham-raise':
+  # GHD: fixed ankle roller and footplate, knee support on the pad,
+  # and a coupled knee/hip rise with a straight trunk.
+  ankle=(135,335);knee=(240,335);angle=-.18-1.05*u
+  hip=polar(knee,90,angle);shoulder=polar(hip,101,angle);head=polar(shoulder,30,angle)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((ankle,knee,105),(knee,hip,90),(hip,shoulder,101),(shoulder,head,30))):raise ValueError('Glute-ham raise segment length changed')
+  if head[1]<90 or head[0]>500:raise ValueError('Glute-ham raise head left frame')
+  d.rounded_rectangle((107,287,122,393),4,fill=FAR,outline=INK,width=2)
+  d.rounded_rectangle((120,318,150,351),6,fill=FAR,outline=INK,width=2)
+  d.rounded_rectangle((208,340,283,366),10,fill=FAR,outline=INK,width=2)
+  d.line((243,365,243,451),fill=FAR,width=8)
+  d.line((117,390,117,451),fill=FAR,width=8)
+  d.line((112,450,276,450),fill=FAR,width=8)
+  limb(d,[ankle,knee,hip,shoulder],BLUE,24)
+  line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-17,head[1]-17,head[0]+17,head[1]+17),fill=INK)
+  elbow=polar(shoulder,28,1.55);hand=polar(elbow,29,1.55)
+  limb(d,[shoulder,elbow,hand],INK,9)
+  d.text((45,181),'FOOTPLATE / KNEE PAD / HINGE',font=FONTS[14],fill=MUTED)
  elif kind=='nordic-hamstring-curl':
   knee=(250,435);heel=(199,445);angle=-math.pi/2+1.27*u
   hip=polar(knee,94,angle);shoulder=polar(hip,114,angle);head=polar(shoulder,32,angle)

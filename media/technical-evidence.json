@@ -3341,6 +3341,19 @@
     "audio": false
   },
   {
+    "catalogKey": "glute-ham-raise",
+    "videoSha256": "90efae666e96092136a1f606b4920fed16ea98718f2fc568e08ec2a06dd88e4e",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "barbell-hip-thrust",
     "videoSha256": "bf06f3ce93d2c9c0e71799c74ec0d845db943a13716fb7915b5bbc2ab1972ee5",
     "duration": 8,

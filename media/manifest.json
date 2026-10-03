@@ -9419,14 +9419,14 @@
   {
     "catalogKey": "glute-ham-raise",
     "name": "Glute-Ham Raise",
-    "poster": "exercises/glute-ham-raise/v62667034263769/29e1f8e854ed76b6f996f1213125ba5c4e361ba88a71627b3b7cb69a97402136.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/glute-ham-raise/v90887447096429/a5c665464ccc377b2e1bbd85e331e2d16b735f5b63107b97a471c9eacb781650.png",
+    "source": "exercises/glute-ham-raise/v90887447096429/90efae666e96092136a1f606b4920fed16ea98718f2fc568e08ec2a06dd88e4e.mp4",
+    "format": "mp4",
     "caption": "Set your knee alignment and keep your hips stable. Bend your knees under control and resist the return rather than letting the load drop. Adjust the footplate and pads; learn the movement with a coach.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 62667034263769,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 90887447096429,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "coaching-recommended",
     "textFallback": [
@@ -9438,15 +9438,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "29e1f8e854ed76b6f996f1213125ba5c4e361ba88a71627b3b7cb69a97402136",
-    "videoSha256": null,
-    "bytes": 39801,
-    "blockReason": "Glute-Ham Raise: current renderer lacks fixed thigh or torso support and heel travel toward the body; it also lacks the foot anchors and hip pad geometry. This variation requires \"Adjust the footplate and pads; learn the movement with a coach\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "a5c665464ccc377b2e1bbd85e331e2d16b735f5b63107b97a471c9eacb781650",
+    "videoSha256": "90efae666e96092136a1f606b4920fed16ea98718f2fc568e08ec2a06dd88e4e",
+    "bytes": 87095,
+    "blockReason": "",
+    "template": "glute-ham-raise",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
