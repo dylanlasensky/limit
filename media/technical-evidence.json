@@ -650,6 +650,32 @@
     "audio": false
   },
   {
+    "catalogKey": "dumbbell-lateral-lunge",
+    "videoSha256": "5fa91e008a3b4d644ca8db77e1d3d1a2a5125f10bd1dc06471c34f301b3cfe0a",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "bodyweight-lateral-lunge",
+    "videoSha256": "64e8aebd978ea2067f94bdba9a32d775db178da1347e15b09bea6b1530789e30",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-step-up",
     "videoSha256": "56cfa566ef98619499d04037a1612904501772a8643adae45b1604411193e726",
     "duration": 8,
