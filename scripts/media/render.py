@@ -15,6 +15,7 @@ TEMPLATES={
  'dumbbell-curl':('curl',False),'hammer-curl':('curl',True),
  'seated-dumbbell-curl':('seated-curl',False),
  'dumbbell-front-raise':('front-raise',False),
+ 'quadruped-hip-extension':('quadruped-hip-extension',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -74,7 +75,25 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='step-up':
+ if kind=='quadruped-hip-extension':
+  # Hands and support knee stay planted. The trunk and pelvis remain level;
+  # only the working hip extends, with fixed thigh and shin lengths.
+  hip=(350,302);shoulder=(238,293);head=(196,288)
+  hand=(230,435);support_knee=(358,437)
+  limb(d,[hip,shoulder],BLUE,26)
+  limb(d,[shoulder,(240,361),hand],INK,14)
+  limb(d,[hip,(360,362),support_knee],FAR,16)
+  line(d,support_knee,(388,439),FAR,10)
+  angle=1.4-u*0.85
+  working_knee=polar(hip,76,angle)
+  working_foot=polar(working_knee,64,angle+0.17)
+  if abs(math.dist(hip,working_knee)-76)>1e-6 or abs(math.dist(working_knee,working_foot)-64)>1e-6:raise ValueError('Working leg length changed')
+  if working_foot[1]>452:raise ValueError('Working foot crosses ground')
+  limb(d,[hip,working_knee,working_foot],BLUE,17)
+  d.ellipse((head[0]-20,head[1]-17,head[0]+17,head[1]+17),fill=INK)
+  d.line((head[0]-14,head[1]+9,head[0]-4,head[1]+9),fill=BG,width=3)
+  d.line((215,435,248,435),fill=INK,width=9)
+ elif kind=='step-up':
   # The lead foot stays on the platform. The trailing foot lifts outside the
   # box, clears its edge, and only then lands on top; neither leg stretches.
   d.rounded_rectangle((340,395,480,460),5,fill=FAR)

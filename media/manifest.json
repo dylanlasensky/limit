@@ -9170,14 +9170,14 @@
   {
     "catalogKey": "quadruped-hip-extension",
     "name": "Quadruped Hip Extension",
-    "poster": "exercises/quadruped-hip-extension/v124818065909098/fcc8f3e20b1001de623a7077faffcb1746f74a631db0becfdbd8490da4b9ba52.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/quadruped-hip-extension/v55153795243857/45e785054a6d10bf473b2618eefb34236777c589d5fbaf998384de0277ea6727.png",
+    "source": "exercises/quadruped-hip-extension/v55153795243857/508f97fd341e645b6d6facc482ed3fac90fcdf775849fa309d4f78a3cf2ece18.mp4",
+    "format": "mp4",
     "caption": "Keep your pelvis steady and use a comfortable range at the hip. Move your thigh behind you without arching your lower back; log repetitions per side. Keep your ribs down and pelvis level.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 124818065909098,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 55153795243857,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -9189,15 +9189,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "fcc8f3e20b1001de623a7077faffcb1746f74a631db0becfdbd8490da4b9ba52",
-    "videoSha256": null,
-    "bytes": 41370,
-    "blockReason": "Quadruped Hip Extension: current renderer lacks fixed trunk support and a hip-driven leg path without lumbar extension; it also lacks the required hand, foot or floor supports. This variation requires \"Keep your ribs down and pelvis level\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "45e785054a6d10bf473b2618eefb34236777c589d5fbaf998384de0277ea6727",
+    "videoSha256": "508f97fd341e645b6d6facc482ed3fac90fcdf775849fa309d4f78a3cf2ece18",
+    "bytes": 74786,
+    "blockReason": "",
+    "template": "quadruped-hip-extension",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

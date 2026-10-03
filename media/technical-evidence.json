@@ -260,6 +260,19 @@
     "audio": false
   },
   {
+    "catalogKey": "quadruped-hip-extension",
+    "videoSha256": "508f97fd341e645b6d6facc482ed3fac90fcdf775849fa309d4f78a3cf2ece18",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-standing-calf-raise",
     "videoSha256": "b462dca3dff22d1c3cfb2908d818f58d2bd25c382abbdb799a62b29e20261c16",
     "duration": 8,
