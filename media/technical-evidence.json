@@ -1105,6 +1105,19 @@
     "audio": false
   },
   {
+    "catalogKey": "decline-crunch",
+    "videoSha256": "3c7f30c68d50a41f13c7d0b426d27149105bba1483d00a61f94d5db6503b8ca2",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "weighted-crunch",
     "videoSha256": "66b6200123ce9084fceeb03184cd4858ae3e66a16a33aa3949c9ec95ad38cdae",
     "duration": 8,

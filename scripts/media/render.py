@@ -80,6 +80,7 @@ TEMPLATES={
  'resistance-band-leg-curl':('band-leg-curl',None),
  'band-ankle-dorsiflexion':('band-ankle-dorsiflexion',None),
  'stability-ball-crunch':('stability-ball-crunch',None),
+ 'decline-crunch':('decline-crunch',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -146,7 +147,28 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='stability-ball-crunch':
+ if kind=='decline-crunch':
+  # Sloped bench supports the pelvis and back with the head below the hips;
+  # a fixed paired ankle restraint holds the raised legs as the trunk curls.
+  hip=(315,318);knee=(366,272);ankle=(409,264)
+  d.line((166,422,368,296),fill=FAR,width=18)
+  for x,y in ((205,408),(344,310)):d.line((x,y,x,456),fill=FAR,width=7)
+  limb(d,[hip,knee,ankle],BLUE,17)
+  line(d,ankle,(439,268),INK,9)
+  d.line((360,300,454,313),fill=FAR,width=7)
+  d.line((454,313,454,236),fill=FAR,width=7)
+  d.rounded_rectangle((393,239,426,254),7,fill=INK,outline=BLUE,width=2)
+  d.rounded_rectangle((393,282,426,297),7,fill=INK,outline=BLUE,width=2)
+  d.text((383,329),'ANKLE LOCK',font=FONTS[14],fill=MUTED)
+  angle=2.58+.52*u
+  shoulder=polar(hip,100,angle);head=polar(shoulder,39,angle)
+  if abs(math.dist(hip,shoulder)-100)>1e-6 or abs(math.dist(shoulder,head)-39)>1e-6:raise ValueError('Decline crunch trunk length changed')
+  if hip!=(315,318) or ankle!=(409,264):raise ValueError('Decline crunch support changed')
+  line(d,hip,shoulder,BLUE,25)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
+  limb(d,[shoulder,(shoulder[0]+31,shoulder[1]-27),(shoulder[0]+61,shoulder[1]-12)],INK,10)
+ elif kind=='stability-ball-crunch':
   # A stationary ball supports the pelvis and back while two planted feet
   # remain fixed; only the upper trunk curls through a short range.
   center=(285,390);radius=70;hip=(330,352);knee=(376,366);foot=(427,444)

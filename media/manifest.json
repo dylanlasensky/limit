@@ -10355,14 +10355,14 @@
   {
     "catalogKey": "decline-crunch",
     "name": "Decline Crunch",
-    "poster": "exercises/decline-crunch/v99359925884537/3fd8fb77ab2931f6fce9a69f87200c97e7362af30215fc3a7e13fcd9e7875060.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/decline-crunch/v146125707881034/58c495998da36e1bdb0aa9808171d035654bcb2a04d96ed2d2a8e7f1d328ad51.png",
+    "source": "exercises/decline-crunch/v146125707881034/3c7f30c68d50a41f13c7d0b426d27149105bba1483d00a61f94d5db6503b8ca2.mp4",
+    "format": "mp4",
     "caption": "Move through a comfortable trunk range and keep your neck relaxed. Exhale as you shorten the front of your torso; return without using momentum. Secure your legs and use a manageable bench angle.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 99359925884537,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 146125707881034,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -10374,15 +10374,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "3fd8fb77ab2931f6fce9a69f87200c97e7362af30215fc3a7e13fcd9e7875060",
-    "videoSha256": null,
-    "bytes": 39704,
-    "blockReason": "Decline Crunch: current renderer lacks supported pelvis and a controlled rib-to-pelvis or leg-raise path; it also lacks a secured decline bench and body restraints. This variation requires \"Secure your legs and use a manageable bench angle\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "58c495998da36e1bdb0aa9808171d035654bcb2a04d96ed2d2a8e7f1d328ad51",
+    "videoSha256": "3c7f30c68d50a41f13c7d0b426d27149105bba1483d00a61f94d5db6503b8ca2",
+    "bytes": 79182,
+    "blockReason": "",
+    "template": "decline-crunch",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
