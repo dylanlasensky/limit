@@ -260,6 +260,19 @@
     "audio": false
   },
   {
+    "catalogKey": "plate-front-raise",
+    "videoSha256": "7f90e8959f2c44ab455058e253ddda88fc681b967df82f567251499bdcad565c",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-shrug",
     "videoSha256": "66206efdc9f76a8dc7516041dffcae737eae4299673f5b9a2fb7829077e717c4",
     "duration": 8,
@@ -470,6 +483,19 @@
   {
     "catalogKey": "dumbbell-reverse-wrist-curl",
     "videoSha256": "c51cddc3da0fcfb2f0bc7b19f1c3524a9a3939b16fa3e4711d71c0bb7276f85f",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "hand-gripper-close",
+    "videoSha256": "1f658d49f1b1960f5cdae823b10341b2692f51554e8832c1c03b1944c9fd8a12",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -860,6 +886,19 @@
   {
     "catalogKey": "reverse-crunch",
     "videoSha256": "3b70933cb30229ff0d2e1c5e2e75af84796d927bf4017ec9fc9f99e53d5e0e8a",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "weighted-crunch",
+    "videoSha256": "0ada89d31ee13ce593d915ca5a4a2e67ce4e104e9876d9d195e18b05909bea73",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",

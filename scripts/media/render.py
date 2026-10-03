@@ -61,6 +61,9 @@ TEMPLATES={
  'bodyweight-lateral-lunge':('lateral-lunge','bodyweight'),
  'dumbbell-lateral-lunge':('lateral-lunge','dumbbell'),
  'cossack-squat':('cossack-squat',None),
+ 'plate-front-raise':('plate-front-raise',None),
+ 'weighted-crunch':('crunch','plate'),
+ 'hand-gripper-close':('hand-gripper-close',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -127,7 +130,45 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='cossack-squat':
+ if kind=='hand-gripper-close':
+  # Close-up: a supported forearm and palm stay steady while the fingers
+  # compress one spring gripper. Each rigid handle pivots about the spring.
+  d.rounded_rectangle((150,313,290,334),6,fill=FAR)
+  for x in (170,275):d.line((x,334,x,455),fill=FAR,width=8)
+  line(d,(175,299),(290,299),BLUE,28)
+  d.rounded_rectangle((278,277,328,321),10,fill=INK)
+  spring=(370,260)
+  d.ellipse((spring[0]-15,spring[1]-15,spring[0]+15,spring[1]+15),outline=FAR,width=7)
+  fixed=polar(spring,89,2.0)
+  moving=polar(spring,89,1.1+.82*u)
+  if abs(math.dist(spring,fixed)-89)>1e-6 or abs(math.dist(spring,moving)-89)>1e-6:raise ValueError('Gripper handle length changed')
+  line(d,spring,fixed,INK,11)
+  line(d,spring,moving,INK,11)
+  d.rounded_rectangle((fixed[0]-8,fixed[1]-15,fixed[0]+8,fixed[1]+15),4,fill=FAR)
+  d.rounded_rectangle((moving[0]-8,moving[1]-15,moving[0]+8,moving[1]+15),4,fill=FAR)
+  for n in range(3):
+   x=315+8*n
+   d.line((x,300,x+7,320),fill=BLUE,width=7)
+ elif kind=='plate-front-raise':
+  # A stable standing torso holds one plate with two hands. Both shoulders
+  # flex together to a comfortable shoulder-height limit with soft elbows.
+  hip=(300,329);shoulder=(300,205);head=(300,170)
+  for direction in (-1,1):
+   knee=(300+direction*24,386);foot=(300+direction*43,445)
+   limb(d,[hip,knee,foot],BLUE,17);line(d,foot,(foot[0]+direction*17,448),INK,8)
+  body(d,hip,shoulder,head)
+  angle=math.pi/2-1.47*u
+  hands=[]
+  for offset,color in ((-9,FAR),(9,INK)):
+   start=(shoulder[0]+offset,shoulder[1])
+   elbow=polar(start,73,angle)
+   hand=polar(elbow,64,angle+.08);hands.append(hand)
+   if abs(math.dist(start,elbow)-73)>1e-6 or abs(math.dist(elbow,hand)-64)>1e-6 or hand[1]<195:raise ValueError('Plate raise arm path changed')
+   limb(d,[start,elbow,hand],color,11)
+  center=((hands[0][0]+hands[1][0])/2,(hands[0][1]+hands[1][1])/2)
+  d.ellipse((center[0]-21,center[1]-21,center[0]+21,center[1]+21),fill=FAR,outline=INK,width=3)
+  d.ellipse((center[0]-8,center[1]-8,center[0]+8,center[1]+8),fill=BG)
+ elif kind=='cossack-squat':
   # Stationary wide stance: one planted working foot flexes under the hip,
   # while the other leg stays straight and its forefoot lifts on a fixed heel.
   left_ankle=(170,440);right_ankle=(450,440)
@@ -713,6 +754,11 @@ def draw_pose(d,kind,option,u):
   line(d,foot,(435,428),INK,9)
   line(d,hip,shoulder,BLUE,25)
   line(d,shoulder,head,BLUE,11)
+  if option=='plate':
+   plate=(shoulder[0]+38,shoulder[1]-8)
+   d.ellipse((plate[0]-19,plate[1]-19,plate[0]+19,plate[1]+19),fill=FAR,outline=INK,width=3)
+   d.ellipse((plate[0]-7,plate[1]-7,plate[0]+7,plate[1]+7),fill=BG)
+   line(d,shoulder,plate,INK,8)
   elbow=add(shoulder,(48,-41));hand=add(elbow,(37,30))
   limb(d,[shoulder,elbow,hand],INK,11)
   d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
