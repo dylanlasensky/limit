@@ -97,6 +97,9 @@ TEMPLATES={
  'standing-leg-curl':('machine-standing-leg-curl',None),
  'standing-calf-raise':('machine-standing-calf',None),
  'seated-calf-raise':('machine-seated-calf',None),
+ 'cable-curl':('low-cable-curl','bilateral'),
+ 'single-arm-cable-curl':('low-cable-curl','unilateral'),
+ 'bayesian-cable-curl':('low-cable-curl','behind-body'),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -163,7 +166,34 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='machine-standing-calf':
+ if kind=='low-cable-curl':
+  # Low pulley, taut cable and elbow hinge are shared; the Bayesian variant
+  # anchors behind the body with a fixed, gently extended upper arm.
+  behind=option=='behind-body';single=option!='bilateral'
+  anchor=(144,416) if behind else (462,416)
+  tower_x=126 if behind else 480
+  d.line((tower_x,95,tower_x,456),fill=FAR,width=7)
+  d.rounded_rectangle((tower_x-17,330,tower_x+18,422),5,fill=FAR,outline=INK,width=2)
+  for y in (348,368,388,408):d.line((tower_x-13,y,tower_x+14,y),fill=INK,width=2)
+  d.ellipse((anchor[0]-12,anchor[1]-12,anchor[0]+12,anchor[1]+12),fill=FAR,outline=INK,width=3)
+  hip=(302,332);shoulder=(298,211);head=(296,174)
+  limb(d,[hip,(282,388),(269,445)],FAR,16);line(d,(269,445),(248,448),INK,8)
+  limb(d,[hip,(320,387),(341,445)],BLUE,17);line(d,(341,445),(363,448),INK,8)
+  body(d,hip,shoulder,head)
+  if single:limb(d,[shoulder,(287,291),(292,354)],FAR,10)
+  if not single:
+   shared_hand=polar((321,294),66,math.pi/2-2.24*u)
+   d.line([xy(anchor),xy(shared_hand)],fill=INK,width=3)
+  for offset,color in (((9,INK),) if single else ((-9,FAR),(9,INK))):
+   start=(shoulder[0]+offset,shoulder[1]);elbow=((272 if behind else 321)+offset,294)
+   angle=math.pi/2-2.24*u
+   hand=polar(elbow,66,angle)
+   if abs(math.dist(elbow,hand)-66)>1e-6 or elbow[1]!=294:raise ValueError('Cable curl elbow or forearm changed')
+   if single:d.line([xy(anchor),xy(hand)],fill=INK,width=3)
+   limb(d,[start,elbow,hand],color,11)
+   if single:d.rounded_rectangle((hand[0]-7,hand[1]-5,hand[0]+7,hand[1]+5),3,fill=FAR,outline=INK,width=2)
+  if not single:d.rounded_rectangle((shared_hand[0]-15,shared_hand[1]-5,shared_hand[0]+15,shared_hand[1]+5),3,fill=FAR,outline=INK,width=2)
+ elif kind=='machine-standing-calf':
   # The toe stays on a fixed raised step; the heel and carriage rise together
   # with a constant foot length and an unchanged long-leg/trunk silhouette.
   toe=(365,443);start_ankle_y=432;ankle_y=start_ankle_y-18*u

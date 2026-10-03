@@ -572,6 +572,45 @@
     "audio": false
   },
   {
+    "catalogKey": "cable-curl",
+    "videoSha256": "698552ddf0e3d0828b9710c8e63461649d29df70cee172071741cd02671f7fdf",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "single-arm-cable-curl",
+    "videoSha256": "3af5551e5412221f56be7e5415f3fb6eb814b89f9588ebf8b5e2d11235652652",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "bayesian-cable-curl",
+    "videoSha256": "da5031668f73d39114129bed6012dba4ff51e20c42badf1d1db1d8fdb272ace8",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "spider-curl",
     "videoSha256": "f0f69c97c6af5935664e72bc1fd0f54711863b6b04ebd4d883e39191d1fb5a56",
     "duration": 8,
