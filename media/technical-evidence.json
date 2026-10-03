@@ -130,6 +130,32 @@
     "audio": false
   },
   {
+    "catalogKey": "neutral-grip-lat-pulldown",
+    "videoSha256": "1b67db03da20ecd07aa5271199433ccd4d0f69ebbdabafa412859109e59b5776",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "underhand-lat-pulldown",
+    "videoSha256": "1c05b3ff7d7054ba4fad5ba6734b78b26aa34f64eb3819bf7dafe800fc22f62f",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "single-arm-lat-pulldown",
     "videoSha256": "e91b5271e447f8f5f8568e13147312a63c2dd7fbce2da04b2500f412ec7ed6c9",
     "duration": 8,

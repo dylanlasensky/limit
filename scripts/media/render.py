@@ -104,6 +104,8 @@ TEMPLATES={
  'single-arm-cable-pullover':('cable-straight-arm','unilateral'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
+ 'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
+ 'underhand-lat-pulldown':('machine-lat-pulldown','underhand'),
  'half-kneeling-cable-pulldown':('half-kneeling-cable-pulldown',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
@@ -169,6 +171,25 @@ def alternating_phase(t):
  if p<2:return 1,'Pause comfortably'
  if p<3:return (1+math.cos(math.pi*(p-2)))/2,'Lower with control'
  return 0,'Switch sides' if t<4 else 'Reset'
+def draw_grip_inset(d,orientation):
+ # A second, close camera view makes palm direction readable when the full
+ # front-view pulldown cannot show depth around the overhead handle.
+ d.rounded_rectangle((40,273,183,362),8,fill=BG,outline=FAR,width=2)
+ d.text((49,279),'HANDLE / HANDS',font=FONTS[14],fill=MUTED)
+ if orientation=='neutral':
+  d.line((90,305,90,328),fill=INK,width=7);d.line((132,305,132,328),fill=INK,width=7)
+  d.rounded_rectangle((79,311,101,331),4,fill=BLUE,outline=INK,width=2)
+  d.rounded_rectangle((121,311,143,331),4,fill=BLUE,outline=INK,width=2)
+  d.line((104,321,117,321),fill=INK,width=2)
+  label='PALMS FACE IN'
+ elif orientation=='underhand':
+  d.line((63,314,160,314),fill=INK,width=6)
+  for x in (88,135):
+   d.rounded_rectangle((x-12,304,x+12,329),5,fill=BLUE,outline=INK,width=2)
+   for k in (-5,0,5):d.ellipse((x+k-1,308,x+k+1,310),fill=INK)
+  label='PALMS TO BODY'
+ else:raise ValueError('Unsupported grip inset')
+ d.text((50,339),label,font=FONTS[14],fill=INK)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
  if kind=='half-kneeling-cable-pulldown':
@@ -216,13 +237,17 @@ def draw_pose(d,kind,option,u):
   if single:
    limb(d,[(269,scap_y),(253,285),(269,340)],FAR,10)
    d.rounded_rectangle((380,bar_y-6,400,bar_y+6),3,fill=FAR,outline=INK,width=2)
-  else:d.line((181,bar_y,419,bar_y),fill=INK,width=7)
+  else:
+   d.line((181,bar_y,419,bar_y),fill=INK,width=7)
+   if option=='neutral':
+    for x in (210,390):d.line((x,bar_y-9,x,bar_y+9),fill=INK,width=7)
   for side in ((1,) if single else (-1,1)):
    start=(300+side*31,scap_y);hand=(300+side*90,bar_y)
    elbow=ik(start,hand,76,74,side=1 if side==-1 else -1)
    if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((start,elbow,76),(elbow,hand,74))):raise ValueError('Lat pulldown arm changed length')
    limb(d,[start,elbow,hand],BLUE if side==1 else FAR,12)
    d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=INK)
+  if option in ('neutral','underhand'):draw_grip_inset(d,option)
  elif kind=='cable-straight-arm':
   # A high pulley and fixed near-straight arms create shoulder extension;
   # the unilateral version leaves one arm at rest.
