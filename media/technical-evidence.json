@@ -429,6 +429,19 @@
     "audio": false
   },
   {
+    "catalogKey": "machine-lat-pulldown",
+    "videoSha256": "ded4202a0452cd2b0ad76a44b445cd3a06bb3cd83e30d3ab8ccb092bc93c04ba",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "pull-up",
     "videoSha256": "6c578b307db020bd909bbd3272a524378dee418d90f613eb289cd206f09c4620",
     "duration": 8,
@@ -457,6 +470,32 @@
   {
     "catalogKey": "neutral-grip-pull-up",
     "videoSha256": "e32e64fe13668acc9379dbf59107533ec9d333abd88258e8376050eda38f2acd",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "assisted-pull-up",
+    "videoSha256": "73de6592fb7828ef4e76ab292566ff0d65006e4b8f9e690dcd331409abce3294",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "assisted-chin-up",
+    "videoSha256": "e74ede311b1b0995ca1cd0b0740d3f4f50e55d4345b239cc6f3417966493587b",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -573,7 +612,7 @@
   },
   {
     "catalogKey": "meadows-row",
-    "videoSha256": "b80edc3b3cd81adfb762784ff9d289374c0b3ec2b4c65726f8d3506190dda75f",
+    "videoSha256": "6dd01cb530996981898f412cc5f774004490b381d54e79a6a31b1e37ebda344b",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -650,6 +689,19 @@
     "audio": false
   },
   {
+    "catalogKey": "wide-grip-cable-row",
+    "videoSha256": "a4eb21005c3a3c733774afdd43a83f113d333633f4c6e0e524ec295d9ebed53e",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "single-arm-cable-row",
     "videoSha256": "c94043962d5d2f79c426078d7b80daf2c61e49d26d565dfa071ec9face59d6a0",
     "duration": 8,
@@ -678,6 +730,45 @@
   {
     "catalogKey": "half-kneeling-cable-row",
     "videoSha256": "8f5a25e566a82d02f0eaa7d336eab7a27304266761a6aafb19e2ff64fc0a1f1d",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "chest-supported-machine-row",
+    "videoSha256": "ccf89aea88142e20744bcd694b0c6d132cd4888061ae41401464e028e23d7de3",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "plate-loaded-high-row",
+    "videoSha256": "ccc585a5ba196881bc8aa7cc8113c1e9485d32f7bfb5968a137122389b9b14ab",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "single-arm-machine-row",
+    "videoSha256": "c19d3f32312795a8e09e6964dc16cf703f6e29bb0cadbbb9fe8f24dbefc795e3",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -1354,6 +1445,19 @@
   {
     "catalogKey": "ez-bar-preacher-curl",
     "videoSha256": "86a3a8317737d21c238f331ec7c19d0794698ced751c8de2607d68b200ed7ebf",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "machine-preacher-curl",
+    "videoSha256": "8756e209e30874c22b79bf2d3d5e0071fe191be506794b0477af9086189554ae",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",

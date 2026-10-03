@@ -216,6 +216,14 @@ TEMPLATES={
  'meadows-row':('loaded-row','meadows'),
  'smith-machine-bent-over-row':('loaded-row','smith'),
  'suspension-row':('suspension-row',None),
+ 'assisted-pull-up':('suspended-pull','assisted-overhand'),
+ 'assisted-chin-up':('suspended-pull','assisted-underhand'),
+ 'machine-lat-pulldown':('machine-lever-lat',None),
+ 'wide-grip-cable-row':('seated-cable-row','wide'),
+ 'chest-supported-machine-row':('supported-machine-row','standard'),
+ 'plate-loaded-high-row':('supported-machine-row','high'),
+ 'single-arm-machine-row':('supported-machine-row','single'),
+ 'machine-preacher-curl':('machine-preacher-curl',None),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -238,6 +246,7 @@ TEMPLATES={
  'dumbbell-step-up':('step-up','dumbbell'),
 }
 BLOCK_REASONS={
+ 'close-grip-lat-pulldown':'the close V-bar hand path makes the front-view fixed-length elbow solution cross the torso as the grip descends; keep blocked until a depth-aware narrow-grip rig shows both elbows tracking down outside the trunk',
  'single-arm-landmine-press':'the fixed-pivot press trial folds the elbow behind the torso at the chest start; a coupled bar/shoulder/forearm rig is still needed',
  'half-kneeling-landmine-press':'the fixed-pivot press trial folds the elbow behind the torso at the chest start despite stable knee and foot contacts; a coupled bar/shoulder/forearm rig is still needed',
  'landmine-squat':'a constant-length bar from the fixed pivot currently drives the chest-held end away from the squat torso at depth; this needs a coupled pivot, torso and foot-contact rig before a video can be generated',
@@ -431,9 +440,9 @@ def draw_pose(d,kind,option,u):
     line(d,(x-11,405),(x+11,405),INK,4)
    hand=(310,393-70*u)
   elif option in ('t-bar','meadows'):
-   pivot=(95,442) if meadows else (111,442)
-   radius=200
-   hand=polar(pivot,radius,-.25-.34*u)
+   pivot=(480,442) if meadows else (111,442)
+   radius=190 if meadows else 200
+   hand=polar(pivot,radius,(math.pi+.25+.34*u) if meadows else (-.25-.34*u))
    line(d,pivot,hand,INK,7)
    d.ellipse((pivot[0]-9,pivot[1]-9,pivot[0]+9,pivot[1]+9),outline=FAR,width=4)
    if abs(math.dist(pivot,hand)-radius)>1e-6:raise ValueError('Landmine row bar radius changed')
@@ -449,6 +458,7 @@ def draw_pose(d,kind,option,u):
    limb(d,[shoulder,support_elbow,brace],FAR,10)
    loaded_shoulder=(shoulder[0]+25,shoulder[1]+5)
    elbow=ik(loaded_shoulder,hand,84,78,side=1)
+   if hand[0]<loaded_shoulder[0] or elbow[0]<loaded_shoulder[0] or elbow[0]>hip[0]+8:raise ValueError('Meadows row arm crossed torso path')
    limb(d,[loaded_shoulder,elbow,hand],INK,11)
   else:
    starts=[(shoulder[0]-8,shoulder[1]),(shoulder[0]+8,shoulder[1])]
@@ -456,6 +466,7 @@ def draw_pose(d,kind,option,u):
     endpoint=(hand[0]+(-9 if i==0 else 9),hand[1])
     upper=88 if pendlay else 81;lower=83 if pendlay else 79
     elbow=ik(start,endpoint,upper,lower,side=1)
+    if option=='t-bar' and (endpoint[0]<start[0] or elbow[0]<start[0] or elbow[0]>hip[0]+8):raise ValueError('T-bar row arm crossed torso path')
     limb(d,[start,elbow,endpoint],FAR if i==0 else INK,10)
   if option in ('barbell','underhand','pendlay','seal','smith'):
    y=hand[1]
@@ -1218,6 +1229,25 @@ def draw_pose(d,kind,option,u):
   center=((hands[0][0]+hands[1][0])/2,(hands[0][1]+hands[1][1])/2)
   draw_curl_bar(d,center,option.startswith('ez-'))
   draw_curl_grip_inset(d,option.startswith('ez-'),option.endswith('pronated'))
+ elif kind=='machine-preacher-curl':
+  # The supported upper arm and machine lever share one fixed elbow pivot.
+  hip=(289,327);shoulder=(263,218);head=(259,181);elbow=(375,330)
+  d.rounded_rectangle((245,339,341,353),5,fill=FAR)
+  for x in (258,327):line(d,(x,353),(x,455),FAR,6)
+  line(d,(300,266),(393,352),FAR,20)
+  line(d,(375,351),(375,455),FAR,7)
+  limb(d,[hip,(357,353),(378,444)],BLUE,16)
+  line(d,(378,444),(405,448),INK,8)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  hand=polar(elbow,70,1.35-3.55*u)
+  if abs(math.dist(elbow,hand)-70)>1e-6:raise ValueError('Preacher machine lever radius changed')
+  limb(d,[shoulder,elbow,hand],INK,11)
+  d.ellipse((elbow[0]-12,elbow[1]-12,elbow[0]+12,elbow[1]+12),fill=FAR,outline=INK,width=3)
+  d.rounded_rectangle((hand[0]-13,hand[1]-6,hand[0]+13,hand[1]+6),3,fill=FAR,outline=INK,width=2)
+  d.rounded_rectangle((444,335,479,418),5,fill=FAR,outline=INK,width=2)
+  line(d,(393,330),(456,374),FAR,4)
+  d.text((45,181),'ELBOW / LEVER PIVOT ALIGNED',font=FONTS[14],fill=MUTED)
  elif kind=='supported-bar-curl':
   spider=option=='spider'
   if spider:
@@ -1403,6 +1433,12 @@ def draw_pose(d,kind,option,u):
    d.line((292,bar_y,339,436-rise),fill=FAR,width=5)
    d.line((309,bar_y,367,436-rise),fill=FAR,width=5)
    d.line((339,436-rise,367,436-rise),fill=FAR,width=5)
+  if option in ('assisted-overhand','assisted-underhand'):
+   for x in (235,365):line(d,(x,237),(x,453),FAR,5)
+   d.rounded_rectangle((243,396-rise,357,410-rise),4,fill=FAR,outline=INK,width=2)
+   d.rounded_rectangle((460,316+rise*.35,492,399+rise*.35),5,fill=FAR,outline=INK,width=2)
+   line(d,(365,405-rise),(474,356+rise*.35),FAR,3)
+   d.text((46,285),'COUNTERWEIGHT / KNEE PAD',font=FONTS[14],fill=MUTED)
   head=(300,203-rise);shoulder_y=242-rise;hip=(300,350-rise)
   limb(d,[hip,(258,395-rise),(248,439-rise)],BLUE,17)
   line(d,(248,439-rise),(229,443-rise),INK,8)
@@ -1424,7 +1460,7 @@ def draw_pose(d,kind,option,u):
    if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((start,elbow,65),(elbow,hand,65))):raise ValueError('Pull-up arm changed length')
    limb(d,[start,elbow,hand],BLUE if side==1 else FAR,12)
    d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=INK)
-  grip='neutral' if option=='neutral' else 'underhand' if option in ('underhand','weight-underhand') else 'pronated'
+  grip='neutral' if option=='neutral' else 'underhand' if option in ('underhand','weight-underhand','assisted-underhand') else 'pronated'
   draw_grip_inset(d,grip)
  elif kind=='half-kneeling-cable-pulldown':
   # Rear knee pad and lead foot remain fixed while one handle descends from
@@ -1446,6 +1482,30 @@ def draw_pose(d,kind,option,u):
   d.line([xy(anchor),xy(hand)],fill=INK,width=3)
   limb(d,[shoulder,elbow,hand],INK,11)
   d.rounded_rectangle((hand[0]-7,hand[1]-7,hand[0]+7,hand[1]+7),3,fill=FAR,outline=INK,width=2)
+ elif kind=='machine-lever-lat':
+  # Independent overhead levers descend on constant-radius arcs; the seated
+  # trunk, thigh restraint and pivots stay fixed.
+  hip=(300,337);shoulder=(300,218);head=(300,176)
+  d.rounded_rectangle((255,344,345,358),4,fill=FAR)
+  for x in (266,334):line(d,(x,358),(x,455),FAR,6)
+  d.rounded_rectangle((234,365,366,378),4,fill=FAR)
+  for side in (-1,1):
+   limb(d,[hip,(300+side*47,396),(300+side*60,445)],BLUE,16)
+   line(d,(300+side*60,445),(300+side*78,448),INK,8)
+  line(d,hip,shoulder,BLUE,28);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  for side in (-1,1):
+   pivot=(140,214) if side<0 else (460,214)
+   angle=-1.0+.9*u
+   hand=(pivot[0]-side*145*math.cos(angle),pivot[1]+145*math.sin(angle))
+   line(d,pivot,hand,FAR,7)
+   d.ellipse((pivot[0]-9,pivot[1]-9,pivot[0]+9,pivot[1]+9),outline=INK,width=3)
+   d.rounded_rectangle((hand[0]-8,hand[1]-6,hand[0]+8,hand[1]+6),3,fill=FAR,outline=INK,width=2)
+   start=(300+side*30,shoulder[1])
+   elbow=ik(start,hand,78,75,side=1 if side<0 else -1)
+   if abs(math.dist(pivot,hand)-145)>1e-6 or hand[1]>shoulder[1]+8:raise ValueError('Machine lat lever path changed')
+   limb(d,[start,elbow,hand],INK if side>0 else FAR,11)
+  d.text((45,181),'SEAT / THIGH PAD / TWO LEVERS',font=FONTS[14],fill=MUTED)
  elif kind=='machine-lat-pulldown':
   # Front view preserves a wide two-hand bar grip, fixed seated trunk,
   # anchored thighs, overhead pulley and bilateral elbow flexion path.
@@ -1684,6 +1744,39 @@ def draw_pose(d,kind,option,u):
   else:
    d.ellipse((roller[0]-14,roller[1]-14,roller[0]+14,roller[1]+14),fill=FAR,outline=INK,width=3)
   line(d,foot,(foot[0]+20,foot[1]+3),INK,8)
+ elif kind=='supported-machine-row':
+  high=option=='high';single=option=='single'
+  hip=(348,340);shoulder=(345,219);head=(345,180)
+  d.rounded_rectangle((319,350,387,364),4,fill=FAR)
+  for x in (330,377):line(d,(x,364),(x,455),FAR,6)
+  d.rounded_rectangle((324,237,339,326),5,fill=FAR,outline=INK,width=2)
+  for side in (-1,1):
+   limb(d,[hip,(348+side*49,390),(348+side*64,445)],BLUE,16)
+   line(d,(348+side*64,445),(348+side*83,448),INK,8)
+  line(d,hip,shoulder,BLUE,28);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  if high:
+   pivot=(370,110);radius=195;angle=2.266-.488*u
+   label='HIGH LEVER / PLATE LOADED'
+  else:
+   pivot=(300,420);radius=149;angle=-1.91+.68*u
+   label='SINGLE ARM / CHEST PAD' if single else 'CHEST PAD / PIVOTING LEVER'
+  hand=polar(pivot,radius,angle)
+  line(d,pivot,hand,FAR,7)
+  d.ellipse((pivot[0]-9,pivot[1]-9,pivot[0]+9,pivot[1]+9),outline=INK,width=3)
+  if high:
+   plate=(pivot[0]+.15*(hand[0]-pivot[0]),pivot[1]+.15*(hand[1]-pivot[1]))
+   d.ellipse((plate[0]-16,plate[1]-16,plate[0]+16,plate[1]+16),fill=FAR,outline=INK,width=3)
+   d.ellipse((plate[0]-5,plate[1]-5,plate[0]+5,plate[1]+5),fill=BG)
+  if single:limb(d,[(shoulder[0]-9,shoulder[1]),(310,274),(319,315)],FAR,10)
+  for offset,color in (((9,INK),) if single else ((-9,FAR),(9,INK))):
+   start=(shoulder[0]+offset,shoulder[1])
+   endpoint=(hand[0]+offset,hand[1])
+   elbow=ik(start,endpoint,86,79,side=1)
+   if abs(math.dist(pivot,hand)-radius)>1e-6 or elbow[0]>hip[0]+100:raise ValueError('Machine row lever or elbow path changed')
+   limb(d,[start,elbow,endpoint],color,11)
+   d.rounded_rectangle((endpoint[0]-7,endpoint[1]-7,endpoint[0]+7,endpoint[1]+7),3,fill=FAR,outline=INK,width=2)
+  d.text((45,181),label,font=FONTS[14],fill=MUTED)
  elif kind in ('seated-cable-row','single-arm-cable-row'):
   # Fixed seat and footplate brace the athlete while a handle moves along a
   # visible pulley cable. The torso stays upright; elbows travel behind it.
@@ -1711,6 +1804,13 @@ def draw_pose(d,kind,option,u):
    d.line([xy(pulley),xy(hand)],fill=INK,width=3)
    limb(d,[start,elbow,hand],color,11)
    d.rounded_rectangle((hand[0]-6,hand[1]-7,hand[0]+6,hand[1]+7),3,fill=FAR,outline=INK,width=2)
+  if option=='wide':
+   d.rounded_rectangle((42,153,191,240),7,fill=BG,outline=FAR,width=2)
+   d.text((49,160),'FRONT / WIDE BAR',font=FONTS[14],fill=MUTED)
+   line(d,(58,197),(175,197),INK,5)
+   for x in (69,164):
+    d.rounded_rectangle((x-7,185,x+7,209),3,fill=BLUE,outline=INK,width=2)
+   d.text((49,215),'HANDS OUTSIDE SHOULDERS',font=FONTS[14],fill=INK)
  elif kind=='inverted-row':
   # Bar, both grips and heels remain fixed. A straight head-to-heel chain
   # rotates about the heels as the chest approaches the securely racked bar.
