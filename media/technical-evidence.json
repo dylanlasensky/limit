@@ -481,6 +481,19 @@
     "audio": false
   },
   {
+    "catalogKey": "resistance-band-chest-fly",
+    "videoSha256": "5a923d7e63afa34de02241084214f4562bf6da14d03f6f56444f3635b3a90153",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "lat-pulldown",
     "videoSha256": "1467a291c2820831a8dd10ea1b2a5508aa3d5f39d46b88db3d8e80d81477afdc",
     "duration": 8,

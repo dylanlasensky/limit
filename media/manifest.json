@@ -1466,14 +1466,14 @@
   {
     "catalogKey": "resistance-band-chest-fly",
     "name": "Resistance Band Chest Fly",
-    "poster": "exercises/resistance-band-chest-fly/v214663246523242/fdcb6eaf72947f75c21185682ef6e1d725f97199ce70d1b17ff10738276ca971.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/resistance-band-chest-fly/v139857502240569/545ca9fb126e33528136673e555de9371976ab2ee03ade52d34969185f340045.png",
+    "source": "exercises/resistance-band-chest-fly/v139857502240569/5a923d7e63afa34de02241084214f4562bf6da14d03f6f56444f3635b3a90153.mp4",
+    "format": "mp4",
     "caption": "Keep a soft bend in your elbows and a stable rib cage. Bring your arms together in an arc; avoid forcing a deep shoulder stretch. Secure the anchor and control the band on the return.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 214663246523242,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 139857502240569,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -1485,15 +1485,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "fdcb6eaf72947f75c21185682ef6e1d725f97199ce70d1b17ff10738276ca971",
-    "videoSha256": null,
-    "bytes": 40785,
-    "blockReason": "Resistance Band Chest Fly: current renderer lacks shoulder arc, elbow angle and bilateral or unilateral hand path; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires \"Secure the anchor and control the band on the return\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "545ca9fb126e33528136673e555de9371976ab2ee03ade52d34969185f340045",
+    "videoSha256": "5a923d7e63afa34de02241084214f4562bf6da14d03f6f56444f3635b3a90153",
+    "bytes": 102196,
+    "blockReason": "",
+    "template": "depth-fly",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
