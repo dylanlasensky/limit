@@ -110,6 +110,12 @@ TEMPLATES={
  'straight-arm-cable-pulldown':('cable-straight-arm','bilateral'),
  'single-arm-cable-pullover':('cable-straight-arm','unilateral'),
  'rope-straight-arm-pulldown':('cable-straight-arm','rope'),
+ 'pull-up':('suspended-pull','overhand'),
+ 'chin-up':('suspended-pull','underhand'),
+ 'neutral-grip-pull-up':('suspended-pull','neutral'),
+ 'weighted-pull-up':('suspended-pull','weight-overhand'),
+ 'weighted-chin-up':('suspended-pull','weight-underhand'),
+ 'band-assisted-pull-up':('suspended-pull','band-assisted'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -216,6 +222,13 @@ def draw_grip_inset(d,orientation,u=0):
   d.rounded_rectangle((77,314,99,336),4,fill=BLUE,outline=INK,width=2)
   d.rounded_rectangle((119,314,141,336),4,fill=BLUE,outline=INK,width=2)
   label='V BAR / NEUTRAL'
+ elif orientation=='pronated':
+  d.line((63,314,160,314),fill=INK,width=6)
+  for x in (88,135):
+   d.rounded_rectangle((x-12,302,x+12,330),5,fill=BLUE,outline=INK,width=2)
+   d.line((x-5,305,x-5,328),fill=INK,width=2)
+   d.line((x+5,305,x+5,328),fill=INK,width=2)
+  label='PALMS AWAY'
  elif orientation=='rope':
   spread=16+12*u
   d.line((109,300,109,312),fill=INK,width=4)
@@ -228,7 +241,43 @@ def draw_grip_inset(d,orientation,u=0):
  d.text((50,339),label,font=FONTS[14],fill=INK)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='half-kneeling-cable-pulldown':
+ if kind=='suspended-pull':
+  # Hands and bar stay fixed; the body rises without a foot support or kip.
+  rise=93*u;bar_y=130
+  d.line((155,77,155,459),fill=FAR,width=8)
+  d.line((445,77,445,459),fill=FAR,width=8)
+  d.line((155,bar_y,445,bar_y),fill=INK,width=8)
+  if option=='neutral':
+   for x in (210,390):d.line((x,bar_y-10,x,bar_y+10),fill=INK,width=7)
+  if option=='band-assisted':
+   d.line((292,bar_y-3,309,bar_y-3),fill=FAR,width=6)
+   d.line((292,bar_y,339,436-rise),fill=FAR,width=5)
+   d.line((309,bar_y,367,436-rise),fill=FAR,width=5)
+   d.line((339,436-rise,367,436-rise),fill=FAR,width=5)
+  head=(300,203-rise);shoulder_y=242-rise;hip=(300,350-rise)
+  limb(d,[hip,(258,395-rise),(248,439-rise)],BLUE,17)
+  line(d,(248,439-rise),(229,443-rise),INK,8)
+  limb(d,[hip,(342,395-rise),(352,439-rise)],BLUE,17)
+  line(d,(352,439-rise),(371,443-rise),INK,8)
+  line(d,hip,(300,shoulder_y),BLUE,29)
+  d.line((269,shoulder_y,331,shoulder_y),fill=BLUE,width=23)
+  line(d,(300,shoulder_y),head,BLUE,11)
+  d.ellipse((head[0]-19,head[1]-20,head[0]+19,head[1]+20),fill=INK)
+  if option in ('weight-overhand','weight-underhand'):
+   load=(300,hip[1]+35)
+   d.line((276,hip[1]-3,324,hip[1]-3),fill=INK,width=5)
+   d.line((300,hip[1],load[0],load[1]-18),fill=INK,width=4)
+   d.ellipse((load[0]-18,load[1]-18,load[0]+18,load[1]+18),fill=FAR,outline=INK,width=3)
+   d.ellipse((load[0]-5,load[1]-5,load[0]+5,load[1]+5),fill=BG)
+  for side in (-1,1):
+   start=(300+side*31,shoulder_y);hand=(300+side*90,bar_y)
+   elbow=ik(start,hand,65,65,side=1 if side==-1 else -1)
+   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((start,elbow,65),(elbow,hand,65))):raise ValueError('Pull-up arm changed length')
+   limb(d,[start,elbow,hand],BLUE if side==1 else FAR,12)
+   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=INK)
+  grip='neutral' if option=='neutral' else 'underhand' if option in ('underhand','weight-underhand') else 'pronated'
+  draw_grip_inset(d,grip)
+ elif kind=='half-kneeling-cable-pulldown':
   # Rear knee pad and lead foot remain fixed while one handle descends from
   # the high pulley toward the shoulder with no trunk lean.
   anchor=(132,111);hip=(340,332);shoulder=(340,213);head=(340,174)
