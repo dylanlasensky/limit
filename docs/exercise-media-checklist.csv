@@ -222,7 +222,7 @@ bodyweight-reverse-lunge,Bodyweight Reverse Lunge,Bodyweight,technical,Original 
 barbell-reverse-lunge,Barbell Reverse Lunge,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 dumbbell-forward-lunge,Dumbbell Forward Lunge,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 walking-dumbbell-lunge,Walking Dumbbell Lunge,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
-barbell-walking-lunge,Barbell Walking Lunge,Barbell,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Barbell Walking Lunge: current renderer lacks each foot or box contact, pelvis level and the specified step or descent direction; it also lacks a bar with visible plates, hand placement and rack or floor contact. This variation requires ""Use a clear lane and a load you can safely unrack and stop"". Add exact setup and phase-specific joint/support constraints before generating a video."
+barbell-walking-lunge,Barbell Walking Lunge,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 dumbbell-lateral-lunge,Dumbbell Lateral Lunge,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 bodyweight-lateral-lunge,Bodyweight Lateral Lunge,Bodyweight,technical,Original LIMIT-generated schematic; no third-party footage,,,
 cossack-squat,Cossack Squat,Bodyweight,technical,Original LIMIT-generated schematic; no third-party footage,,,

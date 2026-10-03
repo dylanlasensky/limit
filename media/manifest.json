@@ -8000,14 +8000,14 @@
   {
     "catalogKey": "barbell-walking-lunge",
     "name": "Barbell Walking Lunge",
-    "poster": "exercises/barbell-walking-lunge/v23699744379068/3873079a2992e9202ffb3b5fb2b9b3b7e3cae693b1d0dab5976b32c28905b604.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/barbell-walking-lunge/v226114662770658/77dd045d4f6bb08fa59f2a4b94146562f67a77c5eb3c5f5c3505eae3f8f66963.png",
+    "source": "exercises/barbell-walking-lunge/v226114662770658/90ebfcff3e42db25d227842c7c97733436fd809f6e516df205e5a007e9c1c692.mp4",
+    "format": "mp4",
     "caption": "Keep your working foot stable and your pelvis level. Lower with control and drive through the working leg; count repetitions per side. Use a clear lane and a load you can safely unrack and stop.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 23699744379068,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 226114662770658,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "coaching-recommended",
     "textFallback": [
@@ -8019,15 +8019,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "3873079a2992e9202ffb3b5fb2b9b3b7e3cae693b1d0dab5976b32c28905b604",
-    "videoSha256": null,
-    "bytes": 41046,
-    "blockReason": "Barbell Walking Lunge: current renderer lacks each foot or box contact, pelvis level and the specified step or descent direction; it also lacks a bar with visible plates, hand placement and rack or floor contact. This variation requires \"Use a clear lane and a load you can safely unrack and stop\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "77dd045d4f6bb08fa59f2a4b94146562f67a77c5eb3c5f5c3505eae3f8f66963",
+    "videoSha256": "90ebfcff3e42db25d227842c7c97733436fd809f6e516df205e5a007e9c1c692",
+    "bytes": 107704,
+    "blockReason": "",
+    "template": "walking-lunge",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

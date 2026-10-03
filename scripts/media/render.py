@@ -312,6 +312,7 @@ TEMPLATES={
  'barbell-reverse-lunge':('reverse-lunge','barbell'),
  'dumbbell-forward-lunge':('forward-lunge','dumbbell'),
  'walking-dumbbell-lunge':('walking-lunge','dumbbell'),
+ 'barbell-walking-lunge':('walking-lunge','barbell'),
  'smith-machine-split-squat':('split-squat','smith'),
  'bodyweight-step-up':('step-up','bodyweight'),
  'dumbbell-step-up':('step-up','dumbbell'),
@@ -3839,12 +3840,24 @@ def draw_pose(d,kind,option,u):
   line(d,hip,shoulder,BLUE,26);line(d,shoulder,head,BLUE,11)
   d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
   d.line((hip[0]-28,hip[1],hip[0]+28,hip[1]),fill=BLUE,width=9)
-  for side,color in ((-1,FAR),(1,INK)):
-   elbow=(shoulder[0]+side*31,shoulder[1]+58)
-   hand=(elbow[0]+side*2,elbow[1]+46)
-   limb(d,[shoulder,elbow,hand],color,10)
-   weight(d,hand,hammer=True)
-  d.text((45,188),'TWO FORWARD FOOTFALLS',font=FONTS[14],fill=MUTED)
+  if option=='barbell':
+   bar_y=shoulder[1]+6;bar_left=shoulder[0]-91;bar_right=shoulder[0]+91
+   if bar_left<90 or bar_right>508:raise ValueError('Walking barbell left the frame')
+   d.line((bar_left,bar_y,bar_right,bar_y),fill=INK,width=6)
+   for px in (bar_left+10,bar_right-10):d.rounded_rectangle((px-8,bar_y-23,px+8,bar_y+23),3,fill=FAR,outline=INK,width=2)
+   d.rounded_rectangle((shoulder[0]-15,bar_y-7,shoulder[0]+15,bar_y+7),3,fill=BLUE,outline=INK,width=2)
+   for side,color in ((-1,FAR),(1,INK)):
+    grip=(shoulder[0]+side*31,bar_y);elbow=(shoulder[0]+side*43,shoulder[1]+43)
+    limb(d,[shoulder,elbow,grip],color,9)
+    d.ellipse((grip[0]-6,grip[1]-6,grip[0]+6,grip[1]+6),fill=INK)
+   d.text((45,224),'BACK BAR / WALK',font=FONTS[14],fill=MUTED)
+  else:
+   for side,color in ((-1,FAR),(1,INK)):
+    elbow=(shoulder[0]+side*31,shoulder[1]+58)
+    hand=(elbow[0]+side*2,elbow[1]+46)
+    limb(d,[shoulder,elbow,hand],color,10)
+    weight(d,hand,hammer=True)
+   d.text((45,188),'TWO FORWARD FOOTFALLS',font=FONTS[14],fill=MUTED)
  elif kind in ('split-squat','reverse-lunge','forward-lunge'):
   front_ankle=(393,440);front_toe=(432,450)
   if kind=='forward-lunge':
