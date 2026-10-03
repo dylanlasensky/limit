@@ -234,6 +234,45 @@
     "audio": false
   },
   {
+    "catalogKey": "goblet-squat",
+    "videoSha256": "f9fcad76fd31be837bbb2c172af3add271b33242a59f74349ed5f6e94e269abc",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "dumbbell-front-squat",
+    "videoSha256": "9c9d78f7de2924739f96f1a36b7f4ceccbee74ac9ed17cad6113d8c864eb14b5",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "heel-elevated-goblet-squat",
+    "videoSha256": "dc086e284494b7b5d9c4f8920457949810e0d01b9e6899df9d3b1220e6038e1f",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "bodyweight-squat",
     "videoSha256": "e590251124e10dfd1cb1c5f25cba07da92ea0ea3ce05b62c595fba56d2a1009d",
     "duration": 8,

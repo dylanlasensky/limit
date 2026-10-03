@@ -32,6 +32,9 @@ TEMPLATES={
  'dumbbell-pullover':('dumbbell-pullover',None),
  'single-arm-dumbbell-row':('dumbbell-row','bench-supported'),
  'dumbbell-bent-over-row':('dumbbell-row','unsupported'),
+ 'goblet-squat':('loaded-squat','goblet'),
+ 'dumbbell-front-squat':('loaded-squat','front-rack'),
+ 'heel-elevated-goblet-squat':('loaded-squat','heel-wedge'),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -92,7 +95,35 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='dumbbell-row':
+ if kind=='loaded-squat':
+  # Fixed foot and leg lengths follow the established squat path. Equipment
+  # differs exactly: one chest-held bell, two front-rack bells, or a heel wedge.
+  wedge=option=='heel-wedge'
+  ankle=(310,430 if wedge else 447)
+  if wedge:
+   d.polygon([(278,450),(326,450),(326,436)],fill=FAR)
+   line(d,ankle,(347,450),INK,10)
+  else:line(d,ankle,(347,450),INK,10)
+  hip=(302-72*u,294+68*u)
+  shoulder=polar(hip,126,-math.pi/2+.32*u)
+  head=polar(shoulder,33,-math.pi/2+.15*u)
+  knee=ik(hip,ankle,79,78)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,knee,79),(knee,ankle,78),(hip,shoulder,126))):raise ValueError('Loaded squat segment changed length')
+  limb(d,[hip,knee,ankle],BLUE,18)
+  body(d,hip,shoulder,head)
+  if option=='front-rack':
+   for offset,color in ((-20,FAR),(20,INK)):
+    hand=(shoulder[0]+offset+18,shoulder[1]+27)
+    elbow=(shoulder[0]+offset+40,shoulder[1]+53)
+    limb(d,[shoulder,elbow,hand],color,10)
+    weight(d,hand,hammer=True)
+  else:
+   hand=(shoulder[0]+43,shoulder[1]+50)
+   for offset,color in ((-12,FAR),(12,INK)):
+    elbow=(shoulder[0]+offset+42,shoulder[1]+64)
+    limb(d,[shoulder,elbow,hand],color,10)
+   weight(d,hand,hammer=True)
+ elif kind=='dumbbell-row':
   # Both rows keep the trunk steady while the elbow travels toward the hip.
   # The unilateral key fixes a separate bench hand; the bilateral key uses
   # two dumbbells and both feet with no bench contact.
