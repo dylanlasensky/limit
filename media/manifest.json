@@ -8381,14 +8381,14 @@
   {
     "catalogKey": "dumbbell-romanian-deadlift",
     "name": "Dumbbell Romanian Deadlift",
-    "poster": "exercises/dumbbell-romanian-deadlift/v67979308690806/5fb6ed20b16fe955d6a371a02d20210977126323cf4d3f8d78d0898a4715a5ad.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/dumbbell-romanian-deadlift/v10336452758403/aaf288ee28d880f114cf5bf94ba928eb9885478177439ecb301e0e616f088379.png",
+    "source": "exercises/dumbbell-romanian-deadlift/v10336452758403/f2443f6d40be6ed3368acd1b2b3ba81bd205859af17f3d287324f69cbc609ddd.mp4",
+    "format": "mp4",
     "caption": "Brace your trunk and move your hips backward while keeping the load close. Use a range you can control with a steady spine; stand tall without leaning backward. Keep the weights beside or in front of your thighs.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 67979308690806,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 10336452758403,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -8400,15 +8400,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "5fb6ed20b16fe955d6a371a02d20210977126323cf4d3f8d78d0898a4715a5ad",
-    "videoSha256": null,
-    "bytes": 44319,
-    "blockReason": "Dumbbell Romanian Deadlift: the current side-view draft over-bends the knee at the bottom of the hinge; keep this blocked until fixed foot contact, near-straight knee travel, hip displacement and two close dumbbell paths are jointly constrained.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "aaf288ee28d880f114cf5bf94ba928eb9885478177439ecb301e0e616f088379",
+    "videoSha256": "f2443f6d40be6ed3368acd1b2b3ba81bd205859af17f3d287324f69cbc609ddd",
+    "bytes": 100269,
+    "blockReason": "",
+    "template": "barbell-hinge",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
