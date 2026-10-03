@@ -9551,14 +9551,14 @@
   {
     "catalogKey": "single-leg-hip-thrust",
     "name": "Single-Leg Hip Thrust",
-    "poster": "exercises/single-leg-hip-thrust/v180719600280940/4c6201721c62192bb879ed04b6379f77c9d245c259530b5d2c7d2c41635d03fc.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/single-leg-hip-thrust/v249788476645551/1465691e59916a17b01677f682f3d187e9b4a8b48342ee470fe030a812dfd278.png",
+    "source": "exercises/single-leg-hip-thrust/v249788476645551/51dc657beea0d4372f552848dd91a6e3f0195d01cdca95e5bdb5aa5427897002.mp4",
+    "format": "mp4",
     "caption": "Set your feet and upper-body support securely, keeping your ribs stacked over your pelvis. Extend your hips and finish with your glutes rather than arching your lower back. Keep your pelvis level and count repetitions per side.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 180719600280940,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 249788476645551,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -9570,15 +9570,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "4c6201721c62192bb879ed04b6379f77c9d245c259530b5d2c7d2c41635d03fc",
-    "videoSha256": null,
-    "bytes": 43763,
-    "blockReason": "Single-Leg Hip Thrust: current renderer lacks secure shoulder or floor contact, the working foot contact and a hip-driven ascent and return; it also lacks a stable bench with the specified body contact points. This variation requires \"Keep your pelvis level and count repetitions per side\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "1465691e59916a17b01677f682f3d187e9b4a8b48342ee470fe030a812dfd278",
+    "videoSha256": "51dc657beea0d4372f552848dd91a6e3f0195d01cdca95e5bdb5aa5427897002",
+    "bytes": 87883,
+    "blockReason": "",
+    "template": "bench-hip-thrust",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

@@ -291,6 +291,7 @@ TEMPLATES={
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'dumbbell-hip-thrust':('bench-hip-thrust','dumbbell'),
  'barbell-hip-thrust':('bench-hip-thrust','barbell'),
+ 'single-leg-hip-thrust':('bench-hip-thrust','single-leg'),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
  'incline-push-up':('push-up','incline-bench'),
@@ -3807,14 +3808,29 @@ def draw_pose(d,kind,option,u):
   hip=(shoulder[0]+math.sqrt(128**2-(hip_y-shoulder[1])**2),hip_y)
   knee=ik(hip,foot,85,85,side=1)
   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,hip,128),(hip,knee,85),(knee,foot,85))):raise ValueError('Hip-thrust segment changed length')
+  if option=='single-leg':
+   free_knee=(hip[0]+12,hip[1]-75)
+   free_foot=(free_knee[0]+52,free_knee[1]+4)
+   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,free_knee,math.hypot(12,75)),(free_knee,free_foot,math.hypot(52,4)))) or free_foot[1]>=395:raise ValueError('Single-leg thrust free leg changed or touched support')
+   limb(d,[hip,free_knee,free_foot],FAR,12)
+   line(d,free_foot,(free_foot[0]+16,free_foot[1]),INK,7)
   limb(d,[hip,knee,foot],BLUE,18)
   line(d,foot,(467,447),INK,10)
   body(d,hip,shoulder,(170,295))
-  load=(hip[0],hip[1]-22)
-  elbow=ik(shoulder,load,82,77,side=-1)
-  hand=load
-  if abs(math.dist(elbow,hand)-77)>1e-6 or abs(hand[0]-hip[0])>1e-6 or abs(hand[1]-(hip[1]-22))>1e-6:raise ValueError('Hip-thrust hand lost load contact')
-  limb(d,[shoulder,elbow,hand],INK,10)
+  if option=='single-leg':
+   limb(d,[shoulder,(238,341),(265,342)],INK,10)
+   d.rounded_rectangle((45,185,216,258),5,fill=BG,outline=FAR,width=2)
+   d.text((52,190),'FRONT / LEVEL PELVIS',font=FONTS[14],fill=MUTED)
+   d.line((83,220,177,220),fill=BLUE,width=9)
+   d.line((105,222,105,244),fill=BLUE,width=9)
+   d.line((157,222,167,238),fill=FAR,width=8)
+   d.line((167,238,182,233),fill=FAR,width=7)
+  else:
+   load=(hip[0],hip[1]-22)
+   elbow=ik(shoulder,load,82,77,side=-1)
+   hand=load
+   if abs(math.dist(elbow,hand)-77)>1e-6 or abs(hand[0]-hip[0])>1e-6 or abs(hand[1]-(hip[1]-22))>1e-6:raise ValueError('Hip-thrust hand lost load contact')
+   limb(d,[shoulder,elbow,hand],INK,10)
   if option=='barbell':
    # A padded bar follows the hip, held at both sides; a top inset shows its
    # actual transverse direction, which a sagittal silhouette cannot show.
@@ -3827,9 +3843,10 @@ def draw_pose(d,kind,option,u):
    d.rounded_rectangle((119,222,150,240),4,fill=BLUE,outline=INK,width=2)
    for px in (103,166):d.rounded_rectangle((px-6,223,px+6,239),3,fill=INK)
    if abs(load[0]-hip[0])>1e-6 or abs(load[1]-(hip[1]-22))>1e-6:raise ValueError('Hip-thrust bar lost pelvis contact')
-  else:weight(d,load)
-  # Draw the near gripping hand last so the load cannot hide its contact.
-  d.rounded_rectangle((hand[0]-6,hand[1]-5,hand[0]+6,hand[1]+5),3,fill=INK,outline=BG,width=1)
+  elif option=='dumbbell':weight(d,load)
+  if option!='single-leg':
+   # Draw the near gripping hand last so the load cannot hide its contact.
+   d.rounded_rectangle((hand[0]-6,hand[1]-5,hand[0]+6,hand[1]+5),3,fill=INK,outline=BG,width=1)
  elif kind=='bridge':
   shoulder=(170,435);hip=polar(shoulder,135,-.31*u);foot=(408,447);knee=ik(hip,foot,85,85,side=1)
   # Knee stays above the supported foot; shoulders and foot remain on the floor.

@@ -3198,6 +3198,19 @@
     "audio": false
   },
   {
+    "catalogKey": "single-leg-hip-thrust",
+    "videoSha256": "51dc657beea0d4372f552848dd91a6e3f0195d01cdca95e5bdb5aa5427897002",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "glute-bridge",
     "videoSha256": "82478370c99a0a3d132e9751838e0a3f43a00446c336b3baef6bff4e921c60bf",
     "duration": 8,
