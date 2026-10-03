@@ -7964,14 +7964,14 @@
   {
     "catalogKey": "walking-dumbbell-lunge",
     "name": "Walking Dumbbell Lunge",
-    "poster": "exercises/walking-dumbbell-lunge/v144910438787099/cc40a770565504f09a0633dfd3339c02f690ddc5d47deb5ccff372d46453b5ae.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/walking-dumbbell-lunge/v193019001354108/902d31c1fa9b0c7c7f1459697448038c17233b23d655192d4e9e7292561d5a96.png",
+    "source": "exercises/walking-dumbbell-lunge/v193019001354108/36aecda9d67a4a77e430073c222ffe5ed3850d12832d39de0f29601d84bd65c0.mp4",
+    "format": "mp4",
     "caption": "Keep your working foot stable and your pelvis level. Lower with control and drive through the working leg; count repetitions per side. Use a clear walking lane and count each leg separately.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 144910438787099,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 193019001354108,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -7983,15 +7983,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "cc40a770565504f09a0633dfd3339c02f690ddc5d47deb5ccff372d46453b5ae",
-    "videoSha256": null,
-    "bytes": 41327,
-    "blockReason": "Walking Dumbbell Lunge: current renderer lacks each foot or box contact, pelvis level and the specified step or descent direction; it also lacks the dumbbell grip, position and changing load path. This variation requires \"Use a clear walking lane and count each leg separately\". Add exact setup and phase-specific joint/support constraints before generating a video.",
+    "fps": 24,
+    "posterSha256": "902d31c1fa9b0c7c7f1459697448038c17233b23d655192d4e9e7292561d5a96",
+    "videoSha256": "36aecda9d67a4a77e430073c222ffe5ed3850d12832d39de0f29601d84bd65c0",
+    "bytes": 106173,
+    "blockReason": "",
     "template": "walking-lunge",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

@@ -2756,6 +2756,19 @@
     "audio": false
   },
   {
+    "catalogKey": "walking-dumbbell-lunge",
+    "videoSha256": "36aecda9d67a4a77e430073c222ffe5ed3850d12832d39de0f29601d84bd65c0",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-lateral-lunge",
     "videoSha256": "d7a254f52da740520f52b904346244aa836602c0217338735eca2e67b15978e3",
     "duration": 8,

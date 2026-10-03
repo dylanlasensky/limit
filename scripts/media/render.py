@@ -311,6 +311,7 @@ TEMPLATES={
  'dumbbell-reverse-lunge':('reverse-lunge','dumbbell'),
  'barbell-reverse-lunge':('reverse-lunge','barbell'),
  'dumbbell-forward-lunge':('forward-lunge','dumbbell'),
+ 'walking-dumbbell-lunge':('walking-lunge','dumbbell'),
  'smith-machine-split-squat':('split-squat','smith'),
  'bodyweight-step-up':('step-up','bodyweight'),
  'dumbbell-step-up':('step-up','dumbbell'),
@@ -3799,6 +3800,51 @@ def draw_pose(d,kind,option,u):
     hand=(elbow[0]+5,elbow[1]+48)
     limb(d,[shoulder,elbow,hand],color,10)
     if option=='dumbbell':weight(d,hand)
+ elif kind=='walking-lunge':
+  # Two successive forward footfalls in world coordinates. One foot remains
+  # planted as the other clears the floor, lands, and accepts a lunge descent.
+  t=u
+  if t<1:
+   hip=(220,285);left=(220,445);right=(220,445)
+  elif t<2:
+   q=t-1;hip=(220+40*q,285);left=(220,445);right=(220+120*q,445-28*math.sin(math.pi*q))
+  elif t<3:
+   q=t-2;hip=(260+20*q,285+35*q);left=(220,445);right=(340,445)
+  elif t<3.5:
+   q=(t-3)/.5;hip=(280+30*q,320-35*q);left=(220,445);right=(340,445)
+  elif t<5:
+   q=(t-3.5)/1.5;hip=(310+55*q,285);left=(220+240*q,445-28*math.sin(math.pi*q));right=(340,445)
+  elif t<6:
+   q=t-5;hip=(365+25*q,285+35*q);left=(460,445);right=(340,445)
+  elif t<6.7:
+   q=(t-6)/.7;hip=(390+20*q,320-35*q);left=(460,445);right=(340,445)
+  else:hip=(410,285);left=(460,445);right=(340,445)
+  if (1<t<2 and (left!=(220,445) or right[1]>=445)) or (3.5<t<5 and (right!=(340,445) or left[1]>=445)):
+   raise ValueError('Walking lunge airborne foot or planted support changed')
+  if left[1]>445 or right[1]>445:raise ValueError('Walking lunge foot crossed floor')
+  def walking_knee(foot):
+   dx=foot[0]-hip[0];dy=foot[1]-hip[1];span=math.hypot(dx,dy)
+   if span>=190:raise ValueError('Walking lunge leg became unreachable')
+   offset=16*math.tanh(dx/40)
+   knee=(hip[0]+dx/2+offset*dy/span,hip[1]+dy/2-offset*dx/span)
+   depth=math.sqrt(95**2-(span/2)**2-offset**2)
+   if any(abs(math.hypot(math.dist(a,b),depth)-95)>1e-6 for a,b in ((hip,knee),(knee,foot))):raise ValueError('Walking lunge 3-D leg length changed')
+   return knee
+  left_knee=walking_knee(left);right_knee=walking_knee(right)
+  d.line((147,454,505,454),fill=FAR,width=3)
+  limb(d,[hip,left_knee,left],FAR,16)
+  limb(d,[hip,right_knee,right],BLUE,18)
+  for foot in (left,right):line(d,foot,(foot[0]+21,foot[1]+2),INK,9)
+  shoulder=(hip[0],hip[1]-113);head=(hip[0],hip[1]-146)
+  line(d,hip,shoulder,BLUE,26);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  d.line((hip[0]-28,hip[1],hip[0]+28,hip[1]),fill=BLUE,width=9)
+  for side,color in ((-1,FAR),(1,INK)):
+   elbow=(shoulder[0]+side*31,shoulder[1]+58)
+   hand=(elbow[0]+side*2,elbow[1]+46)
+   limb(d,[shoulder,elbow,hand],color,10)
+   weight(d,hand,hammer=True)
+  d.text((45,188),'TWO FORWARD FOOTFALLS',font=FONTS[14],fill=MUTED)
  elif kind in ('split-squat','reverse-lunge','forward-lunge'):
   front_ankle=(393,440);front_toe=(432,450)
   if kind=='forward-lunge':
@@ -4073,6 +4119,9 @@ def frame(e,t,template=None):
    u,label=paused_bench_phase(t);draw_pose(d,*template,u)
   elif template[0]=='barbell-hinge' and template[1]=='paused':
    u,label=paused_deadlift_phase(t);draw_pose(d,*template,u)
+  elif template[0]=='walking-lunge':
+   label='Step forward' if 1<=t<2 or 3.5<=t<5 else ('Lower into lunge' if 2<=t<3 or 5<=t<6 else ('Stand and transfer' if 3<=t<3.5 or 6<=t<6.7 else 'Set stance / finish'))
+   draw_pose(d,*template,t)
   else:
    u,label=phase(t);draw_pose(d,*template,u)
   d.text((55,105),label,font=FONTS[22],fill=INK)
