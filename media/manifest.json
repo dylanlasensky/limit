@@ -2684,14 +2684,14 @@
   {
     "catalogKey": "kettlebell-row",
     "name": "Kettlebell Row",
-    "poster": "exercises/kettlebell-row/v188364405843820/46489d8e195d23097e54a23e7bf8301b9e6c70b1894c1bee026482e651461b81.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/kettlebell-row/v243538166521217/ff3993b84eeffa84b0e37456233a48047d6290a41611d14af77f9f0184183cb3.png",
+    "source": "exercises/kettlebell-row/v243538166521217/160000d60360478935d2d1d2d5ace069d20eb34a5dcaf57e55b09893953fcbe1.mp4",
+    "format": "mp4",
     "caption": "Use a stable torso position and keep your neck in line with your spine. Row your elbows back, then reach forward under control without jerking the weight. Brace on a stable support; log repetitions per side.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 188364405843820,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 243538166521217,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -2703,15 +2703,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "46489d8e195d23097e54a23e7bf8301b9e6c70b1894c1bee026482e651461b81",
-    "videoSha256": null,
-    "bytes": 40676,
-    "blockReason": "Kettlebell Row: current renderer lacks torso support or hinge angle, elbow track and load path toward the trunk; it also lacks the handle grip and bell position. This variation requires \"Brace on a stable support; log repetitions per side\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "ff3993b84eeffa84b0e37456233a48047d6290a41611d14af77f9f0184183cb3",
+    "videoSha256": "160000d60360478935d2d1d2d5ace069d20eb34a5dcaf57e55b09893953fcbe1",
+    "bytes": 74136,
+    "blockReason": "",
+    "template": "kettlebell-row",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

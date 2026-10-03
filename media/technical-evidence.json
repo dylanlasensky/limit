@@ -182,6 +182,19 @@
     "audio": false
   },
   {
+    "catalogKey": "kettlebell-row",
+    "videoSha256": "160000d60360478935d2d1d2d5ace069d20eb34a5dcaf57e55b09893953fcbe1",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-pullover",
     "videoSha256": "221b5c1a65e0d3b4653abc388b55da76e20ec1171bb4c9c756d87e3a8a7ff3a4",
     "duration": 8,

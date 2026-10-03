@@ -75,6 +75,7 @@ TEMPLATES={
  'resistance-band-overhead-press':('band-overhead-press',None),
  'resistance-band-pulldown':('band-straight-arm-pulldown',None),
  'resistance-band-chest-press':('band-chest-press',None),
+ 'kettlebell-row':('kettlebell-row',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -720,11 +721,11 @@ def draw_pose(d,kind,option,u):
     elbow=(shoulder[0]+offset+42,shoulder[1]+64)
     limb(d,[shoulder,elbow,hand],color,10)
    weight(d,hand,hammer=True)
- elif kind=='dumbbell-row':
+ elif kind in ('dumbbell-row','kettlebell-row'):
   # Both rows keep the trunk steady while the elbow travels toward the hip.
   # The unilateral key fixes a separate bench hand; the bilateral key uses
   # two dumbbells and both feet with no bench contact.
-  supported=option=='bench-supported'
+  supported=option=='bench-supported' or kind=='kettlebell-row'
   if supported:
    d.rounded_rectangle((174,387,268,401),5,fill=FAR)
    for x in (190,252):d.line((x,401,x,456),fill=FAR,width=7)
@@ -749,7 +750,11 @@ def draw_pose(d,kind,option,u):
    hand=polar(elbow,60,math.pi/2)
    if abs(math.dist(start,elbow)-70)>1e-6 or abs(math.dist(elbow,hand)-60)>1e-6:raise ValueError('Row arm length changed')
    limb(d,[start,elbow,hand],INK if i else FAR,12)
-   weight(d,hand,hammer=True)
+   if kind=='kettlebell-row':
+    x,y=hand
+    d.rounded_rectangle((x-10,y-8,x+10,y+12),5,outline=INK,width=4)
+    d.ellipse((x-16,y+8,x+16,y+38),fill=FAR,outline=INK,width=3)
+   else:weight(d,hand,hammer=True)
  elif kind=='dumbbell-pullover':
   # Head and upper back stay on the bench. Two hands keep one dumbbell secure;
   # almost-straight arms pivot around the shoulders without moving the trunk.
