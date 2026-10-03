@@ -127,6 +127,14 @@ TEMPLATES={
  'single-leg-glute-bridge':('bridge-single',None),
  'frog-pump':('bridge-frog',None),
  'barbell-glute-bridge':('bridge-barbell',None),
+ 'barbell-curl':('bar-curl','straight-supinated'),
+ 'ez-bar-curl':('bar-curl','ez-supinated'),
+ 'reverse-barbell-curl':('bar-curl','straight-pronated'),
+ 'reverse-ez-bar-curl':('bar-curl','ez-pronated'),
+ 'ez-bar-preacher-curl':('supported-bar-curl','preacher'),
+ 'ez-bar-spider-curl':('supported-bar-curl','spider'),
+ 'barbell-wrist-curl':('bar-wrist-curl','supinated'),
+ 'barbell-reverse-wrist-curl':('bar-wrist-curl','pronated'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -264,9 +272,80 @@ def draw_opposite_limb_inset(d):
  d.line((121,334,147,346),fill=BLUE,width=8)
  d.ellipse((143,342,152,351),fill=INK)
  d.text((49,341),'OPPOSITE SIDES',font=FONTS[14],fill=INK)
+def draw_curl_bar(d,point,ez=False):
+ # The bar stays in both hands and its plate centers follow the hand path.
+ x,y=point
+ if ez:
+  pts=[(x-72,y),(x-45,y),(x-27,y-8),(x-9,y+5),(x+9,y-5),(x+27,y+8),(x+45,y),(x+72,y)]
+  d.line([xy(p) for p in pts],fill=INK,width=6,joint='curve')
+ else:d.line((x-72,y,x+72,y),fill=INK,width=6)
+ for px in (x-61,x+61):
+  d.rounded_rectangle((px-7,y-19,px+7,y+19),3,fill=FAR,outline=INK,width=2)
+ for px in (x-12,x+12):d.ellipse((px-5,y-5,px+5,y+5),fill=BLUE)
+def draw_curl_grip_inset(d,ez,pronated,upper=False):
+ dy=-130 if upper else 0
+ d.rounded_rectangle((42,272+dy,186,365+dy),7,fill=BG,outline=FAR,width=2)
+ d.text((50,279+dy),'GRIP / BAR',font=FONTS[14],fill=MUTED)
+ y=314+dy
+ if ez:d.line([(57,y),(76,y),(92,y-8),(108,y+4),(124,y-4),(140,y+8),(169,y)],fill=INK,width=5)
+ else:d.line((57,y,169,y),fill=INK,width=5)
+ for x in (91,134):
+  d.rounded_rectangle((x-10,304+dy,x+10,326+dy),4,fill=BLUE,outline=INK,width=2)
+  if pronated:
+   d.line((x-4,306+dy,x-4,322+dy),fill=INK,width=2);d.line((x+4,306+dy,x+4,322+dy),fill=INK,width=2)
+  else:d.line((x-5,309+dy,x+5,309+dy),fill=INK,width=2)
+ d.text((50,338+dy),'PALMS DOWN' if pronated else 'PALMS UP',font=FONTS[14],fill=INK)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='dead-bug':
+ if kind=='bar-curl':
+  # Fixed shoulder and upper arm; two hands travel together with one bar.
+  hip=(300,329);shoulder=(296,206);head=(296,171)
+  for dx,color in ((-27,FAR),(27,BLUE)):
+   limb(d,[hip,(300+dx,383),(300+dx*1.5,444)],color,16)
+   line(d,(300+dx*1.5,444),(300+dx*1.5+22,447),INK,8)
+  body(d,hip,shoulder,head)
+  hands=[]
+  for offset,color in ((-10,FAR),(10,INK)):
+   start=(shoulder[0]+offset,shoulder[1]);elbow=(304+offset,290)
+   hand=polar(elbow,67,math.pi/2-2.55*u)
+   if abs(math.dist(elbow,hand)-67)>1e-6 or elbow[1]!=290:raise ValueError('Bar curl elbow changed')
+   limb(d,[start,elbow,hand],color,11);hands.append(hand)
+  center=((hands[0][0]+hands[1][0])/2,(hands[0][1]+hands[1][1])/2)
+  draw_curl_bar(d,center,option.startswith('ez-'))
+  draw_curl_grip_inset(d,option.startswith('ez-'),option.endswith('pronated'))
+ elif kind=='supported-bar-curl':
+  spider=option=='spider'
+  if spider:
+   d.line((185,346,344,252),fill=FAR,width=18)
+   for x in (204,331):d.line((x,354,x,457),fill=FAR,width=7)
+   shoulder=(222,302);hip=(315,248);head=(181,315);elbow=(229,357)
+  else:
+   d.rounded_rectangle((245,339,341,353),5,fill=FAR)
+   for x in (258,327):d.line((x,353,x,456),fill=FAR,width=7)
+   d.line((300,266,393,352),fill=FAR,width=20)
+   d.line((375,351,375,456),fill=FAR,width=8)
+   shoulder=(263,218);hip=(289,327);head=(259,181);elbow=(375,330)
+  limb(d,[hip,(357,353),(378,444)],BLUE,16)
+  line(d,(378,444),(405,448),INK,8)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  hand=polar(elbow,70,(1.35-2.55*u) if spider else (1.35-3.55*u))
+  if abs(math.dist(elbow,hand)-70)>1e-6:raise ValueError('Supported bar curl forearm changed')
+  limb(d,[shoulder,elbow,hand],INK,11)
+  draw_curl_bar(d,hand,True)
+  draw_curl_grip_inset(d,True,False,upper=spider)
+ elif kind=='bar-wrist-curl':
+  # Supported forearm; only the wrist turns the shared straight bar.
+  d.rounded_rectangle((145,313,362,333),6,fill=FAR)
+  for x in (167,340):d.line((x,333,x,456),fill=FAR,width=8)
+  elbow=(178,297);wrist=(353,297)
+  line(d,elbow,wrist,BLUE,24)
+  hand=polar(wrist,49,.55-.98*u)
+  if abs(math.dist(wrist,hand)-49)>1e-6:raise ValueError('Bar wrist support changed')
+  line(d,wrist,hand,INK,16)
+  draw_curl_bar(d,hand,False)
+  draw_curl_grip_inset(d,False,option=='pronated',upper=True)
+ elif kind=='dead-bug':
   # Floor-backed trunk remains fixed as opposite arm and leg lengthen.
   hip=(285,407);shoulder=(204,407);head=(166,409)
   line(d,hip,shoulder,BLUE,27)

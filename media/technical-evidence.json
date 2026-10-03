@@ -650,6 +650,32 @@
     "audio": false
   },
   {
+    "catalogKey": "barbell-curl",
+    "videoSha256": "ab19ce2f4b261d888eb21ed235f6fd04911ec2a5cffa3749e5174579afd40808",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "ez-bar-curl",
+    "videoSha256": "d626e2279b094b340f97e74bcb3ea88e0caa1e4c01a9f69722f286f057321e36",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-curl",
     "videoSha256": "ecae92f665326a0301726bedddb1c6dad29bcf8338db7f6abe942ebd7f931aa0",
     "duration": 8,
@@ -754,6 +780,19 @@
     "audio": false
   },
   {
+    "catalogKey": "ez-bar-preacher-curl",
+    "videoSha256": "86a3a8317737d21c238f331ec7c19d0794698ced751c8de2607d68b200ed7ebf",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "cable-curl",
     "videoSha256": "698552ddf0e3d0828b9710c8e63461649d29df70cee172071741cd02671f7fdf",
     "duration": 8,
@@ -808,6 +847,45 @@
   {
     "catalogKey": "spider-curl",
     "videoSha256": "f0f69c97c6af5935664e72bc1fd0f54711863b6b04ebd4d883e39191d1fb5a56",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "ez-bar-spider-curl",
+    "videoSha256": "13c9753aeff57fb419341c7aa6f7f8eaaa65432cddffd4b2cdfb19219c941590",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "reverse-barbell-curl",
+    "videoSha256": "6e0632a4e390487df85ca14cbb7e962b772f850ae46a674b544f54ac500d4561",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "reverse-ez-bar-curl",
+    "videoSha256": "1cf1cbfaa0ba0f2e22cafee8cfd681e1067443a87a85271ca45817fd78071e5c",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -1040,8 +1118,34 @@
     "audio": false
   },
   {
+    "catalogKey": "barbell-wrist-curl",
+    "videoSha256": "1a36c1ed02752b3385bba527cc911c6a78049410cc452401b7d36b76aaa04baa",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-reverse-wrist-curl",
     "videoSha256": "659bd3dc8a853d18b88cc7a893f0574e3a49d29e74bd580896276650e97dec0d",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "barbell-reverse-wrist-curl",
+    "videoSha256": "d4a6cc4fcd810ccfcd669be9c4a700ec79f1219ba98363c4e8598e77b1b73029",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
