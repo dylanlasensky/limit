@@ -293,6 +293,7 @@ TEMPLATES={
  'dumbbell-hip-thrust':('bench-hip-thrust','dumbbell'),
  'barbell-hip-thrust':('bench-hip-thrust','barbell'),
  'single-leg-hip-thrust':('bench-hip-thrust','single-leg'),
+ 'smith-machine-hip-thrust':('bench-hip-thrust','smith'),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
  'incline-push-up':('push-up','incline-bench'),
@@ -3814,6 +3815,10 @@ def draw_pose(d,kind,option,u):
  elif kind=='bench-hip-thrust':
   # Adapted from the read-only local hip-thrust candidate. The shoulder
   # contact and foot stay fixed while the hip moves around a rigid torso.
+  if option=='smith':
+   for rx in (211,441):
+    d.line((rx,88,rx,457),fill=FAR,width=7)
+    for stop_y in (280,372):d.line((rx-9,stop_y,rx+9,stop_y),fill=INK,width=3)
   d.rounded_rectangle((130,320,235,338),5,fill=FAR)
   for x in (149,218):d.line((x,338,x,460),fill=FAR,width=8)
   shoulder=(208,315);foot=(435,444)
@@ -3839,10 +3844,10 @@ def draw_pose(d,kind,option,u):
    d.line((157,222,167,238),fill=FAR,width=8)
    d.line((167,238,182,233),fill=FAR,width=7)
   else:
-   load=(hip[0],hip[1]-22)
+   load=(336 if option=='smith' else hip[0],hip[1]-22)
    elbow=ik(shoulder,load,82,77,side=-1)
    hand=load
-   if abs(math.dist(elbow,hand)-77)>1e-6 or abs(hand[0]-hip[0])>1e-6 or abs(hand[1]-(hip[1]-22))>1e-6:raise ValueError('Hip-thrust hand lost load contact')
+   if abs(math.dist(elbow,hand)-77)>1e-6 or abs(hand[0]-hip[0])>(12 if option=='smith' else 1e-6) or abs(hand[1]-(hip[1]-22))>1e-6:raise ValueError('Hip-thrust hand lost load contact')
    limb(d,[shoulder,elbow,hand],INK,10)
   if option=='barbell':
    # A padded bar follows the hip, held at both sides; a top inset shows its
@@ -3856,6 +3861,14 @@ def draw_pose(d,kind,option,u):
    d.rounded_rectangle((119,222,150,240),4,fill=BLUE,outline=INK,width=2)
    for px in (103,166):d.rounded_rectangle((px-6,223,px+6,239),3,fill=INK)
    if abs(load[0]-hip[0])>1e-6 or abs(load[1]-(hip[1]-22))>1e-6:raise ValueError('Hip-thrust bar lost pelvis contact')
+  elif option=='smith':
+   bar_y=load[1]
+   d.line((211,bar_y,441,bar_y),fill=INK,width=6)
+   for px in (234,418):d.rounded_rectangle((px-10,bar_y-24,px+10,bar_y+24),4,fill=FAR,outline=INK,width=2)
+   for rx in (211,441):d.rounded_rectangle((rx-9,bar_y-7,rx+9,bar_y+7),3,fill=BLUE)
+   d.rounded_rectangle((320,bar_y-10,352,bar_y+10),4,fill=BLUE,outline=INK,width=2)
+   if load[0]!=336 or not 280<=bar_y<=372 or abs(load[0]-hip[0])>12:raise ValueError('Smith hip thrust guided bar lost pad contact')
+   d.text((45,186),'GUIDED BAR / SAFETY STOPS',font=FONTS[14],fill=MUTED)
   elif option=='dumbbell':weight(d,load)
   if option!='single-leg':
    # Draw the near gripping hand last so the load cannot hide its contact.

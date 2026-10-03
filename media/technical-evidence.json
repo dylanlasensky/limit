@@ -3211,6 +3211,19 @@
     "audio": false
   },
   {
+    "catalogKey": "smith-machine-hip-thrust",
+    "videoSha256": "277d8b5220dd26f647854b2e0e64ee3f19e747e3f3d742012d16d3b21990c676",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "single-leg-hip-thrust",
     "videoSha256": "51dc657beea0d4372f552848dd91a6e3f0195d01cdca95e5bdb5aa5427897002",
     "duration": 8,

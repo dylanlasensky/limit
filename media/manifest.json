@@ -9488,14 +9488,14 @@
   {
     "catalogKey": "smith-machine-hip-thrust",
     "name": "Smith Machine Hip Thrust",
-    "poster": "exercises/smith-machine-hip-thrust/v176442295891371/b2822fb9cb203b7129d58db689adbd55a0989457be4a76d9f6d5ef626c80b72f.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/smith-machine-hip-thrust/v160661905168336/83c3eb129b755993c75e0c151d403cb287d8ee36fdef350a31e72d47c0ec7bbd.png",
+    "source": "exercises/smith-machine-hip-thrust/v160661905168336/277d8b5220dd26f647854b2e0e64ee3f19e747e3f3d742012d16d3b21990c676.mp4",
+    "format": "mp4",
     "caption": "Set your feet and upper-body support securely, keeping your ribs stacked over your pelvis. Extend your hips and finish with your glutes rather than arching your lower back. Set safety stops and align your hips to the fixed bar path.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 176442295891371,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 160661905168336,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -9507,15 +9507,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "b2822fb9cb203b7129d58db689adbd55a0989457be4a76d9f6d5ef626c80b72f",
-    "videoSha256": null,
-    "bytes": 44972,
-    "blockReason": "Smith Machine Hip Thrust: current renderer lacks secure shoulder or floor contact, the working foot contact and a hip-driven ascent and return; it also lacks a guided bar, rails, hooks and bench or foot setup. This variation requires \"Set safety stops and align your hips to the fixed bar path\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "83c3eb129b755993c75e0c151d403cb287d8ee36fdef350a31e72d47c0ec7bbd",
+    "videoSha256": "277d8b5220dd26f647854b2e0e64ee3f19e747e3f3d742012d16d3b21990c676",
+    "bytes": 101893,
+    "blockReason": "",
+    "template": "bench-hip-thrust",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
