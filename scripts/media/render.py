@@ -84,6 +84,7 @@ TEMPLATES={
  'inverted-row':('inverted-row',None),
  'seated-cable-row':('seated-cable-row',None),
  'single-arm-cable-row':('single-arm-cable-row',None),
+ 'standing-cable-row':('standing-cable-row',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -340,13 +341,19 @@ def draw_pose(d,kind,option,u):
    d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
    limb(d,[start,elbow,hand],color,11)
    d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
- elif kind=='band-row':
-  # A fixed chest-height wall anchor tensions two band strands. A stable
-  # staggered stance and torso stay put as elbows travel behind the hands.
+ elif kind in ('band-row','standing-cable-row'):
+  # A fixed chest-height anchor tensions two band strands or a cable pulley.
+  # A staggered stance and torso stay put as elbows travel behind the hands.
+  cable=kind=='standing-cable-row'
   anchor=(132,273);hip=(340,332);shoulder=(315,213);head=(302,174)
   d.line((113,88,113,456),fill=FAR,width=5)
-  d.line((113,273,anchor[0],anchor[1]),fill=INK,width=8)
-  d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
+  if cable:
+   d.rounded_rectangle((92,332,124,420),5,fill=FAR,outline=INK,width=2)
+   for y in (349,368,387,406):d.line((95,y,121,y),fill=INK,width=2)
+   d.ellipse((anchor[0]-12,anchor[1]-12,anchor[0]+12,anchor[1]+12),fill=FAR,outline=INK,width=3)
+  else:
+   d.line((113,273,anchor[0],anchor[1]),fill=INK,width=8)
+   d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
   limb(d,[hip,(307,386),(292,445)],FAR,16)
   line(d,(292,445),(269,448),INK,8)
   limb(d,[hip,(373,386),(389,445)],BLUE,17)
@@ -357,9 +364,10 @@ def draw_pose(d,kind,option,u):
    elbow=ik(start,hand,77,69,side=1)
    if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((start,elbow,77),(elbow,hand,69))):raise ValueError('Band row arm length changed')
    if hand[1]!=276 or anchor!=(132,273):raise ValueError('Band row support changed')
-   d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
+   d.line([xy(anchor),xy(hand)],fill=INK if cable else FAR,width=3 if cable else 4)
    limb(d,[start,elbow,hand],color,11)
-   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
+   if cable:d.rounded_rectangle((hand[0]-6,hand[1]-7,hand[0]+6,hand[1]+7),3,fill=FAR,outline=INK,width=2)
+   else:d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
  elif kind=='band-triceps-pushdown':
   # Side view: a high fixed wall anchor tensions the band while both elbows
   # remain close to the ribs and the forearms extend without shoulder swing.

@@ -2390,14 +2390,14 @@
   {
     "catalogKey": "standing-cable-row",
     "name": "Standing Cable Row",
-    "poster": "exercises/standing-cable-row/v133328709552373/be52b0e6ba33aa0224cf1f45a9be2df5ed76a2131dbff71e8cdb4770f7dd9fe2.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/standing-cable-row/v170569287521014/190e18d2e5c783c9e0e694296edbdf866323f55abfd4f0b9d56b6e6fb20074c0.png",
+    "source": "exercises/standing-cable-row/v170569287521014/577ac1b4bcec78d155b50b97cecb4689140bce8b5c0226d692e118afffd49154.mp4",
+    "format": "mp4",
     "caption": "Use a stable torso position and keep your neck in line with your spine. Row your elbows back, then reach forward under control without jerking the weight. Use a stable staggered stance.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 133328709552373,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 170569287521014,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -2409,15 +2409,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "be52b0e6ba33aa0224cf1f45a9be2df5ed76a2131dbff71e8cdb4770f7dd9fe2",
-    "videoSha256": null,
-    "bytes": 40799,
-    "blockReason": "Standing Cable Row: current renderer lacks torso support or hinge angle, elbow track and load path toward the trunk; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires \"Use a stable staggered stance\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "190e18d2e5c783c9e0e694296edbdf866323f55abfd4f0b9d56b6e6fb20074c0",
+    "videoSha256": "577ac1b4bcec78d155b50b97cecb4689140bce8b5c0226d692e118afffd49154",
+    "bytes": 83632,
+    "blockReason": "",
+    "template": "standing-cable-row",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
