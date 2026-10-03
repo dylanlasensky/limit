@@ -1170,6 +1170,32 @@
     "audio": false
   },
   {
+    "catalogKey": "standing-calf-raise",
+    "videoSha256": "895e047e4486b87ec9a5bf92d7032c0694a2f16392963a69a89d14a7dba3f6b5",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "seated-calf-raise",
+    "videoSha256": "790d6cd4105f0e203acfbb2481b0a3e6dfe25fd890221b7db39316ec2a669b0a",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-standing-calf-raise",
     "videoSha256": "3cde2a272d1b9f3321b94c7590b3a502e3a578b99890fa901e24d96f8c587e2d",
     "duration": 8,

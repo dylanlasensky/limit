@@ -95,6 +95,8 @@ TEMPLATES={
  'seated-leg-curl':('machine-seated-leg-curl',None),
  'lying-leg-curl':('machine-lying-leg-curl',None),
  'standing-leg-curl':('machine-standing-leg-curl',None),
+ 'standing-calf-raise':('machine-standing-calf',None),
+ 'seated-calf-raise':('machine-seated-calf',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -161,7 +163,48 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='machine-standing-leg-curl':
+ if kind=='machine-standing-calf':
+  # The toe stays on a fixed raised step; the heel and carriage rise together
+  # with a constant foot length and an unchanged long-leg/trunk silhouette.
+  toe=(365,443);start_ankle_y=432;ankle_y=start_ankle_y-18*u
+  ankle=(toe[0]-math.sqrt(48**2-(toe[1]-ankle_y)**2),ankle_y)
+  dx=ankle[0]-(toe[0]-math.sqrt(48**2-(toe[1]-start_ankle_y)**2));dy=ankle_y-start_ankle_y
+  hip=(301+dx,290+dy);shoulder=(296+dx,169+dy);head=(296+dx,135+dy)
+  if abs(math.dist(ankle,toe)-48)>1e-6 or toe!=(365,443):raise ValueError('Standing machine calf foot support changed')
+  d.rounded_rectangle((345,446,400,457),4,fill=FAR)
+  d.line((245,95,245,456),fill=FAR,width=7)
+  d.line((383,95,383,456),fill=FAR,width=7)
+  d.rounded_rectangle((130,337,165,422),5,fill=FAR,outline=INK,width=2)
+  for y in (353,372,391,410):d.line((134,y,161,y),fill=INK,width=2)
+  d.line((163,185+dy,245,185+dy),fill=FAR,width=5)
+  limb(d,[hip,(305+dx,361+dy),ankle],BLUE,18)
+  line(d,ankle,toe,INK,10)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
+  d.rounded_rectangle((shoulder[0]-23,shoulder[1]+9,shoulder[0]+33,shoulder[1]+23),4,fill=FAR,outline=INK,width=2)
+  limb(d,[shoulder,(350+dx,244+dy),(383,251+dy)],INK,10)
+ elif kind=='machine-seated-calf':
+  # Hip/seat and forefoot remain fixed. A constant-length thigh and shin
+  # make the knee rise under the machine's thigh pad when the heel lifts.
+  toe=(430,450);ankle_y=440-16*u
+  ankle=(toe[0]-math.sqrt(48**2-(toe[1]-ankle_y)**2),ankle_y)
+  hip=(296,320);shoulder=(291,196);head=(291,162)
+  knee=ik(hip,ankle,80,110,side=1)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,knee,80),(knee,ankle,110),(ankle,toe,48))):raise ValueError('Seated machine calf segment changed length')
+  d.rounded_rectangle((243,323,330,340),5,fill=FAR)
+  d.rounded_rectangle((244,205,260,338),5,fill=FAR)
+  d.line((260,340,260,459),fill=FAR,width=8)
+  d.rounded_rectangle((414,451,453,460),3,fill=FAR)
+  d.line((456,255,456,460),fill=FAR,width=7)
+  d.rounded_rectangle((126,341,160,421),5,fill=FAR,outline=INK,width=2)
+  for y in (356,375,394,413):d.line((130,y,156,y),fill=INK,width=2)
+  d.line((160,291,knee[0]-22,knee[1]-16),fill=FAR,width=5)
+  limb(d,[hip,knee,ankle],BLUE,16);line(d,ankle,toe,INK,10)
+  line(d,hip,shoulder,BLUE,26);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
+  d.rounded_rectangle((knee[0]-22,knee[1]-22,knee[0]+17,knee[1]-9),4,fill=FAR,outline=INK,width=2)
+  limb(d,[shoulder,(320,262),(knee[0]-5,knee[1]-21)],INK,10)
+ elif kind=='machine-standing-leg-curl':
   # A fixed working thigh, knee pivot, shin roller, hand rail and planted
   # opposite foot distinguish the unilateral standing machine from a band.
   hip=(310,312);shoulder=(299,209);head=(296,173);knee=(288,365)
