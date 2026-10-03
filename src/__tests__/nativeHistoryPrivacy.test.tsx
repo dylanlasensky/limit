@@ -51,6 +51,7 @@ vi.mock("../../apps/mobile/src/lib/api", () => ({
 vi.mock("../../apps/mobile/src/lib/drafts", () => ({ clearDrafts: vi.fn() }));
 
 import Home from "../../apps/mobile/src/app/index";
+import Plan from "../../apps/mobile/src/app/plan";
 import History from "../../apps/mobile/src/app/history/index";
 import HistoryDetail from "../../apps/mobile/src/app/history/[id]";
 
@@ -122,5 +123,68 @@ describe("native account isolation during navigation", () => {
     expect(screen.getByText("Loading your plan…")).toBeInTheDocument();
     await act(async () => next.resolve([{ id: "plan-b", ownerId: "account-b", name: "B plan" }]));
     expect(screen.getByText("B plan")).toBeInTheDocument();
+  });
+
+  it("hides weekly workout days immediately on account switch", async () => {
+    const next = deferred<
+      {
+        id: string;
+        ownerId: string;
+        planId: string;
+        weekday: number;
+        name: string;
+        isRest: boolean;
+      }[]
+    >();
+    api.list
+      .mockResolvedValueOnce([{ id: "plan-a", ownerId: "account-a" }])
+      .mockResolvedValueOnce([
+        {
+          id: "day-a",
+          ownerId: "account-a",
+          planId: "plan-a",
+          weekday: 0,
+          name: "A private workout",
+          isRest: false,
+        },
+      ])
+      .mockResolvedValueOnce([{ id: "plan-b", ownerId: "account-b" }])
+      .mockReturnValueOnce(next.promise);
+    const view = render(<Plan />);
+    expect(await screen.findByText("A private workout")).toBeInTheDocument();
+    state.session = { user: { id: "account-b", name: "Blair" } };
+    view.rerender(<Plan />);
+    expect(screen.queryByText("A private workout")).not.toBeInTheDocument();
+    expect(screen.getByText("Loading your plan…")).toBeInTheDocument();
+    await act(async () =>
+      next.resolve([
+        {
+          id: "day-b",
+          ownerId: "account-b",
+          planId: "plan-b",
+          weekday: 1,
+          name: "B workout",
+          isRest: false,
+        },
+      ])
+    );
+    expect(screen.getByText("B workout")).toBeInTheDocument();
+  });
+
+  it("drops a late weekly plan response from the prior account", async () => {
+    const old = deferred<{ id: string; ownerId: string }[]>();
+    api.list
+      .mockReturnValueOnce(old.promise)
+      .mockResolvedValueOnce([{ id: "plan-b", ownerId: "account-b" }])
+      .mockResolvedValueOnce([]);
+    const view = render(<Plan />);
+    state.session = { user: { id: "account-b", name: "Blair" } };
+    view.rerender(<Plan />);
+    expect(
+      await screen.findByText("No active plan yet. Complete your profile on the web.")
+    ).toBeInTheDocument();
+    await act(async () => old.resolve([{ id: "plan-a", ownerId: "account-a" }]));
+    expect(screen.queryByText("A private workout")).not.toBeInTheDocument();
+    expect(api.list).toHaveBeenCalledTimes(3);
   });
 });
