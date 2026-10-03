@@ -87,6 +87,10 @@ TEMPLATES={
  'standing-cable-row':('standing-cable-row',None),
  'half-kneeling-cable-row':('half-kneeling-cable-row',None),
  'cable-triceps-pushdown':('cable-triceps-pushdown',None),
+ 'rope-triceps-pushdown':('cable-triceps-pushdown','rope'),
+ 'v-bar-triceps-pushdown':('cable-triceps-pushdown','vbar'),
+ 'reverse-grip-triceps-pushdown':('cable-triceps-pushdown','reverse'),
+ 'single-arm-cable-pushdown':('cable-triceps-pushdown','single'),
  'overhead-cable-triceps-extension':('cable-overhead-triceps',None),
  'cable-triceps-kickback':('cable-triceps-kickback',None),
  'leg-extension':('machine-leg-extension',None),
@@ -173,7 +177,7 @@ def alternating_phase(t):
  if p<2:return 1,'Pause comfortably'
  if p<3:return (1+math.cos(math.pi*(p-2)))/2,'Lower with control'
  return 0,'Switch sides' if t<4 else 'Reset'
-def draw_grip_inset(d,orientation):
+def draw_grip_inset(d,orientation,u=0):
  # A second, close camera view makes palm direction readable when the full
  # front-view pulldown cannot show depth around the overhead handle.
  d.rounded_rectangle((40,273,183,362),8,fill=BG,outline=FAR,width=2)
@@ -197,6 +201,27 @@ def draw_grip_inset(d,orientation):
    d.line((x-4,305,x-4,327),fill=INK,width=2)
    d.line((x+4,305,x+4,327),fill=INK,width=2)
   label='PALMS DOWN'
+ elif orientation=='supinated':
+  d.line((63,314,160,314),fill=INK,width=6)
+  for x in (88,135):
+   d.rounded_rectangle((x-12,302,x+12,330),5,fill=BLUE,outline=INK,width=2)
+   d.line((x-6,309,x+6,309),fill=INK,width=2)
+   d.line((x-5,322,x+5,322),fill=INK,width=2)
+  label='PALMS UP'
+ elif orientation=='vbar':
+  d.line((109,303,89,329),fill=INK,width=7)
+  d.line((109,303,129,329),fill=INK,width=7)
+  d.rounded_rectangle((77,314,99,336),4,fill=BLUE,outline=INK,width=2)
+  d.rounded_rectangle((119,314,141,336),4,fill=BLUE,outline=INK,width=2)
+  label='V BAR / NEUTRAL'
+ elif orientation=='rope':
+  spread=16+12*u
+  d.line((109,300,109,312),fill=INK,width=4)
+  for side in (-1,1):
+   end=109+side*spread
+   d.line((109,312,end,331),fill=INK,width=4)
+   d.rounded_rectangle((end-9,323,end+9,338),4,fill=BLUE,outline=INK,width=2)
+  label='ROPE / NEUTRAL'
  else:raise ValueError('Unsupported grip inset')
  d.text((50,339),label,font=FONTS[14],fill=INK)
 def draw_pose(d,kind,option,u):
@@ -701,15 +726,32 @@ def draw_pose(d,kind,option,u):
   limb(d,[hip,(319,388),(340,444)],BLUE,17)
   line(d,(340,444),(362,448),INK,8)
   body(d,hip,shoulder,head)
-  for offset,color in ((-10,FAR),(10,INK)):
+  angle=-1.1+2.4*u
+  if cable:
+   if option=='single':
+    limb(d,[shoulder,(287,290),(292,353)],FAR,10)
+    cable_end=polar((331,294),69,angle)
+   else:cable_end=polar((321,294),69,angle)
+   if option=='rope':
+    split=add(cable_end,(13,-22))
+    d.line([xy(anchor),xy(split)],fill=INK,width=3)
+    for dx in (-10,10):d.line([xy(split),xy(add(cable_end,(dx,0)))],fill=FAR,width=4)
+   else:d.line([xy(anchor),xy(cable_end)],fill=INK,width=3)
+  for offset,color in (((10,INK),) if cable and option=='single' else ((-10,FAR),(10,INK))):
    start=(shoulder[0]+offset,shoulder[1]);elbow=(321+offset,294)
-   angle=-1.1+2.4*u
    hand=polar(elbow,69,angle)
    if abs(math.dist(elbow,hand)-69)>1e-6 or elbow[1]!=294:raise ValueError('Band pushdown elbow path changed')
-   d.line([xy(anchor),xy(hand)],fill=INK if cable else FAR,width=3 if cable else 4)
+   if not cable:d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
    limb(d,[start,elbow,hand],color,11)
-   if cable:d.rounded_rectangle((hand[0]-6,hand[1]-7,hand[0]+6,hand[1]+7),3,fill=FAR,outline=INK,width=2)
+   if cable and option in ('single','rope'):d.rounded_rectangle((hand[0]-6,hand[1]-7,hand[0]+6,hand[1]+7),3,fill=FAR,outline=INK,width=2)
    else:d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
+  if cable and option not in ('single','rope'):
+   if option=='vbar':
+    d.line((cable_end[0],cable_end[1]-6,cable_end[0]-13,cable_end[1]+8),fill=INK,width=5)
+    d.line((cable_end[0],cable_end[1]-6,cable_end[0]+13,cable_end[1]+8),fill=INK,width=5)
+   else:d.rounded_rectangle((cable_end[0]-16,cable_end[1]-5,cable_end[0]+16,cable_end[1]+5),3,fill=FAR,outline=INK,width=2)
+  if cable and option in ('rope','vbar','reverse'):
+   draw_grip_inset(d,{'rope':'rope','vbar':'vbar','reverse':'supinated'}[option],u)
  elif kind=='band-curl':
   # Front view: the under-foot band lengthens as each forearm rotates about
   # a fixed elbow; shoulders, torso and feet do not swing or lift.
