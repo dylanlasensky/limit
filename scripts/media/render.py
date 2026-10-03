@@ -42,6 +42,8 @@ TEMPLATES={
  'dumbbell-bench-press':('dumbbell-horizontal-press','bench'),
  'incline-dumbbell-bench-press':('dumbbell-horizontal-press','incline'),
  'dumbbell-floor-press':('dumbbell-horizontal-press','floor'),
+ 'chest-supported-dumbbell-row':('chest-supported-row','incline'),
+ 'dumbbell-seal-row':('chest-supported-row','seal'),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -102,7 +104,32 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='dumbbell-horizontal-press':
+ if kind=='chest-supported-row':
+  # Chest contact and bench geometry are distinct from an unsupported hinge.
+  # Both loaded elbows row toward the trunk while the support remains fixed.
+  if option=='incline':
+   d.line((185,346,344,252),fill=FAR,width=18)
+   for x in (204,331):d.line((x,354,x,457),fill=FAR,width=7)
+   shoulder=(222,302);hip=(315,248);head=(181,315)
+   limb(d,[hip,(355,353),(376,443)],BLUE,17)
+   line(d,(376,443),(404,447),INK,9)
+  else:
+   d.rounded_rectangle((175,280,402,297),5,fill=FAR)
+   for x in (193,384):d.line((x,297,x,457),fill=FAR,width=8)
+   shoulder=(230,261);hip=(330,261);head=(185,261)
+   limb(d,[hip,(368,336),(393,443)],BLUE,17)
+   line(d,(393,443),(422,447),INK,9)
+  line(d,hip,shoulder,BLUE,27)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
+  for offset,color in ((-15,FAR),(15,INK)):
+   start=(shoulder[0]+offset,shoulder[1])
+   elbow=polar(start,70,1.4-1.15*u)
+   hand=polar(elbow,60,math.pi/2)
+   if abs(math.dist(start,elbow)-70)>1e-6 or abs(math.dist(elbow,hand)-60)>1e-6 or hand[1]>440:raise ValueError('Supported row arm or floor clearance changed')
+   limb(d,[start,elbow,hand],color,11)
+   weight(d,hand,hammer=True)
+ elif kind=='dumbbell-horizontal-press':
   # Distinct supine bench, incline bench, and floor supports. Two separate
   # dumbbells rise above fixed shoulders; the floor version stops when the
   # upper arms gently meet the floor.

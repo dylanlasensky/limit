@@ -117,6 +117,32 @@
     "audio": false
   },
   {
+    "catalogKey": "chest-supported-dumbbell-row",
+    "videoSha256": "c4dd611bbb0e5fab685f5dfb962b0d91441ca91e8fb4b9e0253b942f2257b171",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "dumbbell-seal-row",
+    "videoSha256": "26dfadb60f37bee1360be5a9f0611a15a6a97260898cec257b21a1b2c97f72a7",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-pullover",
     "videoSha256": "e5617e548fadba1d978eae061578aac40c4dcaa436a3022cdf5600672f757ce0",
     "duration": 8,
