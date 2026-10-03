@@ -135,6 +135,14 @@ TEMPLATES={
  'ez-bar-spider-curl':('supported-bar-curl','spider'),
  'barbell-wrist-curl':('bar-wrist-curl','supinated'),
  'barbell-reverse-wrist-curl':('bar-wrist-curl','pronated'),
+ 'cable-external-rotation':('anchored-rotation','cable-external'),
+ 'band-external-rotation':('anchored-rotation','band-external'),
+ 'cable-internal-rotation':('anchored-rotation','cable-internal'),
+ 'band-internal-rotation':('anchored-rotation','band-internal'),
+ 'cable-wrist-curl':('cable-wrist-curl',None),
+ 'dumbbell-forearm-pronation':('forearm-turn','pronation'),
+ 'dumbbell-forearm-supination':('forearm-turn','supination'),
+ 'zottman-curl':('zottman-curl',None),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -295,9 +303,89 @@ def draw_curl_grip_inset(d,ez,pronated,upper=False):
    d.line((x-4,306+dy,x-4,322+dy),fill=INK,width=2);d.line((x+4,306+dy,x+4,322+dy),fill=INK,width=2)
   else:d.line((x-5,309+dy,x+5,309+dy),fill=INK,width=2)
  d.text((50,338+dy),'PALMS DOWN' if pronated else 'PALMS UP',font=FONTS[14],fill=INK)
+def draw_zottman_grip_inset(d,turn):
+ d.rounded_rectangle((42,272,186,365),7,fill=BG,outline=FAR,width=2)
+ d.text((50,279),'DUMBBELL GRIP',font=FONTS[14],fill=MUTED)
+ for x in (87,139):
+  d.line((x-22,315,x+22,315),fill=INK,width=5)
+  for px in (x-20,x+20):d.rounded_rectangle((px-5,304,px+5,326),3,fill=FAR)
+  d.rounded_rectangle((x-9,303,x+9,326),4,fill=BLUE,outline=INK,width=2)
+  marker=(x+7*math.cos(math.pi*turn),315+7*math.sin(math.pi*turn))
+  d.ellipse((marker[0]-3,marker[1]-3,marker[0]+3,marker[1]+3),fill=INK)
+ d.text((50,338),'PALMS UP' if turn<.05 else ('PALMS DOWN' if turn>.95 else 'TURN WRISTS'),font=FONTS[14],fill=INK)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='bar-curl':
+ if kind=='anchored-rotation':
+  # Plan view makes the inward/outward forearm rotation unambiguous.
+  cable=option.startswith('cable');external=option.endswith('external')
+  d.rounded_rectangle((217,206,318,380),35,fill=FAR)
+  d.ellipse((238,150,296,208),fill=INK)
+  shoulder=(303,264);elbow=(362,282)
+  line(d,shoulder,elbow,BLUE,19)
+  angle=(2.65-2.35*u) if external else (.3+2.35*u)
+  hand=polar(elbow,73,angle)
+  if abs(math.dist(elbow,hand)-73)>1e-6 or shoulder!=(303,264):raise ValueError('Rotation support or forearm changed')
+  line(d,elbow,hand,INK,14)
+  anchor=(86,329) if external else (477,329)
+  if cable:
+   d.line((anchor[0],109,anchor[0],456),fill=FAR,width=6)
+   d.rounded_rectangle((anchor[0]-16,355,anchor[0]+16,424),4,fill=FAR,outline=INK,width=2)
+   d.ellipse((anchor[0]-10,anchor[1]-10,anchor[0]+10,anchor[1]+10),fill=FAR,outline=INK,width=2)
+   d.line([xy(anchor),xy(hand)],fill=INK,width=3)
+   d.rounded_rectangle((hand[0]-8,hand[1]-5,hand[0]+8,hand[1]+5),3,fill=FAR,outline=INK,width=2)
+  else:
+   d.line((anchor[0],100,anchor[0],455),fill=FAR,width=5)
+   d.line((anchor[0],anchor[1],hand[0],hand[1]),fill=FAR,width=5)
+   d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
+  d.text((350,137),'TOP VIEW',font=FONTS[14],fill=MUTED)
+  d.text((350,161),'HAND AWAY' if external else 'HAND IN',font=FONTS[18],fill=INK)
+ elif kind=='cable-wrist-curl':
+  # Forearm stays on a pad; a low pulley tracks the wrist-driven handle.
+  d.rounded_rectangle((145,313,362,333),6,fill=FAR)
+  for x in (167,340):d.line((x,333,x,456),fill=FAR,width=8)
+  elbow=(178,297);wrist=(353,297)
+  line(d,elbow,wrist,BLUE,24)
+  hand=polar(wrist,49,.55-.98*u)
+  if abs(math.dist(wrist,hand)-49)>1e-6:raise ValueError('Cable wrist forearm support changed')
+  line(d,wrist,hand,INK,16)
+  pulley=(478,419)
+  d.line((488,82,488,455),fill=FAR,width=7)
+  d.rounded_rectangle((468,353,498,423),4,fill=FAR,outline=INK,width=2)
+  d.ellipse((pulley[0]-11,pulley[1]-11,pulley[0]+11,pulley[1]+11),fill=FAR,outline=INK,width=3)
+  d.line([xy(pulley),xy(hand)],fill=INK,width=3)
+  d.rounded_rectangle((hand[0]-12,hand[1]-5,hand[0]+12,hand[1]+5),3,fill=FAR,outline=INK,width=2)
+  d.text((52,173),'LOW CABLE / FOREARM SUPPORTED',font=FONTS[14],fill=MUTED)
+ elif kind=='forearm-turn':
+  # End-on view shows a short, light dumbbell lever rotating about the fixed
+  # long axis of a supported forearm; elbow and wrist do not travel.
+  d.rounded_rectangle((119,335,369,352),5,fill=FAR)
+  for x in (145,344):d.line((x,352,x,456),fill=FAR,width=7)
+  elbow=(157,311);wrist=(325,311)
+  line(d,elbow,wrist,BLUE,25)
+  d.ellipse((wrist[0]-12,wrist[1]-12,wrist[0]+12,wrist[1]+12),fill=INK)
+  center=(407,303);theta=(math.pi/2-math.pi*u) if option=='pronation' else (-math.pi/2+math.pi*u)
+  d.line((wrist[0],wrist[1],center[0],center[1]),fill=INK,width=7)
+  d.ellipse((center[0]-6,center[1]-6,center[0]+6,center[1]+6),fill=INK)
+  tip=polar(center,36,theta)
+  d.line([xy(center),xy(tip)],fill=INK,width=8)
+  d.rounded_rectangle((tip[0]-11,tip[1]-8,tip[0]+11,tip[1]+8),4,fill=FAR,outline=INK,width=2)
+  d.text((55,179),'SUPPORTED FOREARM / AXIAL TURN',font=FONTS[14],fill=MUTED)
+  d.text((55,207),'TO PALM DOWN' if option=='pronation' else 'TO PALM UP',font=FONTS[18],fill=INK)
+ elif kind=='zottman-curl':
+  # Curl upward supinated, rotate at the top, lower pronated, and reset.
+  turn=option
+  hip=(300,329);shoulder=(296,206);head=(296,171)
+  for dx,color in ((-27,FAR),(27,BLUE)):
+   limb(d,[hip,(300+dx,383),(300+dx*1.5,444)],color,16)
+   line(d,(300+dx*1.5,444),(300+dx*1.5+22,447),INK,8)
+  body(d,hip,shoulder,head)
+  for offset,color in ((-10,FAR),(10,INK)):
+   elbow=(304+offset,290);hand=polar(elbow,67,math.pi/2-2.55*u)
+   limb(d,[(shoulder[0]+offset,shoulder[1]),elbow,hand],color,11)
+   weight(d,hand,hammer=True)
+  draw_zottman_grip_inset(d,turn)
+  d.text((50,374),'ROTATE AT TOP / LOWER PALMS DOWN',font=FONTS[14],fill=MUTED)
+ elif kind=='bar-curl':
   # Fixed shoulder and upper arm; two hands travel together with one bar.
   hip=(300,329);shoulder=(296,206);head=(296,171)
   for dx,color in ((-27,FAR),(27,BLUE)):
@@ -1997,6 +2085,10 @@ def frame(e,t,template=None):
  if template:
   if template[0]=='alternating-curl':
    u,label=alternating_phase(t);draw_pose(d,'alternating-curl',0 if t<4 else 1,u)
+  elif template[0]=='zottman-curl':
+   u,label=phase(t)
+   turn=0 if t<=3 else (t-3 if t<4 else (1 if t<6 else (8-t)/2))
+   draw_pose(d,'zottman-curl',turn,u)
   else:
    u,label=phase(t);draw_pose(d,*template,u)
   d.text((55,105),label,font=FONTS[22],fill=INK)
@@ -2027,6 +2119,9 @@ for e in catalog:
  caption=' '.join(e.get('instructions',[])[:3])
  version=int(hashlib.sha256((sha(poster)+(sha(video) if complete else '')).encode()).hexdigest()[:12],16) or 1
  record={'catalogKey':key,'name':e['name'],'poster':f'exercises/{key}/v{version}/{sha(poster)}.png','source':f'exercises/{key}/v{version}/{sha(video)}.mp4' if complete else None,'format':'mp4' if complete else None,'caption':caption,'angle':('front' if key in ('side-lying-hip-abduction','side-lying-hip-adduction','dumbbell-shrug','dumbbell-lateral-raise','seated-dumbbell-lateral-raise','dumbbell-shoulder-press','standing-dumbbell-press','neutral-grip-dumbbell-shoulder-press','single-arm-dumbbell-overhead-press','alternating-dumbbell-curl','cross-body-hammer-curl','side-lying-dumbbell-external-rotation','dumbbell-side-bend','bodyweight-lateral-lunge','dumbbell-lateral-lunge','cossack-squat','resistance-band-pull-apart','resistance-band-lateral-raise','resistance-band-curl','resistance-band-overhead-press') else 'side') if complete else 'unspecified','duration':DURATION if complete else 0,'version':version,'reviewStatus':'technical' if complete else 'blocked','reviewer':None,'safetyClassification':'coaching-recommended' if e.get('coachingRecommended') else 'general','textFallback':e.get('instructions',[]),'license':'Original LIMIT-generated schematic; no third-party footage','generated':True,'width':W,'height':H,'fps':FPS if complete else 0,'posterSha256':sha(poster),'videoSha256':sha(video) if complete else None,'bytes':poster.stat().st_size+(video.stat().st_size if complete else 0),'blockReason':reason,'template':template[0] if template else None,'technicalChecks':['exact-catalog-key','fixed-framing','silent','h264-yuv420p','full-decode'] if complete else ['exact-catalog-key','written-fallback']}
+ if template and template[0] in ('anchored-rotation','forearm-turn'):
+  # The schema has no top/end-on value; avoid mislabeling these as side views.
+  record['angle']='unspecified'
  old=previous.get(key,{})
  if complete and old.get('videoSha256')==record['videoSha256'] and old.get('posterSha256')==record['posterSha256'] and old.get('reviewStatus') in ['approved','draft']:
   for field in ['reviewStatus','reviewer','reviewEvidence']:record[field]=old[field]
