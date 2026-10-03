@@ -2618,14 +2618,14 @@
   {
     "catalogKey": "inverted-row",
     "name": "Inverted Row",
-    "poster": "exercises/inverted-row/v261373121073059/0d77e1b679bcdea0fc2840f355a9dbd800d15e97bf36239d25842855a8a3a9dd.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/inverted-row/v39141584607699/c5c5e9a98ffe4c462ef449cfa711bfb6a59c2e2fb8d8c0017077e429ffed5c86.png",
+    "source": "exercises/inverted-row/v39141584607699/acaa4c07f2bff6827c870a08774732824258fd387dfba0c4ebc44e13f65b8842.mp4",
+    "format": "mp4",
     "caption": "Use a stable torso position and keep your neck in line with your spine. Row your elbows back, then reach forward under control without jerking the weight. Lock the bar securely and keep your body in a straight line.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 261373121073059,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 39141584607699,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -2637,15 +2637,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "0d77e1b679bcdea0fc2840f355a9dbd800d15e97bf36239d25842855a8a3a9dd",
-    "videoSha256": null,
-    "bytes": 41596,
-    "blockReason": "Inverted Row: current renderer lacks torso support or hinge angle, elbow track and load path toward the trunk; it also lacks a guided bar, rails, hooks and bench or foot setup. This variation requires \"Lock the bar securely and keep your body in a straight line\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "c5c5e9a98ffe4c462ef449cfa711bfb6a59c2e2fb8d8c0017077e429ffed5c86",
+    "videoSha256": "acaa4c07f2bff6827c870a08774732824258fd387dfba0c4ebc44e13f65b8842",
+    "bytes": 101997,
+    "blockReason": "",
+    "template": "inverted-row",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

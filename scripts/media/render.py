@@ -81,6 +81,7 @@ TEMPLATES={
  'band-ankle-dorsiflexion':('band-ankle-dorsiflexion',None),
  'stability-ball-crunch':('stability-ball-crunch',None),
  'decline-crunch':('decline-crunch',None),
+ 'inverted-row':('inverted-row',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -147,7 +148,28 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='decline-crunch':
+ if kind=='inverted-row':
+  # Bar, both grips and heels remain fixed. A straight head-to-heel chain
+  # rotates about the heels as the chest approaches the securely racked bar.
+  foot=(440,440);bar_y=270
+  for x in (187,320):d.line((x,bar_y,x,457),fill=FAR,width=9)
+  d.line((174,bar_y,333,bar_y),fill=INK,width=12)
+  angle=math.pi+.3+.5*u
+  shoulder=polar(foot,210,angle);hip=polar(foot,105,angle)
+  head=polar(shoulder,34,angle)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((foot,hip,105),(hip,shoulder,105),(shoulder,head,34))):raise ValueError('Inverted row body line changed')
+  if foot!=(440,440):raise ValueError('Inverted row heel moved')
+  limb(d,[shoulder,hip,foot],BLUE,25)
+  line(d,foot,(468,444),INK,9)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  for offset,color in ((-10,FAR),(10,INK)):
+   start=(shoulder[0]+offset,shoulder[1]);hand=(250+offset,bar_y)
+   elbow=ik(start,hand,75,65,side=1)
+   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((start,elbow,75),(elbow,hand,65))):raise ValueError('Inverted row arm length changed')
+   limb(d,[start,elbow,hand],color,10)
+   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
+ elif kind=='decline-crunch':
   # Sloped bench supports the pelvis and back with the head below the hips;
   # a fixed paired ankle restraint holds the raised legs as the trunk curls.
   hip=(315,318);knee=(366,272);ankle=(409,264)

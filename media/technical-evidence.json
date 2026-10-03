@@ -182,6 +182,19 @@
     "audio": false
   },
   {
+    "catalogKey": "inverted-row",
+    "videoSha256": "acaa4c07f2bff6827c870a08774732824258fd387dfba0c4ebc44e13f65b8842",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "kettlebell-row",
     "videoSha256": "160000d60360478935d2d1d2d5ace069d20eb34a5dcaf57e55b09893953fcbe1",
     "duration": 8,
