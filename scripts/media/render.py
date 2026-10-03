@@ -22,6 +22,9 @@ TEMPLATES={
  'side-lying-hip-abduction':('side-lying-hip-abduction',None),
  'side-lying-hip-adduction':('side-lying-hip-adduction',None),
  'wall-tibialis-raise':('wall-tibialis-raise',None),
+ 'dumbbell-shrug':('dumbbell-shrug',None),
+ 'dumbbell-lateral-raise':('dumbbell-lateral-raise',False),
+ 'seated-dumbbell-lateral-raise':('dumbbell-lateral-raise',True),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -81,7 +84,39 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='side-lying-hip-adduction':
+ if kind in ('dumbbell-shrug','dumbbell-lateral-raise'):
+  # Front view exposes both dumbbells and the shoulder-height limit. The
+  # seated variant uses a fixed bench and still torso rather than leg drive.
+  seated=bool(option) if kind=='dumbbell-lateral-raise' else False
+  hip=(300,332);neck=(300,204);head=(300,169)
+  if seated:
+   d.rounded_rectangle((245,338,355,351),5,fill=FAR)
+   for x in (257,343):d.line((x,351,x,455),fill=FAR,width=7)
+   for direction in (-1,1):
+    knee=(300+direction*68,366);foot=(300+direction*93,446)
+    limb(d,[hip,knee,foot],FAR,15);line(d,foot,(foot[0]+direction*18,448),INK,8)
+  else:
+   for direction in (-1,1):
+    knee=(300+direction*25,386);foot=(300+direction*44,445)
+    limb(d,[hip,knee,foot],BLUE,17);line(d,foot,(foot[0]+direction*19,449),INK,9)
+  line(d,hip,neck,BLUE,30)
+  line(d,neck,head,BLUE,12)
+  d.ellipse((head[0]-18,head[1]-22,head[0]+18,head[1]+13),fill=INK)
+  for direction in (-1,1):
+   shoulder=(300+direction*35,205-(14*u if kind=='dumbbell-shrug' else 0))
+   line(d,neck,shoulder,BLUE,14)
+   if kind=='dumbbell-shrug':
+    arm_angle=math.pi/2-direction*.1
+    elbow=polar(shoulder,73,arm_angle);hand=polar(elbow,70,arm_angle)
+   else:
+    arm_angle=math.pi/2+direction*(-.19-1.30*u)
+    elbow=polar(shoulder,73,arm_angle)
+    hand=polar(elbow,66,arm_angle+direction*.11)
+    if hand[1]<195:raise ValueError('Lateral raise exceeds shoulder height')
+   if abs(math.dist(shoulder,elbow)-73)>1e-6 or abs(math.dist(elbow,hand)-(70 if kind=='dumbbell-shrug' else 66))>1e-6:raise ValueError('Arm length changed')
+   limb(d,[shoulder,elbow,hand],INK,12)
+   weight(d,hand,hammer=True)
+ elif kind=='side-lying-hip-adduction':
   # Frontal-plane view: the top knee is bent and its foot supports the body;
   # the straight lower leg lifts inward without the pelvis rolling.
   shoulder=(235,383);hip=(330,390);head=(194,379)
@@ -386,7 +421,7 @@ for e in catalog:
  reason='' if complete else (f"{e['name']}: {BLOCK_REASONS[key]}." if key in BLOCK_REASONS else reason_for(e))
  caption=' '.join(e.get('instructions',[])[:3])
  version=int(hashlib.sha256((sha(poster)+(sha(video) if complete else '')).encode()).hexdigest()[:12],16) or 1
- record={'catalogKey':key,'name':e['name'],'poster':f'exercises/{key}/v{version}/{sha(poster)}.png','source':f'exercises/{key}/v{version}/{sha(video)}.mp4' if complete else None,'format':'mp4' if complete else None,'caption':caption,'angle':('front' if key in ('side-lying-hip-abduction','side-lying-hip-adduction') else 'side') if complete else 'unspecified','duration':DURATION if complete else 0,'version':version,'reviewStatus':'technical' if complete else 'blocked','reviewer':None,'safetyClassification':'coaching-recommended' if e.get('coachingRecommended') else 'general','textFallback':e.get('instructions',[]),'license':'Original LIMIT-generated schematic; no third-party footage','generated':True,'width':W,'height':H,'fps':FPS if complete else 0,'posterSha256':sha(poster),'videoSha256':sha(video) if complete else None,'bytes':poster.stat().st_size+(video.stat().st_size if complete else 0),'blockReason':reason,'template':template[0] if template else None,'technicalChecks':['exact-catalog-key','fixed-framing','silent','h264-yuv420p','full-decode'] if complete else ['exact-catalog-key','written-fallback']}
+ record={'catalogKey':key,'name':e['name'],'poster':f'exercises/{key}/v{version}/{sha(poster)}.png','source':f'exercises/{key}/v{version}/{sha(video)}.mp4' if complete else None,'format':'mp4' if complete else None,'caption':caption,'angle':('front' if key in ('side-lying-hip-abduction','side-lying-hip-adduction','dumbbell-shrug','dumbbell-lateral-raise','seated-dumbbell-lateral-raise') else 'side') if complete else 'unspecified','duration':DURATION if complete else 0,'version':version,'reviewStatus':'technical' if complete else 'blocked','reviewer':None,'safetyClassification':'coaching-recommended' if e.get('coachingRecommended') else 'general','textFallback':e.get('instructions',[]),'license':'Original LIMIT-generated schematic; no third-party footage','generated':True,'width':W,'height':H,'fps':FPS if complete else 0,'posterSha256':sha(poster),'videoSha256':sha(video) if complete else None,'bytes':poster.stat().st_size+(video.stat().st_size if complete else 0),'blockReason':reason,'template':template[0] if template else None,'technicalChecks':['exact-catalog-key','fixed-framing','silent','h264-yuv420p','full-decode'] if complete else ['exact-catalog-key','written-fallback']}
  old=previous.get(key,{})
  if complete and old.get('videoSha256')==record['videoSha256'] and old.get('posterSha256')==record['posterSha256'] and old.get('reviewStatus') in ['approved','draft']:
   for field in ['reviewStatus','reviewer','reviewEvidence']:record[field]=old[field]

@@ -52,8 +52,47 @@
     "audio": false
   },
   {
+    "catalogKey": "dumbbell-lateral-raise",
+    "videoSha256": "f5857c52cbe5d864f212b56b2b4a1b66fe5bab40ae5faac10ab1019c807b72bb",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "seated-dumbbell-lateral-raise",
+    "videoSha256": "e3d7aa222b92e35d9f6ca738929a5d176ebd71a78376a42eba835b0fc346d763",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-front-raise",
     "videoSha256": "73a8f4fe412594425906cc4035759e503c60c88268cc841c3ce9773d09e6a813",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "dumbbell-shrug",
+    "videoSha256": "66206efdc9f76a8dc7516041dffcae737eae4299673f5b9a2fb7829077e717c4",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
