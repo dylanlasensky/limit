@@ -2665,6 +2665,19 @@
     "audio": false
   },
   {
+    "catalogKey": "smith-machine-split-squat",
+    "videoSha256": "10391e8a5c161d083fda4b8f89eb888432a4c8a161e8f311d9e3b368df9039bc",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-reverse-lunge",
     "videoSha256": "04d10473e51fc56cf390659e474c98566e8169fd6f2ef234df76dba787e0e764",
     "duration": 8,
@@ -2680,6 +2693,19 @@
   {
     "catalogKey": "bodyweight-reverse-lunge",
     "videoSha256": "e5e4f91e5d59a7eda4fa7ef35de0aaa4f80c35513c397bbcdb794d610cd1d93a",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "barbell-reverse-lunge",
+    "videoSha256": "505dc8b24a4e5cf55ec17ccdd1be38e4a017e98c5f6ec7816850a7d953208c66",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",

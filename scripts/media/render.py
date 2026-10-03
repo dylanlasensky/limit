@@ -303,7 +303,9 @@ TEMPLATES={
  'dumbbell-split-squat':('split-squat','floor-dumbbell'),
  'bulgarian-split-squat':('split-squat','rear-bench-dumbbell'),
  'dumbbell-reverse-lunge':('reverse-lunge','dumbbell'),
+ 'barbell-reverse-lunge':('reverse-lunge','barbell'),
  'dumbbell-forward-lunge':('forward-lunge','dumbbell'),
+ 'smith-machine-split-squat':('split-squat','smith'),
  'bodyweight-step-up':('step-up','bodyweight'),
  'dumbbell-step-up':('step-up','dumbbell'),
  'barbell-step-up':('step-up','barbell'),
@@ -3681,8 +3683,26 @@ def draw_pose(d,kind,option,u):
   line(d,rear_ankle,rear_toe,INK,9)
   shoulder=(hip[0]-4 if kind=='forward-lunge' else 316,hip[1]-112)
   head=(shoulder[0],hip[1]-145)
+  if option=='smith':
+   for rx in (211,441):
+    d.line((rx,102,rx,453),fill=FAR,width=7)
+    for stop_y in (276,415):d.line((rx-8,stop_y,rx+8,stop_y),fill=INK,width=3)
   body(d,hip,shoulder,head)
-  if option in ('floor-dumbbell','rear-bench-dumbbell','dumbbell'):
+  if option in ('barbell','smith'):
+   bar_y=shoulder[1]+6
+   bar_left,bar_right=(211,441) if option=='smith' else (shoulder[0]-91,shoulder[0]+91)
+   d.line((bar_left,bar_y,bar_right,bar_y),fill=INK,width=6)
+   for px in ((bar_left+15,bar_right-15) if option=='smith' else (bar_left+10,bar_right-10)):
+    d.rounded_rectangle((px-8,bar_y-23,px+8,bar_y+23),3,fill=FAR,outline=INK,width=2)
+   d.rounded_rectangle((shoulder[0]-14,bar_y-7,shoulder[0]+14,bar_y+7),3,fill=BLUE,outline=INK,width=2)
+   for side,color in ((-1,FAR),(1,INK)):
+    grip=(shoulder[0]+side*31,bar_y)
+    elbow=(shoulder[0]+side*43,shoulder[1]+43)
+    limb(d,[shoulder,elbow,grip],color,9)
+    d.ellipse((grip[0]-6,grip[1]-6,grip[0]+6,grip[1]+6),fill=INK)
+   if option=='smith' and (shoulder[0]!=316 or (bar_left,bar_right)!=(211,441)):raise ValueError('Smith split squat bar left fixed path')
+   d.text((45,185),'SMITH / VERTICAL BAR' if option=='smith' else 'BAR / UPPER BACK',font=FONTS[14],fill=MUTED)
+  elif option in ('floor-dumbbell','rear-bench-dumbbell','dumbbell'):
    # Two independently visible carried dumbbells stay below straight arms as
    # the torso lowers or the trailing foot steps back. Neither is a barbell.
    for offset,color in ((-34,FAR),(34,INK)):
