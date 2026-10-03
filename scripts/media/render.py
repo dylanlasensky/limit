@@ -91,6 +91,7 @@ TEMPLATES={
  'cable-triceps-kickback':('cable-triceps-kickback',None),
  'leg-extension':('machine-leg-extension',None),
  'single-leg-extension':('machine-single-leg-extension',None),
+ 'resistance-band-leg-extension':('band-leg-extension',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -157,17 +158,18 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind in ('machine-leg-extension','machine-single-leg-extension'):
+ if kind in ('machine-leg-extension','machine-single-leg-extension','band-leg-extension'):
   # The seat/back and machine knee pivot remain fixed; a roller contacts the
   # lower shin above the ankle while the shin extends without hip movement.
   hip=(301,333);shoulder=(301,214);head=(300,176);knee=(374,325)
   d.rounded_rectangle((253,337,341,352),5,fill=FAR)
   d.rounded_rectangle((250,210,266,350),5,fill=FAR)
   for x in (269,330):d.line((x,352,x,456),fill=FAR,width=8)
-  d.rounded_rectangle((135,342,168,421),5,fill=FAR,outline=INK,width=2)
-  for y in (358,377,396,414):d.line((138,y,165,y),fill=INK,width=2)
-  d.line((165,325,374,325),fill=FAR,width=5)
-  d.ellipse((knee[0]-13,knee[1]-13,knee[0]+13,knee[1]+13),fill=FAR,outline=INK,width=3)
+  if kind!='band-leg-extension':
+   d.rounded_rectangle((135,342,168,421),5,fill=FAR,outline=INK,width=2)
+   for y in (358,377,396,414):d.line((138,y,165,y),fill=INK,width=2)
+   d.line((165,325,374,325),fill=FAR,width=5)
+   d.ellipse((knee[0]-13,knee[1]-13,knee[0]+13,knee[1]+13),fill=FAR,outline=INK,width=3)
   line(d,hip,shoulder,BLUE,27)
   line(d,shoulder,head,BLUE,11)
   d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
@@ -182,10 +184,19 @@ def draw_pose(d,kind,option,u):
   angle=math.pi/2-1.53*u
   foot=polar(knee,79,angle)
   roller=polar(knee,60,angle)
-  if abs(math.dist(knee,foot)-79)>1e-6 or abs(math.dist(knee,roller)-60)>1e-6:raise ValueError('Leg extension lever length changed')
+  if abs(math.dist(knee,foot)-79)>1e-6 or abs(math.dist(knee,roller)-60)>1e-6:raise ValueError('Leg extension shin length changed')
   if knee!=(374,325) or foot[1]>405:raise ValueError('Leg extension pivot or clearance changed')
   line(d,knee,foot,BLUE,18)
-  d.ellipse((roller[0]-14,roller[1]-14,roller[0]+14,roller[1]+14),fill=FAR,outline=INK,width=3)
+  if kind=='band-leg-extension':
+   anchor=(178,432)
+   if math.dist(anchor,foot)<math.dist(anchor,(374,404))-1e-6:raise ValueError('Band tension must rise through extension')
+   d.line((anchor[0],anchor[1],anchor[0],455),fill=FAR,width=8)
+   d.line((anchor[0]-20,455,anchor[0]+20,455),fill=FAR,width=8)
+   d.line((anchor[0],anchor[1],foot[0],foot[1]),fill=FAR,width=5)
+   d.ellipse((anchor[0]-8,anchor[1]-8,anchor[0]+8,anchor[1]+8),fill=FAR,outline=INK,width=2)
+   d.ellipse((foot[0]-10,foot[1]-10,foot[0]+10,foot[1]+10),outline=INK,width=4)
+  else:
+   d.ellipse((roller[0]-14,roller[1]-14,roller[0]+14,roller[1]+14),fill=FAR,outline=INK,width=3)
   line(d,foot,(foot[0]+20,foot[1]+3),INK,8)
  elif kind in ('seated-cable-row','single-arm-cable-row'):
   # Fixed seat and footplate brace the athlete while a handle moves along a

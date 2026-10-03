@@ -833,7 +833,7 @@
   },
   {
     "catalogKey": "leg-extension",
-    "videoSha256": "13ef388b2edcb12007fe115f5850cff6e888d41e344d879cdae141e9dafdc00e",
+    "videoSha256": "ca00a23c32a9d686bee3af602189d7236e9e671c4f1a6d479c332b35b03e8344",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -846,7 +846,20 @@
   },
   {
     "catalogKey": "single-leg-extension",
-    "videoSha256": "8719641dafe684e0dba3046d03c5b1229b1a3eab4512e5d85a1e1af9c5311d8a",
+    "videoSha256": "12b82ca936f8ab67b4e08a2bc3b515b8098941bd6efc6a44ed0c665c72dacc94",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "resistance-band-leg-extension",
+    "videoSha256": "bf403f68db43dd2f98c891294c3100835b9fff5c77820845017a4b8a6256280a",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",

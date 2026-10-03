@@ -458,12 +458,24 @@ group(
   "Knee extension",
   "Isolation",
   [
-    "Align your knee with the machine pivot or set a stable supported position.",
+    "Align your knee with the machine pivot and keep your hips on the seat.",
     "Straighten your knee under control and lower without dropping the resistance.",
   ],
   `
 Leg Extension|Machine|B|Machine Leg Extension|Place the lower pad above the ankle, not on the foot.|10
 Single-Leg Extension|Machine|B|Unilateral Leg Extension|Keep your hips on the seat; log each side.
+`
+);
+group(
+  "Quads",
+  [],
+  "Knee extension",
+  "Isolation",
+  [
+    "Sit on a stable seat with your thigh supported and the band attached near your ankle.",
+    "Straighten your knee against the band and return with control.",
+  ],
+  `
 Resistance Band Leg Extension|Resistance band|B|Band Leg Extension|Use a secure low anchor and stable seat.
 `
 );
