@@ -2548,6 +2548,19 @@
     "audio": false
   },
   {
+    "catalogKey": "sumo-deadlift",
+    "videoSha256": "32a8e8e99b85c1ea6c6bafa0d91391f51b3db3f1f80b0d3c7ac743fab70499a4",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "romanian-deadlift",
     "videoSha256": "65b1f1cdf1cd7d2f3db2cfe7ba5add28952ff38d4ecfba1b8fa79924e9682721",
     "duration": 8,
@@ -2589,6 +2602,19 @@
   {
     "catalogKey": "kettlebell-deadlift",
     "videoSha256": "92429e404f8db628affd7a38895cb9f4f91fa76201ef2ad620d87f93e6646c36",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "deficit-deadlift",
+    "videoSha256": "5be2d7ba9381e54240e7ec7bdec17375c2bf3053ab05ca6c5c2e3d92e2ebd230",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
