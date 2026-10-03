@@ -209,6 +209,8 @@ TEMPLATES={
  'wall-handstand-push-up':('wall-handstand-push-up',None),
  'glute-ham-raise':('glute-ham-raise',None),
  'pendulum-squat':('pendulum-squat',None),
+ 'single-arm-landmine-press':('landmine-press','standing'),
+ 'half-kneeling-landmine-press':('landmine-press','half-kneeling'),
  'cable-crunch':('supported-trunk-crunch','kneeling-cable'),
  'machine-abdominal-crunch':('supported-trunk-crunch','machine'),
  'captain-s-chair-knee-raise':('captain-chair-raise',None),
@@ -1877,6 +1879,33 @@ def draw_pose(d,kind,option,u):
   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,elbow,74 if option=='front' else 73),(elbow,hand,65))):raise ValueError('Cable raise arm changed length')
   d.line([xy(anchor),xy(hand)],fill=INK,width=3)
   d.rounded_rectangle((hand[0]-8,hand[1]-5,hand[0]+8,hand[1]+5),3,fill=FAR,outline=INK,width=2)
+ elif kind=='landmine-press':
+  # The athlete faces the secured pivot. A constant-length bar end rises
+  # forward from the chest, with the elbow solved in front of the torso.
+  pivot=(80,440);radius=math.hypot(270,160)
+  hand_y=280-100*u;hand=(pivot[0]+math.sqrt(radius**2-(hand_y-pivot[1])**2),hand_y)
+  shoulder=(360,220);head=(360,174);hip=(360,334)
+  elbow=ik(shoulder,hand,70,55,side=-1)
+  if abs(math.dist(pivot,hand)-radius)>1e-6 or abs(math.dist(shoulder,elbow)-70)>1e-6 or abs(math.dist(elbow,hand)-55)>1e-6:raise ValueError('Landmine press bar or arm length changed')
+  if elbow[0]>=shoulder[0] or math.dist(elbow,head)<37:raise ValueError('Landmine press elbow left front path')
+  d.rounded_rectangle((59,428,100,458),5,fill=FAR,outline=INK,width=2)
+  d.ellipse((pivot[0]-10,pivot[1]-10,pivot[0]+10,pivot[1]+10),fill=FAR,outline=INK,width=2)
+  d.line([xy(pivot),xy(hand)],fill=FAR,width=9)
+  d.ellipse((hand[0]-13,hand[1]-13,hand[0]+13,hand[1]+13),fill=FAR,outline=INK,width=2)
+  if option=='half-kneeling':
+   rear_knee=(420,437);front_foot=(259,445)
+   limb(d,[hip,(398,382),rear_knee],FAR,16)
+   limb(d,[hip,(305,350),front_foot],BLUE,17)
+   line(d,rear_knee,(442,447),INK,8);line(d,front_foot,(238,448),INK,8)
+  else:
+   limb(d,[hip,(334,393),(315,445)],BLUE,17)
+   limb(d,[hip,(395,393),(413,445)],FAR,16)
+   line(d,(315,445),(293,448),INK,8);line(d,(413,445),(434,448),INK,8)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
+  limb(d,[shoulder,elbow,hand],INK,11)
+  d.rounded_rectangle((hand[0]-8,hand[1]-6,hand[0]+8,hand[1]+6),3,fill=INK)
+  d.text((45,189),'FIXED PIVOT / FORWARD PRESS',font=FONTS[14],fill=MUTED)
  elif kind=='pendulum-squat':
   # The back/shoulder carriage swings around a fixed machine pivot.
   # Both feet stay on one platform while invariant leg lengths solve the knee.

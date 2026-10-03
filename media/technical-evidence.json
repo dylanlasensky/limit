@@ -1248,6 +1248,32 @@
     "audio": false
   },
   {
+    "catalogKey": "single-arm-landmine-press",
+    "videoSha256": "8e4bff6c25886581eddf0dbc3524ecf031b6eb3d51fadfa8971c897d4d4991f1",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "half-kneeling-landmine-press",
+    "videoSha256": "7124e7a6064710e9525dd40ee5791f6a7a76624e8f3f7964e81bf17a2b5c4436",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "kettlebell-strict-press",
     "videoSha256": "dc054d7e0e97b80a310a14f7fa7ffc1deaebbefc24a6134257c9c7ffa1648484",
     "duration": 8,
