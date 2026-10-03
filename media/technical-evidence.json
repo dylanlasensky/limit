@@ -338,6 +338,19 @@
     "audio": false
   },
   {
+    "catalogKey": "rope-straight-arm-pulldown",
+    "videoSha256": "b79c446121355d2a6333de316b62e7b9e78add1e6221bcfe65a24b37a23e66a1",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "single-arm-cable-pullover",
     "videoSha256": "02e5a11cadc849dfef2042ffc59d3540579599f4160dce4fd1d462eb589505ef",
     "duration": 8,
@@ -820,7 +833,20 @@
   },
   {
     "catalogKey": "overhead-cable-triceps-extension",
-    "videoSha256": "794924f466548d500ceade549cbf0ebfbdd4c2258a0c8984e5c8c6260de3539b",
+    "videoSha256": "6925b4285f171e870c7d5c561e9b615a2e4c1e86f477fd5c983386aac7fbeac8",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "single-arm-overhead-cable-extension",
+    "videoSha256": "1d6372628d29b8135afb7789946aafb62cee6e75163f96d4ce27cbf9b8e30f3e",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",

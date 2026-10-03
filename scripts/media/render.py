@@ -92,6 +92,7 @@ TEMPLATES={
  'reverse-grip-triceps-pushdown':('cable-triceps-pushdown','reverse'),
  'single-arm-cable-pushdown':('cable-triceps-pushdown','single'),
  'overhead-cable-triceps-extension':('cable-overhead-triceps',None),
+ 'single-arm-overhead-cable-extension':('cable-overhead-triceps','single'),
  'cable-triceps-kickback':('cable-triceps-kickback',None),
  'leg-extension':('machine-leg-extension',None),
  'single-leg-extension':('machine-single-leg-extension',None),
@@ -108,6 +109,7 @@ TEMPLATES={
  'reverse-cable-curl':('low-cable-curl','reverse'),
  'straight-arm-cable-pulldown':('cable-straight-arm','bilateral'),
  'single-arm-cable-pullover':('cable-straight-arm','unilateral'),
+ 'rope-straight-arm-pulldown':('cable-straight-arm','rope'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -297,14 +299,21 @@ def draw_pose(d,kind,option,u):
   if single:limb(d,[shoulder,(281,291),(287,350)],FAR,10)
   angle=-.8+2.25*u
   hand_center=polar(polar(shoulder,73,angle),63,angle+.06)
-  d.line([xy(anchor),xy(add(hand_center,(9,0)) if single else hand_center)],fill=INK,width=3)
+  if option=='rope':
+   split=add(hand_center,(20,-20))
+   d.line([xy(anchor),xy(split)],fill=INK,width=3)
+   for dx in (-9,9):d.line([xy(split),xy(add(hand_center,(dx,0)))],fill=FAR,width=4)
+  else:d.line([xy(anchor),xy(add(hand_center,(9,0)) if single else hand_center)],fill=INK,width=3)
   for offset,color in (((9,INK),) if single else ((-9,FAR),(9,INK))):
    start=(shoulder[0]+offset,shoulder[1]);elbow=polar(start,73,angle);hand=polar(elbow,63,angle+.06)
    if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((start,elbow,73),(elbow,hand,63))):raise ValueError('Cable straight-arm length changed')
    if hand[1]<108 or hand[1]>355:raise ValueError('Cable straight-arm path changed')
    limb(d,[start,elbow,hand],color,11)
   h=add(hand_center,(9,0)) if single else hand_center
-  d.rounded_rectangle((h[0]-15,h[1]-5,h[0]+15,h[1]+5),3,fill=FAR,outline=INK,width=2)
+  if option=='rope':
+   for dx in (-9,9):d.rounded_rectangle((h[0]+dx-6,h[1]-5,h[0]+dx+6,h[1]+5),3,fill=FAR,outline=INK,width=2)
+   draw_grip_inset(d,'rope',.25*u)
+  else:d.rounded_rectangle((h[0]-15,h[1]-5,h[0]+15,h[1]+5),3,fill=FAR,outline=INK,width=2)
  elif kind=='low-cable-curl':
   # Low pulley, taut cable and elbow hinge are shared; the Bayesian variant
   # anchors behind the body with a fixed, gently extended upper arm.
@@ -607,7 +616,7 @@ def draw_pose(d,kind,option,u):
   line(d,working_ankle,(working_ankle[0]-18,working_ankle[1]+4),INK,8)
   d.rounded_rectangle((working_ankle[0]-9,working_ankle[1]-8,working_ankle[0]+9,working_ankle[1]+8),3,outline=INK,width=2)
  elif kind in ('band-overhead-triceps','cable-overhead-triceps'):
-  # A low anchor behind the athlete tensions two band strands or cable lines.
+  # A low anchor behind the athlete tensions the band or one cable handle.
   # Upper arms stay near the head while only forearms extend overhead.
   cable=kind=='cable-overhead-triceps'
   anchor=(140,435);hip=(303,331);shoulder=(300,209);head=(300,170)
@@ -624,15 +633,19 @@ def draw_pose(d,kind,option,u):
   limb(d,[hip,(325,387),(345,445)],BLUE,17)
   line(d,(345,445),(365,448),INK,8)
   body(d,hip,shoulder,head)
-  for offset,color in ((-10,FAR),(10,INK)):
+  if cable:
+   if option=='single':limb(d,[shoulder,(288,285),(289,350)],FAR,10)
+   handle=polar((330 if option=='single' else 320,157),69,2.2-3.32*u)
+   d.line([xy(anchor),xy(handle)],fill=INK,width=3)
+  for offset,color in (((10,INK),) if cable and option=='single' else ((-10,FAR),(10,INK))):
    start=(shoulder[0]+offset,shoulder[1]);elbow=(320+offset,157)
    hand=polar(elbow,69,2.2-3.32*u)
    if abs(math.dist(elbow,hand)-69)>1e-6 or elbow[1]!=157:raise ValueError('Band overhead triceps elbow changed')
    if hand[1]<87 or hand[1]>227:raise ValueError('Band overhead triceps path changed')
-   d.line([xy(anchor),xy(hand)],fill=INK if cable else FAR,width=3 if cable else 4)
+   if not cable:d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
    limb(d,[start,elbow,hand],color,11)
-   if cable:d.rounded_rectangle((hand[0]-6,hand[1]-7,hand[0]+6,hand[1]+7),3,fill=FAR,outline=INK,width=2)
-   else:d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
+   if not cable:d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
+  if cable:d.rounded_rectangle((handle[0]-15 if option!='single' else handle[0]-7,handle[1]-6,handle[0]+15 if option!='single' else handle[0]+7,handle[1]+6),3,fill=FAR,outline=INK,width=2)
  elif kind=='band-chest-press':
   # Behind-the-body chest-height anchor, planted staggered stance and two
   # separately tensioned arms pressing forward without trunk lean.
