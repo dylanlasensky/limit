@@ -8735,14 +8735,14 @@
   {
     "catalogKey": "rack-pull",
     "name": "Rack Pull",
-    "poster": "exercises/rack-pull/v154602239397303/b3c6c0a59ae49de3cc42b62cda3c07c7b8a2728f27c4f673d59d3003f2f42929.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/rack-pull/v261126298899757/827ebe46ceae5361cd65dac7fd32b754e4631f35cc76bfed887ff2632ab91fa8.png",
+    "source": "exercises/rack-pull/v261126298899757/8d56bcf1ecbb37d5b2ebbf0304605c08344c1ec49049ad9e51b32871f5ed176c.mp4",
+    "format": "mp4",
     "caption": "Brace your trunk and move your hips backward while keeping the load close. Use a range you can control with a steady spine; stand tall without leaning backward. Set both supports evenly and avoid leaning back at lockout.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 154602239397303,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 261126298899757,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -8754,15 +8754,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "b3c6c0a59ae49de3cc42b62cda3c07c7b8a2728f27c4f673d59d3003f2f42929",
-    "videoSha256": null,
-    "bytes": 42431,
-    "blockReason": "Rack Pull: current renderer lacks fixed foot pressure, hip travel, trunk angle and load path through the hinge; it also lacks a bar with visible plates, hand placement and rack or floor contact. This variation requires \"Set both supports evenly and avoid leaning back at lockout\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "827ebe46ceae5361cd65dac7fd32b754e4631f35cc76bfed887ff2632ab91fa8",
+    "videoSha256": "8d56bcf1ecbb37d5b2ebbf0304605c08344c1ec49049ad9e51b32871f5ed176c",
+    "bytes": 95278,
+    "blockReason": "",
+    "template": "barbell-hinge",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

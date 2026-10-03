@@ -2951,6 +2951,19 @@
     "audio": false
   },
   {
+    "catalogKey": "rack-pull",
+    "videoSha256": "8d56bcf1ecbb37d5b2ebbf0304605c08344c1ec49049ad9e51b32871f5ed176c",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "deficit-deadlift",
     "videoSha256": "5be2d7ba9381e54240e7ec7bdec17375c2bf3053ab05ca6c5c2e3d92e2ebd230",
     "duration": 8,

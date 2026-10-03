@@ -243,7 +243,7 @@ kettlebell-romanian-deadlift,Kettlebell Romanian Deadlift,Kettlebell,technical,O
 kettlebell-deadlift,Kettlebell Deadlift,Kettlebell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 trap-bar-deadlift,Trap Bar Deadlift,Trap bar,technical,Original LIMIT-generated schematic; no third-party footage,,,
 trap-bar-romanian-deadlift,Trap Bar Romanian Deadlift,Trap bar,technical,Original LIMIT-generated schematic; no third-party footage,,,
-rack-pull,Rack Pull,Barbell,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Rack Pull: current renderer lacks fixed foot pressure, hip travel, trunk angle and load path through the hinge; it also lacks a bar with visible plates, hand placement and rack or floor contact. This variation requires ""Set both supports evenly and avoid leaning back at lockout"". Add exact setup and phase-specific joint/support constraints before generating a video."
+rack-pull,Rack Pull,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 deficit-deadlift,Deficit Deadlift,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 paused-deadlift,Paused Deadlift,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 snatch-grip-deadlift,Snatch-Grip Deadlift,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
