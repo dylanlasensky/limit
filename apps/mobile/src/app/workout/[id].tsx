@@ -37,7 +37,8 @@ export default function Workout() {
   const owner = account?.user.id || "",
     key = owner + ":" + id;
   const [draft, setDraft] = useState<Draft | null>(null),
-    [error, setError] = useState(""),
+    [draftKey, setDraftKey] = useState(""),
+    [error, setError] = useState<{ key: string; message: string } | null>(null),
     [busy, setBusy] = useState(false),
     [now, setNow] = useState(() => Date.now());
   const current = useRef<Draft | null>(null),
@@ -47,6 +48,7 @@ export default function Workout() {
       saveDraft(owner, key, value);
       current.current = value;
       setDraft(value);
+      setDraftKey(key);
     },
     [owner, key]
   );
@@ -58,11 +60,13 @@ export default function Workout() {
     if (!owner || !id) return;
     let cancelled = false;
     void (async () => {
-      const cached = await Promise.resolve(loadDraft(owner, key) as Draft | null);
+      const stored = await Promise.resolve(loadDraft(owner, key) as Draft | null);
+      const cached = stored?.session.ownerId === owner ? stored : null;
       if (cancelled) return;
       if (cached) {
         current.current = cached;
         setDraft(cached);
+        setDraftKey(key);
       }
       try {
         const response = await command({
@@ -127,7 +131,7 @@ export default function Workout() {
           restUntil: null,
         });
       } catch (e) {
-        if (!cancelled) setError((e as Error).message);
+        if (!cancelled) setError({ key, message: (e as Error).message });
       }
     })();
     return () => {
@@ -135,6 +139,7 @@ export default function Workout() {
     };
   }, [owner, id, key, persist]);
   const sync = async () => {
+    if (current.current?.session.ownerId !== owner) return false;
     if (saving.current) return false;
     saving.current = true;
     setBusy(true);
@@ -156,10 +161,10 @@ export default function Workout() {
           ),
         });
       }
-      setError("");
+      setError(null);
       return true;
     } catch (e) {
-      setError((e as Error).message);
+      setError({ key, message: (e as Error).message });
       return false;
     } finally {
       saving.current = false;
@@ -183,17 +188,18 @@ export default function Workout() {
       removeDraft(owner, key);
       router.replace("/plan");
     } catch (e) {
-      setError((e as Error).message);
+      setError({ key, message: (e as Error).message });
     } finally {
       setBusy(false);
     }
   };
   if (!account && !isPending) return <Redirect href="/sign-in" />;
-  if (!draft)
+  const shownError = error?.key === key ? error.message : "";
+  if (!draft || draftKey !== key || draft.session.ownerId !== owner)
     return (
       <Page>
         <Title>Your workout</Title>
-        <Copy>{error || "Loading your saved session…"}</Copy>
+        <Copy>{shownError || "Loading your saved session…"}</Copy>
         <Action label="Back to plan" onPress={() => router.back()} />
       </Page>
     );
@@ -219,9 +225,9 @@ export default function Workout() {
       <Copy>
         Movement {draft.index + 1} of {draft.exercises.length}
       </Copy>
-      {!!error && (
+      {!!shownError && (
         <Text accessibilityRole="alert" style={styles.text}>
-          {error}
+          {shownError}
         </Text>
       )}
       <Copy>

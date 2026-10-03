@@ -29,11 +29,16 @@ export async function request<T>(path: string, schema: z.ZodType<T>, body?: unkn
     throw new Error(data.error || data.message || "Could not connect. Your draft is safe.");
   return schema.parse(data);
 }
-export function list<N extends EntityName>(name: N, filter: Record<string, unknown> = {}) {
-  return request(
-    "/entities/" + name + "?" + new URLSearchParams({ filter: JSON.stringify(filter) }),
-    recordSchema(name).array()
-  );
+export function list<N extends EntityName>(
+  name: N,
+  filter: Record<string, unknown> = {},
+  options: { sort?: string; limit?: number; skip?: number } = {}
+) {
+  const params = new URLSearchParams({ filter: JSON.stringify(filter) });
+  if (options.sort) params.set("sort", options.sort);
+  if (options.limit !== undefined) params.set("limit", String(options.limit));
+  if (options.skip !== undefined) params.set("skip", String(options.skip));
+  return request("/entities/" + name + "?" + params, recordSchema(name).array());
 }
 export function get<N extends EntityName>(name: N, id: string) {
   return request("/entities/" + name + "/" + encodeURIComponent(id), recordSchema(name));
