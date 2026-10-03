@@ -205,6 +205,7 @@ TEMPLATES={
  'close-grip-push-up':('push-up','close-grip'),
  'weighted-push-up':('push-up','weighted'),
  'pike-push-up':('pike-push-up',None),
+ 'suspension-push-up':('suspension-push-up',None),
  'cable-crunch':('supported-trunk-crunch','kneeling-cable'),
  'machine-abdominal-crunch':('supported-trunk-crunch','machine'),
  'captain-s-chair-knee-raise':('captain-chair-raise',None),
@@ -4044,6 +4045,30 @@ def draw_pose(d,kind,option,u):
   load=(knee[0]-11,knee[1]-20)
   limb(d,[shoulder,(320,263),load],INK,10)
   weight(d,load)
+ elif kind=='suspension-push-up':
+  # Two overhead anchors hold fixed-length straps. The suspended handles
+  # swing slightly as a rigid shoulder-to-foot plank descends toward them.
+  foot=(470,445);body_length=math.hypot(195,125)
+  shoulder_y=320+55*u
+  shoulder=(foot[0]-math.sqrt(body_length**2-(foot[1]-shoulder_y)**2),shoulder_y)
+  hip=(shoulder[0]+.68*(foot[0]-shoulder[0]),shoulder[1]+.68*(foot[1]-shoulder[1]))
+  handles=[]
+  for anchor,x0,length,color in (((290,90),255,math.hypot(35,308),FAR),((315,90),270,math.hypot(45,308),INK)):
+   handle=(x0+15*u,anchor[1]+math.sqrt(length**2-(x0+15*u-anchor[0])**2))
+   if abs(math.dist(anchor,handle)-length)>1e-6:raise ValueError('Suspension strap length changed')
+   d.ellipse((anchor[0]-7,anchor[1]-7,anchor[0]+7,anchor[1]+7),fill=FAR,outline=INK,width=2)
+   line(d,anchor,handle,color,4)
+   d.rounded_rectangle((handle[0]-11,handle[1]-5,handle[0]+11,handle[1]+5),3,fill=color,outline=INK,width=2)
+   handles.append(handle)
+  if abs(math.dist(shoulder,hip)-.68*body_length)>1e-6 or abs(math.dist(hip,foot)-.32*body_length)>1e-6:raise ValueError('Suspension plank length changed')
+  limb(d,[shoulder,hip,foot],BLUE,24)
+  for i,handle in enumerate(handles):
+   start=(shoulder[0]+(-9 if i==0 else 9),shoulder[1])
+   elbow=ik(start,handle,58,58,side=-1)
+   limb(d,[start,elbow,handle],FAR if i==0 else INK,10)
+  line(d,foot,(491,448),INK,9)
+  head=(shoulder[0]-35,shoulder[1]-8)
+  d.ellipse((head[0]-20,head[1]-17,head[0]+15,head[1]+17),fill=INK)
  elif kind=='pike-push-up':
   # Floor hands and feet stay fixed. Shoulder descent drives an inverted
   # hip via two rigid body segments, while the elbows bend to lower the head.

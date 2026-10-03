@@ -1082,14 +1082,14 @@
   {
     "catalogKey": "suspension-push-up",
     "name": "Suspension Push-Up",
-    "poster": "exercises/suspension-push-up/v109459306816461/b9fe5dfae15978a850ad8a5804bdc7148eab703edd0faf14a1679c2bf539071f.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/suspension-push-up/v82273019080103/2a064055da3b48cf3c4b13efe9efcbbe764b84f621da2a2c444e7b9a88bcdd8d.png",
+    "source": "exercises/suspension-push-up/v82273019080103/9de438cc449038c6f9f1a07080aaf45c839ced863197708b90a6d617572996f1.mp4",
+    "format": "mp4",
     "caption": "Set your support points before lifting and keep your wrists stacked over your forearms. Lower through a comfortable range, then press without bouncing or losing your setup. Check anchors and begin with a more upright body angle.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 109459306816461,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 82273019080103,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "coaching-recommended",
     "textFallback": [
@@ -1101,15 +1101,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "b9fe5dfae15978a850ad8a5804bdc7148eab703edd0faf14a1679c2bf539071f",
-    "videoSha256": null,
-    "bytes": 44322,
-    "blockReason": "Suspension Push-Up: needs suspended handles, anchor lines and changing strap angles while preserving a stable body line.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "2a064055da3b48cf3c4b13efe9efcbbe764b84f621da2a2c444e7b9a88bcdd8d",
+    "videoSha256": "9de438cc449038c6f9f1a07080aaf45c839ced863197708b90a6d617572996f1",
+    "bytes": 104195,
+    "blockReason": "",
+    "template": "suspension-push-up",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

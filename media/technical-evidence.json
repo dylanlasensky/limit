@@ -390,6 +390,19 @@
     "audio": false
   },
   {
+    "catalogKey": "suspension-push-up",
+    "videoSha256": "9de438cc449038c6f9f1a07080aaf45c839ced863197708b90a6d617572996f1",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "chest-dip",
     "videoSha256": "a689daf21bafc535e8029e0334d90d33ed2a653e6b068bfbfee3d211c19501c3",
     "duration": 8,
