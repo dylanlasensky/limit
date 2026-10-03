@@ -10070,14 +10070,14 @@
   {
     "catalogKey": "lateral-band-walk",
     "name": "Lateral Band Walk",
-    "poster": "exercises/lateral-band-walk/v114562003987692/98c2b21dbe200fcf12deefed801210837f8bb68e73a94688d466a3d6b87daa74.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/lateral-band-walk/v274016236127040/37b1ed9f32498862d29fdbc32f5b3c23ad06b7c1b50010dd80abf8d3ba47f37a.png",
+    "source": "exercises/lateral-band-walk/v274016236127040/e23ddf80b16cb898503eaa579f448d46041d0d2f612f16b4c005a602e89e1f6e.mp4",
+    "format": "mp4",
     "caption": "Keep your pelvis stable and use a comfortable hip position. Move your thigh outward without leaning or twisting, then return under control. Take controlled steps; log steps per direction, not time.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 114562003987692,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 274016236127040,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -10089,15 +10089,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "98c2b21dbe200fcf12deefed801210837f8bb68e73a94688d466a3d6b87daa74",
-    "videoSha256": null,
-    "bytes": 40118,
-    "blockReason": "Lateral Band Walk: current renderer lacks stable pelvis with the moving leg travelling outward and returning; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires \"Take controlled steps; log steps per direction, not time\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "37b1ed9f32498862d29fdbc32f5b3c23ad06b7c1b50010dd80abf8d3ba47f37a",
+    "videoSha256": "e23ddf80b16cb898503eaa579f448d46041d0d2f612f16b4c005a602e89e1f6e",
+    "bytes": 87336,
+    "blockReason": "",
+    "template": "lateral-band-walk",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

@@ -3445,6 +3445,19 @@
     "audio": false
   },
   {
+    "catalogKey": "lateral-band-walk",
+    "videoSha256": "e23ddf80b16cb898503eaa579f448d46041d0d2f612f16b4c005a602e89e1f6e",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "seated-hip-adduction",
     "videoSha256": "aee4116194df8394ffd3c6339f7a8b47d7ff1d9b1d5b7f3864f4370d79547f3c",
     "duration": 8,

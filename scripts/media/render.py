@@ -315,6 +315,7 @@ TEMPLATES={
  'barbell-step-up':('step-up','barbell'),
  'lateral-step-up':('lateral-step','up'),
  'lateral-step-down':('lateral-step','down'),
+ 'lateral-band-walk':('lateral-band-walk',None),
 }
 BLOCK_REASONS={
  'single-arm-landmine-press':'the fixed-pivot press trial folds the elbow behind the torso at the chest start; a coupled bar/shoulder/forearm rig is still needed',
@@ -3628,6 +3629,38 @@ def draw_pose(d,kind,option,u):
   d.ellipse((head[0]-20,head[1]-17,head[0]+17,head[1]+17),fill=INK)
   d.line((head[0]-14,head[1]+9,head[0]-4,head[1]+9),fill=BG,width=3)
   d.line((215,435,248,435),fill=INK,width=9)
+ elif kind=='lateral-band-walk':
+  # The outside foot steps first while the inside foot stays planted; then
+  # the inside foot follows while the outside foot stays planted.
+  first=min(1,2*u);second=max(0,2*u-1)
+  left_foot=(280+60*second,445-17*math.sin(math.pi*second) if second>0 else 445)
+  right_foot=(350+60*first,445-17*math.sin(math.pi*first) if first<1 else 445)
+  hip=(315+30*u,295);shoulder=(hip[0],180);head=(hip[0],145)
+  def band_knee(foot,offset):
+   dx=foot[0]-hip[0];dy=foot[1]-hip[1];span=math.hypot(dx,dy)
+   if span>=180:raise ValueError('Band-walk leg became unreachable')
+   knee=(hip[0]+dx/2+offset*dy/span,hip[1]+dy/2-offset*dx/span)
+   depth=math.sqrt(90**2-(span/2)**2-offset**2)
+   if any(abs(math.hypot(math.dist(a,b),depth)-90)>1e-6 for a,b in ((hip,knee),(knee,foot))):raise ValueError('Band-walk leg length changed')
+   return knee
+  left_knee=band_knee(left_foot,-6);right_knee=band_knee(right_foot,6)
+  if (first<1 and second>0) or (second>0 and right_foot[1]!=445):raise ValueError('Band-walk support transfer changed')
+  d.line((203,454,468,454),fill=FAR,width=3)
+  limb(d,[hip,left_knee,left_foot],FAR,17)
+  limb(d,[hip,right_knee,right_foot],BLUE,18)
+  for foot in (left_foot,right_foot):line(d,foot,(foot[0]+22,foot[1]+2),INK,9)
+  # Elastic loop around both lower thighs follows the knees as stance widens.
+  band_y=(left_knee[1]+right_knee[1])/2-11
+  band_left=min(left_knee[0],right_knee[0])-6;band_right=max(left_knee[0],right_knee[0])+6
+  if band_right-band_left<16 or band_right-band_left>100:raise ValueError('Band-walk loop lost knee placement')
+  d.rounded_rectangle((band_left,band_y-5,band_right,band_y+5),5,outline=INK,width=3)
+  line(d,hip,shoulder,BLUE,26);line(d,shoulder,head,BLUE,10)
+  d.line((hip[0]-28,hip[1],hip[0]+28,hip[1]),fill=BLUE,width=9)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  for side,color in ((-1,FAR),(1,INK)):
+   limb(d,[shoulder,(shoulder[0]+side*35,shoulder[1]+54),(shoulder[0]+side*38,shoulder[1]+88)],color,9)
+  d.text((45,189),'FRONT / LEVEL PELVIS',font=FONTS[14],fill=MUTED)
+  d.text((45,242),'LOOP AT KNEES / STEP',font=FONTS[14],fill=MUTED)
  elif kind=='lateral-step':
   # Frontal-plane crossing: one whole foot remains on the box while the
   # other lifts clear of its edge, travels laterally, then lands softly.

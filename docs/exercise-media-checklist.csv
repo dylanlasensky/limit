@@ -280,7 +280,7 @@ seated-hip-abduction,Seated Hip Abduction,Machine,technical,Original LIMIT-gener
 standing-cable-hip-abduction,Standing Cable Hip Abduction,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 side-lying-hip-abduction,Side-Lying Hip Abduction,Bodyweight,technical,Original LIMIT-generated schematic; no third-party footage,,,
 band-clamshell,Band Clamshell,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,
-lateral-band-walk,Lateral Band Walk,Resistance band,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Lateral Band Walk: current renderer lacks stable pelvis with the moving leg travelling outward and returning; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires ""Take controlled steps; log steps per direction, not time"". Add exact setup and phase-specific joint/support constraints before generating a video."
+lateral-band-walk,Lateral Band Walk,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,
 seated-hip-adduction,Seated Hip Adduction,Machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
 standing-cable-hip-adduction,Standing Cable Hip Adduction,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 side-lying-hip-adduction,Side-Lying Hip Adduction,Bodyweight,technical,Original LIMIT-generated schematic; no third-party footage,,,
