@@ -2786,14 +2786,14 @@
   {
     "catalogKey": "dumbbell-pullover",
     "name": "Dumbbell Pullover",
-    "poster": "exercises/dumbbell-pullover/v253843608085128/71e066050d51c37c6d3ad65b6a2572fa31685f39718ade43c616d236e68d8809.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/dumbbell-pullover/v46168575848045/4ffd31a05da83df1c53a556a4e145f458c46db3508d3cceeb67f5eb5eaf7fdc5.png",
+    "source": "exercises/dumbbell-pullover/v46168575848045/e5617e548fadba1d978eae061578aac40c4dcaa436a3022cdf5600672f757ce0.mp4",
+    "format": "mp4",
     "caption": "Keep your trunk steady and use a slight bend in your elbows. Move from the shoulders through a comfortable range rather than arching your lower back. Support your head and upper back on the bench.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 253843608085128,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 46168575848045,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -2805,15 +2805,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "71e066050d51c37c6d3ad65b6a2572fa31685f39718ade43c616d236e68d8809",
-    "videoSha256": null,
-    "bytes": 40938,
-    "blockReason": "Dumbbell Pullover: current renderer lacks shoulder-driven arm path past the trunk without an elbow curl; it also lacks the dumbbell grip, position and changing load path. This variation requires \"Support your head and upper back on the bench\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "4ffd31a05da83df1c53a556a4e145f458c46db3508d3cceeb67f5eb5eaf7fdc5",
+    "videoSha256": "e5617e548fadba1d978eae061578aac40c4dcaa436a3022cdf5600672f757ce0",
+    "bytes": 80650,
+    "blockReason": "",
+    "template": "dumbbell-pullover",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

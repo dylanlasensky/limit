@@ -52,6 +52,19 @@
     "audio": false
   },
   {
+    "catalogKey": "dumbbell-pullover",
+    "videoSha256": "e5617e548fadba1d978eae061578aac40c4dcaa436a3022cdf5600672f757ce0",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-lateral-raise",
     "videoSha256": "f5857c52cbe5d864f212b56b2b4a1b66fe5bab40ae5faac10ab1019c807b72bb",
     "duration": 8,

@@ -29,6 +29,7 @@ TEMPLATES={
  'single-arm-dumbbell-triceps-extension':('overhead-triceps',1),
  'dumbbell-skull-crusher':('skull-crusher',None),
  'dumbbell-triceps-kickback':('triceps-kickback',None),
+ 'dumbbell-pullover':('dumbbell-pullover',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -89,7 +90,28 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='skull-crusher':
+ if kind=='dumbbell-pullover':
+  # Head and upper back stay on the bench. Two hands keep one dumbbell secure;
+  # almost-straight arms pivot around the shoulders without moving the trunk.
+  d.rounded_rectangle((160,360,405,376),5,fill=FAR)
+  for x in (185,390):d.line((x,376,x,455),fill=FAR,width=7)
+  hip=(330,349);shoulder=(225,349);head=(180,344)
+  line(d,hip,shoulder,BLUE,26)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  limb(d,[hip,(360,319),(394,348)],BLUE,16)
+  line(d,(394,348),(418,352),INK,9)
+  angle=-1.2-1.1*u
+  hands=[]
+  for offset,color in ((-10,FAR),(10,INK)):
+   arm_start=(shoulder[0]+offset,shoulder[1])
+   elbow=polar(arm_start,68,angle)
+   hand=polar(elbow,66,angle-.12);hands.append(hand)
+   if abs(math.dist(arm_start,elbow)-68)>1e-6 or abs(math.dist(elbow,hand)-66)>1e-6 or math.dist(hand,head)<50:raise ValueError('Pullover arm or head clearance changed')
+   limb(d,[arm_start,elbow,hand],color,11)
+  center=((hands[0][0]+hands[1][0])/2,(hands[0][1]+hands[1][1])/2)
+  line(d,hands[0],hands[1],INK,6);weight(d,center)
+ elif kind=='skull-crusher':
   # Supine on a bench; upper arms and elbows stay fixed while separate
   # dumbbells lower beside the head and return without crossing the face.
   d.rounded_rectangle((170,360,405,376),5,fill=FAR)
