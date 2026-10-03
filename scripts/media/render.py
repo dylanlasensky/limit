@@ -248,6 +248,8 @@ TEMPLATES={
  'single-arm-cable-chest-press':('cable-chest-press','single'),
  'cable-face-pull':('anchored-face-pull','cable'),
  'resistance-band-face-pull':('anchored-face-pull','band'),
+ 'barbell-deadlift':('barbell-hinge','conventional'),
+ 'romanian-deadlift':('barbell-hinge','romanian'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -293,6 +295,10 @@ def ik(a,b,l1,l2,side=1):
  if not abs(l1-l2)<dist<l1+l2:raise ValueError('Unreachable joint pose')
  along=(l1*l1-l2*l2+dist*dist)/(2*dist);height=math.sqrt(max(0,l1*l1-along*along))
  return(a[0]+along*dx/dist+side*height*dy/dist,a[1]+along*dy/dist-side*height*dx/dist)
+def segment_distance(p,a,b):
+ dx,dy=b[0]-a[0],b[1]-a[1]
+ t=max(0,min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy)))
+ return math.dist(p,(a[0]+t*dx,a[1]+t*dy))
 def line(d,a,b,color=BLUE,width=15):
  d.line([xy(a),xy(b)],fill=color,width=width)
  for p in [a,b]:d.ellipse((p[0]-width/2,p[1]-width/2,p[0]+width/2,p[1]+width/2),fill=color)
@@ -440,7 +446,41 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='machine-triceps-extension':
+ if kind=='barbell-hinge':
+  # Side view with a fixed planted foot, invariant thigh/shin/torso/arm
+  # lengths, explicit knee flexion, hip displacement and vertical bar path.
+  ankle=(315,445);bar_x=325;leg=77.5;torso=120;arm=160
+  if option=='conventional':
+   hip=(255+45*u,332-37*u)
+   trunk_angle=-.55-(math.pi/2-.55)*u
+  else:
+   leg_reach=math.dist((300,295),ankle)
+   hip_x=300-65*u
+   hip=(hip_x,445-math.sqrt(leg_reach**2-(315-hip_x)**2))
+   trunk_angle=-math.pi/2+(math.pi/2-.7)*u
+  knee=ik(hip,ankle,leg,leg,side=1)
+  shoulder=polar(hip,torso,trunk_angle)
+  head=polar(shoulder,34,trunk_angle)
+  bar_y=shoulder[1]+math.sqrt(arm**2-(bar_x-shoulder[0])**2)
+  hand=(bar_x,bar_y)
+  reach=math.dist(hip,ankle)
+  knee_flex=2*math.degrees(math.acos(reach/(2*leg)))
+  if option=='romanian' and (knee_flex>28 or knee_flex<20 or abs(reach-math.dist((300,295),ankle))>1e-6):raise ValueError('RDL knee bend or foot reach changed')
+  if option=='conventional' and not 25<=knee_flex<=70:raise ValueError('Deadlift knee path changed')
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,knee,leg),(knee,ankle,leg),(hip,shoulder,torso),(shoulder,hand,arm))):raise ValueError('Hinge segment length changed')
+  if bar_y>430 or bar_y<320 or head[0]>455:raise ValueError('Hinge bar or head clearance changed')
+  d.line((205,454,454,454),fill=FAR,width=3)
+  limb(d,[hip,knee,ankle],BLUE,17)
+  line(d,ankle,(344,448),INK,9)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
+  limb(d,[shoulder,hand],INK,11)
+  d.line((213,bar_y,438,bar_y),fill=INK,width=7)
+  for x in (232,419):d.rounded_rectangle((x-11,bar_y-28,x+11,bar_y+28),4,fill=FAR,outline=INK,width=2)
+  d.rounded_rectangle((bar_x-8,bar_y-5,bar_x+8,bar_y+5),3,fill=BLUE)
+  draw_curl_grip_inset(d,False,True,upper=True)
+  d.text((47,242),'FLOOR START / BAR CLOSE' if option=='conventional' else 'SOFT KNEES / HIP HINGE',font=FONTS[14],fill=MUTED)
+ elif kind=='machine-triceps-extension':
   hip=(287,335);shoulder=(281,215);head=(279,176);elbow=(354,273)
   d.rounded_rectangle((247,342,332,357),4,fill=FAR)
   for x in (259,320):line(d,(x,357),(x,455),FAR,6)
@@ -513,9 +553,9 @@ def draw_pose(d,kind,option,u):
    d.rounded_rectangle((hand[0]-8,hand[1]-6,hand[0]+8,hand[1]+6),3,fill=FAR,outline=INK,width=2)
   d.text((45,181),'STAGGERED STANCE / TWO CABLES' if option!='single' else 'ONE CABLE / RIBS STACKED',font=FONTS[14],fill=MUTED)
  elif kind=='anchored-face-pull':
-  # Frontal projection: fixed chest and pelvis, elbows stay wide as rope
-  # ends separate beside the face. Cable/band source remains at face height.
-  hip=(300,334);shoulder=(300,214);head=(300,174)
+  # Oblique main view keeps the rope to the near side of the head; the front
+  # inset shows bilateral elbow width lost to this depth projection.
+  hip=(350,334);shoulder=(350,217);head=(356,174)
   anchor=(99,186)
   line(d,(99,90),(99,453),FAR,6)
   if option=='cable':
@@ -524,20 +564,27 @@ def draw_pose(d,kind,option,u):
   else:
    line(d,(99,161),(99,211),FAR,7)
   for side in (-1,1):
-   limb(d,[hip,(300+side*34,391),(300+side*55,445)],BLUE,16)
-   line(d,(300+side*55,445),(300+side*74,448),INK,8)
+   limb(d,[hip,(350+side*33,391),(350+side*51,445)],BLUE,16)
+   line(d,(350+side*51,445),(350+side*69,448),INK,8)
   line(d,hip,shoulder,BLUE,29);line(d,shoulder,head,BLUE,10)
   d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
-  split=(213+28*u,190)
-  line(d,anchor,split,FAR if option=='cable' else BLUE,3)
-  for side in (-1,1):
-   start=(300+side*30,214);elbow=(300+side*79,203)
-   hand=(300+side*(110-60*u),197-9*u)
-   if math.dist(hand,head)<38 or abs(elbow[0]-300)<abs(hand[0]-300) and u>.7:raise ValueError('Face pull hand crossed face or elbow')
-   limb(d,[start,elbow,hand],INK if side>0 else FAR,10)
-   line(d,split,hand,FAR if option=='cable' else BLUE,3)
+  split=(225+36*u,195)
+  far=(228+72*u,192);near=(245+72*u,218-9*u)
+  segments=((anchor,split),(split,far),(split,near))
+  if min(segment_distance(head,a,b) for a,b in segments)<27:raise ValueError('Face pull rope crosses face')
+  for a,b in segments:line(d,a,b,FAR if option=='cable' else BLUE,3)
+  for start,hand,color in (((340,218),far,FAR),((360,218),near,INK)):
+   elbow=ik(start,hand,65,60,side=1)
+   if math.dist(hand,head)<38 or elbow[1]<215:raise ValueError('Face pull hand or elbow path changed')
+   limb(d,[start,elbow,hand],color,10)
    d.rounded_rectangle((hand[0]-7,hand[1]-5,hand[0]+7,hand[1]+5),3,fill=FAR,outline=INK,width=2)
-  d.text((45,246),'FRONT / ELBOWS OUT / FACE CLEAR',font=FONTS[14],fill=MUTED)
+  d.rounded_rectangle((42,287,187,362),7,fill=BG,outline=FAR,width=2)
+  d.text((49,293),'FRONT / ELBOWS OUT',font=FONTS[14],fill=MUTED)
+  d.ellipse((105,311,125,331),fill=INK)
+  for side in (-1,1):
+   line(d,(115+side*17,340),(115+side*58,328),BLUE,6)
+   line(d,(115+side*58,328),(115+side*30,324),INK,5)
+  d.text((49,344),'ROPE CLEAR OF FACE',font=FONTS[14],fill=INK)
  elif kind=='cable-leg-curl':
   anchor=(126,426);hip=(310,312);shoulder=(299,209);head=(296,173);knee=(288,365)
   line(d,(126,91),(126,454),FAR,6)
@@ -3381,7 +3428,8 @@ for e in catalog:
   record['angle']='unspecified'
  if key=='single-arm-cable-lateral-raise':record['angle']='front'
  if key in ('seated-hip-abduction','seated-hip-adduction','standing-cable-hip-abduction','standing-cable-hip-adduction'):record['angle']='front'
- if key in ('high-cable-curl','cross-body-cable-triceps-extension','cable-face-pull','resistance-band-face-pull'):record['angle']='front'
+ if key in ('high-cable-curl','cross-body-cable-triceps-extension'):record['angle']='front'
+ if key in ('cable-face-pull','resistance-band-face-pull'):record['angle']='unspecified' # oblique main view with frontal inset
  if key=='band-clamshell':record['angle']='unspecified'
  old=previous.get(key,{})
  if complete and old.get('videoSha256')==record['videoSha256'] and old.get('posterSha256')==record['posterSha256'] and old.get('reviewStatus') in ['approved','draft']:

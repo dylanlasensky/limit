@@ -579,6 +579,12 @@ Nordic Hamstring Curl|Nordic bench|A|Nordic Curl|Secure your ankles and use hand
 Glute-Ham Raise|GHD|A|GHR|Adjust the footplate and pads; learn the movement with a coach.
 `
 );
+// Nordic lowering opens the knee angle; it is not the bending phase of a leg curl.
+groups.find((entry) => entry.catalogKey === "nordic-hamstring-curl").instructions = [
+  "Secure your ankles and keep your hips aligned with your trunk.",
+  "Lean forward from the knees with a straight hip-to-shoulder line, controlling the descent.",
+  "Use hands or band assistance to catch and return without collapsing.",
+];
 group(
   "Glutes",
   ["Hamstrings", "Abs/core"],

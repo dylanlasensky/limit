@@ -1197,7 +1197,7 @@
   },
   {
     "catalogKey": "cable-face-pull",
-    "videoSha256": "f73ac9d6f37b9ae5bcc841a110e3835c6fd866fc599aa46c0c408a4e7fdb8dc5",
+    "videoSha256": "201a861314002313b86bba9ae0001469d6e1f9e12cf44fea113d2c065b7397c7",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -1210,7 +1210,7 @@
   },
   {
     "catalogKey": "resistance-band-face-pull",
-    "videoSha256": "9dad9015e2ba21411806d9119dfcfc489a01c67b652e7012f63ab4ff27f1a55d",
+    "videoSha256": "4f5743699724dbfb365ff83b13a9b21e13a6ae3b6698cb9d2a2c31c091be1402",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -2535,6 +2535,32 @@
     "audio": false
   },
   {
+    "catalogKey": "barbell-deadlift",
+    "videoSha256": "b7e0cb9bd46e8a3eeaa23c4d2e17f535e33cf8e8080606a276a4c486ad46f901",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "romanian-deadlift",
+    "videoSha256": "65b1f1cdf1cd7d2f3db2cfe7ba5add28952ff38d4ecfba1b8fa79924e9682721",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "seated-leg-curl",
     "videoSha256": "bac797254302c9d9436ce43196847069feb91279422780bd342590ccf4cccef1",
     "duration": 8,
@@ -2653,7 +2679,7 @@
   },
   {
     "catalogKey": "nordic-hamstring-curl",
-    "videoSha256": "f99a24088942dc6735eef94f398ba5e55661476787bead57ff604709a3163699",
+    "videoSha256": "5c3c7a9633e5b8785f53ffb285907d75aed8d8a421f08fd0a5635ae8920fb3a9",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
