@@ -91,6 +91,58 @@
     "audio": false
   },
   {
+    "catalogKey": "dumbbell-shoulder-press",
+    "videoSha256": "2699e95cad1b13c2ec2026a83f23f5f3d4c6f79a8803c6ca0145793ee3a69edf",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "standing-dumbbell-press",
+    "videoSha256": "2f8d85bf95ef17a7a747b0899a2cca192404627aadea74a5f2c7658dcd13743d",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "neutral-grip-dumbbell-shoulder-press",
+    "videoSha256": "1f42953b75d9d34b38a36e933c10d287de172ae0cab8dae71fdf40fe7e79ad6f",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "single-arm-dumbbell-overhead-press",
+    "videoSha256": "58e9adbd6195b0124ad3e78f3c3615070b9c4818cd21d66b8fc946abecb50554",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-lateral-raise",
     "videoSha256": "f5857c52cbe5d864f212b56b2b4a1b66fe5bab40ae5faac10ab1019c807b72bb",
     "duration": 8,
