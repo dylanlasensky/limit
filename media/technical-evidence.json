@@ -117,6 +117,45 @@
     "audio": false
   },
   {
+    "catalogKey": "lat-pulldown",
+    "videoSha256": "1467a291c2820831a8dd10ea1b2a5508aa3d5f39d46b88db3d8e80d81477afdc",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "single-arm-lat-pulldown",
+    "videoSha256": "e91b5271e447f8f5f8568e13147312a63c2dd7fbce2da04b2500f412ec7ed6c9",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "half-kneeling-cable-pulldown",
+    "videoSha256": "a47f147a876c87af742966f48746854f173e50a158fea3aa0c68eb71d4cb5e47",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "single-arm-dumbbell-row",
     "videoSha256": "120aef333f001f02aa36639b2fecbda3615ccca25c2662ecfdf4e76b75e0902a",
     "duration": 8,

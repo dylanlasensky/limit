@@ -102,6 +102,9 @@ TEMPLATES={
  'bayesian-cable-curl':('low-cable-curl','behind-body'),
  'straight-arm-cable-pulldown':('cable-straight-arm','bilateral'),
  'single-arm-cable-pullover':('cable-straight-arm','unilateral'),
+ 'lat-pulldown':('machine-lat-pulldown','bilateral'),
+ 'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
+ 'half-kneeling-cable-pulldown':('half-kneeling-cable-pulldown',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -168,7 +171,59 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='cable-straight-arm':
+ if kind=='half-kneeling-cable-pulldown':
+  # Rear knee pad and lead foot remain fixed while one handle descends from
+  # the high pulley toward the shoulder with no trunk lean.
+  anchor=(132,111);hip=(340,332);shoulder=(340,213);head=(340,174)
+  d.line((113,87,113,456),fill=FAR,width=7)
+  d.rounded_rectangle((96,334,128,421),5,fill=FAR,outline=INK,width=2)
+  for y in (350,369,388,407):d.line((99,y,125,y),fill=INK,width=2)
+  d.ellipse((anchor[0]-12,anchor[1]-12,anchor[0]+12,anchor[1]+12),fill=FAR,outline=INK,width=3)
+  d.rounded_rectangle((243,442,315,454),5,fill=FAR)
+  limb(d,[hip,(296,438),(259,443)],FAR,17);line(d,(259,443),(241,447),INK,8)
+  limb(d,[hip,(377,389),(391,444)],BLUE,17);line(d,(391,444),(413,448),INK,8)
+  body(d,hip,shoulder,head)
+  limb(d,[shoulder,(352,290),(350,352)],FAR,10)
+  hand=(226+84*u,148+110*u)
+  elbow=ik(shoulder,hand,77,69,side=1)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,elbow,77),(elbow,hand,69))):raise ValueError('Half-kneeling pulldown arm changed length')
+  if hip!=(340,332) or anchor!=(132,111):raise ValueError('Half-kneeling pulldown support changed')
+  d.line([xy(anchor),xy(hand)],fill=INK,width=3)
+  limb(d,[shoulder,elbow,hand],INK,11)
+  d.rounded_rectangle((hand[0]-7,hand[1]-7,hand[0]+7,hand[1]+7),3,fill=FAR,outline=INK,width=2)
+ elif kind=='machine-lat-pulldown':
+  # Front view preserves a wide two-hand bar grip, fixed seated trunk,
+  # anchored thighs, overhead pulley and bilateral elbow flexion path.
+  pulley=(300,103);bar_y=139+101*u
+  d.line((300,80,300,456),fill=FAR,width=6)
+  d.line((300,100,473,100),fill=FAR,width=5)
+  d.rounded_rectangle((455,338,489,421),5,fill=FAR,outline=INK,width=2)
+  for y in (353,372,391,410):d.line((459,y,485,y),fill=INK,width=2)
+  d.ellipse((pulley[0]-13,pulley[1]-13,pulley[0]+13,pulley[1]+13),fill=FAR,outline=INK,width=3)
+  d.rounded_rectangle((253,348,347,362),4,fill=FAR)
+  for x in (265,336):d.line((x,362,x,456),fill=FAR,width=7)
+  hip=(300,337);neck=(300,218);head=(300,174)
+  limb(d,[hip,(247,397),(232,445)],BLUE,17);line(d,(232,445),(213,448),INK,8)
+  limb(d,[hip,(353,397),(368,445)],BLUE,17);line(d,(368,445),(387,448),INK,8)
+  d.rounded_rectangle((237,369,363,381),4,fill=FAR,outline=INK,width=2)
+  line(d,hip,neck,BLUE,29)
+  scap_y=215-9*(1-u)
+  d.line((269,scap_y,331,scap_y),fill=BLUE,width=23)
+  line(d,neck,head,BLUE,11)
+  d.ellipse((head[0]-19,head[1]-20,head[0]+19,head[1]+20),fill=INK)
+  single=option=='unilateral'
+  d.line((300,116,390 if single else 300,bar_y),fill=INK,width=3)
+  if single:
+   limb(d,[(269,scap_y),(253,285),(269,340)],FAR,10)
+   d.rounded_rectangle((380,bar_y-6,400,bar_y+6),3,fill=FAR,outline=INK,width=2)
+  else:d.line((181,bar_y,419,bar_y),fill=INK,width=7)
+  for side in ((1,) if single else (-1,1)):
+   start=(300+side*31,scap_y);hand=(300+side*90,bar_y)
+   elbow=ik(start,hand,76,74,side=1 if side==-1 else -1)
+   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((start,elbow,76),(elbow,hand,74))):raise ValueError('Lat pulldown arm changed length')
+   limb(d,[start,elbow,hand],BLUE if side==1 else FAR,12)
+   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=INK)
+ elif kind=='cable-straight-arm':
   # A high pulley and fixed near-straight arms create shoulder extension;
   # the unilateral version leaves one arm at rest.
   single=option=='unilateral';anchor=(443,111)
