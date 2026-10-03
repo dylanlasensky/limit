@@ -1583,14 +1583,14 @@
   {
     "catalogKey": "close-grip-lat-pulldown",
     "name": "Close-Grip Lat Pulldown",
-    "poster": "exercises/close-grip-lat-pulldown/v182404115912923/d17c7436e5ba6da20580d469013745edb21fe92fb1d5215fc3af4078ffe1121a.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/close-grip-lat-pulldown/v154435493872410/b2699cd11e165af2d98b22565571959978d3167d2bce56f109ee63cc9fce7aac.png",
+    "source": "exercises/close-grip-lat-pulldown/v154435493872410/52149077886c12e9eed205526e5828a0b10a0b70c740560e01b57a6a1e757209.mp4",
+    "format": "mp4",
     "caption": "Set your grip and let your shoulder blades move naturally as you reach. Draw your elbows toward your sides without swinging or pulling behind your neck. Avoid leaning far backward.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 182404115912923,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 154435493872410,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -1602,15 +1602,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "d17c7436e5ba6da20580d469013745edb21fe92fb1d5215fc3af4078ffe1121a",
-    "videoSha256": null,
-    "bytes": 42417,
-    "blockReason": "Close-Grip Lat Pulldown: current renderer lacks overhead hand anchor, scapular motion and full body or handle travel; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires \"Avoid leaning far backward\". Add exact setup and phase-specific joint/support constraints before generating a video.",
+    "fps": 24,
+    "posterSha256": "b2699cd11e165af2d98b22565571959978d3167d2bce56f109ee63cc9fce7aac",
+    "videoSha256": "52149077886c12e9eed205526e5828a0b10a0b70c740560e01b57a6a1e757209",
+    "bytes": 99895,
+    "blockReason": "",
     "template": "narrow-lat-pulldown",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

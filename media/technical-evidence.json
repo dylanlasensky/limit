@@ -559,6 +559,19 @@
     "audio": false
   },
   {
+    "catalogKey": "close-grip-lat-pulldown",
+    "videoSha256": "52149077886c12e9eed205526e5828a0b10a0b70c740560e01b57a6a1e757209",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "underhand-lat-pulldown",
     "videoSha256": "1c05b3ff7d7054ba4fad5ba6734b78b26aa34f64eb3819bf7dafe800fc22f62f",
     "duration": 8,

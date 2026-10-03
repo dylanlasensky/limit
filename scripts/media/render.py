@@ -283,6 +283,7 @@ TEMPLATES={
  'supported-single-leg-romanian-deadlift':('barbell-hinge','supported-single-leg-romanian'),
  'cable-pull-through':('cable-pull-through',None),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
+ 'close-grip-lat-pulldown':('narrow-lat-pulldown',None),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
  'underhand-lat-pulldown':('machine-lat-pulldown','underhand'),
@@ -304,7 +305,6 @@ TEMPLATES={
  'dumbbell-step-up':('step-up','dumbbell'),
 }
 BLOCK_REASONS={
- 'close-grip-lat-pulldown':'the close V-bar hand path makes the front-view fixed-length elbow solution cross the torso as the grip descends; keep blocked until a depth-aware narrow-grip rig shows both elbows tracking down outside the trunk',
  'single-arm-landmine-press':'the fixed-pivot press trial folds the elbow behind the torso at the chest start; a coupled bar/shoulder/forearm rig is still needed',
  'half-kneeling-landmine-press':'the fixed-pivot press trial folds the elbow behind the torso at the chest start despite stable knee and foot contacts; a coupled bar/shoulder/forearm rig is still needed',
  'landmine-squat':'a constant-length bar from the fixed pivot currently drives the chest-held end away from the squat torso at depth; this needs a coupled pivot, torso and foot-contact rig before a video can be generated',
@@ -2213,6 +2213,54 @@ def draw_pose(d,kind,option,u):
    if abs(math.dist(pivot,hand)-145)>1e-6 or hand[1]>shoulder[1]+8:raise ValueError('Machine lat lever path changed')
    limb(d,[start,elbow,hand],INK if side>0 else FAR,11)
   d.text((45,181),'SEAT / THIGH PAD / TWO LEVERS',font=FONTS[14],fill=MUTED)
+ elif kind=='narrow-lat-pulldown':
+  # Oblique-depth arm rig: both elbows stay lateral to the seated torso.
+  # The V-bar and forearms run in front of the chest rather than through it.
+  pulley=(300,103);bar_y=143+96*u
+  d.line((300,80,300,456),fill=FAR,width=6)
+  d.line((300,100,473,100),fill=FAR,width=5)
+  d.rounded_rectangle((455,338,489,421),5,fill=FAR,outline=INK,width=2)
+  for y in (353,372,391,410):d.line((459,y,485,y),fill=INK,width=2)
+  d.ellipse((287,90,313,116),fill=FAR,outline=INK,width=3)
+  d.rounded_rectangle((253,348,347,362),4,fill=FAR)
+  for x in (265,336):d.line((x,362,x,456),fill=FAR,width=7)
+  hip=(300,337);neck=(300,218);head=(300,174)
+  limb(d,[hip,(247,397),(232,445)],BLUE,17);line(d,(232,445),(213,448),INK,8)
+  limb(d,[hip,(353,397),(368,445)],BLUE,17);line(d,(368,445),(387,448),INK,8)
+  d.rounded_rectangle((237,369,363,381),4,fill=FAR,outline=INK,width=2)
+  line(d,hip,neck,BLUE,29)
+  d.line((269,218,331,218),fill=BLUE,width=23)
+  line(d,neck,head,BLUE,11)
+  d.ellipse((281,154,319,194),fill=INK)
+  # Depth is solved from fixed segment lengths; projected elbows stay outside
+  # the trunk at every frame, while the neutral handles remain close together.
+  for side in (-1,1):
+   shoulder=(300+side*31,218,0)
+   elbow_x=300+side*75;elbow_y=190+44*u
+   elbow_z=math.sqrt(76**2-(elbow_x-shoulder[0])**2-(elbow_y-shoulder[1])**2)
+   hand_x=300+side*22;hand_y=bar_y
+   projected=math.hypot(hand_x-elbow_x,hand_y-elbow_y)
+   hand_z=elbow_z+math.sqrt(80**2-projected**2)
+   elbow=(elbow_x,elbow_y,elbow_z);hand=(hand_x,hand_y,hand_z)
+   if abs(math.dist(shoulder,elbow)-76)>1e-6 or abs(math.dist(elbow,hand)-80)>1e-6:raise ValueError('Narrow pulldown arm length changed')
+   if side*(elbow_x-300)<70 or hand_z<=elbow_z:raise ValueError('Narrow pulldown elbow/depth path changed')
+   limb(d,[(shoulder[0],shoulder[1]),(elbow_x,elbow_y),(hand_x,hand_y)],INK if side>0 else FAR,12)
+   d.rounded_rectangle((hand_x-6,hand_y-7,hand_x+6,hand_y+7),3,fill=INK)
+  d.line((300,116,300,bar_y-12),fill=INK,width=3)
+  d.line((300,bar_y-12,278,bar_y+2),fill=INK,width=6)
+  d.line((300,bar_y-12,322,bar_y+2),fill=INK,width=6)
+  draw_grip_inset(d,'vbar')
+  d.text((46,248),'ELBOWS OUTSIDE TRUNK',font=FONTS[14],fill=MUTED)
+  # The side inset makes the out-of-plane cable and handle clearance explicit.
+  d.rounded_rectangle((40,370,185,456),7,fill=BG,outline=FAR,width=2)
+  d.text((48,375),'SIDE / CABLE IN FRONT',font=FONTS[14],fill=MUTED)
+  d.ellipse((63,390,73,400),outline=INK,width=2)
+  d.ellipse((137,413,153,429),fill=BLUE)
+  d.line((145,430,145,448),fill=BLUE,width=9)
+  side_handle=(116,401+42*u)
+  d.line((68,395,side_handle[0],side_handle[1]),fill=INK,width=2)
+  d.line((side_handle[0]-6,side_handle[1],side_handle[0]+6,side_handle[1]),fill=INK,width=5)
+  if side_handle[0]>=137:raise ValueError('Narrow pulldown handle lost face clearance')
  elif kind=='machine-lat-pulldown':
   # Front view preserves a wide two-hand bar grip, fixed seated trunk,
   # anchored thighs, overhead pulley and bilateral elbow flexion path.
