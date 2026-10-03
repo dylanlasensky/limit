@@ -289,6 +289,7 @@ TEMPLATES={
  'underhand-lat-pulldown':('machine-lat-pulldown','underhand'),
  'half-kneeling-cable-pulldown':('half-kneeling-cable-pulldown',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
+ 'dumbbell-hip-thrust':('bench-hip-thrust','dumbbell'),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
  'incline-push-up':('push-up','incline-bench'),
@@ -3751,6 +3752,23 @@ def draw_pose(d,kind,option,u):
   if option:d.rounded_rectangle((130,378,245,399),7,fill=FAR);d.line((150,399,150,452),fill=FAR,width=9);d.line((225,399,225,452),fill=FAR,width=9)
   knee=ik(hip,ankle,79,78);limb(d,[hip,knee,ankle]);line(d,ankle,(347,450),INK,10)
   elbow=polar(shoulder,60,-.1);hand=polar(elbow,57,-.1);limb(d,[shoulder,elbow,hand]);body(d,hip,shoulder,head)
+ elif kind=='bench-hip-thrust':
+  # Adapted from the read-only local hip-thrust candidate. The shoulder
+  # contact and foot stay fixed while the hip moves around a rigid torso.
+  d.rounded_rectangle((130,320,235,338),5,fill=FAR)
+  for x in (149,218):d.line((x,338,x,460),fill=FAR,width=8)
+  shoulder=(208,315);foot=(435,444)
+  hip_y=365-50*u
+  hip=(shoulder[0]+math.sqrt(128**2-(hip_y-shoulder[1])**2),hip_y)
+  knee=ik(hip,foot,85,85,side=1)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,hip,128),(hip,knee,85),(knee,foot,85))):raise ValueError('Hip-thrust segment changed length')
+  limb(d,[hip,knee,foot],BLUE,18)
+  line(d,foot,(467,447),INK,10)
+  body(d,hip,shoulder,(170,295))
+  load=(hip[0],hip[1]-22)
+  elbow=ik(shoulder,load,82,77,side=-1)
+  limb(d,[shoulder,elbow,load],INK,10)
+  weight(d,load)
  elif kind=='bridge':
   shoulder=(170,435);hip=polar(shoulder,135,-.31*u);foot=(408,447);knee=ik(hip,foot,85,85,side=1)
   # Knee stays above the supported foot; shoulders and foot remain on the floor.
