@@ -159,6 +159,14 @@ TEMPLATES={
  'hack-squat':('equipment-squat','hack'),
  'assisted-single-leg-squat':('assisted-single-leg-squat',None),
  'barbell-split-squat':('barbell-split-squat',None),
+ 'barbell-overhead-press':('overhead-press','barbell-standing'),
+ 'seated-barbell-shoulder-press':('overhead-press','barbell-seated'),
+ 'smith-machine-shoulder-press':('overhead-press','smith-seated'),
+ 'machine-shoulder-press':('overhead-press','machine-seated'),
+ 'kettlebell-strict-press':('overhead-press','kettlebell-standing'),
+ 'arnold-press':('overhead-press','arnold-seated'),
+ 'single-arm-cable-lateral-raise':('cable-shoulder-raise','lateral'),
+ 'cable-front-raise':('cable-shoulder-raise','front'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -181,6 +189,8 @@ TEMPLATES={
  'dumbbell-step-up':('step-up','dumbbell'),
 }
 BLOCK_REASONS={
+ 'single-arm-landmine-press':'the fixed-pivot press trial folds the elbow behind the torso at the chest start; a coupled bar/shoulder/forearm rig is still needed',
+ 'half-kneeling-landmine-press':'the fixed-pivot press trial folds the elbow behind the torso at the chest start despite stable knee and foot contacts; a coupled bar/shoulder/forearm rig is still needed',
  'landmine-squat':'a constant-length bar from the fixed pivot currently drives the chest-held end away from the squat torso at depth; this needs a coupled pivot, torso and foot-contact rig before a video can be generated',
  'dumbbell-romanian-deadlift':'the current side-view draft over-bends the knee at the bottom of the hinge; keep this blocked until fixed foot contact, near-straight knee travel, hip displacement and two close dumbbell paths are jointly constrained',
  'deficit-push-up':'needs both parallettes at a fixed stable height and a shoulder path below hand level without clipping the supports',
@@ -342,7 +352,96 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='equipment-squat':
+ if kind=='overhead-press':
+  seated=option.endswith('seated');smith=option=='smith-seated';machine=option=='machine-seated'
+  if seated:
+   d.rounded_rectangle((243,326,331,343),5,fill=FAR)
+   d.rounded_rectangle((244,205,260,341),5,fill=FAR)
+   for x in (255,322):d.line((x,343,x,457),fill=FAR,width=8)
+   hip=(295,326);shoulder=(294,219);head=(287,179)
+   limb(d,[hip,(370,353),(389,444)],BLUE,17);line(d,(389,444),(414,448),INK,8)
+  else:
+   hip=(300,329);shoulder=(294,219);head=(287,179)
+   for dx,color in ((-25,FAR),(25,BLUE)):
+    limb(d,[hip,(300+dx,383),(300+dx*1.6,444)],color,16)
+    line(d,(300+dx*1.6,444),(300+dx*1.6+20,448),INK,8)
+  if smith:
+   for x in (250,446):
+    d.line((x,86,x,458),fill=FAR,width=7)
+    d.line((x-15,398,x+15,398),fill=INK,width=5)
+  if option.startswith('barbell'):
+   for x in (103,485):d.line((x,96,x,458),fill=FAR,width=7)
+   d.line((103,303,157,303),fill=FAR,width=6)
+   d.line((434,303,485,303),fill=FAR,width=6)
+  if machine:
+   d.line((472,235,472,456),fill=FAR,width=8)
+   d.rounded_rectangle((453,317,490,406),5,fill=FAR,outline=INK,width=2)
+   d.ellipse((461,251,483,273),fill=INK)
+  body(d,hip,shoulder,head)
+  if machine:
+   angle=3.0+1.1*u
+   hand=polar((472,260),160,angle)
+   elbow=ik(shoulder,hand,78,76,side=-1)
+   d.line([xy((472,260)),xy(hand)],fill=FAR,width=8)
+  else:
+   hand=(348,245-140*u) if option in ('kettlebell-standing','arnold-seated') else (348,265-160*u)
+   elbow=ik(shoulder,hand,75,70,side=-1)
+  if abs(math.dist(shoulder,elbow)-(78 if machine else 75))>1e-6 or abs(math.dist(elbow,hand)-(76 if machine else 70))>1e-6:raise ValueError('Overhead press arm changed length')
+  limb(d,[shoulder,elbow,hand],INK,12)
+  if option.startswith('barbell') or smith:
+   d.line((hand[0]-98,hand[1],hand[0]+98,hand[1]),fill=INK,width=7)
+   for x in (hand[0]-82,hand[0]+82):d.rounded_rectangle((x-8,hand[1]-20,x+8,hand[1]+20),4,fill=FAR,outline=INK,width=2)
+   if smith:
+    for x in (250,446):d.rounded_rectangle((x-5,hand[1]-9,x+5,hand[1]+9),2,fill=INK)
+  elif option=='kettlebell-standing':draw_kettlebell(d,(hand[0]-17,hand[1]+10))
+  elif option=='arnold-seated':
+   # Shaft and palm marker rotate while hands travel upward.
+   theta=-math.pi*u/2
+   a=polar(hand,22,theta);b=polar(hand,22,theta+math.pi)
+   d.line([xy(a),xy(b)],fill=INK,width=7)
+   for p in (a,b):d.rounded_rectangle((p[0]-7,p[1]-8,p[0]+7,p[1]+8),3,fill=FAR)
+   d.ellipse((hand[0]+8*math.cos(math.pi*u)-3,hand[1]+8*math.sin(math.pi*u)-3,hand[0]+8*math.cos(math.pi*u)+3,hand[1]+8*math.sin(math.pi*u)+3),fill=BLUE)
+  else:d.rounded_rectangle((hand[0]-12,hand[1]-5,hand[0]+12,hand[1]+5),3,fill=FAR,outline=INK,width=2)
+  d.text((52,237),{'barbell-standing':'STRICT / LEGS STILL','barbell-seated':'SEATED / FRONT PATH','smith-seated':'GUIDED RAIL / STOPS','machine-seated':'SEAT / MOVING LEVER','kettlebell-standing':'BELL RACK TO LOCKOUT','arnold-seated':'ROTATE WHILE PRESSING'}[option],font=FONTS[14],fill=MUTED)
+ elif kind=='cable-shoulder-raise':
+  # Front and lateral shoulder arcs occupy different camera planes. Both
+  # keep the torso and feet still under a taut low-pulley cable.
+  if option=='front':
+   anchor=(470,416);hip=(300,330);shoulder=(299,211);head=(297,174)
+   d.line((485,90,485,456),fill=FAR,width=6)
+   d.rounded_rectangle((468,347,500,421),4,fill=FAR,outline=INK,width=2)
+   d.ellipse((anchor[0]-10,anchor[1]-10,anchor[0]+10,anchor[1]+10),fill=FAR,outline=INK,width=2)
+   for dx,color in ((-26,FAR),(26,BLUE)):
+    limb(d,[hip,(300+dx,386),(300+dx*1.5,444)],color,16)
+    line(d,(300+dx*1.5,444),(320+dx*1.5,448),INK,8)
+   body(d,hip,shoulder,head)
+   angle=math.pi/2-math.pi*u/2
+   elbow=polar(shoulder,74,angle)
+   hand=polar(elbow,65,angle+.05)
+   limb(d,[shoulder,elbow,hand],INK,12)
+   d.text((50,230),'SIDE VIEW / FORWARD ARC',font=FONTS[14],fill=MUTED)
+  else:
+   anchor=(94,416);hip=(300,330);neck=(300,213);head=(300,175)
+   d.line((76,90,76,456),fill=FAR,width=6)
+   d.rounded_rectangle((61,349,94,421),4,fill=FAR,outline=INK,width=2)
+   d.ellipse((anchor[0]-10,anchor[1]-10,anchor[0]+10,anchor[1]+10),fill=FAR,outline=INK,width=2)
+   for dx,color in ((-31,FAR),(31,BLUE)):
+    limb(d,[hip,(300+dx,386),(300+dx*1.45,444)],color,16)
+    line(d,(300+dx*1.45,444),(300+dx*1.45+20,448),INK,8)
+   line(d,hip,neck,BLUE,29);line(d,neck,head,BLUE,11)
+   d.ellipse((head[0]-18,head[1]-20,head[0]+18,head[1]+14),fill=INK)
+   shoulder=(337,218)
+   line(d,neck,shoulder,BLUE,12)
+   angle=math.pi/2-math.pi*u/2
+   elbow=polar(shoulder,73,angle)
+   hand=polar(elbow,65,angle+.05)
+   limb(d,[shoulder,elbow,hand],INK,12)
+   limb(d,[(263,218),(248,293),(259,348)],FAR,11)
+   d.text((149,230),'FRONT VIEW / OUTWARD ARC',font=FONTS[14],fill=MUTED)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,elbow,74 if option=='front' else 73),(elbow,hand,65))):raise ValueError('Cable raise arm changed length')
+  d.line([xy(anchor),xy(hand)],fill=INK,width=3)
+  d.rounded_rectangle((hand[0]-8,hand[1]-5,hand[0]+8,hand[1]+5),3,fill=FAR,outline=INK,width=2)
+ elif kind=='equipment-squat':
   smith=option.startswith('smith');hack=option=='hack'
   if smith:
    rail_center=294 if option=='smith-back' else 332
@@ -2297,6 +2396,7 @@ for e in catalog:
  if template and template[0] in ('anchored-rotation','forearm-turn'):
   # The schema has no top/end-on value; avoid mislabeling these as side views.
   record['angle']='unspecified'
+ if key=='single-arm-cable-lateral-raise':record['angle']='front'
  old=previous.get(key,{})
  if complete and old.get('videoSha256')==record['videoSha256'] and old.get('posterSha256')==record['posterSha256'] and old.get('reviewStatus') in ['approved','draft']:
   for field in ['reviewStatus','reviewer','reviewEvidence']:record[field]=old[field]
