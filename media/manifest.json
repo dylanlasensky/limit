@@ -5816,14 +5816,14 @@
   {
     "catalogKey": "resistance-band-overhead-triceps-extension",
     "name": "Resistance Band Overhead Triceps Extension",
-    "poster": "exercises/resistance-band-overhead-triceps-extension/v79903848599921/d778c3d37e5182e13fc66caafd8ccc3aa015e383e1ed5ad89d279c65a3a5c0ef.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/resistance-band-overhead-triceps-extension/v213830754426596/8299a34df8956351648d21d2cfc7f52968493d6622dd215f60c4115c5b401fd0.png",
+    "source": "exercises/resistance-band-overhead-triceps-extension/v213830754426596/f13fd2ad7fb104a46fe3c4e8d1ae99cb25926143d61059ded92fa6c7a5909d95.mp4",
+    "format": "mp4",
     "caption": "Set a comfortable shoulder position and keep your upper arms steady. Straighten your elbows without snapping them, then return under control. Inspect the band and use a secure anchor.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 79903848599921,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 213830754426596,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -5835,15 +5835,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "d778c3d37e5182e13fc66caafd8ccc3aa015e383e1ed5ad89d279c65a3a5c0ef",
-    "videoSha256": null,
-    "bytes": 44307,
-    "blockReason": "Resistance Band Overhead Triceps Extension: current renderer lacks fixed upper arm, elbow hinge and full load path; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires \"Inspect the band and use a secure anchor\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "8299a34df8956351648d21d2cfc7f52968493d6622dd215f60c4115c5b401fd0",
+    "videoSha256": "f13fd2ad7fb104a46fe3c4e8d1ae99cb25926143d61059ded92fa6c7a5909d95",
+    "bytes": 110951,
+    "blockReason": "",
+    "template": "band-overhead-triceps",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

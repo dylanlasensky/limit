@@ -76,6 +76,7 @@ TEMPLATES={
  'resistance-band-pulldown':('band-straight-arm-pulldown',None),
  'resistance-band-chest-press':('band-chest-press',None),
  'kettlebell-row':('kettlebell-row',None),
+ 'resistance-band-overhead-triceps-extension':('band-overhead-triceps',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -142,7 +143,27 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='band-chest-press':
+ if kind=='band-overhead-triceps':
+  # A low fixed anchor behind the athlete tensions two band strands. Upper
+  # arms stay near the head while only the forearms extend overhead.
+  anchor=(140,435);hip=(303,331);shoulder=(300,209);head=(300,170)
+  d.line((118,84,118,456),fill=FAR,width=5)
+  d.line((118,435,anchor[0],anchor[1]),fill=INK,width=8)
+  d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
+  limb(d,[hip,(280,388),(267,445)],FAR,16)
+  line(d,(267,445),(246,448),INK,8)
+  limb(d,[hip,(325,387),(345,445)],BLUE,17)
+  line(d,(345,445),(365,448),INK,8)
+  body(d,hip,shoulder,head)
+  for offset,color in ((-10,FAR),(10,INK)):
+   start=(shoulder[0]+offset,shoulder[1]);elbow=(320+offset,157)
+   hand=polar(elbow,69,2.2-3.32*u)
+   if abs(math.dist(elbow,hand)-69)>1e-6 or elbow[1]!=157:raise ValueError('Band overhead triceps elbow changed')
+   if hand[1]<87 or hand[1]>227:raise ValueError('Band overhead triceps path changed')
+   d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
+   limb(d,[start,elbow,hand],color,11)
+   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
+ elif kind=='band-chest-press':
   # Behind-the-body chest-height anchor, planted staggered stance and two
   # separately tensioned arms pressing forward without trunk lean.
   anchor=(148,248);hip=(300,334);shoulder=(300,212);head=(297,174)

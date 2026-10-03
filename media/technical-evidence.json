@@ -598,6 +598,19 @@
     "audio": false
   },
   {
+    "catalogKey": "resistance-band-overhead-triceps-extension",
+    "videoSha256": "f13fd2ad7fb104a46fe3c4e8d1ae99cb25926143d61059ded92fa6c7a5909d95",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-wrist-curl",
     "videoSha256": "aa8aedab741537545451e9d3f33e9d096909a33f7a0586593625acadb73fb4e6",
     "duration": 8,
