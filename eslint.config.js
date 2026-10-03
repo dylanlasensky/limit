@@ -12,6 +12,11 @@ export default tseslint.config(
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    files: ["vendor/braces/**/*.js"],
+    languageOptions: { globals: globals.node },
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
+  {
     files: ["e2e/**/*.ts", "playwright.config.ts", "scripts/**/*.mjs", "tests/**/*.mjs", "worker/**/*.ts", "packages/**/*.{ts,js}"],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
     rules: { "@typescript-eslint/no-explicit-any": "off" },
