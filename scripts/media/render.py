@@ -25,6 +25,9 @@ TEMPLATES={
  'bodyweight-split-squat':('split-squat','floor'),
  'bodyweight-bulgarian-split-squat':('split-squat','rear-bench'),
  'bodyweight-reverse-lunge':('reverse-lunge',None),
+ 'dumbbell-split-squat':('split-squat','floor-dumbbell'),
+ 'bulgarian-split-squat':('split-squat','rear-bench-dumbbell'),
+ 'dumbbell-reverse-lunge':('reverse-lunge','dumbbell'),
  'bodyweight-step-up':('step-up','bodyweight'),
  'dumbbell-step-up':('step-up','dumbbell'),
 }
@@ -108,9 +111,9 @@ def draw_pose(d,kind,option,u):
    rear_ankle=(355-120*step,440-22*math.sin(math.pi*step))
    hip=(320,280+50*lower)
   else:
-   rear_ankle=(235,365) if option=='rear-bench' else (238,440)
-   hip=(320,(270 if option=='rear-bench' else 280)+50*u)
-  if option=='rear-bench':
+   rear_ankle=(235,365) if option in ('rear-bench','rear-bench-dumbbell') else (238,440)
+   hip=(320,(270 if option in ('rear-bench','rear-bench-dumbbell') else 280)+50*u)
+  if option in ('rear-bench','rear-bench-dumbbell'):
    d.rounded_rectangle((193,370,277,385),5,fill=FAR)
    for x in (208,265):d.line((x,385,x,459),fill=FAR,width=8)
   front_knee=ik(hip,front_ankle,100,100,side=1)
@@ -123,7 +126,15 @@ def draw_pose(d,kind,option,u):
   line(d,rear_ankle,rear_toe,INK,9)
   shoulder=(316,hip[1]-112);head=(316,hip[1]-145)
   body(d,hip,shoulder,head)
-  limb(d,[shoulder,(346,shoulder[1]+54),(362,shoulder[1]+85)],INK,11)
+  if option in ('floor-dumbbell','rear-bench-dumbbell','dumbbell'):
+   # Two independently visible carried dumbbells stay below straight arms as
+   # the torso lowers or the trailing foot steps back. Neither is a barbell.
+   for offset,color in ((-34,FAR),(34,INK)):
+    elbow=(shoulder[0]+offset,shoulder[1]+58)
+    hand=(elbow[0]+3,elbow[1]+47)
+    limb(d,[shoulder,elbow,hand],color,10)
+    weight(d,hand,hammer=True)
+  else:limb(d,[shoulder,(346,shoulder[1]+54),(362,shoulder[1]+85)],INK,11)
  elif kind=='single-calf':
   # The working forefoot and balance hand remain planted. The other foot never
   # contacts the ground; only the working heel and body rise.

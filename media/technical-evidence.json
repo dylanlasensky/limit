@@ -130,6 +130,19 @@
     "audio": false
   },
   {
+    "catalogKey": "dumbbell-split-squat",
+    "videoSha256": "771604ea2348061ee8ba4b54dba955beb0a79289077ae8bf4d476320dc8b4c57",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "bodyweight-split-squat",
     "videoSha256": "41b9369e1ff0debd0ae991ed22382bd28e35cd3f6b0daf5b4709b739dcca3ecc",
     "duration": 8,
@@ -143,8 +156,34 @@
     "audio": false
   },
   {
+    "catalogKey": "bulgarian-split-squat",
+    "videoSha256": "c36f7e9002a8f84d9306121c4565a50a53af6a84bfbd9daf1f3f4ecb87b48685",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "bodyweight-bulgarian-split-squat",
     "videoSha256": "deb73aebe47affc87eef04cf6ae7062b086a63741b3052e6b9471c26d63cdd08",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "dumbbell-reverse-lunge",
+    "videoSha256": "a4f338ee57d0e98600747d1486aa6670ef05ce853944897784721d4c3b29abc3",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
