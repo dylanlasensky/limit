@@ -78,6 +78,7 @@ TEMPLATES={
  'kettlebell-row':('kettlebell-row',None),
  'resistance-band-overhead-triceps-extension':('band-overhead-triceps',None),
  'resistance-band-leg-curl':('band-leg-curl',None),
+ 'band-ankle-dorsiflexion':('band-ankle-dorsiflexion',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -144,7 +145,31 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='band-leg-curl':
+ if kind=='band-ankle-dorsiflexion':
+  # Seated heel rests on a fixed low pad. A band anchored in front of the
+  # toes resists their upward rotation about a stationary ankle joint.
+  anchor=(473,390);hip=(278,337);shoulder=(271,213);head=(270,175)
+  d.rounded_rectangle((235,344,311,356),5,fill=FAR)
+  for x in (248,298):d.line((x,356,x,456),fill=FAR,width=7)
+  d.line((492,83,492,456),fill=FAR,width=5)
+  d.line((492,390,anchor[0],anchor[1]),fill=INK,width=8)
+  d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
+  limb(d,[hip,(258,387),(247,444)],FAR,15)
+  line(d,(247,444),(224,448),INK,8)
+  line(d,hip,shoulder,BLUE,27)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
+  limb(d,[shoulder,(300,278),(285,336)],INK,10)
+  knee=(324,365);heel=(370,390)
+  limb(d,[hip,knee,heel],BLUE,17)
+  d.rounded_rectangle((345,399,397,408),4,fill=FAR)
+  for x in (352,388):d.line((x,408,x,455),fill=FAR,width=7)
+  toe=polar(heel,45,-.68*u)
+  if abs(math.dist(heel,toe)-45)>1e-6 or heel!=(370,390) or toe[1]>390:raise ValueError('Band dorsiflexion heel changed')
+  d.line([xy(toe),xy(anchor)],fill=FAR,width=5)
+  line(d,heel,toe,INK,11)
+  d.rounded_rectangle((toe[0]-5,toe[1]-5,toe[0]+5,toe[1]+5),2,outline=BLUE,width=2)
+ elif kind=='band-leg-curl':
   # Fixed standing knee and stable wall hand; a low anchor tensions the band
   # attached at the working ankle as the heel curls backward.
   anchor=(445,430);hip=(310,312);shoulder=(299,209);head=(296,173)

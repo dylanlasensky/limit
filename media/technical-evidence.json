@@ -1053,6 +1053,19 @@
     "audio": false
   },
   {
+    "catalogKey": "band-ankle-dorsiflexion",
+    "videoSha256": "cc557f04dddfc19dc3fcb4437643311e60fe0594a8d368f19c8564069c20d2ba",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "crunch",
     "videoSha256": "c9f8d7d4033fbe4dedbb41c8dee1dd04090dd94ae61c1307e8a4d0eae742f995",
     "duration": 8,

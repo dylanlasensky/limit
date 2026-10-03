@@ -670,6 +670,18 @@ group(
   `
 Wall Tibialis Raise|Bodyweight|B|Tibialis Raise;Tib Raise|Lean against a stable wall and move feet only as far forward as manageable.
 Machine Tibialis Raise|Machine|B|Tibialis Machine|Secure the feet according to the machine's instructions.
+`
+);
+group(
+  "Tibialis",
+  [],
+  "Ankle dorsiflexion",
+  "Isolation",
+  [
+    "Keep your working heel supported and use a small, controlled ankle motion.",
+    "Lift the working toes toward your shin, then lower without swinging the leg.",
+  ],
+  `
 Band Ankle Dorsiflexion|Resistance band|B|Band Tibialis Raise|Secure the band in front of your foot; log each side.
 `
 );
