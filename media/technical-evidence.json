@@ -247,6 +247,19 @@
     "audio": false
   },
   {
+    "catalogKey": "resistance-band-lateral-raise",
+    "videoSha256": "ffce4bce6a2c576a1b540d2a3d42a5730100320197c427251fad74787151ae0c",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-front-raise",
     "videoSha256": "fb6b2925f70f63e4b2127071c737e2675d958f3ad3642797487d1e406077f3fe",
     "duration": 8,

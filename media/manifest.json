@@ -3623,14 +3623,14 @@
   {
     "catalogKey": "resistance-band-lateral-raise",
     "name": "Resistance Band Lateral Raise",
-    "poster": "exercises/resistance-band-lateral-raise/v59585346543777/cd8dd8eae4ba5f690a57c8fe2e5d51273c992d34a3484d38169b9f8098113280.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/resistance-band-lateral-raise/v272495465703550/6991769cc17d662eb75f8843e625d8e92110124969d52c34756c72245676883e.png",
+    "source": "exercises/resistance-band-lateral-raise/v272495465703550/ffce4bce6a2c576a1b540d2a3d42a5730100320197c427251fad74787151ae0c.mp4",
+    "format": "mp4",
     "caption": "Use a light load, soft elbows, and a stable trunk. Raise your arms out in a comfortable plane, then lower without swinging. Choose a band you can control at the top.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 59585346543777,
-    "reviewStatus": "blocked",
+    "angle": "front",
+    "duration": 8,
+    "version": 272495465703550,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -3642,15 +3642,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "cd8dd8eae4ba5f690a57c8fe2e5d51273c992d34a3484d38169b9f8098113280",
-    "videoSha256": null,
-    "bytes": 40643,
-    "blockReason": "Resistance Band Lateral Raise: current renderer lacks arm travel out to the side with stable trunk and elbow angle; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires \"Choose a band you can control at the top\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "6991769cc17d662eb75f8843e625d8e92110124969d52c34756c72245676883e",
+    "videoSha256": "ffce4bce6a2c576a1b540d2a3d42a5730100320197c427251fad74787151ae0c",
+    "bytes": 96245,
+    "blockReason": "",
+    "template": "band-lateral-raise",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
