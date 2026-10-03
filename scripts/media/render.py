@@ -47,6 +47,8 @@ TEMPLATES={
  'side-plank-hip-lift':('side-plank-hip-lift',None),
  'dumbbell-wrist-curl':('wrist-curl','palm-up'),
  'dumbbell-reverse-wrist-curl':('wrist-curl','palm-down'),
+ 'alternating-dumbbell-curl':('alternating-curl',None),
+ 'cross-body-hammer-curl':('cross-body-curl',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -104,9 +106,45 @@ def phase(t):
  if p<4:return 1,'Pause comfortably'
  if p<6:return (1+math.cos(math.pi*(p-4)/2))/2,'Return with control'
  return 0,'Reset'
+def alternating_phase(t):
+ p=t%4
+ if p<.5:return 0,'Set up right' if t<4 else 'Set up left'
+ if p<1.5:return (1-math.cos(math.pi*(p-.5)))/2,'Curl right' if t<4 else 'Curl left'
+ if p<2:return 1,'Pause comfortably'
+ if p<3:return (1+math.cos(math.pi*(p-2)))/2,'Lower with control'
+ return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='wrist-curl':
+ if kind in ('alternating-curl','cross-body-curl'):
+  # Front view separates both limbs. Alternating-curl runs a full right and
+  # left repetition in sequence; cross-body uses a neutral grip and draws a
+  # loaded hand toward the opposite shoulder without torso movement.
+  hip=(300,329);neck=(300,210);head=(300,174)
+  for direction in (-1,1):
+   knee=(300+direction*25,384);foot=(300+direction*44,445)
+   limb(d,[hip,knee,foot],BLUE,17);line(d,foot,(foot[0]+direction*18,448),INK,8)
+  line(d,hip,neck,BLUE,30)
+  line(d,neck,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-21,head[0]+18,head[1]+13),fill=INK)
+  for direction in (-1,1):
+   shoulder=(300+direction*35,205)
+   elbow=(300+direction*50,283)
+   line(d,neck,shoulder,BLUE,14)
+   line(d,shoulder,elbow,INK,13)
+   if kind=='alternating-curl':
+    active=(direction==1 and option==0) or (direction==-1 and option==1)
+    angle=math.pi/2+direction*(-3.35*u if active else 0)
+    hand=polar(elbow,70,angle)
+    weight(d,hand)
+   elif direction==1:
+    hand=polar(elbow,76,math.pi/2+2.23*u)
+    weight(d,hand,hammer=True)
+   else:
+    hand=polar(elbow,76,math.pi/2)
+    weight(d,hand,hammer=True)
+   if abs(math.dist(elbow,hand)-(70 if kind=='alternating-curl' else 76))>1e-6:raise ValueError('Curl forearm length changed')
+   line(d,elbow,hand,INK,11)
+ elif kind=='wrist-curl':
   # Close-up keeps the forearm planted on a padded bench. Only the hand and
   # light dumbbell rotate at the wrist. Thumb side and label encode grip.
   d.rounded_rectangle((145,313,362,333),6,fill=FAR)
@@ -679,7 +717,11 @@ def frame(e,t,template=None):
   short=textwrap.shorten(cue,width=95,placeholder='…')
   y=wrap(d,f'{i+1}. {short}',555,y,36,16)+13
  if template:
-  u,label=phase(t);draw_pose(d,*template,u);d.text((55,105),label,font=FONTS[22],fill=INK)
+  if template[0]=='alternating-curl':
+   u,label=alternating_phase(t);draw_pose(d,'alternating-curl',0 if t<4 else 1,u)
+  else:
+   u,label=phase(t);draw_pose(d,*template,u)
+  d.text((55,105),label,font=FONTS[22],fill=INK)
   d.rounded_rectangle((55,485,55+int(440*t/8),490),2,fill=BLUE)
  else:
   d.text((70,220),'Written guide',font=FONTS[30],fill=INK)
@@ -706,7 +748,7 @@ for e in catalog:
  reason='' if complete else (f"{e['name']}: {BLOCK_REASONS[key]}." if key in BLOCK_REASONS else reason_for(e))
  caption=' '.join(e.get('instructions',[])[:3])
  version=int(hashlib.sha256((sha(poster)+(sha(video) if complete else '')).encode()).hexdigest()[:12],16) or 1
- record={'catalogKey':key,'name':e['name'],'poster':f'exercises/{key}/v{version}/{sha(poster)}.png','source':f'exercises/{key}/v{version}/{sha(video)}.mp4' if complete else None,'format':'mp4' if complete else None,'caption':caption,'angle':('front' if key in ('side-lying-hip-abduction','side-lying-hip-adduction','dumbbell-shrug','dumbbell-lateral-raise','seated-dumbbell-lateral-raise','dumbbell-shoulder-press','standing-dumbbell-press','neutral-grip-dumbbell-shoulder-press','single-arm-dumbbell-overhead-press') else 'side') if complete else 'unspecified','duration':DURATION if complete else 0,'version':version,'reviewStatus':'technical' if complete else 'blocked','reviewer':None,'safetyClassification':'coaching-recommended' if e.get('coachingRecommended') else 'general','textFallback':e.get('instructions',[]),'license':'Original LIMIT-generated schematic; no third-party footage','generated':True,'width':W,'height':H,'fps':FPS if complete else 0,'posterSha256':sha(poster),'videoSha256':sha(video) if complete else None,'bytes':poster.stat().st_size+(video.stat().st_size if complete else 0),'blockReason':reason,'template':template[0] if template else None,'technicalChecks':['exact-catalog-key','fixed-framing','silent','h264-yuv420p','full-decode'] if complete else ['exact-catalog-key','written-fallback']}
+ record={'catalogKey':key,'name':e['name'],'poster':f'exercises/{key}/v{version}/{sha(poster)}.png','source':f'exercises/{key}/v{version}/{sha(video)}.mp4' if complete else None,'format':'mp4' if complete else None,'caption':caption,'angle':('front' if key in ('side-lying-hip-abduction','side-lying-hip-adduction','dumbbell-shrug','dumbbell-lateral-raise','seated-dumbbell-lateral-raise','dumbbell-shoulder-press','standing-dumbbell-press','neutral-grip-dumbbell-shoulder-press','single-arm-dumbbell-overhead-press','alternating-dumbbell-curl','cross-body-hammer-curl') else 'side') if complete else 'unspecified','duration':DURATION if complete else 0,'version':version,'reviewStatus':'technical' if complete else 'blocked','reviewer':None,'safetyClassification':'coaching-recommended' if e.get('coachingRecommended') else 'general','textFallback':e.get('instructions',[]),'license':'Original LIMIT-generated schematic; no third-party footage','generated':True,'width':W,'height':H,'fps':FPS if complete else 0,'posterSha256':sha(poster),'videoSha256':sha(video) if complete else None,'bytes':poster.stat().st_size+(video.stat().st_size if complete else 0),'blockReason':reason,'template':template[0] if template else None,'technicalChecks':['exact-catalog-key','fixed-framing','silent','h264-yuv420p','full-decode'] if complete else ['exact-catalog-key','written-fallback']}
  old=previous.get(key,{})
  if complete and old.get('videoSha256')==record['videoSha256'] and old.get('posterSha256')==record['posterSha256'] and old.get('reviewStatus') in ['approved','draft']:
   for field in ['reviewStatus','reviewer','reviewEvidence']:record[field]=old[field]
