@@ -323,5 +323,44 @@
     "frames": 192,
     "decodedMicros": 8000000,
     "audio": false
+  },
+  {
+    "catalogKey": "crunch",
+    "videoSha256": "43fc433113a8372bb83a0ca63c0880f107691ddfa8d12816a4f58b77d15c94ee",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "reverse-crunch",
+    "videoSha256": "3b70933cb30229ff0d2e1c5e2e75af84796d927bf4017ec9fc9f99e53d5e0e8a",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "lying-leg-raise",
+    "videoSha256": "2e15dd284ba0da293a660721d34edc91e18168546f20c527812cd84dc0a7f264",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
   }
 ]

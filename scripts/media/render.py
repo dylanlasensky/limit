@@ -16,6 +16,9 @@ TEMPLATES={
  'seated-dumbbell-curl':('seated-curl',False),
  'dumbbell-front-raise':('front-raise',False),
  'quadruped-hip-extension':('quadruped-hip-extension',None),
+ 'crunch':('crunch',None),
+ 'reverse-crunch':('reverse-crunch',None),
+ 'lying-leg-raise':('lying-leg-raise',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -75,7 +78,55 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='quadruped-hip-extension':
+ if kind=='reverse-crunch':
+  # Upper back stays supported. The pelvis rolls gently toward the ribs while
+  # both bent legs follow; neither foot swings from a floor contact.
+  shoulder=(205,420);head=(165,420)
+  hip=polar(shoulder,95,-0.23*u)
+  knee=polar(hip,90,-.95-.25*u)
+  shin_angle=.76+.13*u
+  foot=polar(knee,78,shin_angle)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,hip,95),(hip,knee,90),(knee,foot,78))):raise ValueError('Reverse crunch segment changed length')
+  if foot[1]>425 or head[1]!=420:raise ValueError('Reverse crunch support changed')
+  line(d,shoulder,hip,BLUE,25)
+  limb(d,[hip,knee,foot],BLUE,17)
+  line(d,foot,(foot[0]+19,foot[1]+2),INK,9)
+  line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-17,head[1]-17,head[0]+17,head[1]+17),fill=INK)
+  limb(d,[shoulder,(240,437),(266,438)],INK,10)
+ elif kind=='lying-leg-raise':
+  # The back and pelvis stay supported while straight legs pivot as one unit
+  # around the hips; the low point stays above the floor.
+  shoulder=(205,420);head=(165,420);hip=(300,420)
+  angle=-.22-1.14*u
+  knee=polar(hip,76,angle)
+  foot=polar(knee,76,angle)
+  if abs(math.dist(hip,knee)-76)>1e-6 or abs(math.dist(knee,foot)-76)>1e-6:raise ValueError('Leg raise segment changed length')
+  if foot[1]>405 or hip[1]!=420:raise ValueError('Leg raise floor clearance changed')
+  line(d,shoulder,hip,BLUE,25)
+  limb(d,[hip,knee,foot],BLUE,18)
+  line(d,foot,(foot[0]+13,foot[1]-7),INK,8)
+  line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-17,head[1]-17,head[0]+17,head[1]+17),fill=INK)
+  limb(d,[shoulder,(237,439),(265,441)],INK,10)
+ elif kind=='crunch':
+  # Pelvis and both feet remain on the floor. The upper trunk curls through a
+  # short range; the head follows the shoulder without a neck-pulling hand.
+  hip=(300,425);knee=(352,352);foot=(410,425)
+  angle=.43*u
+  shoulder=polar(hip,95,math.pi+angle)
+  head=polar(shoulder,40,math.pi+angle)
+  if abs(math.dist(hip,shoulder)-95)>1e-6 or abs(math.dist(shoulder,head)-40)>1e-6:raise ValueError('Crunch trunk length changed')
+  if hip!=(300,425) or knee!=(352,352) or foot!=(410,425):raise ValueError('Crunch floor contact changed')
+  limb(d,[hip,knee,foot],FAR,17)
+  line(d,foot,(435,428),INK,9)
+  line(d,hip,shoulder,BLUE,25)
+  line(d,shoulder,head,BLUE,11)
+  elbow=add(shoulder,(48,-41));hand=add(elbow,(37,30))
+  limb(d,[shoulder,elbow,hand],INK,11)
+  d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
+  d.line((head[0]-14,head[1]+7,head[0]-5,head[1]+8),fill=BG,width=3)
+ elif kind=='quadruped-hip-extension':
   # Hands and support knee stay planted. The trunk and pelvis remain level;
   # only the working hip extends, with fixed thigh and shin lengths.
   hip=(350,302);shoulder=(238,293);head=(196,288)
