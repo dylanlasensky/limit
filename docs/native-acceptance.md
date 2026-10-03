@@ -1,6 +1,14 @@
 # Native candidate preparation and acceptance
 
-This is a separate owner-deferred track. Web production does not constitute an IPA, device, signing, App Store or TestFlight pass. `release/app-store.json` deliberately leaves human evidence unverified; `npm run check:app-store` must continue failing until the real evidence exists.
+This is a separate native track with engineering and owner acceptance still open. Web production does not constitute an IPA, device, signing, App Store or TestFlight pass. `release/app-store.json` deliberately leaves human evidence unverified; `npm run check:app-store` must continue failing until the real evidence exists.
+
+## Current evidence boundaries (2026-10-03)
+
+| Level | Actual result | Next action |
+|---|---|---|
+| Source and Expo web | SDK 57 Doctor 21/21 and iOS/Android/web JavaScript exports passed in PR #62 CI. Mocked Expo web history and owner-switch DOM tests passed; these are not packaged native tests. | Keep these gates on each source revision. |
+| iOS simulator | Xcode 26.2 and iOS 26.2 simulators are installed. Development-only prebuild generated an Xcode project, but `pod install --no-repo-update` stopped before compilation: CMake was not installed and Hermes could not fetch its source from GitHub through this shell. Generated project/config edits were removed. No simulator app ran. | Install free CMake, restore GitHub source access, build/run an unsigned simulator app, then record actual UI, deep-link, media, interruption and accessibility outcomes. |
+| Physical device and store | No signed build, physical-device run, TestFlight run or privacy-manifest report from an actual IPA. | Owner supplies legal publisher identity, approved bundle IDs, signing/account access, declarations and controlled real-device evidence. Keep signed/OTA release blocked while node-forge signing risk remains. |
 
 ## Build preparation
 
