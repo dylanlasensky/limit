@@ -2600,6 +2600,32 @@
     "audio": false
   },
   {
+    "catalogKey": "paused-deadlift",
+    "videoSha256": "7ba1767ac63cd733420a70574a3618c2a83a3bfe2a791e8976072ad8c35dc437",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "snatch-grip-deadlift",
+    "videoSha256": "b112e3620306a79090abac55fb6348edaab90544bb6d23b9f5e8511761d086bc",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "seated-leg-curl",
     "videoSha256": "bac797254302c9d9436ce43196847069feb91279422780bd342590ccf4cccef1",
     "duration": 8,
