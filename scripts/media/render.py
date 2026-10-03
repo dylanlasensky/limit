@@ -28,6 +28,7 @@ TEMPLATES={
  'dumbbell-split-squat':('split-squat','floor-dumbbell'),
  'bulgarian-split-squat':('split-squat','rear-bench-dumbbell'),
  'dumbbell-reverse-lunge':('reverse-lunge','dumbbell'),
+ 'dumbbell-forward-lunge':('forward-lunge','dumbbell'),
  'bodyweight-step-up':('step-up','bodyweight'),
  'dumbbell-step-up':('step-up','dumbbell'),
 }
@@ -102,9 +103,19 @@ def draw_pose(d,kind,option,u):
    hand=(elbow[0]+5,elbow[1]+48)
    limb(d,[shoulder,elbow,hand],color,10)
    if option=='dumbbell':weight(d,hand)
- elif kind in ('split-squat','reverse-lunge'):
+ elif kind in ('split-squat','reverse-lunge','forward-lunge'):
   front_ankle=(393,440);front_toe=(432,450)
-  if kind=='reverse-lunge':
+  if kind=='forward-lunge':
+   # Start feet together, lift the leading foot, place it forward, then bend
+   # both knees. The trailing foot remains planted throughout the movement.
+   step=min(1,2*u);lower=max(0,min(1,2*u-1))
+   rear_ankle=(260,440)
+   front_ankle=(290+105*step,440-27*math.sin(math.pi*step))
+   front_toe=(front_ankle[0]+39,front_ankle[1]+8)
+   hip=(290+30*step,270+45*lower)
+   if (.001<u<.499 and front_ankle[1]>=440) or rear_ankle!=(260,440):
+    raise ValueError('Forward-lunge step or planted rear foot changed')
+  elif kind=='reverse-lunge':
    # Step back first while the moving foot is clear of the floor; only then
    # descend. The return reverses these phases as phase() reduces u.
    step=min(1,2*u);lower=max(0,min(1,2*u-1))
@@ -124,7 +135,8 @@ def draw_pose(d,kind,option,u):
   line(d,front_ankle,front_toe,INK,10)
   rear_toe=(rear_ankle[0]-20,rear_ankle[1]+9)
   line(d,rear_ankle,rear_toe,INK,9)
-  shoulder=(316,hip[1]-112);head=(316,hip[1]-145)
+  shoulder=(hip[0]-4 if kind=='forward-lunge' else 316,hip[1]-112)
+  head=(shoulder[0],hip[1]-145)
   body(d,hip,shoulder,head)
   if option in ('floor-dumbbell','rear-bench-dumbbell','dumbbell'):
    # Two independently visible carried dumbbells stay below straight arms as
