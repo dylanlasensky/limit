@@ -211,6 +211,7 @@ TEMPLATES={
  'pendulum-squat':('pendulum-squat',None),
  'single-arm-landmine-press':('landmine-press','standing'),
  'half-kneeling-landmine-press':('landmine-press','half-kneeling'),
+ 'landmine-squat':('landmine-squat',None),
  'cable-crunch':('supported-trunk-crunch','kneeling-cable'),
  'machine-abdominal-crunch':('supported-trunk-crunch','machine'),
  'captain-s-chair-knee-raise':('captain-chair-raise',None),
@@ -1879,6 +1880,26 @@ def draw_pose(d,kind,option,u):
   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,elbow,74 if option=='front' else 73),(elbow,hand,65))):raise ValueError('Cable raise arm changed length')
   d.line([xy(anchor),xy(hand)],fill=INK,width=3)
   d.rounded_rectangle((hand[0]-8,hand[1]-5,hand[0]+8,hand[1]+5),3,fill=FAR,outline=INK,width=2)
+ elif kind=='landmine-squat':
+  # The chest-held bar end follows the arc from its fixed floor pivot.
+  # The torso translates with the bar while feet stay planted.
+  pivot=(80,440);radius=math.hypot(270,220)
+  hand_y=220+60*u;hand=(pivot[0]+math.sqrt(radius**2-(hand_y-pivot[1])**2),hand_y)
+  shoulder=(hand[0]-10,hand[1]-50);hip=(shoulder[0],shoulder[1]+125);head=(shoulder[0],shoulder[1]-33)
+  ankle=(360,445);knee=ik(hip,ankle,79,79,side=1)
+  if abs(math.dist(pivot,hand)-radius)>1e-6 or abs(math.dist(hip,shoulder)-125)>1e-6:raise ValueError('Landmine squat bar or torso changed length')
+  if abs(math.dist(hip,knee)-79)>1e-6 or abs(math.dist(knee,ankle)-79)>1e-6 or knee[0]>445:raise ValueError('Landmine squat knee left platform')
+  d.rounded_rectangle((59,428,100,458),5,fill=FAR,outline=INK,width=2)
+  d.ellipse((pivot[0]-10,pivot[1]-10,pivot[0]+10,pivot[1]+10),fill=FAR,outline=INK,width=2)
+  d.line([xy(pivot),xy(hand)],fill=FAR,width=9)
+  d.ellipse((hand[0]-13,hand[1]-13,hand[0]+13,hand[1]+13),fill=FAR,outline=INK,width=2)
+  limb(d,[hip,knee,ankle],BLUE,18)
+  line(d,ankle,(395,448),INK,10)
+  body(d,hip,shoulder,head)
+  elbow=(shoulder[0]+35,shoulder[1]+38)
+  limb(d,[shoulder,elbow,hand],INK,10)
+  d.rounded_rectangle((hand[0]-10,hand[1]-6,hand[0]+10,hand[1]+6),3,fill=INK)
+  d.text((45,188),'FIXED PIVOT / CHEST HOLD',font=FONTS[14],fill=MUTED)
  elif kind=='landmine-press':
   # The athlete faces the secured pivot. A constant-length bar end rises
   # forward from the chest, with the elbow solved in front of the torso.

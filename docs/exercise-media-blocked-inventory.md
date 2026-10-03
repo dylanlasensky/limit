@@ -1,10 +1,9 @@
 # Remaining exercise media engineering gaps
 
-Snapshot from `media/manifest.json` at 324 technical videos, 41 blocked variants and zero human fitness approvals. These are exact-key engineering gaps. Written movement instructions remain available. A block reason is not a failed human fitness review.
+Snapshot from `media/manifest.json` at 325 technical videos, 40 blocked variants and zero human fitness approvals. These are exact-key engineering gaps. Written movement instructions remain available. A block reason is not a failed human fitness review.
 
 | Exact key | Current blocking reason |
 | --- | --- |
-| `landmine-squat` | Landmine Squat: a constant-length bar from the fixed pivot currently drives the chest-held end away from the squat torso at depth; this needs a coupled pivot, torso and foot-contact rig before a video can be generated. |
 | `landmine-reverse-lunge` | Landmine Reverse Lunge: current renderer lacks each foot or box contact, pelvis level and the specified step or descent direction; it also lacks a fixed bar pivot and its arcing load path. This variation requires "Secure the attachment and keep the bar end near your chest". Add exact setup and phase-specific joint/support constraints before generating a video. |
 | `clean-pull` | Clean Pull: current renderer lacks floor or hang start, bar acceleration, extension and controlled reset; it also lacks a bar with visible plates, hand placement and rack or floor contact. This variation requires "This is a pull without a catch; do not turn it into an arm curl". Add exact setup and phase-specific joint/support constraints before generating a video. |
 | `hang-clean-pull` | Hang Clean Pull: current renderer lacks floor or hang start, bar acceleration, extension and controlled reset; it also lacks a bar with visible plates, hand placement and rack or floor contact. This variation requires "Establish a controlled hang position before the explosive pull". Add exact setup and phase-specific joint/support constraints before generating a video. |

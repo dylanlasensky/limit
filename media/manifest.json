@@ -7238,14 +7238,14 @@
   {
     "catalogKey": "landmine-squat",
     "name": "Landmine Squat",
-    "poster": "exercises/landmine-squat/v19547074307968/f73d9e6156aa3269bd6f2e33a8ac299b49d4a037ed91eef22d8663e7aaa3dc1b.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/landmine-squat/v150877961870092/a45baefe50520d7b334cbd2d449468f90ac0e4562c8a3cf8d7f0feca110b5c8b.png",
+    "source": "exercises/landmine-squat/v150877961870092/032fc1b4cb3fd53a4d5fa3bf170d82a7e9dd40a8bf1c8fb84153ecc78949a00d.mp4",
+    "format": "mp4",
     "caption": "Set a stable stance, brace your trunk, and keep pressure through your whole foot. Bend at the knees and hips to a controlled, comfortable depth, then stand without bouncing. Secure the landmine and hold the bar end close to your chest.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 19547074307968,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 150877961870092,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -7257,15 +7257,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "f73d9e6156aa3269bd6f2e33a8ac299b49d4a037ed91eef22d8663e7aaa3dc1b",
-    "videoSha256": null,
-    "bytes": 42190,
-    "blockReason": "Landmine Squat: a constant-length bar from the fixed pivot currently drives the chest-held end away from the squat torso at depth; this needs a coupled pivot, torso and foot-contact rig before a video can be generated.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "a45baefe50520d7b334cbd2d449468f90ac0e4562c8a3cf8d7f0feca110b5c8b",
+    "videoSha256": "032fc1b4cb3fd53a4d5fa3bf170d82a7e9dd40a8bf1c8fb84153ecc78949a00d",
+    "bytes": 98188,
+    "blockReason": "",
+    "template": "landmine-squat",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

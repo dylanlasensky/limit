@@ -2613,6 +2613,19 @@
     "audio": false
   },
   {
+    "catalogKey": "landmine-squat",
+    "videoSha256": "032fc1b4cb3fd53a4d5fa3bf170d82a7e9dd40a8bf1c8fb84153ecc78949a00d",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "assisted-single-leg-squat",
     "videoSha256": "895250c1ac46d1b9023b8d7faa0edf82c71f8c29045ad0d46a139c3688f2f21d",
     "duration": 8,
