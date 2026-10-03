@@ -274,6 +274,8 @@ TEMPLATES={
  'chest-supported-reverse-fly':('depth-fly','reverse-supported'),
  'cable-reverse-fly':('depth-fly','reverse-cable'),
  'single-arm-cable-rear-delt-fly':('depth-fly','reverse-single-cable'),
+ 'pec-deck-fly':('depth-fly','pecdeck-chest'),
+ 'reverse-pec-deck':('depth-fly','pecdeck-reverse'),
  'b-stance-romanian-deadlift':('barbell-hinge','b-stance-romanian'),
  'single-leg-dumbbell-romanian-deadlift':('barbell-hinge','single-leg-romanian'),
  'supported-single-leg-romanian-deadlift':('barbell-hinge','supported-single-leg-romanian'),
@@ -517,7 +519,8 @@ def draw_pose(d,kind,option,u):
   standing=option in ('cable-chest','single-arm-cable','low-to-high-cable','high-to-low-cable','band-chest','reverse-cable','reverse-single-cable')
   cable=option in ('cable-chest','bench-cable','single-arm-cable','low-to-high-cable','high-to-low-cable','reverse-cable','reverse-single-cable')
   band=option=='band-chest'
-  reverse=option in ('reverse-dumbbell','reverse-supported','reverse-cable','reverse-single-cable')
+  machine=option in ('pecdeck-chest','pecdeck-reverse')
+  reverse=option in ('reverse-dumbbell','reverse-supported','reverse-cable','reverse-single-cable','pecdeck-reverse')
   single=option in ('single-arm-cable','reverse-single-cable')
   if cable:
    for tower in ((511,) if option=='reverse-single-cable' else ((89,) if single else (89,511))):
@@ -525,7 +528,11 @@ def draw_pose(d,kind,option,u):
     pulley_y=190 if option=='high-to-low-cable' else (375 if option in ('bench-cable','low-to-high-cable') else 275)
     d.ellipse((tower-9,pulley_y-9,tower+9,pulley_y+9),fill=FAR,outline=INK,width=2)
     d.rounded_rectangle((tower-13,354 if standing else 404,tower+13,415 if standing else 443),3,fill=FAR,outline=INK,width=2)
-  if standing or option=='reverse-dumbbell':
+  if machine:
+   d.rounded_rectangle((264,225,336,380),9,fill=FAR)
+   d.rounded_rectangle((250,373,350,393),5,fill=FAR,outline=INK,width=2)
+   for bx in (267,333):d.line((bx,390,bx,453),fill=FAR,width=6)
+  elif standing or option=='reverse-dumbbell':
    pass
   else:
    d.rounded_rectangle((266,188,334,425),10,fill=FAR)
@@ -540,7 +547,7 @@ def draw_pose(d,kind,option,u):
     if math.dist(anchor,target)<140 or segment_distance((300,174),anchor,target)<30:raise ValueError('Chest band anchor or head path changed')
     d.line((*anchor,*target),fill=FAR,width=4)
   d.rounded_rectangle((279,239,321,386),13,fill=BLUE)
-  if standing or option=='reverse-dumbbell':d.line((300,191,300,246),fill=BLUE,width=13)
+  if standing or option=='reverse-dumbbell' or machine:d.line((300,191,300,246),fill=BLUE,width=13)
   d.ellipse((280,154,320,194),fill=INK)
   for hip_x,foot_x,foot_y in ((284,253,445),(316,347,427 if standing else 445)):
    limb(d,[(hip_x,379),(hip_x+(foot_x-hip_x)*.45,411),(foot_x,foot_y)],BLUE,11)
@@ -562,8 +569,13 @@ def draw_pose(d,kind,option,u):
     anchor=((511 if side<0 else 89) if option in ('reverse-cable','reverse-single-cable') else (89 if side<0 else 511),190 if option=='high-to-low-cable' else (375 if option in ('bench-cable','low-to-high-cable') else 275))
     if math.dist(anchor,hand)<12:raise ValueError('Fly cable lost tension')
     d.line((*anchor,*hand),fill=BLUE,width=4)
+   if machine:
+    d.line((*shoulder,*hand),fill=FAR,width=13)
+    d.ellipse((shoulder[0]-10,shoulder[1]-10,shoulder[0]+10,shoulder[1]+10),fill=FAR,outline=INK,width=2)
    limb(d,[shoulder,elbow,hand],INK,10)
-   if cable or band:d.rounded_rectangle((hand[0]-9,hand[1]-6,hand[0]+9,hand[1]+6),2,fill=FAR,outline=INK,width=2)
+   if machine:
+    d.rounded_rectangle((hand[0]-12,hand[1]-13,hand[0]+12,hand[1]+13),4,fill=FAR,outline=INK,width=2)
+   elif cable or band:d.rounded_rectangle((hand[0]-9,hand[1]-6,hand[0]+9,hand[1]+6),2,fill=FAR,outline=INK,width=2)
    else:
     d.line((hand[0]-13,hand[1],hand[0]+13,hand[1]),fill=INK,width=5)
     for px in (hand[0]-12,hand[0]+12):d.rounded_rectangle((px-5,hand[1]-11,px+5,hand[1]+11),2,fill=FAR,outline=INK,width=2)
@@ -577,11 +589,19 @@ def draw_pose(d,kind,option,u):
    d.line((62,side_pulley_y,175,side_hand_y),fill=BLUE,width=3)
    d.line((175,183,175,218),fill=BLUE,width=12)
    d.ellipse((167,166,183,182),fill=INK)
+  elif machine:pass
   elif reverse:d.text((52,161),'CHEST PAD' if option=='reverse-supported' else 'HIP HINGE',font=FONTS[14],fill=MUTED)
   elif option=='bench-cable':d.text((181,160),'LOW',font=FONTS[14],fill=MUTED)
   elif option=='incline-dumbbell':d.text((151,160),'INCLINE',font=FONTS[14],fill=MUTED)
   else:d.text((52,161),'SIDE / HAND HEIGHT',font=FONTS[14],fill=MUTED)
   if standing:pass
+  elif machine:
+   d.rounded_rectangle((91,211,175,219),3,fill=FAR)
+   pad_x=162 if option=='pecdeck-reverse' else 101
+   d.rounded_rectangle((pad_x-5,176,pad_x+5,214),3,fill=FAR)
+   d.line((125,180,125,211),fill=BLUE,width=10)
+   d.ellipse((117,161,133,177),fill=INK)
+   d.line((125,190,165,190),fill=INK,width=5)
   elif reverse:
    if option=='reverse-supported':
     d.line((64,215,183,181),fill=FAR,width=7)
@@ -611,7 +631,7 @@ def draw_pose(d,kind,option,u):
    d.ellipse((55,178,76,199),fill=INK)
    d.line((134,189,134,187-30*u),fill=INK,width=5)
    d.ellipse((128,181-30*u,140,193-30*u),fill=BLUE)
-  d.text((47,242),'TOP VIEW',font=FONTS[14],fill=MUTED)
+  d.text((47,405 if machine else 242),('CHEST PAD / REVERSE' if option=='pecdeck-reverse' else 'BACK PAD / CHEST') if machine else 'TOP VIEW',font=FONTS[14],fill=MUTED)
   if option=='reverse-cable':
    d.rounded_rectangle((345,307,500,366),5,fill=BG,outline=MUTED,width=2)
    d.text((352,312),'CROSSED HANDLES',font=FONTS[14],fill=MUTED)

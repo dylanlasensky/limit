@@ -39,7 +39,7 @@ low-to-high-cable-fly,Low-to-High Cable Fly,Cable,technical,Original LIMIT-gener
 high-to-low-cable-fly,High-to-Low Cable Fly,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 single-arm-cable-fly,Single-Arm Cable Fly,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 bench-cable-fly,Bench Cable Fly,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
-pec-deck-fly,Pec Deck Fly,Machine,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Pec Deck Fly: current renderer lacks shoulder arc, elbow angle and bilateral or unilateral hand path; it also lacks the actual seat, pads, lever or sled and safe contact points. This variation requires ""Adjust the seat and arm position to avoid overstretching"". Add exact setup and phase-specific joint/support constraints before generating a video."
+pec-deck-fly,Pec Deck Fly,Machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
 resistance-band-chest-fly,Resistance Band Chest Fly,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,
 lat-pulldown,Lat Pulldown,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 neutral-grip-lat-pulldown,Neutral-Grip Lat Pulldown,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
@@ -114,7 +114,7 @@ plate-front-raise,Plate Front Raise,Weight plate,technical,Original LIMIT-genera
 resistance-band-front-raise,Resistance Band Front Raise,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,
 dumbbell-reverse-fly,Dumbbell Reverse Fly,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 chest-supported-reverse-fly,Chest-Supported Reverse Fly,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
-reverse-pec-deck,Reverse Pec Deck,Machine,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Reverse Pec Deck: current renderer lacks supported trunk angle and shoulder horizontal-abduction arc; it also lacks the actual seat, pads, lever or sled and safe contact points. This variation requires ""Adjust the handles and seat for a comfortable reach"". Add exact setup and phase-specific joint/support constraints before generating a video."
+reverse-pec-deck,Reverse Pec Deck,Machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
 cable-reverse-fly,Cable Reverse Fly,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 single-arm-cable-rear-delt-fly,Single-Arm Cable Rear Delt Fly,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 resistance-band-pull-apart,Resistance Band Pull-Apart,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,

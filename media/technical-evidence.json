@@ -481,6 +481,19 @@
     "audio": false
   },
   {
+    "catalogKey": "pec-deck-fly",
+    "videoSha256": "21de026ffb97d434dcb59827391f115e84512ea5be89bbb854ec4288ea858262",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "resistance-band-chest-fly",
     "videoSha256": "5a923d7e63afa34de02241084214f4562bf6da14d03f6f56444f3635b3a90153",
     "duration": 8,
@@ -1302,6 +1315,19 @@
   {
     "catalogKey": "chest-supported-reverse-fly",
     "videoSha256": "72662f2315ea0cf36a8ea8184ea38a4d9256055f78e47c8b1864041703ea9c86",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "reverse-pec-deck",
+    "videoSha256": "e4b1322a0d35d38af93bb1d8f82f7c28dcc63630a35d8d9ee841c3a308e377f0",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
