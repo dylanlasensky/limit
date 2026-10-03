@@ -167,6 +167,7 @@ TEMPLATES={
  'kettlebell-strict-press':('overhead-press','kettlebell-standing'),
  'arnold-press':('overhead-press','arnold-seated'),
  'single-arm-cable-lateral-raise':('cable-shoulder-raise','lateral'),
+ 'leaning-cable-lateral-raise':('leaning-cable-lateral',None),
  'cable-front-raise':('cable-shoulder-raise','front'),
  'barbell-bench-press':('barbell-horizontal-press','flat'),
  'incline-barbell-bench-press':('barbell-horizontal-press','incline'),
@@ -1692,6 +1693,33 @@ def draw_pose(d,kind,option,u):
    d.ellipse((hand[0]+8*math.cos(math.pi*u)-3,hand[1]+8*math.sin(math.pi*u)-3,hand[0]+8*math.cos(math.pi*u)+3,hand[1]+8*math.sin(math.pi*u)+3),fill=BLUE)
   else:d.rounded_rectangle((hand[0]-12,hand[1]-5,hand[0]+12,hand[1]+5),3,fill=FAR,outline=INK,width=2)
   d.text((52,237),{'barbell-standing':'STRICT / LEGS STILL','barbell-seated':'SEATED / FRONT PATH','smith-seated':'GUIDED RAIL / STOPS','machine-seated':'SEAT / MOVING LEVER','kettlebell-standing':'BELL RACK TO LOCKOUT','arnold-seated':'ROTATE WHILE PRESSING'}[option],font=FONTS[14],fill=MUTED)
+ elif kind=='leaning-cable-lateral':
+  # The free hand fixes the lean against the column; the opposite arm
+  # abducts on an invariant-length shoulder arc with a taut low cable.
+  anchor=(94,416);brace=(128,236)
+  d.line((76,88,76,457),fill=FAR,width=7)
+  d.line((76,236,140,236),fill=FAR,width=6)
+  d.rounded_rectangle((61,349,94,421),4,fill=FAR,outline=INK,width=2)
+  d.ellipse((anchor[0]-10,anchor[1]-10,anchor[0]+10,anchor[1]+10),fill=FAR,outline=INK,width=2)
+  hip=(300,330);neck=(315,213);head=(315,175)
+  for dx,color in ((-31,FAR),(31,BLUE)):
+   limb(d,[hip,(300+dx,386),(300+dx*1.45,444)],color,16)
+   line(d,(300+dx*1.45,444),(320+dx*1.45,448),INK,8)
+  line(d,hip,neck,BLUE,29);line(d,neck,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-20,head[0]+18,head[1]+14),fill=INK)
+  support=(280,218);loaded=(350,218)
+  line(d,neck,support,BLUE,11);line(d,neck,loaded,BLUE,11)
+  support_elbow=ik(support,brace,85,85,side=1)
+  if any(abs(math.dist(a,b)-85)>1e-6 for a,b in ((support,support_elbow),(support_elbow,brace))):raise ValueError('Leaning raise fixed support arm changed')
+  limb(d,[support,support_elbow,brace],FAR,10)
+  angle=math.pi/2-math.pi*u/2
+  elbow=polar(loaded,73,angle);hand=polar(elbow,65,angle+.05)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((loaded,elbow,73),(elbow,hand,65))):raise ValueError('Leaning raise loaded arm changed')
+  if hand[0]>510 or hand[1]<195:raise ValueError('Leaning raise handle left safe arc')
+  d.line([xy(anchor),xy(hand)],fill=INK,width=3)
+  limb(d,[loaded,elbow,hand],INK,12)
+  d.rounded_rectangle((hand[0]-8,hand[1]-5,hand[0]+8,hand[1]+5),3,fill=FAR,outline=INK,width=2)
+  d.text((46,189),'FREE HAND FIXED / LEAN AWAY',font=FONTS[14],fill=MUTED)
  elif kind=='cable-shoulder-raise':
   # Front and lateral shoulder arcs occupy different camera planes. Both
   # keep the torso and feet still under a taut low-pulley cable.
@@ -4079,6 +4107,7 @@ for e in catalog:
   # The schema has no top/end-on value; avoid mislabeling these as side views.
   record['angle']='unspecified'
  if key=='single-arm-cable-lateral-raise':record['angle']='front'
+ if key=='leaning-cable-lateral-raise':record['angle']='front'
  if key=='scapular-pull-up':record['angle']='front'
  if key in ('seated-hip-abduction','seated-hip-adduction','standing-cable-hip-abduction','standing-cable-hip-adduction'):record['angle']='front'
  if key in ('high-cable-curl','cross-body-cable-triceps-extension'):record['angle']='front'

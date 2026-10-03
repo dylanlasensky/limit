@@ -1287,6 +1287,19 @@
     "audio": false
   },
   {
+    "catalogKey": "leaning-cable-lateral-raise",
+    "videoSha256": "8bd704ad1f95a1bf06836da9ae6c9409dacf63bd6df399116d4ed20300731473",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "resistance-band-lateral-raise",
     "videoSha256": "ffce4bce6a2c576a1b540d2a3d42a5730100320197c427251fad74787151ae0c",
     "duration": 8,

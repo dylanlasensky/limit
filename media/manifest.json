@@ -3797,14 +3797,14 @@
   {
     "catalogKey": "leaning-cable-lateral-raise",
     "name": "Leaning Cable Lateral Raise",
-    "poster": "exercises/leaning-cable-lateral-raise/v52091962621620/5dc70fa222688d75727038401d2e08c5e8e86e1f6eed81eb74b4b4baf5712de1.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/leaning-cable-lateral-raise/v79620511368136/ce4161ab17de1238519e389968f30a644483f18855d56098104bf05b9bafd3ab.png",
+    "source": "exercises/leaning-cable-lateral-raise/v79620511368136/8bd704ad1f95a1bf06836da9ae6c9409dacf63bd6df399116d4ed20300731473.mp4",
+    "format": "mp4",
     "caption": "Use a light load, soft elbows, and a stable trunk. Raise your arms out in a comfortable plane, then lower without swinging. Hold a secure support and avoid twisting.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 52091962621620,
-    "reviewStatus": "blocked",
+    "angle": "front",
+    "duration": 8,
+    "version": 79620511368136,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -3816,15 +3816,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "5dc70fa222688d75727038401d2e08c5e8e86e1f6eed81eb74b4b4baf5712de1",
-    "videoSha256": null,
-    "bytes": 40119,
-    "blockReason": "Leaning Cable Lateral Raise: current renderer lacks arm travel out to the side with stable trunk and elbow angle; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires \"Hold a secure support and avoid twisting\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "ce4161ab17de1238519e389968f30a644483f18855d56098104bf05b9bafd3ab",
+    "videoSha256": "8bd704ad1f95a1bf06836da9ae6c9409dacf63bd6df399116d4ed20300731473",
+    "bytes": 104768,
+    "blockReason": "",
+    "template": "leaning-cable-lateral",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
