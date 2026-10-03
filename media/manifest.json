@@ -3323,14 +3323,14 @@
   {
     "catalogKey": "resistance-band-overhead-press",
     "name": "Resistance Band Overhead Press",
-    "poster": "exercises/resistance-band-overhead-press/v3327476354936/77ae97d237ddac92e1c48be571e383a0d5ca0be66fa83d918fa1efd746d8d02b.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/resistance-band-overhead-press/v9919334111535/cc51f4ba0830f807daf6cbebb5362a1335c2f95dfd1dfeee8501a5ca68f0f9dd.png",
+    "source": "exercises/resistance-band-overhead-press/v9919334111535/9f6711d711f12aedce084c1c19aa9839c714d2c374126ac3daddb0e7e1cfcf60.mp4",
+    "format": "mp4",
     "caption": "Brace your trunk and position your wrists above your forearms. Press upward through a comfortable path without leaning back to finish the repetition. Inspect the band and keep it securely under your feet.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 3327476354936,
-    "reviewStatus": "blocked",
+    "angle": "front",
+    "duration": 8,
+    "version": 9919334111535,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -3342,15 +3342,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "77ae97d237ddac92e1c48be571e383a0d5ca0be66fa83d918fa1efd746d8d02b",
-    "videoSha256": null,
-    "bytes": 43572,
-    "blockReason": "Resistance Band Overhead Press: current renderer lacks grip, elbow path, overhead clearance and lockout; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires \"Inspect the band and keep it securely under your feet\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "cc51f4ba0830f807daf6cbebb5362a1335c2f95dfd1dfeee8501a5ca68f0f9dd",
+    "videoSha256": "9f6711d711f12aedce084c1c19aa9839c714d2c374126ac3daddb0e7e1cfcf60",
+    "bytes": 98692,
+    "blockReason": "",
+    "template": "band-overhead-press",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
