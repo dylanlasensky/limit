@@ -77,6 +77,7 @@ TEMPLATES={
  'resistance-band-chest-press':('band-chest-press',None),
  'kettlebell-row':('kettlebell-row',None),
  'resistance-band-overhead-triceps-extension':('band-overhead-triceps',None),
+ 'resistance-band-leg-curl':('band-leg-curl',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -143,7 +144,27 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='band-overhead-triceps':
+ if kind=='band-leg-curl':
+  # Fixed standing knee and stable wall hand; a low anchor tensions the band
+  # attached at the working ankle as the heel curls backward.
+  anchor=(445,430);hip=(310,312);shoulder=(299,209);head=(296,173)
+  d.line((466,85,466,456),fill=FAR,width=5)
+  d.line((466,430,anchor[0],anchor[1]),fill=INK,width=8)
+  d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
+  limb(d,[hip,(337,380),(345,445)],BLUE,18)
+  line(d,(345,445),(367,448),INK,9)
+  line(d,hip,shoulder,BLUE,28)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
+  limb(d,[shoulder,(358,256),(466,274)],INK,11)
+  knee=(288,365);working_ankle=polar(knee,70,1.1+1.5*u)
+  if abs(math.dist(knee,working_ankle)-70)>1e-6 or knee!=(288,365):raise ValueError('Band leg curl knee changed')
+  if working_ankle[1]>=443:raise ValueError('Band leg curl foot lost clearance')
+  d.line([xy(anchor),xy(working_ankle)],fill=FAR,width=5)
+  limb(d,[hip,knee,working_ankle],FAR,16)
+  line(d,working_ankle,(working_ankle[0]-18,working_ankle[1]+4),INK,8)
+  d.rounded_rectangle((working_ankle[0]-9,working_ankle[1]-8,working_ankle[0]+9,working_ankle[1]+8),3,outline=INK,width=2)
+ elif kind=='band-overhead-triceps':
   # A low fixed anchor behind the athlete tensions two band strands. Upper
   # arms stay near the head while only the forearms extend overhead.
   anchor=(140,435);hip=(303,331);shoulder=(300,209);head=(300,170)

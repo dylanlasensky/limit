@@ -8720,14 +8720,14 @@
   {
     "catalogKey": "resistance-band-leg-curl",
     "name": "Resistance Band Leg Curl",
-    "poster": "exercises/resistance-band-leg-curl/v270330731506408/41cf8cce73ef7d3697c13bf52752b6a2cebf0f7fed02ccd633c6a73af3cc82e3.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/resistance-band-leg-curl/v104709119476984/a08ddd085a361644e9bbb425517ebfc65ac0a1b1c34c8e2b87123444ca62448e.png",
+    "source": "exercises/resistance-band-leg-curl/v104709119476984/975948e8666da04ce83c83df6b7aa1d3785e3b70a40874cebaf8fd561df9afe8.mp4",
+    "format": "mp4",
     "caption": "Set your knee alignment and keep your hips stable. Bend your knees under control and resist the return rather than letting the load drop. Secure the anchor and ankle attachment.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 270330731506408,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 104709119476984,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -8739,15 +8739,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "41cf8cce73ef7d3697c13bf52752b6a2cebf0f7fed02ccd633c6a73af3cc82e3",
-    "videoSha256": null,
-    "bytes": 40084,
-    "blockReason": "Resistance Band Leg Curl: current renderer lacks fixed thigh or torso support and heel travel toward the body; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires \"Secure the anchor and ankle attachment\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "a08ddd085a361644e9bbb425517ebfc65ac0a1b1c34c8e2b87123444ca62448e",
+    "videoSha256": "975948e8666da04ce83c83df6b7aa1d3785e3b70a40874cebaf8fd561df9afe8",
+    "bytes": 74666,
+    "blockReason": "",
+    "template": "band-leg-curl",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

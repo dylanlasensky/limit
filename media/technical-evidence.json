@@ -884,6 +884,19 @@
     "audio": false
   },
   {
+    "catalogKey": "resistance-band-leg-curl",
+    "videoSha256": "975948e8666da04ce83c83df6b7aa1d3785e3b70a40874cebaf8fd561df9afe8",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "stability-ball-leg-curl",
     "videoSha256": "f9cdcd26300ece2e0e2a3eb72f04a1b30e13893c1a3430698342b4aa4de03271",
     "duration": 8,
