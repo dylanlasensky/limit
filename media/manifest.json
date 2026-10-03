@@ -7058,14 +7058,14 @@
   {
     "catalogKey": "leg-extension",
     "name": "Leg Extension",
-    "poster": "exercises/leg-extension/v165952052517152/944f54cdeb389c7cd05d30fadfccee8a0083baae8d9dbbb2e9112c68d01ca598.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/leg-extension/v137261805312617/a61d58975297ab6db57e9dca29098d21368269a1d7723f1aad8935b6b2d19b23.png",
+    "source": "exercises/leg-extension/v137261805312617/13ef388b2edcb12007fe115f5850cff6e888d41e344d879cdae141e9dafdc00e.mp4",
+    "format": "mp4",
     "caption": "Align your knee with the machine pivot or set a stable supported position. Straighten your knee under control and lower without dropping the resistance. Place the lower pad above the ankle, not on the foot.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 165952052517152,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 137261805312617,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -7077,15 +7077,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "944f54cdeb389c7cd05d30fadfccee8a0083baae8d9dbbb2e9112c68d01ca598",
-    "videoSha256": null,
-    "bytes": 40995,
-    "blockReason": "Leg Extension: current renderer lacks fixed thigh support and knee-driven lower-leg travel; it also lacks the actual seat, pads, lever or sled and safe contact points. This variation requires \"Place the lower pad above the ankle, not on the foot\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "a61d58975297ab6db57e9dca29098d21368269a1d7723f1aad8935b6b2d19b23",
+    "videoSha256": "13ef388b2edcb12007fe115f5850cff6e888d41e344d879cdae141e9dafdc00e",
+    "bytes": 74214,
+    "blockReason": "",
+    "template": "machine-leg-extension",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

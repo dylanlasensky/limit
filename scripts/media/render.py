@@ -89,6 +89,7 @@ TEMPLATES={
  'cable-triceps-pushdown':('cable-triceps-pushdown',None),
  'overhead-cable-triceps-extension':('cable-overhead-triceps',None),
  'cable-triceps-kickback':('cable-triceps-kickback',None),
+ 'leg-extension':('machine-leg-extension',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -155,7 +156,31 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind in ('seated-cable-row','single-arm-cable-row'):
+ if kind=='machine-leg-extension':
+  # The seat/back and machine knee pivot remain fixed; a roller contacts the
+  # lower shin above the ankle while the shin extends without hip movement.
+  hip=(301,333);shoulder=(301,214);head=(300,176);knee=(374,325)
+  d.rounded_rectangle((253,337,341,352),5,fill=FAR)
+  d.rounded_rectangle((250,210,266,350),5,fill=FAR)
+  for x in (269,330):d.line((x,352,x,456),fill=FAR,width=8)
+  d.rounded_rectangle((135,342,168,421),5,fill=FAR,outline=INK,width=2)
+  for y in (358,377,396,414):d.line((138,y,165,y),fill=INK,width=2)
+  d.line((165,325,374,325),fill=FAR,width=5)
+  d.ellipse((knee[0]-13,knee[1]-13,knee[0]+13,knee[1]+13),fill=FAR,outline=INK,width=3)
+  line(d,hip,shoulder,BLUE,27)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
+  limb(d,[shoulder,(309,283),(300,333)],INK,10)
+  line(d,hip,knee,BLUE,18)
+  angle=math.pi/2-1.53*u
+  foot=polar(knee,79,angle)
+  roller=polar(knee,60,angle)
+  if abs(math.dist(knee,foot)-79)>1e-6 or abs(math.dist(knee,roller)-60)>1e-6:raise ValueError('Leg extension lever length changed')
+  if knee!=(374,325) or foot[1]>405:raise ValueError('Leg extension pivot or clearance changed')
+  line(d,knee,foot,BLUE,18)
+  d.ellipse((roller[0]-14,roller[1]-14,roller[0]+14,roller[1]+14),fill=FAR,outline=INK,width=3)
+  line(d,foot,(foot[0]+20,foot[1]+3),INK,8)
+ elif kind in ('seated-cable-row','single-arm-cable-row'):
   # Fixed seat and footplate brace the athlete while a handle moves along a
   # visible pulley cable. The torso stays upright; elbows travel behind it.
   single=kind=='single-arm-cable-row'
