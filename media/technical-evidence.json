@@ -2808,6 +2808,32 @@
     "audio": false
   },
   {
+    "catalogKey": "lateral-step-up",
+    "videoSha256": "0aeaa7f4fa75c23645671c88338df4d1843bae7ad5642836f55eb474140a70b0",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "lateral-step-down",
+    "videoSha256": "74236ffa8600ee202fa6d9a9db84613709e0e1799c405d56567a3da7ffdaa5b7",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "barbell-deadlift",
     "videoSha256": "b7e0cb9bd46e8a3eeaa23c4d2e17f535e33cf8e8080606a276a4c486ad46f901",
     "duration": 8,

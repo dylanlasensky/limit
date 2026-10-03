@@ -312,6 +312,8 @@ TEMPLATES={
  'bodyweight-step-up':('step-up','bodyweight'),
  'dumbbell-step-up':('step-up','dumbbell'),
  'barbell-step-up':('step-up','barbell'),
+ 'lateral-step-up':('lateral-step','up'),
+ 'lateral-step-down':('lateral-step','down'),
 }
 BLOCK_REASONS={
  'single-arm-landmine-press':'the fixed-pivot press trial folds the elbow behind the torso at the chest start; a coupled bar/shoulder/forearm rig is still needed',
@@ -3625,6 +3627,43 @@ def draw_pose(d,kind,option,u):
   d.ellipse((head[0]-20,head[1]-17,head[0]+17,head[1]+17),fill=INK)
   d.line((head[0]-14,head[1]+9,head[0]-4,head[1]+9),fill=BG,width=3)
   d.line((215,435,248,435),fill=INK,width=9)
+ elif kind=='lateral-step':
+  # Frontal-plane crossing: one whole foot remains on the box while the
+  # other lifts clear of its edge, travels laterally, then lands softly.
+  motion=u if option=='up' else 1-u
+  d.rounded_rectangle((300,395,480,461),4,fill=FAR)
+  d.line((300,395,480,395),fill=INK,width=6)
+  d.line((195,454,299,454),fill=FAR,width=3)
+  lead_ankle=(350,389);hip=(300+50*motion,300-75*motion)
+  if motion<.3:
+   trail_ankle=(230,445-105*motion/.3)
+  elif motion<.7:
+   trail_ankle=(230+200*(motion-.3)/.4,340)
+  else:
+   trail_ankle=(430,340+49*(motion-.7)/.3)
+  if lead_ankle!=(350,389) or (300<=trail_ankle[0]<=480 and trail_ankle[1]>389):raise ValueError('Lateral step foot crossed box edge')
+  def depth_knee(ankle,offset):
+   dx=ankle[0]-hip[0];dy=ankle[1]-hip[1];span=math.hypot(dx,dy)
+   if span>=200:raise ValueError('Lateral step leg became unreachable')
+   knee=(hip[0]+dx/2+offset*dy/span,hip[1]+dy/2-offset*dx/span)
+   depth=math.sqrt(100**2-(span/2)**2-offset**2)
+   if any(abs(math.hypot(math.dist(a,b),depth)-100)>1e-6 for a,b in ((hip,knee),(knee,ankle))):raise ValueError('Lateral step 3-D leg length changed')
+   return knee
+  lead_knee=depth_knee(lead_ankle,12)
+  trail_knee=depth_knee(trail_ankle,-12)
+  if not hip[0]<=lead_knee[0]<=lead_ankle[0]+13:raise ValueError('Lateral step knee lost foot line')
+  limb(d,[hip,trail_knee,trail_ankle],FAR,16)
+  limb(d,[hip,lead_knee,lead_ankle],BLUE,18)
+  line(d,lead_ankle,(376,391),INK,9)
+  line(d,trail_ankle,(trail_ankle[0]+24,trail_ankle[1]+2),INK,9)
+  shoulder=(hip[0],hip[1]-85);head=(hip[0],hip[1]-115)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  d.line((hip[0]-28,hip[1],hip[0]+28,hip[1]),fill=BLUE,width=9)
+  for side,color in ((-1,FAR),(1,INK)):
+   limb(d,[shoulder,(shoulder[0]+side*35,shoulder[1]+51),(shoulder[0]+side*38,shoulder[1]+86)],color,9)
+  d.text((44,188),'FRONT / LEVEL PELVIS',font=FONTS[14],fill=MUTED)
+  d.text((44,242),'BOX FOOT STAYS PLANTED',font=FONTS[14],fill=MUTED)
  elif kind=='step-up':
   # The lead foot stays on the platform. The trailing foot lifts outside the
   # box, clears its edge, and only then lands on top; neither leg stretches.
