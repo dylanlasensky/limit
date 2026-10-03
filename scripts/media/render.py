@@ -151,6 +151,14 @@ TEMPLATES={
  'barbell-front-squat':('barbell-squat','front'),
  'zercher-squat':('barbell-squat','zercher'),
  'safety-bar-squat':('barbell-squat','safety'),
+ 'kettlebell-goblet-squat':('equipment-squat','goblet-kettlebell'),
+ 'double-kettlebell-front-squat':('equipment-squat','double-kettlebell'),
+ 'smith-machine-squat':('equipment-squat','smith-back'),
+ 'smith-machine-front-squat':('equipment-squat','smith-front'),
+ 'belt-squat':('equipment-squat','belt'),
+ 'hack-squat':('equipment-squat','hack'),
+ 'assisted-single-leg-squat':('assisted-single-leg-squat',None),
+ 'barbell-split-squat':('barbell-split-squat',None),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -173,6 +181,7 @@ TEMPLATES={
  'dumbbell-step-up':('step-up','dumbbell'),
 }
 BLOCK_REASONS={
+ 'landmine-squat':'a constant-length bar from the fixed pivot currently drives the chest-held end away from the squat torso at depth; this needs a coupled pivot, torso and foot-contact rig before a video can be generated',
  'dumbbell-romanian-deadlift':'the current side-view draft over-bends the knee at the bottom of the hinge; keep this blocked until fixed foot contact, near-straight knee travel, hip displacement and two close dumbbell paths are jointly constrained',
  'deficit-push-up':'needs both parallettes at a fixed stable height and a shoulder path below hand level without clipping the supports',
  'close-grip-push-up':'needs a front or oblique view that shows narrow hand placement and elbow tracking; the side view hides grip width',
@@ -327,9 +336,112 @@ def draw_zottman_grip_inset(d,turn):
   marker=(x+7*math.cos(math.pi*turn),315+7*math.sin(math.pi*turn))
   d.ellipse((marker[0]-3,marker[1]-3,marker[0]+3,marker[1]+3),fill=INK)
  d.text((50,338),'PALMS UP' if turn<.05 else ('PALMS DOWN' if turn>.95 else 'TURN WRISTS'),font=FONTS[14],fill=INK)
+def draw_kettlebell(d,center):
+ x,y=center
+ d.rounded_rectangle((x-12,y-18,x+12,y-3),5,outline=INK,width=4)
+ d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='barbell-squat':
+ if kind=='equipment-squat':
+  smith=option.startswith('smith');hack=option=='hack'
+  if smith:
+   rail_center=294 if option=='smith-back' else 332
+   for x in (rail_center-85,rail_center+85):
+    d.line((x,93,x,458),fill=FAR,width=8)
+    d.line((x-13,420,x+13,420),fill=INK,width=6)
+  if hack:
+   d.line((154,407,345,109),fill=FAR,width=10)
+   d.line((184,425,375,127),fill=FAR,width=10)
+   d.rounded_rectangle((285,432,380,448),4,fill=FAR)
+  if option=='belt':
+   for x in (118,480):
+    d.line((x,219,x,458),fill=FAR,width=8)
+   d.line((408,219,480,219),fill=INK,width=6)
+  ankle=(310,447)
+  hip_y=294+68*u
+  lean=.20 if option in ('smith-front','goblet-kettlebell','double-kettlebell') else (.30 if hack else .32)
+  hip_x=(302-126*math.sin(lean*u)) if smith else 302-72*u
+  hip=(hip_x,hip_y)
+  shoulder=polar(hip,126,-math.pi/2+lean*u)
+  head=polar(shoulder,33,-math.pi/2+.10*u)
+  knee=ik(hip,ankle,79,78)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,knee,79),(knee,ankle,78),(hip,shoulder,126))):raise ValueError('Equipment squat body segment changed length')
+  limb(d,[hip,knee,ankle],BLUE,18)
+  line(d,ankle,(347,450),INK,10)
+  if hack:
+   d.line([xy(add(hip,(-17,-4))),xy(add(shoulder,(-17,-4)))],fill=FAR,width=25)
+   for side in (-1,1):
+    pad=(shoulder[0]+side*19,shoulder[1]+13)
+    d.rounded_rectangle((pad[0]-10,pad[1]-12,pad[0]+10,pad[1]+13),5,fill=FAR,outline=INK,width=2)
+   handle=(shoulder[0]+45,shoulder[1]+26)
+   limb(d,[shoulder,(shoulder[0]+35,shoulder[1]+35),handle],INK,10)
+  body(d,hip,shoulder,head)
+  if option=='goblet-kettlebell':
+   bell=(shoulder[0]+48,shoulder[1]+54)
+   for offset in (-9,9):limb(d,[(shoulder[0]+offset,shoulder[1]),(shoulder[0]+offset+38,shoulder[1]+45),(bell[0]+offset/2,bell[1]-12)],INK,10)
+   draw_kettlebell(d,bell)
+  elif option=='double-kettlebell':
+   for dx,color in ((-17,FAR),(17,INK)):
+    bell=(shoulder[0]+32+dx,shoulder[1]+35)
+    limb(d,[shoulder,(shoulder[0]+38+dx,shoulder[1]+48),(bell[0],bell[1]-14)],color,10)
+    draw_kettlebell(d,bell)
+  elif smith:
+   bar=(294,shoulder[1]+(13 if option=='smith-back' else 11)) if option=='smith-back' else (332,shoulder[1]+11)
+   if abs(bar[0]-(294 if option=='smith-back' else 332))>1e-6:raise ValueError('Smith bar left rail path')
+   d.line((bar[0]-85,bar[1],bar[0]+85,bar[1]),fill=INK,width=7)
+   for x in (bar[0]-69,bar[0]+69):d.rounded_rectangle((x-8,bar[1]-20,x+8,bar[1]+20),4,fill=FAR,outline=INK,width=2)
+   for x in (bar[0]-85,bar[0]+85):d.rounded_rectangle((x-6,bar[1]-9,x+6,bar[1]+9),3,fill=INK)
+   if option=='smith-front':
+    elbow=(bar[0]+34,bar[1]-11);hand=(bar[0]+8,bar[1]-5)
+   else:
+    elbow=(shoulder[0]+38,shoulder[1]+57);hand=(bar[0]+36,bar[1])
+   limb(d,[shoulder,elbow,hand],INK,10)
+  elif option=='belt':
+   buckle=(hip[0],hip[1]+8);load=(hip[0],hip[1]+63)
+   d.line((hip[0]-30,hip[1]+8,hip[0]+30,hip[1]+8),fill=INK,width=7)
+   d.line([xy(buckle),xy((load[0],load[1]-18))],fill=INK,width=4)
+   d.ellipse((load[0]-19,load[1]-18,load[0]+19,load[1]+18),fill=FAR,outline=INK,width=3)
+   hand=(419,219);elbow=ik(shoulder,hand,92,80,side=1)
+   limb(d,[shoulder,elbow,hand],INK,10)
+  d.text((55,229),{'goblet-kettlebell':'SINGLE BELL','double-kettlebell':'TWO RACKED BELLS','smith-back':'FIXED BAR PATH','smith-front':'FIXED FRONT RACK','belt':'HIP BELT / HANDLE','hack':'BACK PAD / SLED'}[option],font=FONTS[14],fill=MUTED)
+ elif kind=='assisted-single-leg-squat':
+  # Single planted foot, elevated free leg, and two fixed-length straps.
+  ankle=(330,441);hip=(311-48*u,296+70*u)
+  knee=ik(hip,ankle,75,75,side=1)
+  limb(d,[hip,knee,ankle],BLUE,18)
+  line(d,ankle,(365,449),INK,10)
+  free_knee=add(hip,(75,-20));free_foot=add(free_knee,(75,5))
+  limb(d,[hip,free_knee,free_foot],FAR,15)
+  line(d,free_foot,(free_foot[0]+16,free_foot[1]+3),INK,8)
+  shoulder=polar(hip,125,-math.pi/2+.22*u)
+  head=polar(shoulder,34,-math.pi/2+.12*u)
+  body(d,hip,shoulder,head)
+  for offset,color in ((-8,FAR),(8,INK)):
+   anchor=(453+offset,92);hand=(416+offset,248)
+   d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
+   d.line((anchor[0]-13,anchor[1],anchor[0]+13,anchor[1]),fill=INK,width=8)
+   elbow=ik(shoulder,hand,100,83,side=1)
+   limb(d,[shoulder,elbow,hand],color,10)
+  d.text((53,233),'ONE FOOT / STRAPS FOR BALANCE',font=FONTS[14],fill=MUTED)
+ elif kind=='barbell-split-squat':
+  # Two planted feet and a back-racked bar descend without stepping.
+  for x in (112,480):d.line((x,133,x,458),fill=FAR,width=7)
+  d.line((112,415,173,415),fill=FAR,width=6)
+  d.line((432,415,480,415),fill=FAR,width=6)
+  front_ankle=(393,440);rear_ankle=(238,440);hip=(320,280+50*u)
+  front_knee=ik(hip,front_ankle,100,100,side=1)
+  rear_knee=ik(hip,rear_ankle,100,100,side=1)
+  limb(d,[hip,rear_knee,rear_ankle],FAR,17)
+  limb(d,[hip,front_knee,front_ankle],BLUE,19)
+  line(d,front_ankle,(432,450),INK,10);line(d,rear_ankle,(218,449),INK,9)
+  shoulder=(316,hip[1]-112);head=(316,hip[1]-145)
+  body(d,hip,shoulder,head)
+  bar=(shoulder[0]-8,shoulder[1]+12)
+  d.line((bar[0]-78,bar[1],bar[0]+78,bar[1]),fill=INK,width=7)
+  for x in (bar[0]-64,bar[0]+64):d.rounded_rectangle((x-8,bar[1]-21,x+8,bar[1]+21),4,fill=FAR,outline=INK,width=2)
+  limb(d,[shoulder,(shoulder[0]+39,shoulder[1]+52),(bar[0]+38,bar[1])],INK,10)
+  d.text((53,232),'BAR ON BACK / FEET STAY PUT',font=FONTS[14],fill=MUTED)
+ elif kind=='barbell-squat':
   # Fixed feet, thigh/shin/torso lengths, and visible safeties. The bar
   # position, elbow support, and box/yoke geometry are exact to the option.
   d.line((102,123,102,458),fill=FAR,width=8)
