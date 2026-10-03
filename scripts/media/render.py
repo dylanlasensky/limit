@@ -191,6 +191,14 @@ TEMPLATES={
  'smith-machine-calf-raise':('smith-calf',None),
  'donkey-calf-raise':('donkey-calf',None),
  'machine-tibialis-raise':('machine-tibialis',None),
+ 'barbell-shrug':('loaded-shrug','barbell'),
+ 'trap-bar-shrug':('loaded-shrug','trap-bar'),
+ 'smith-machine-shrug':('loaded-shrug','smith'),
+ 'cable-shrug':('loaded-shrug','cable'),
+ 'machine-shrug':('loaded-shrug','machine'),
+ 'deficit-push-up':('push-up','deficit'),
+ 'close-grip-push-up':('push-up','close-grip'),
+ 'weighted-push-up':('push-up','weighted'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -382,7 +390,64 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind in ('leg-press-sled','leg-press-calf'):
+ if kind=='loaded-shrug':
+  # Front view: a level trunk and planted feet; only the shoulder girdle and
+  # long arms rise. Every implement has its own fixed support or load path.
+  hip=(300,335);neck=(300,207);head=(300,169)
+  if option=='smith':
+   for x in (184,416):
+    line(d,(x,111),(x,452),FAR,6)
+    line(d,(x-11,405),(x+11,405),INK,4)
+  elif option=='cable':
+   for x in (181,419):
+    d.ellipse((x-11,427,x+11,449),outline=FAR,width=4)
+   d.text((44,251),'LOW PULLEYS / TWO CABLES',font=FONTS[14],fill=MUTED)
+  elif option=='machine':
+   for x in (130,470):
+    d.ellipse((x-9,341,x+9,359),outline=FAR,width=4)
+   d.text((44,251),'PIVOTING SIDE HANDLES',font=FONTS[14],fill=MUTED)
+  for direction in (-1,1):
+   knee=(300+direction*27,390);foot=(300+direction*46,445)
+   limb(d,[hip,knee,foot],BLUE,17);line(d,foot,(foot[0]+direction*18,448),INK,9)
+  line(d,hip,neck,BLUE,29);line(d,neck,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-21,head[0]+18,head[1]+13),fill=INK)
+  hands=[]
+  for direction in (-1,1):
+   sh=(300+direction*38,207-14*u)
+   line(d,neck,sh,BLUE,13)
+   if option=='machine':
+    pivot=(130,350) if direction<0 else (470,350)
+    target_y=346-14*u
+    hand=(pivot[0]-direction*math.sqrt(128**2-(pivot[1]-target_y)**2),target_y)
+    if abs(math.dist(pivot,hand)-128)>1e-6:raise ValueError('Shrug lever radius changed')
+    if not 138<math.dist(sh,hand)<140:raise ValueError('Shrug straight arm path changed')
+    line(d,sh,hand,INK,11)
+   else:
+    elbow=polar(sh,70,math.pi/2-direction*.06)
+    hand=polar(elbow,69,math.pi/2-direction*.06)
+    if abs(math.dist(sh,elbow)-70)>1e-6 or abs(math.dist(elbow,hand)-69)>1e-6:raise ValueError('Shrug arm length changed')
+    limb(d,[sh,elbow,hand],INK,11)
+   hands.append(hand)
+  if option in ('barbell','smith'):
+   y=sum(p[1] for p in hands)/2
+   line(d,(177,y),(423,y),INK,6)
+   for x in (190,410):d.rounded_rectangle((x-7,y-21,x+7,y+21),3,fill=FAR,outline=INK,width=2)
+   if option=='smith':
+    for x in (184,416):d.ellipse((x-7,y-7,x+7,y+7),fill=BLUE,outline=INK,width=2)
+  elif option=='trap-bar':
+   y=sum(p[1] for p in hands)/2
+   d.line([(179,y),(215,y-22),(385,y-22),(421,y),(385,y+22),(215,y+22),(179,y)],fill=INK,width=5)
+   for x in (183,417):d.rounded_rectangle((x-7,y-17,x+7,y+17),3,fill=FAR,outline=INK,width=2)
+   d.text((44,251),'SIDE HANDLES / TRAP FRAME',font=FONTS[14],fill=MUTED)
+  elif option=='cable':
+   for hand,pivot in zip(hands,((181,438),(419,438))):
+    line(d,pivot,hand,FAR,3)
+    d.rounded_rectangle((hand[0]-12,hand[1]-6,hand[0]+12,hand[1]+6),3,fill=FAR,outline=INK,width=2)
+  else:
+   for hand,pivot in zip(hands,((130,350),(470,350))):
+    line(d,pivot,hand,FAR,6)
+    d.rounded_rectangle((hand[0]-12,hand[1]-6,hand[0]+12,hand[1]+6),3,fill=FAR,outline=INK,width=2)
+ elif kind in ('leg-press-sled','leg-press-calf'):
   # Seat/back never move. A translating sled changes hip-to-foot reach in
   # presses; the calf guide instead fixes the sled and pivots only the heel.
   hip=(205,345);shoulder=(146,253);head=(124,222)
@@ -2565,6 +2630,12 @@ def draw_pose(d,kind,option,u):
   # Side view: hand and foot/knee supports stay fixed; shoulder, hips, and
   # elbows travel together. Elevated supports are drawn at their actual ends.
   wrist=(270,442);foot=(470,442)
+  if option=='deficit':
+   wrist=(270,409)
+   for x in (248,292):
+    d.rounded_rectangle((x-7,405,x+7,418),3,fill=FAR)
+    line(d,(x,418),(x,444),FAR,5)
+   d.text((42,249),'TWO FIXED PARALLETTES',font=FONTS[14],fill=MUTED)
   if option=='incline-bench':
    wrist=(270,365)
    d.rounded_rectangle((215,372,325,387),5,fill=FAR)
@@ -2573,15 +2644,20 @@ def draw_pose(d,kind,option,u):
    foot=(470,336)
    d.rounded_rectangle((425,344,505,359),5,fill=FAR)
    for x in (442,490):d.line((x,359,x,460),fill=FAR,width=8)
-  top={'floor':335,'knees':345,'incline-bench':265,'decline-bench':345}[option]
+  top={'floor':335,'knees':345,'incline-bench':265,'decline-bench':345,'deficit':300,'close-grip':335,'weighted':335}[option]
   support=(420,440) if option=='knees' else foot
-  shoulder_y=top+49*u
+  shoulder_y=top+(138 if option=='deficit' else 49)*u
   body_length=math.hypot(support[0]-270,support[1]-top)
   shoulder=(support[0]-math.sqrt(body_length**2-(support[1]-shoulder_y)**2),shoulder_y)
   hip=(shoulder[0]+.68*(support[0]-shoulder[0]),shoulder[1]+.68*(support[1]-shoulder[1]))
   if abs(math.dist(shoulder,hip)-.68*body_length)>1e-6 or abs(math.dist(hip,support)-.32*body_length)>1e-6:raise ValueError('Push-up body segment changed length')
   elbow=ik(shoulder,wrist,56,56,side=1)
   limb(d,[shoulder,hip,support],BLUE,25)
+  if option=='weighted':
+   plate=(shoulder[0]+.48*(hip[0]-shoulder[0]),shoulder[1]+.48*(hip[1]-shoulder[1]))
+   d.ellipse((plate[0]-19,plate[1]-18,plate[0]+19,plate[1]+18),fill=FAR,outline=INK,width=4)
+   d.ellipse((plate[0]-5,plate[1]-5,plate[0]+5,plate[1]+5),fill=BG)
+   d.text((42,249),'SECURED MID-BACK PLATE',font=FONTS[14],fill=MUTED)
   limb(d,[shoulder,elbow,wrist],INK,13)
   line(d,wrist,(wrist[0]-18,wrist[1]+2),INK,9)
   if option=='knees':
@@ -2591,6 +2667,14 @@ def draw_pose(d,kind,option,u):
   head=(shoulder[0]-35,shoulder[1]-8)
   d.ellipse((head[0]-23,head[1]-17,head[0]+12,head[1]+17),fill=INK)
   d.line((head[0]-14,head[1]+12,head[0]-4,head[1]+12),fill=BG,width=3)
+  if option=='close-grip':
+   d.rounded_rectangle((43,266,191,359),7,fill=BG,outline=FAR,width=2)
+   d.text((51,273),'TOP VIEW / HANDS',font=FONTS[14],fill=MUTED)
+   d.rounded_rectangle((106,297,130,334),5,fill=BLUE)
+   for x in (96,140):
+    line(d,(x,305),(x,328),BLUE,7)
+    d.ellipse((x-5,325,x+5,335),fill=INK)
+   d.text((51,338),'NARROW / ELBOWS IN',font=FONTS[14],fill=INK)
  elif kind=='squat':
   hip=(302-72*u,294+68*u);shoulder=polar(hip,126,-math.pi/2+.32*u);head=polar(shoulder,33,-math.pi/2+.15*u)
   if option:d.rounded_rectangle((130,378,245,399),7,fill=FAR);d.line((150,399,150,452),fill=FAR,width=9);d.line((225,399,225,452),fill=FAR,width=9)
