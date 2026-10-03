@@ -2678,6 +2678,32 @@
     "audio": false
   },
   {
+    "catalogKey": "barbell-good-morning",
+    "videoSha256": "f76fa862e2498ee5b06698813f2077f4877dc1fa259cfd404d5fb1f87c8b4195",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "smith-machine-romanian-deadlift",
+    "videoSha256": "d9947c57afea8612e997c9844d85fc59cab9c026404db4e1b253b2b04e814d8e",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "seated-leg-curl",
     "videoSha256": "bac797254302c9d9436ce43196847069feb91279422780bd342590ccf4cccef1",
     "duration": 8,

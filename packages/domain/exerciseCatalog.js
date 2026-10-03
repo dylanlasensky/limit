@@ -556,6 +556,11 @@ Cable Pull-Through|Cable|B|Cable Pull Through|Face away from the stack and drive
 Resistance Band Good Morning|Resistance band|I|Band Good Morning|Keep band pressure across the upper back, never the neck.
 `
 );
+groups.find((entry) => entry.catalogKey === "barbell-good-morning").instructions = [
+  "Set a light bar across your upper back inside a rack with safeties.",
+  "Keep soft knees and a braced, steady spine while hinging your hips backward.",
+  "Stand tall under control without leaning backward at the top.",
+];
 group(
   "Hamstrings",
   ["Calves"],
