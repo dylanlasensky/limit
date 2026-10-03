@@ -134,6 +134,11 @@ Weighted Chin-Up|Pull-up bar|A||Use a secure belt or vest and controlled repetit
 Scapular Pull-Up|Pull-up bar|I|Scap Pull-Up|Keep your elbows straight and use a small shoulder-blade motion.
 `
 );
+groups.find((entry) => entry.catalogKey === "scapular-pull-up").instructions = [
+  "Hold a secure overhead bar with straight elbows and let your shoulder blades rise naturally at the bottom.",
+  "Draw your shoulder blades down to lift your torso a small amount without bending your elbows or swinging.",
+  "Lower under control to the hanging start while keeping your grip and feet clear of the floor.",
+];
 group(
   "Upper back",
   ["Lats", "Biceps", "Rear delts"],
@@ -214,6 +219,26 @@ Pike Push-Up|Bodyweight|I||Lower your head between your hands with control.
 Wall Handstand Push-Up|Bodyweight|A||Learn an exit with a coach and avoid loading the neck.
 `
 );
+groups.find((entry) => entry.catalogKey === "pike-push-up").instructions = [
+  "Plant both palms, brace your trunk, and keep your hips lifted in a pike.",
+  "Bend your elbows and press away from the floor without losing the pike shape.",
+  "Lower your head between your hands with control.",
+];
+groups.find((entry) => entry.catalogKey === "wall-handstand-push-up").instructions = [
+  "Plant both palms beneath your shoulders, brace your trunk, and keep foot contact with the wall.",
+  "Bend your elbows to lower your head toward the floor, then press back to a stable handstand.",
+  "Learn an exit with a coach and avoid loading the neck.",
+];
+groups.find((entry) => entry.catalogKey === "single-arm-landmine-press").instructions = [
+  "Stand with both feet planted, brace your trunk, and hold the bar end near your chest.",
+  "Press the bar up and forward through a comfortable range without leaning back.",
+  "Secure the landmine pivot and log repetitions per side.",
+];
+groups.find((entry) => entry.catalogKey === "half-kneeling-landmine-press").instructions = [
+  "Place one knee on padding and plant the opposite foot; brace before gripping the bar end.",
+  "Press the bar up and forward through a comfortable range without leaning back.",
+  "Keep your ribs down and pelvis level; log each side.",
+];
 group(
   "Side delts",
   [],
@@ -458,13 +483,37 @@ group(
   "Knee extension",
   "Isolation",
   [
-    "Align your knee with the machine pivot or set a stable supported position.",
+    "Align your knee with the machine pivot and keep your hips on the seat.",
     "Straighten your knee under control and lower without dropping the resistance.",
   ],
   `
 Leg Extension|Machine|B|Machine Leg Extension|Place the lower pad above the ankle, not on the foot.|10
 Single-Leg Extension|Machine|B|Unilateral Leg Extension|Keep your hips on the seat; log each side.
+`
+);
+group(
+  "Quads",
+  [],
+  "Knee extension",
+  "Isolation",
+  [
+    "Sit on a stable seat with your thigh supported and the band attached near your ankle.",
+    "Straighten your knee against the band and return with control.",
+  ],
+  `
 Resistance Band Leg Extension|Resistance band|B|Band Leg Extension|Use a secure low anchor and stable seat.
+`
+);
+group(
+  "Quads",
+  [],
+  "Knee extension",
+  "Isolation",
+  [
+    "Kneel on padding with your feet relaxed and keep your hips extended.",
+    "Lean back as one line from knee to shoulder, then return through a controlled range.",
+  ],
+  `
 Reverse Nordic Curl|Bodyweight|A||Use a padded kneeling surface and a small controlled range.
 `
 );
@@ -532,6 +581,16 @@ Cable Pull-Through|Cable|B|Cable Pull Through|Face away from the stack and drive
 Resistance Band Good Morning|Resistance band|I|Band Good Morning|Keep band pressure across the upper back, never the neck.
 `
 );
+groups.find((entry) => entry.catalogKey === "barbell-good-morning").instructions = [
+  "Set a light bar across your upper back inside a rack with safeties.",
+  "Keep soft knees and a braced, steady spine while hinging your hips backward.",
+  "Stand tall under control without leaning backward at the top.",
+];
+groups.find((entry) => entry.catalogKey === "resistance-band-good-morning").instructions = [
+  "Stand on a secure band with both feet and place it across your upper back, away from your neck.",
+  "Keep soft knees and a braced, steady spine as you hinge your hips backward.",
+  "Stand tall under control while both feet keep the band anchored.",
+];
 group(
   "Hamstrings",
   ["Calves"],
@@ -555,6 +614,12 @@ Nordic Hamstring Curl|Nordic bench|A|Nordic Curl|Secure your ankles and use hand
 Glute-Ham Raise|GHD|A|GHR|Adjust the footplate and pads; learn the movement with a coach.
 `
 );
+// Nordic lowering opens the knee angle; it is not the bending phase of a leg curl.
+groups.find((entry) => entry.catalogKey === "nordic-hamstring-curl").instructions = [
+  "Secure your ankles and keep your hips aligned with your trunk.",
+  "Lean forward from the knees with a straight hip-to-shoulder line, controlling the descent.",
+  "Use hands or band assistance to catch and return without collapsing.",
+];
 group(
   "Glutes",
   ["Hamstrings", "Abs/core"],
@@ -658,6 +723,18 @@ group(
   `
 Wall Tibialis Raise|Bodyweight|B|Tibialis Raise;Tib Raise|Lean against a stable wall and move feet only as far forward as manageable.
 Machine Tibialis Raise|Machine|B|Tibialis Machine|Secure the feet according to the machine's instructions.
+`
+);
+group(
+  "Tibialis",
+  [],
+  "Ankle dorsiflexion",
+  "Isolation",
+  [
+    "Keep your working heel supported and use a small, controlled ankle motion.",
+    "Lift the working toes toward your shin, then lower without swinging the leg.",
+  ],
+  `
 Band Ankle Dorsiflexion|Resistance band|B|Band Tibialis Raise|Secure the band in front of your foot; log each side.
 `
 );
@@ -697,6 +774,18 @@ Weighted Crunch|Weight plate|I||Hold the plate at your chest, not behind your he
 Hanging Knee Raise|Pull-up bar|I||Keep your body from swinging and curl the pelvis upward.
 Captain's Chair Knee Raise|Dip station|B|Vertical Knee Raise|Keep your upper back supported and control the lowering.
 Hanging Leg Raise|Pull-up bar|A||Use a secure grip and avoid swinging.
+`
+);
+group(
+  "Abs/core",
+  ["Hip flexors"],
+  "Hip flexion",
+  "Isolation",
+  [
+    "Lie on your back with your pelvis steady and your neck relaxed.",
+    "Raise and lower your legs through a range that keeps your lower back supported.",
+  ],
+  `
 Lying Leg Raise|Bodyweight|I||Limit the lowering range before your lower back arches.
 `
 );
