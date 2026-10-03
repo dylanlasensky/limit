@@ -260,6 +260,32 @@
     "audio": false
   },
   {
+    "catalogKey": "straight-arm-cable-pulldown",
+    "videoSha256": "bf4d44af22d036238458f613778f3ab6b25e92d6ff8ea364f91bf470aaac1459",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "single-arm-cable-pullover",
+    "videoSha256": "02e5a11cadc849dfef2042ffc59d3540579599f4160dce4fd1d462eb589505ef",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-pullover",
     "videoSha256": "221b5c1a65e0d3b4653abc388b55da76e20ec1171bb4c9c756d87e3a8a7ff3a4",
     "duration": 8,

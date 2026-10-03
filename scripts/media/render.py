@@ -100,6 +100,8 @@ TEMPLATES={
  'cable-curl':('low-cable-curl','bilateral'),
  'single-arm-cable-curl':('low-cable-curl','unilateral'),
  'bayesian-cable-curl':('low-cable-curl','behind-body'),
+ 'straight-arm-cable-pulldown':('cable-straight-arm','bilateral'),
+ 'single-arm-cable-pullover':('cable-straight-arm','unilateral'),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -166,7 +168,30 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='low-cable-curl':
+ if kind=='cable-straight-arm':
+  # A high pulley and fixed near-straight arms create shoulder extension;
+  # the unilateral version leaves one arm at rest.
+  single=option=='unilateral';anchor=(443,111)
+  d.line((463,86,463,456),fill=FAR,width=7)
+  d.rounded_rectangle((446,337,479,421),5,fill=FAR,outline=INK,width=2)
+  for y in (352,371,390,409):d.line((449,y,476,y),fill=INK,width=2)
+  d.ellipse((anchor[0]-12,anchor[1]-12,anchor[0]+12,anchor[1]+12),fill=FAR,outline=INK,width=3)
+  hip=(301,334);shoulder=(300,212);head=(298,173)
+  limb(d,[hip,(280,388),(267,444)],FAR,16);line(d,(267,444),(246,448),INK,8)
+  limb(d,[hip,(321,388),(341,444)],BLUE,17);line(d,(341,444),(363,448),INK,8)
+  body(d,hip,shoulder,head)
+  if single:limb(d,[shoulder,(281,291),(287,350)],FAR,10)
+  angle=-.8+2.25*u
+  hand_center=polar(polar(shoulder,73,angle),63,angle+.06)
+  d.line([xy(anchor),xy(add(hand_center,(9,0)) if single else hand_center)],fill=INK,width=3)
+  for offset,color in (((9,INK),) if single else ((-9,FAR),(9,INK))):
+   start=(shoulder[0]+offset,shoulder[1]);elbow=polar(start,73,angle);hand=polar(elbow,63,angle+.06)
+   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((start,elbow,73),(elbow,hand,63))):raise ValueError('Cable straight-arm length changed')
+   if hand[1]<108 or hand[1]>355:raise ValueError('Cable straight-arm path changed')
+   limb(d,[start,elbow,hand],color,11)
+  h=add(hand_center,(9,0)) if single else hand_center
+  d.rounded_rectangle((h[0]-15,h[1]-5,h[0]+15,h[1]+5),3,fill=FAR,outline=INK,width=2)
+ elif kind=='low-cable-curl':
   # Low pulley, taut cable and elbow hinge are shared; the Bayesian variant
   # anchors behind the body with a fixed, gently extended upper arm.
   behind=option=='behind-body';single=option!='bilateral'
