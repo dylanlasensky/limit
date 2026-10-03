@@ -5222,14 +5222,14 @@
   {
     "catalogKey": "resistance-band-curl",
     "name": "Resistance Band Curl",
-    "poster": "exercises/resistance-band-curl/v143255522066262/d2ec05d8d1683afdb9bce5b6e8bf1b4c3394da12861f91a371fe6dfd691a78de.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/resistance-band-curl/v19058023430252/716d124c695a6cb8fde0bc5d1ff4e085b160ed1b4d9e36349fbb585fe1accb3f.png",
+    "source": "exercises/resistance-band-curl/v19058023430252/1b02692b9059c8e856b60de5bad2971449c54ee96a87280a780fc26cc260c729.mp4",
+    "format": "mp4",
     "caption": "Keep your upper arms steady and wrists comfortable. Bend your elbows without swinging your torso, then lower under control. Stand securely on the band and control its return.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 143255522066262,
-    "reviewStatus": "blocked",
+    "angle": "front",
+    "duration": 8,
+    "version": 19058023430252,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -5241,15 +5241,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "d2ec05d8d1683afdb9bce5b6e8bf1b4c3394da12861f91a371fe6dfd691a78de",
-    "videoSha256": null,
-    "bytes": 40197,
-    "blockReason": "Resistance Band Curl: current renderer lacks fixed or supported upper arm, elbow hinge and full load path; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires \"Stand securely on the band and control its return\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "716d124c695a6cb8fde0bc5d1ff4e085b160ed1b4d9e36349fbb585fe1accb3f",
+    "videoSha256": "1b02692b9059c8e856b60de5bad2971449c54ee96a87280a780fc26cc260c729",
+    "bytes": 94279,
+    "blockReason": "",
+    "template": "band-curl",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

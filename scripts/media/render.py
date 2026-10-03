@@ -69,6 +69,7 @@ TEMPLATES={
  'resistance-band-pull-apart':('band-pull-apart',None),
  'resistance-band-lateral-raise':('band-lateral-raise',None),
  'resistance-band-front-raise':('band-front-raise',None),
+ 'resistance-band-curl':('band-curl',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -135,7 +136,25 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='band-front-raise':
+ if kind=='band-curl':
+  # Front view: the under-foot band lengthens as each forearm rotates about
+  # a fixed elbow; shoulders, torso and feet do not swing or lift.
+  hip=(300,336);head=(300,171)
+  for side in (-1,1):
+   knee=(300+side*28,389);foot=(300+side*43,445)
+   limb(d,[hip,knee,foot],BLUE,17);line(d,foot,(foot[0]+side*18,448),INK,8)
+  line(d,hip,(300,221),BLUE,29);line(d,(270,208),(330,208),BLUE,24)
+  line(d,(300,220),head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
+  for side,color in ((-1,FAR),(1,INK)):
+   shoulder=(300+side*30,208);elbow=(300+side*40,290);anchor=(300+side*43,445)
+   angle=math.pi/2+side*2.6*u
+   hand=polar(elbow,63,angle)
+   if abs(math.dist(elbow,hand)-63)>1e-6 or elbow[1]!=290 or anchor[1]!=445:raise ValueError('Band curl arm or support changed')
+   d.line([xy(anchor),xy(hand)],fill=FAR,width=5)
+   limb(d,[shoulder,elbow,hand],color,11)
+   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
+ elif kind=='band-front-raise':
   # Side view shows a secured under-foot band and two fixed-length arms
   # lifting forward without a trunk swing or overhead motion.
   hip=(300,333);shoulder=(300,210);head=(300,173);anchor=(341,445)
@@ -1066,7 +1085,7 @@ for e in catalog:
  reason='' if complete else (f"{e['name']}: {BLOCK_REASONS[key]}." if key in BLOCK_REASONS else reason_for(e))
  caption=' '.join(e.get('instructions',[])[:3])
  version=int(hashlib.sha256((sha(poster)+(sha(video) if complete else '')).encode()).hexdigest()[:12],16) or 1
- record={'catalogKey':key,'name':e['name'],'poster':f'exercises/{key}/v{version}/{sha(poster)}.png','source':f'exercises/{key}/v{version}/{sha(video)}.mp4' if complete else None,'format':'mp4' if complete else None,'caption':caption,'angle':('front' if key in ('side-lying-hip-abduction','side-lying-hip-adduction','dumbbell-shrug','dumbbell-lateral-raise','seated-dumbbell-lateral-raise','dumbbell-shoulder-press','standing-dumbbell-press','neutral-grip-dumbbell-shoulder-press','single-arm-dumbbell-overhead-press','alternating-dumbbell-curl','cross-body-hammer-curl','side-lying-dumbbell-external-rotation','dumbbell-side-bend','bodyweight-lateral-lunge','dumbbell-lateral-lunge','cossack-squat','resistance-band-pull-apart','resistance-band-lateral-raise') else 'side') if complete else 'unspecified','duration':DURATION if complete else 0,'version':version,'reviewStatus':'technical' if complete else 'blocked','reviewer':None,'safetyClassification':'coaching-recommended' if e.get('coachingRecommended') else 'general','textFallback':e.get('instructions',[]),'license':'Original LIMIT-generated schematic; no third-party footage','generated':True,'width':W,'height':H,'fps':FPS if complete else 0,'posterSha256':sha(poster),'videoSha256':sha(video) if complete else None,'bytes':poster.stat().st_size+(video.stat().st_size if complete else 0),'blockReason':reason,'template':template[0] if template else None,'technicalChecks':['exact-catalog-key','fixed-framing','silent','h264-yuv420p','full-decode'] if complete else ['exact-catalog-key','written-fallback']}
+ record={'catalogKey':key,'name':e['name'],'poster':f'exercises/{key}/v{version}/{sha(poster)}.png','source':f'exercises/{key}/v{version}/{sha(video)}.mp4' if complete else None,'format':'mp4' if complete else None,'caption':caption,'angle':('front' if key in ('side-lying-hip-abduction','side-lying-hip-adduction','dumbbell-shrug','dumbbell-lateral-raise','seated-dumbbell-lateral-raise','dumbbell-shoulder-press','standing-dumbbell-press','neutral-grip-dumbbell-shoulder-press','single-arm-dumbbell-overhead-press','alternating-dumbbell-curl','cross-body-hammer-curl','side-lying-dumbbell-external-rotation','dumbbell-side-bend','bodyweight-lateral-lunge','dumbbell-lateral-lunge','cossack-squat','resistance-band-pull-apart','resistance-band-lateral-raise','resistance-band-curl') else 'side') if complete else 'unspecified','duration':DURATION if complete else 0,'version':version,'reviewStatus':'technical' if complete else 'blocked','reviewer':None,'safetyClassification':'coaching-recommended' if e.get('coachingRecommended') else 'general','textFallback':e.get('instructions',[]),'license':'Original LIMIT-generated schematic; no third-party footage','generated':True,'width':W,'height':H,'fps':FPS if complete else 0,'posterSha256':sha(poster),'videoSha256':sha(video) if complete else None,'bytes':poster.stat().st_size+(video.stat().st_size if complete else 0),'blockReason':reason,'template':template[0] if template else None,'technicalChecks':['exact-catalog-key','fixed-framing','silent','h264-yuv420p','full-decode'] if complete else ['exact-catalog-key','written-fallback']}
  old=previous.get(key,{})
  if complete and old.get('videoSha256')==record['videoSha256'] and old.get('posterSha256')==record['posterSha256'] and old.get('reviewStatus') in ['approved','draft']:
   for field in ['reviewStatus','reviewer','reviewEvidence']:record[field]=old[field]
