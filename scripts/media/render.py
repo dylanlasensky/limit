@@ -167,6 +167,14 @@ TEMPLATES={
  'arnold-press':('overhead-press','arnold-seated'),
  'single-arm-cable-lateral-raise':('cable-shoulder-raise','lateral'),
  'cable-front-raise':('cable-shoulder-raise','front'),
+ 'barbell-bench-press':('barbell-horizontal-press','flat'),
+ 'incline-barbell-bench-press':('barbell-horizontal-press','incline'),
+ 'decline-barbell-bench-press':('barbell-horizontal-press','decline'),
+ 'close-grip-bench-press':('barbell-horizontal-press','close'),
+ 'paused-bench-press':('barbell-horizontal-press','paused'),
+ 'spoto-press':('barbell-horizontal-press','spoto'),
+ 'barbell-floor-press':('barbell-horizontal-press','floor'),
+ 'smith-machine-bench-press':('barbell-horizontal-press','smith'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -245,6 +253,12 @@ def paused_squat_phase(t):
  if t<5:return 1,'Hold the bottom / keep braced'
  if t<7:return (1+math.cos(math.pi*(t-5)/2))/2,'Stand with control'
  return 0,'Reset'
+def paused_bench_phase(t):
+ if t<1:return 1,'Set up at lockout'
+ if t<3:return (1+math.cos(math.pi*(t-1)/2))/2,'Lower with control'
+ if t<5:return 0,'Hold the bottom / stay braced'
+ if t<7:return (1-math.cos(math.pi*(t-5)/2))/2,'Press with control'
+ return 1,'Reset'
 def draw_grip_inset(d,orientation,u=0):
  # A second, close camera view makes palm direction readable when the full
  # front-view pulldown cannot show depth around the overhead handle.
@@ -352,7 +366,78 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='overhead-press':
+ if kind=='barbell-horizontal-press':
+  floor=option=='floor';incline=option=='incline';decline=option=='decline';smith=option=='smith'
+  if floor:
+   shoulder=(230,420);hip=(330,420);head=(185,417)
+   limb(d,[hip,(361,350),(401,437)],BLUE,16)
+   line(d,(401,437),(427,445),INK,9)
+   d.line((155,450,445,450),fill=FAR,width=3)
+   low_y,high_y=390,300
+  elif decline:
+   shoulder=(235,358);hip=(325,302);head=(205,376)
+   d.line((185,405,355,300),fill=FAR,width=18)
+   for x in (209,338):d.line((x,405,x,458),fill=FAR,width=7)
+   limb(d,[hip,(362,270),(402,286)],BLUE,16)
+   line(d,(402,286),(431,291),INK,9)
+   d.line((344,306,450,316),fill=FAR,width=8)
+   d.line((450,316,450,261),fill=FAR,width=8)
+   d.rounded_rectangle((383,263,416,277),7,fill=INK,outline=BLUE,width=2)
+   d.rounded_rectangle((383,302,416,316),7,fill=INK,outline=BLUE,width=2)
+   low_y,high_y=338,225
+  elif incline:
+   shoulder=(245,295);hip=(330,350);head=(215,265)
+   d.line((189,270,352,374),fill=FAR,width=18)
+   for x in (211,334):d.line((x,365,x,457),fill=FAR,width=7)
+   limb(d,[hip,(365,366),(386,442)],BLUE,16)
+   line(d,(386,442),(414,446),INK,9)
+   low_y,high_y=270,160
+  else:
+   shoulder=(230,345);hip=(330,345);head=(185,340)
+   d.rounded_rectangle((160,360,405,376),5,fill=FAR)
+   for x in (185,390):d.line((x,376,x,455),fill=FAR,width=7)
+   limb(d,[hip,(360,318),(394,347)],BLUE,16)
+   line(d,(394,347),(420,350),INK,9)
+   low_y,high_y=(295 if option=='spoto' else 325),210
+  if smith:
+   for x in (150,370):
+    d.line((x,91,x,457),fill=FAR,width=7)
+    d.line((x-14,389,x+14,389),fill=INK,width=5)
+  else:
+   for x in (103,481):d.line((x,94,x,456),fill=FAR,width=7)
+   d.line((103,393,152,393),fill=FAR,width=6)
+   d.line((431,393,481,393),fill=FAR,width=6)
+  line(d,hip,shoulder,BLUE,26)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  hands=[]
+  for offset,color in ((-8,FAR),(8,INK)) if option=='close' else ((-15,FAR),(15,INK)):
+   arm_start=(shoulder[0]+offset,shoulder[1])
+   hand=(arm_start[0]+30,low_y+(high_y-low_y)*u)
+   elbow=ik(arm_start,hand,75,65,side=-1)
+   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((arm_start,elbow,75),(elbow,hand,65))):raise ValueError('Barbell press arm length changed')
+   if floor and u<.001 and abs(elbow[1]-439)>2:raise ValueError('Floor press elbow missed floor')
+   limb(d,[arm_start,elbow,hand],color,12)
+   hands.append(hand)
+  center=((hands[0][0]+hands[1][0])/2,(hands[0][1]+hands[1][1])/2)
+  span=110 if smith else 88
+  d.line((center[0]-span,center[1],center[0]+span,center[1]),fill=INK,width=7)
+  for x in (center[0]-span+17,center[0]+span-17):d.rounded_rectangle((x-8,center[1]-21,x+8,center[1]+21),4,fill=FAR,outline=INK,width=2)
+  if smith:
+   for x in (150,370):d.rounded_rectangle((x-6,center[1]-9,x+6,center[1]+9),2,fill=INK)
+  if option=='close':
+   d.rounded_rectangle((39,141,165,231),7,fill=BG,outline=FAR,width=2)
+   d.text((48,148),'TOP GRIP VIEW',font=FONTS[14],fill=MUTED)
+   d.line((53,192,151,192),fill=INK,width=6)
+   for x in (87,121):d.rounded_rectangle((x-10,181,x+10,203),4,fill=BLUE,outline=INK,width=2)
+   d.text((48,209),'HANDS APART',font=FONTS[14],fill=INK)
+  if option=='spoto':
+   chest_top=shoulder[1]-13
+   if low_y>=chest_top-20:raise ValueError('Spoto bar must hover above chest')
+   d.line((center[0]+31,low_y,center[0]+31,chest_top),fill=FAR,width=2)
+   d.text((52,225),'HOVER ABOVE CHEST',font=FONTS[14],fill=MUTED)
+  if option=='floor':d.text((52,235),'UPPER ARMS STOP ON FLOOR',font=FONTS[14],fill=MUTED)
+ elif kind=='overhead-press':
   seated=option.endswith('seated');smith=option=='smith-seated';machine=option=='machine-seated'
   if seated:
    d.rounded_rectangle((243,326,331,343),5,fill=FAR)
@@ -2363,6 +2448,8 @@ def frame(e,t,template=None):
    draw_pose(d,'zottman-curl',turn,u)
   elif template[0]=='barbell-squat' and template[1]=='paused':
    u,label=paused_squat_phase(t);draw_pose(d,*template,u)
+  elif template[0]=='barbell-horizontal-press' and template[1] in ('paused','spoto'):
+   u,label=paused_bench_phase(t);draw_pose(d,*template,u)
   else:
    u,label=phase(t);draw_pose(d,*template,u)
   d.text((55,105),label,font=FONTS[22],fill=INK)
