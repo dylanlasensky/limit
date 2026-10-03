@@ -85,6 +85,7 @@ TEMPLATES={
  'seated-cable-row':('seated-cable-row',None),
  'single-arm-cable-row':('single-arm-cable-row',None),
  'standing-cable-row':('standing-cable-row',None),
+ 'half-kneeling-cable-row':('half-kneeling-cable-row',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -341,11 +342,11 @@ def draw_pose(d,kind,option,u):
    d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
    limb(d,[start,elbow,hand],color,11)
    d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
- elif kind in ('band-row','standing-cable-row'):
+ elif kind in ('band-row','standing-cable-row','half-kneeling-cable-row'):
   # A fixed chest-height anchor tensions two band strands or a cable pulley.
-  # A staggered stance and torso stay put as elbows travel behind the hands.
-  cable=kind=='standing-cable-row'
-  anchor=(132,273);hip=(340,332);shoulder=(315,213);head=(302,174)
+  # A staggered stance or half-kneeling support stays put as elbows travel.
+  cable=kind!='band-row';half=kind=='half-kneeling-cable-row'
+  anchor=(132,273);hip=(340,332);shoulder=(340,213) if half else (315,213);head=(340,174) if half else (302,174)
   d.line((113,88,113,456),fill=FAR,width=5)
   if cable:
    d.rounded_rectangle((92,332,124,420),5,fill=FAR,outline=INK,width=2)
@@ -354,10 +355,17 @@ def draw_pose(d,kind,option,u):
   else:
    d.line((113,273,anchor[0],anchor[1]),fill=INK,width=8)
    d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
-  limb(d,[hip,(307,386),(292,445)],FAR,16)
-  line(d,(292,445),(269,448),INK,8)
-  limb(d,[hip,(373,386),(389,445)],BLUE,17)
-  line(d,(389,445),(410,448),INK,8)
+  if half:
+   d.rounded_rectangle((243,442,315,454),5,fill=FAR)
+   limb(d,[hip,(296,438),(259,443)],FAR,17)
+   line(d,(259,443),(241,447),INK,8)
+   limb(d,[hip,(377,389),(391,444)],BLUE,17)
+   line(d,(391,444),(413,448),INK,8)
+  else:
+   limb(d,[hip,(307,386),(292,445)],FAR,16)
+   line(d,(292,445),(269,448),INK,8)
+   limb(d,[hip,(373,386),(389,445)],BLUE,17)
+   line(d,(389,445),(410,448),INK,8)
   body(d,hip,shoulder,head)
   for offset,color in ((-9,FAR),(9,INK)):
    start=(shoulder[0]+offset,shoulder[1]);hand=(219+80*u+offset,276)

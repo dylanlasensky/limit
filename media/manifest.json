@@ -2426,14 +2426,14 @@
   {
     "catalogKey": "half-kneeling-cable-row",
     "name": "Half-Kneeling Cable Row",
-    "poster": "exercises/half-kneeling-cable-row/v262420762057922/2991c342dcedff26c85dec508dbd40d3d927761018d82d701a14ed992c5c0855.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/half-kneeling-cable-row/v35545152927851/0e4b3d4798308ad610226f63b3e88e78f28fed656e8dd2c40fac9b0a749c54b5.png",
+    "source": "exercises/half-kneeling-cable-row/v35545152927851/8f5a25e566a82d02f0eaa7d336eab7a27304266761a6aafb19e2ff64fc0a1f1d.mp4",
+    "format": "mp4",
     "caption": "Use a stable torso position and keep your neck in line with your spine. Row your elbows back, then reach forward under control without jerking the weight. Keep your pelvis level and ribs stacked.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 262420762057922,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 35545152927851,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -2445,15 +2445,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "2991c342dcedff26c85dec508dbd40d3d927761018d82d701a14ed992c5c0855",
-    "videoSha256": null,
-    "bytes": 42138,
-    "blockReason": "Half-Kneeling Cable Row: current renderer lacks torso support or hinge angle, elbow track and load path toward the trunk; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires \"Keep your pelvis level and ribs stacked\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "0e4b3d4798308ad610226f63b3e88e78f28fed656e8dd2c40fac9b0a749c54b5",
+    "videoSha256": "8f5a25e566a82d02f0eaa7d336eab7a27304266761a6aafb19e2ff64fc0a1f1d",
+    "bytes": 82378,
+    "blockReason": "",
+    "template": "half-kneeling-cable-row",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
