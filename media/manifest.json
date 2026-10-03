@@ -2882,14 +2882,14 @@
   {
     "catalogKey": "resistance-band-pulldown",
     "name": "Resistance Band Pulldown",
-    "poster": "exercises/resistance-band-pulldown/v64474284598131/0405cba41feaca04724da239c6e90601b287ee69335dd2051d1480dfe80054e5.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/resistance-band-pulldown/v186552999377614/333a229f984f5c4300f004bad88fe88f584cb6fbb88d197a10017791b160cf23.png",
+    "source": "exercises/resistance-band-pulldown/v186552999377614/9058dd57d46f2a73f2fe5b148088021f4244c6e80a550c797b7f226762e69e1f.mp4",
+    "format": "mp4",
     "caption": "Keep your trunk steady and use a slight bend in your elbows. Move from the shoulders through a comfortable range rather than arching your lower back. Secure the anchor above you before pulling.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 64474284598131,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 186552999377614,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -2901,15 +2901,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "0405cba41feaca04724da239c6e90601b287ee69335dd2051d1480dfe80054e5",
-    "videoSha256": null,
-    "bytes": 42370,
-    "blockReason": "Resistance Band Pulldown: current renderer lacks shoulder-driven arm path past the trunk without an elbow curl; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires \"Secure the anchor above you before pulling\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "333a229f984f5c4300f004bad88fe88f584cb6fbb88d197a10017791b160cf23",
+    "videoSha256": "9058dd57d46f2a73f2fe5b148088021f4244c6e80a550c797b7f226762e69e1f",
+    "bytes": 94284,
+    "blockReason": "",
+    "template": "band-straight-arm-pulldown",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
