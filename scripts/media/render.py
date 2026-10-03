@@ -224,6 +224,14 @@ TEMPLATES={
  'plate-loaded-high-row':('supported-machine-row','high'),
  'single-arm-machine-row':('supported-machine-row','single'),
  'machine-preacher-curl':('machine-preacher-curl',None),
+ 'cable-glute-kickback':('supported-kickback','cable'),
+ 'machine-glute-kickback':('supported-kickback','machine'),
+ 'resistance-band-glute-kickback':('supported-kickback','band'),
+ 'seated-hip-abduction':('seated-hip-machine','abduction'),
+ 'seated-hip-adduction':('seated-hip-machine','adduction'),
+ 'standing-cable-hip-abduction':('standing-cable-hip','abduction'),
+ 'standing-cable-hip-adduction':('standing-cable-hip','adduction'),
+ 'band-clamshell':('band-clamshell',None),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -416,7 +424,111 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='loaded-row':
+ if kind=='supported-kickback':
+  # Side view: hand grip, torso, pelvis and support foot never travel. A
+  # separate working leg extends back without tilting the lower back.
+  hip=(336,304);shoulder=(250,278);head=(215,267)
+  line(d,(186,248),(186,453),FAR,6)
+  d.rounded_rectangle((180,264,220,276),4,fill=FAR)
+  support_hand=(203,270)
+  support_elbow=ik(shoulder,support_hand,37,34,side=1)
+  limb(d,[shoulder,support_elbow,support_hand],INK,10)
+  limb(d,[hip,(350,377),(344,443)],FAR,17)
+  line(d,(344,443),(365,448),INK,8)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  angle=1.18-.98*u
+  knee=polar(hip,75,angle);foot=polar(knee,67,angle+.15)
+  if abs(math.dist(hip,knee)-75)>1e-6 or abs(math.dist(knee,foot)-67)>1e-6 or foot[0]>499 or foot[1]>449:raise ValueError('Kickback working leg or clearance changed')
+  limb(d,[hip,knee,foot],BLUE,17);line(d,foot,(foot[0]+9,foot[1]+2),INK,8)
+  cuff=(foot[0]-3,foot[1]-8)
+  d.ellipse((cuff[0]-10,cuff[1]-10,cuff[0]+10,cuff[1]+10),outline=INK,width=3)
+  if option=='cable':
+   anchor=(122,416)
+   line(d,(122,95),(122,453),FAR,6)
+   d.rounded_rectangle((106,350,138,424),5,fill=FAR,outline=INK,width=2)
+   d.ellipse((anchor[0]-10,anchor[1]-10,anchor[0]+10,anchor[1]+10),outline=INK,width=3)
+   line(d,anchor,cuff,FAR,3)
+   d.text((45,182),'LOW PULLEY / ANKLE CUFF',font=FONTS[14],fill=MUTED)
+  elif option=='band':
+   anchor=(128,440)
+   line(d,(128,414),(128,453),FAR,7)
+   line(d,(108,453),(148,453),FAR,7)
+   line(d,anchor,cuff,BLUE,4)
+   d.text((45,182),'FLOOR ANCHOR / BAND LOOP',font=FONTS[14],fill=MUTED)
+  else:
+   pivot=hip
+   pad=polar(hip,108,angle+.07)
+   if abs(math.dist(pivot,pad)-108)>1e-6:raise ValueError('Kickback machine pivot changed')
+   line(d,pivot,pad,FAR,6)
+   d.ellipse((pivot[0]-9,pivot[1]-9,pivot[0]+9,pivot[1]+9),outline=INK,width=3)
+   d.rounded_rectangle((pad[0]-14,pad[1]-9,pad[0]+14,pad[1]+9),4,fill=FAR,outline=INK,width=2)
+   d.rounded_rectangle((250,299,298,311),4,fill=FAR)
+   d.text((45,182),'HIP-AXIS LEVER / SHIN PAD',font=FONTS[14],fill=MUTED)
+ elif kind=='seated-hip-machine':
+  # Frontal view exposes hip opening versus closing. Pelvis and seat are
+  # fixed; each thigh is constant length and the pads follow the knees.
+  hip=(300,312);shoulder=(300,204);head=(300,167)
+  d.rounded_rectangle((249,317,351,335),5,fill=FAR)
+  d.rounded_rectangle((265,213,280,326),5,fill=FAR)
+  for x in (264,338):line(d,(x,335),(x,455),FAR,6)
+  line(d,hip,shoulder,BLUE,29);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  for side in (-1,1):
+   h=(300+side*27,312)
+   opening=(.24+.5*u) if option=='abduction' else (.74-.5*u)
+   theta=math.pi/2-side*opening
+   knee=polar(h,82,theta);foot=polar(knee,60,math.pi/2)
+   if abs(math.dist(h,knee)-82)>1e-6 or abs(math.dist(knee,foot)-60)>1e-6 or foot[1]>455:raise ValueError('Seated hip machine leg or floor clearance changed')
+   limb(d,[h,knee,foot],BLUE if side>0 else FAR,15)
+   line(d,foot,(foot[0]+side*12,foot[1]+2),INK,7)
+   pad_x=knee[0]+side*(13 if option=='abduction' else -13)
+   d.rounded_rectangle((pad_x-8,knee[1]-18,pad_x+8,knee[1]+18),4,fill=FAR,outline=INK,width=2)
+   pivot=(300+side*48,337)
+   line(d,pivot,(pad_x,knee[1]),FAR,5)
+   d.ellipse((pivot[0]-6,pivot[1]-6,pivot[0]+6,pivot[1]+6),fill=FAR,outline=INK,width=2)
+  d.text((45,182),'OUTER THIGH PADS / OPEN' if option=='abduction' else 'INNER THIGH PADS / CLOSE',font=FONTS[14],fill=MUTED)
+ elif kind=='standing-cable-hip':
+  hip=(300,307);shoulder=(300,210);head=(300,173)
+  anchor=(99,417) if option=='abduction' else (480,417)
+  tower_x=99 if option=='abduction' else 480
+  line(d,(tower_x,90),(tower_x,453),FAR,6)
+  d.rounded_rectangle((tower_x-14,354,tower_x+14,425),4,fill=FAR,outline=INK,width=2)
+  d.ellipse((anchor[0]-9,anchor[1]-9,anchor[0]+9,anchor[1]+9),outline=INK,width=3)
+  line(d,(206,245),(206,453),FAR,6)
+  d.rounded_rectangle((199,242,239,253),4,fill=FAR)
+  support_hand=(224,247);support_elbow=ik(shoulder,support_hand,50,48,side=1)
+  limb(d,[shoulder,support_elbow,support_hand],INK,10)
+  line(d,hip,shoulder,BLUE,28);line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  limb(d,[hip,(273,380),(251,444)],FAR,17)
+  line(d,(251,444),(230,448),INK,8)
+  theta=(1.45-.53*u) if option=='abduction' else (.92+.73*u)
+  knee=polar(hip,72,theta);foot=polar(knee,65,theta)
+  if abs(math.dist(hip,knee)-72)>1e-6 or abs(math.dist(knee,foot)-65)>1e-6 or foot[1]>450:raise ValueError('Standing cable hip leg or floor clearance changed')
+  limb(d,[hip,knee,foot],BLUE,17)
+  cuff=(foot[0]-3,foot[1]-6)
+  d.ellipse((cuff[0]-9,cuff[1]-9,cuff[0]+9,cuff[1]+9),outline=INK,width=3)
+  line(d,anchor,cuff,FAR,3)
+  d.text((45,182),'OUTWARD / SIDE ANCHOR' if option=='abduction' else 'INWARD / OPPOSITE ANCHOR',font=FONTS[14],fill=MUTED)
+ elif kind=='band-clamshell':
+  # End-on projected view shows the top knee opening while the ankles stay
+  # together. Projection shortens the visible shin as it turns in depth.
+  pelvis=(271,350);feet=(396,425);lower_knee=(338,404)
+  d.rounded_rectangle((184,345,284,391),18,fill=FAR)
+  d.ellipse((166,353,206,389),fill=INK)
+  line(d,(226,369),pelvis,BLUE,24)
+  limb(d,[pelvis,lower_knee,feet],FAR,15)
+  top_knee=(340+22*u,403-70*u)
+  limb(d,[pelvis,top_knee,feet],BLUE,17)
+  if feet!=(396,425) or top_knee[1]>403 or top_knee[1]<333:raise ValueError('Clamshell ankle or opening changed')
+  line(d,(381,425),(410,425),INK,8)
+  line(d,lower_knee,top_knee,BLUE,5)
+  d.ellipse((lower_knee[0]-8,lower_knee[1]-8,lower_knee[0]+8,lower_knee[1]+8),outline=INK,width=3)
+  d.ellipse((top_knee[0]-8,top_knee[1]-8,top_knee[0]+8,top_knee[1]+8),outline=INK,width=3)
+  d.text((45,182),'OBLIQUE / FEET TOGETHER',font=FONTS[14],fill=MUTED)
+  d.text((45,204),'BAND ABOVE KNEES',font=FONTS[14],fill=MUTED)
+ elif kind=='loaded-row':
   seal=option=='seal';pendlay=option=='pendlay';meadows=option=='meadows'
   if seal:
    hip=(367,277);shoulder=(254,277);head=(218,269)
@@ -3063,6 +3175,8 @@ for e in catalog:
   # The schema has no top/end-on value; avoid mislabeling these as side views.
   record['angle']='unspecified'
  if key=='single-arm-cable-lateral-raise':record['angle']='front'
+ if key in ('seated-hip-abduction','seated-hip-adduction','standing-cable-hip-abduction','standing-cable-hip-adduction'):record['angle']='front'
+ if key=='band-clamshell':record['angle']='unspecified'
  old=previous.get(key,{})
  if complete and old.get('videoSha256')==record['videoSha256'] and old.get('posterSha256')==record['posterSha256'] and old.get('reviewStatus') in ['approved','draft']:
   for field in ['reviewStatus','reviewer','reviewEvidence']:record[field]=old[field]
