@@ -270,6 +270,8 @@ TEMPLATES={
  'low-to-high-cable-fly':('depth-fly','low-to-high-cable'),
  'high-to-low-cable-fly':('depth-fly','high-to-low-cable'),
  'resistance-band-chest-fly':('depth-fly','band-chest'),
+ 'dumbbell-reverse-fly':('depth-fly','reverse-dumbbell'),
+ 'chest-supported-reverse-fly':('depth-fly','reverse-supported'),
  'b-stance-romanian-deadlift':('barbell-hinge','b-stance-romanian'),
  'single-leg-dumbbell-romanian-deadlift':('barbell-hinge','single-leg-romanian'),
  'supported-single-leg-romanian-deadlift':('barbell-hinge','supported-single-leg-romanian'),
@@ -513,6 +515,7 @@ def draw_pose(d,kind,option,u):
   standing=option in ('cable-chest','single-arm-cable','low-to-high-cable','high-to-low-cable','band-chest')
   cable=option in ('cable-chest','bench-cable','single-arm-cable','low-to-high-cable','high-to-low-cable')
   band=option=='band-chest'
+  reverse=option in ('reverse-dumbbell','reverse-supported')
   single=option=='single-arm-cable'
   if cable:
    for tower in ((89,) if single else (89,511)):
@@ -520,7 +523,7 @@ def draw_pose(d,kind,option,u):
     pulley_y=190 if option=='high-to-low-cable' else (375 if option in ('bench-cable','low-to-high-cable') else 275)
     d.ellipse((tower-9,pulley_y-9,tower+9,pulley_y+9),fill=FAR,outline=INK,width=2)
     d.rounded_rectangle((tower-13,354 if standing else 404,tower+13,415 if standing else 443),3,fill=FAR,outline=INK,width=2)
-  if standing:
+  if standing or option=='reverse-dumbbell':
    pass
   else:
    d.rounded_rectangle((266,188,334,425),10,fill=FAR)
@@ -535,12 +538,12 @@ def draw_pose(d,kind,option,u):
     if math.dist(anchor,target)<140 or segment_distance((300,174),anchor,target)<30:raise ValueError('Chest band anchor or head path changed')
     d.line((*anchor,*target),fill=FAR,width=4)
   d.rounded_rectangle((279,239,321,386),13,fill=BLUE)
-  if standing:d.line((300,191,300,246),fill=BLUE,width=13)
+  if standing or option=='reverse-dumbbell':d.line((300,191,300,246),fill=BLUE,width=13)
   d.ellipse((280,154,320,194),fill=INK)
   for hip_x,foot_x,foot_y in ((284,253,445),(316,347,427 if standing else 445)):
    limb(d,[(hip_x,379),(hip_x+(foot_x-hip_x)*.45,411),(foot_x,foot_y)],BLUE,11)
    d.line((foot_x-13,foot_y+3,foot_x+13,foot_y+3),fill=INK,width=7)
-  angle=(2.05-3.47*u) if option=='high-to-low-cable' else (math.pi-.12-(math.pi-.12-1.42)*u)
+  angle=(2.05-3.47*u) if option=='high-to-low-cable' else ((1.42+(math.pi-.12-1.42)*u) if reverse else (math.pi-.12-(math.pi-.12-1.42)*u))
   for side in (-1,1):
    shoulder=(300+45*side,275)
    if single and side>0:
@@ -572,10 +575,21 @@ def draw_pose(d,kind,option,u):
    d.line((62,side_pulley_y,175,side_hand_y),fill=BLUE,width=3)
    d.line((175,183,175,218),fill=BLUE,width=12)
    d.ellipse((167,166,183,182),fill=INK)
+  elif reverse:d.text((52,161),'CHEST PAD' if option=='reverse-supported' else 'HIP HINGE',font=FONTS[14],fill=MUTED)
   elif option=='bench-cable':d.text((181,160),'LOW',font=FONTS[14],fill=MUTED)
   elif option=='incline-dumbbell':d.text((151,160),'INCLINE',font=FONTS[14],fill=MUTED)
   else:d.text((52,161),'SIDE / HAND HEIGHT',font=FONTS[14],fill=MUTED)
   if standing:pass
+  elif reverse:
+   if option=='reverse-supported':
+    d.line((64,215,183,181),fill=FAR,width=7)
+    d.line((66,206,170,177),fill=BLUE,width=10)
+   else:
+    d.line((66,213,166,180),fill=BLUE,width=10)
+    d.line((69,213,69,228),fill=BLUE,width=7)
+   d.ellipse((164,162,185,183),fill=INK)
+   d.line((146,185,146,208-19*u),fill=INK,width=5)
+   d.ellipse((140,202-19*u,152,214-19*u),fill=FAR)
   elif option=='bench-cable':
    d.line((65,209,181,209),fill=FAR,width=6)
    d.line((76,190,171,190),fill=BLUE,width=10)

@@ -1287,6 +1287,32 @@
     "audio": false
   },
   {
+    "catalogKey": "dumbbell-reverse-fly",
+    "videoSha256": "3d7418cbafa6004a7ae354f96bcf957852a32279580077a5e05861a0d7b0fbfc",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "chest-supported-reverse-fly",
+    "videoSha256": "72662f2315ea0cf36a8ea8184ea38a4d9256055f78e47c8b1864041703ea9c86",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "resistance-band-pull-apart",
     "videoSha256": "9297d48455244e95837503a6ab088e43d6b5afbf8964cff41a2322146912d1eb",
     "duration": 8,
