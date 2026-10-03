@@ -39,6 +39,9 @@ TEMPLATES={
  'standing-dumbbell-press':('dumbbell-overhead-press','standing'),
  'neutral-grip-dumbbell-shoulder-press':('dumbbell-overhead-press','neutral'),
  'single-arm-dumbbell-overhead-press':('dumbbell-overhead-press','single'),
+ 'dumbbell-bench-press':('dumbbell-horizontal-press','bench'),
+ 'incline-dumbbell-bench-press':('dumbbell-horizontal-press','incline'),
+ 'dumbbell-floor-press':('dumbbell-horizontal-press','floor'),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -99,7 +102,43 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='dumbbell-overhead-press':
+ if kind=='dumbbell-horizontal-press':
+  # Distinct supine bench, incline bench, and floor supports. Two separate
+  # dumbbells rise above fixed shoulders; the floor version stops when the
+  # upper arms gently meet the floor.
+  floor=option=='floor';incline=option=='incline'
+  if floor:
+   shoulder=(230,420);hip=(330,420);head=(185,417)
+   limb(d,[hip,(361,350),(401,437)],BLUE,16)
+   line(d,(401,437),(427,445),INK,9)
+   d.line((155,450,445,450),fill=FAR,width=3)
+   low_y,high_y=390,300
+  elif incline:
+   shoulder=(245,295);hip=(330,350);head=(215,265)
+   d.line((189,270,352,374),fill=FAR,width=18)
+   for x in (211,334):d.line((x,365,x,457),fill=FAR,width=7)
+   limb(d,[hip,(365,366),(386,442)],BLUE,16)
+   line(d,(386,442),(414,446),INK,9)
+   low_y,high_y=250,160
+  else:
+   shoulder=(230,345);hip=(330,345);head=(185,340)
+   d.rounded_rectangle((160,360,405,376),5,fill=FAR)
+   for x in (185,390):d.line((x,376,x,455),fill=FAR,width=7)
+   limb(d,[hip,(360,318),(394,347)],BLUE,16)
+   line(d,(394,347),(420,350),INK,9)
+   low_y,high_y=300,210
+  line(d,hip,shoulder,BLUE,26)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  for offset,color in ((-15,FAR),(15,INK)):
+   arm_start=(shoulder[0]+offset,shoulder[1])
+   hand=(arm_start[0]+30,low_y+(high_y-low_y)*u)
+   elbow=ik(arm_start,hand,75,65,side=-1)
+   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((arm_start,elbow,75),(elbow,hand,65))):raise ValueError('Dumbbell press arm length changed')
+   if floor and u<.001 and abs(elbow[1]-439)>2:raise ValueError('Floor press elbow missed floor')
+   limb(d,[arm_start,elbow,hand],color,12)
+   weight(d,hand,hammer=True)
+ elif kind=='dumbbell-overhead-press':
   # Front view keeps the trunk vertical and wrists over forearms. Seat, two
   # loaded arms, neutral grips, and one-arm anti-lean are distinct options.
   seated=option=='seated';single=option=='single';neutral=option=='neutral'

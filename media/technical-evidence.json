@@ -1,5 +1,44 @@
 [
   {
+    "catalogKey": "dumbbell-bench-press",
+    "videoSha256": "576d2df99c41f4750ce016841d5534b863687e04e65ad8e3480de786131b4546",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "incline-dumbbell-bench-press",
+    "videoSha256": "f5e8e63f29d9005e9ebbddc75ea7613d121ccdf04fbb147a06d0e32a70fbbebc",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "dumbbell-floor-press",
+    "videoSha256": "d72c97f4756c9d4a34db14b7fc625aaa248a9085ad6e604ec5a9091420590899",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "push-up",
     "videoSha256": "8e1b4587637a6dbfa5ae998883c32af128d03977a97f0b59de108eb23c35f075",
     "duration": 8,
