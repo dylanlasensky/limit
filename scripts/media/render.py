@@ -119,6 +119,14 @@ TEMPLATES={
  'hanging-knee-raise':('hanging-raise','bent-knee'),
  'hanging-leg-raise':('hanging-raise','straight-leg'),
  'bird-dog':('bird-dog',None),
+ 'dead-bug':('dead-bug',None),
+ 'ab-wheel-rollout':('kneeling-rollout','wheel'),
+ 'stability-ball-rollout':('kneeling-rollout','ball'),
+ 'body-saw':('body-saw',None),
+ 'plank-shoulder-tap':('plank-shoulder-tap',None),
+ 'single-leg-glute-bridge':('bridge-single',None),
+ 'frog-pump':('bridge-frog',None),
+ 'barbell-glute-bridge':('bridge-barbell',None),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -258,7 +266,99 @@ def draw_opposite_limb_inset(d):
  d.text((49,341),'OPPOSITE SIDES',font=FONTS[14],fill=INK)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='bird-dog':
+ if kind=='dead-bug':
+  # Floor-backed trunk remains fixed as opposite arm and leg lengthen.
+  hip=(285,407);shoulder=(204,407);head=(166,409)
+  line(d,hip,shoulder,BLUE,27)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  near_elbow=polar(shoulder,62,-math.pi/2-.18*u)
+  near_hand=polar(near_elbow,61,-math.pi/2-.18*u)
+  far_elbow=polar(shoulder,62,-math.pi/2+1.1*u)
+  far_hand=polar(far_elbow,61,-math.pi/2+1.1*u)
+  limb(d,[shoulder,far_elbow,far_hand],BLUE,11)
+  limb(d,[shoulder,near_elbow,near_hand],INK,12)
+  near_knee=polar(hip,73,-.92+.7*u)
+  near_foot=polar(near_knee,67,.65-.3*u)
+  far_knee=polar(hip,73,-.92)
+  far_foot=polar(far_knee,67,.65)
+  limb(d,[hip,far_knee,far_foot],FAR,13)
+  limb(d,[hip,near_knee,near_foot],BLUE,16)
+  draw_opposite_limb_inset(d)
+ elif kind=='kneeling-rollout':
+  # Knees remain fixed; shoulders follow a constant-length braced trunk.
+  knee=(218,440);hip=(220+20*u,350+20*u)
+  shoulder=polar(hip,113,-1.2+.58*u)
+  head=(shoulder[0]-24,shoulder[1]-25)
+  hand=(340+100*u,431) if option=='wheel' else (350+90*u,389)
+  elbow=ik(shoulder,hand,110,110,side=1)
+  limb(d,[hip,knee,(244,443)],FAR,17)
+  line(d,hip,shoulder,BLUE,27)
+  d.ellipse((head[0]-17,head[1]-17,head[0]+17,head[1]+17),fill=INK)
+  limb(d,[shoulder,elbow,hand],INK,12)
+  if option=='wheel':
+   wheel=(hand[0]+6,hand[1])
+   d.ellipse((wheel[0]-24,wheel[1]-24,wheel[0]+24,wheel[1]+24),fill=FAR,outline=INK,width=5)
+   d.ellipse((wheel[0]-5,wheel[1]-5,wheel[0]+5,wheel[1]+5),fill=INK)
+   d.line((wheel[0],wheel[1],wheel[0]+17*math.cos(4*u),wheel[1]+17*math.sin(4*u)),fill=INK,width=3)
+   d.line((hand[0]-14,hand[1],hand[0]+25,hand[1]),fill=INK,width=6)
+  else:
+   center=(hand[0]+12,hand[1]+22)
+   d.ellipse((center[0]-48,center[1]-48,center[0]+48,center[1]+48),fill=FAR,outline=INK,width=4)
+   d.line((center[0]-17*math.cos(2*u),center[1]-17*math.sin(2*u),center[0]+17*math.cos(2*u),center[1]+17*math.sin(2*u)),fill=INK,width=3)
+   d.line((hand[0]-14,hand[1],hand[0]+25,hand[1]),fill=INK,width=8)
+ elif kind=='body-saw':
+  # Forearms fixed, both feet on sliders; a small straight-body shift.
+  elbow=(210,436);shoulder=(213+18*u,356)
+  foot=(431+18*u,436);hip=(shoulder[0]+.66*(foot[0]-shoulder[0]),shoulder[1]+.66*(foot[1]-shoulder[1]))
+  limb(d,[shoulder,hip,foot],BLUE,23)
+  limb(d,[shoulder,elbow,(181,436)],INK,12)
+  d.rounded_rectangle((foot[0]-23,442,foot[0]+28,450),3,fill=INK)
+  d.rounded_rectangle((foot[0]-24,452,foot[0]+28,456),2,fill=FAR)
+  d.ellipse((shoulder[0]-35,shoulder[1]-17,shoulder[0]-3,shoulder[1]+17),fill=INK)
+ elif kind=='plank-shoulder-tap':
+  # One fixed support hand; the other hand reaches the opposite shoulder.
+  shoulder=(241,353);hip=(361,394);foot=(448,439)
+  limb(d,[shoulder,hip,foot],BLUE,24)
+  line(d,foot,(467,445),INK,9)
+  support=(230,437);limb(d,[shoulder,(236,395),support],INK,12)
+  # The lifted arm is drawn behind the near support arm.
+  lifted=(247+27*u,437-79*u)
+  elbow=ik(shoulder,lifted,58,58,side=-1)
+  limb(d,[shoulder,elbow,lifted],FAR,11)
+  d.ellipse((204,337,237,370),fill=INK)
+  d.text((65,290),'ONE HAND STAYS PLANTED',font=FONTS[14],fill=MUTED)
+ elif kind in ('bridge-single','bridge-frog','bridge-barbell'):
+  shoulder=(170,435);hip=polar(shoulder,135,-.31*u)
+  if kind=='bridge-frog':
+   # Soles touch; knees open in a plan-view inset while pelvis rises.
+   foot=(420,447);knee=ik(hip,foot,89,89,side=1)
+   limb(d,[hip,knee,foot],BLUE,17)
+   d.rounded_rectangle((42,282,181,362),7,fill=BG,outline=FAR,width=2)
+   d.text((50,288),'TOP VIEW',font=FONTS[14],fill=MUTED)
+   d.line((83,331,122,309),fill=BLUE,width=8);d.line((122,309,158,331),fill=BLUE,width=8)
+   d.line((83,331,120,345),fill=BLUE,width=8);d.line((158,331,120,345),fill=BLUE,width=8)
+   d.text((52,346),'SOLES TOGETHER',font=FONTS[14],fill=INK)
+  else:
+   foot=(408,447);knee=ik(hip,foot,85,85,side=1)
+   limb(d,[hip,knee,foot],BLUE,17)
+   if kind=='bridge-single':
+    # Contralateral leg stays elevated and moves with the pelvis.
+    free_knee=polar(hip,82,-.6);free_foot=polar(free_knee,78,-.6)
+    limb(d,[hip,free_knee,free_foot],FAR,13)
+    d.text((53,285),'OTHER LEG STAYS UP',font=FONTS[14],fill=MUTED)
+  line(d,foot,(438,450),INK,10)
+  body(d,hip,shoulder,(140,447))
+  if kind=='bridge-barbell':
+   # Padded bar remains centered over pelvis, hands secure the shaft.
+   bar=(hip[0],hip[1]-19)
+   d.line((bar[0]-76,bar[1],bar[0]+76,bar[1]),fill=INK,width=7)
+   for x in (bar[0]-58,bar[0]+58):
+    d.rounded_rectangle((x-8,bar[1]-22,x+8,bar[1]+22),4,fill=FAR,outline=INK,width=2)
+   d.rounded_rectangle((bar[0]-23,bar[1]-10,bar[0]+23,bar[1]+10),4,fill=FAR)
+   hand=(bar[0]-32,bar[1]);elbow=ik(shoulder,hand,75,65,side=-1)
+   limb(d,[shoulder,elbow,hand],INK,10)
+  else:limb(d,[shoulder,(218,443),(268,447)],FAR,11)
+ elif kind=='bird-dog':
   # Pelvis/trunk, near hand and opposite knee stay planted. The far arm and
   # near leg reach with invariant segment lengths and no hip rotation.
   hip=(350,302);shoulder=(238,293);head=(196,288)
