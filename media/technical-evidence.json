@@ -1301,7 +1301,7 @@
   },
   {
     "catalogKey": "pike-push-up",
-    "videoSha256": "a1b9718c130dea34aebdf4d6b14bf39555eaf0746c3c486f71076bc9830469e4",
+    "videoSha256": "01a1ef969d65a196aa9d99e42930c01732e2f2d37f84ab17ee54100dec22e0d0",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -1314,7 +1314,7 @@
   },
   {
     "catalogKey": "wall-handstand-push-up",
-    "videoSha256": "0fdfe14d5318dc7c97ba3c4625d89c39761fe01f9f98d1a2a0b83bd2d405f33b",
+    "videoSha256": "4b7e58c594351b2cf860fe9829d6a0b51081d8ee56306b76fb1e8f5bec7dd814",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",

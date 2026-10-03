@@ -219,6 +219,16 @@ Pike Push-Up|Bodyweight|I||Lower your head between your hands with control.
 Wall Handstand Push-Up|Bodyweight|A||Learn an exit with a coach and avoid loading the neck.
 `
 );
+groups.find((entry) => entry.catalogKey === "pike-push-up").instructions = [
+  "Plant both palms, brace your trunk, and keep your hips lifted in a pike.",
+  "Bend your elbows and press away from the floor without losing the pike shape.",
+  "Lower your head between your hands with control.",
+];
+groups.find((entry) => entry.catalogKey === "wall-handstand-push-up").instructions = [
+  "Plant both palms beneath your shoulders, brace your trunk, and keep foot contact with the wall.",
+  "Bend your elbows to lower your head toward the floor, then press back to a stable handstand.",
+  "Learn an exit with a coach and avoid loading the neck.",
+];
 group(
   "Side delts",
   [],

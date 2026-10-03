@@ -2,7 +2,7 @@
 import argparse, csv, hashlib, json, math, os, pathlib, subprocess, textwrap
 from PIL import Image, ImageDraw, ImageFont
 from blockers import reason_for
-parser=argparse.ArgumentParser();parser.add_argument('--output',default='media-output');parser.add_argument('--ffmpeg',default=os.getenv('FFMPEG','ffmpeg'));parser.add_argument('--only');args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--output',default='media-output');parser.add_argument('--ffmpeg',default=os.getenv('FFMPEG','ffmpeg'));parser.add_argument('--only');parser.add_argument('--check-cues',action='store_true');args=parser.parse_args()
 root=pathlib.Path(__file__).resolve().parents[2];out=pathlib.Path(args.output);out.mkdir(parents=True,exist_ok=True)
 catalog=json.loads((out/'catalog.json').read_text());W,H,FPS,DURATION=960,540,24,8
 # Pillow's bundled font makes rendering independent of installed system fonts.
@@ -4398,6 +4398,9 @@ def cue_layout(e):
  if lines and lines[-1][0]+18>490:raise ValueError('Exercise cues exceed panel height: '+e['catalogKey'])
  return lines
 for item in catalog:cue_layout(item)
+if args.check_cues:
+ print(json.dumps({'catalog':len(catalog),'completeCueLayouts':len(catalog)}))
+ raise SystemExit(0)
 logo=Image.open(root/'public/brand/limit-logo.png').convert('RGBA');logo.thumbnail((110,50))
 def frame(e,t,template=None):
  im=Image.new('RGB',(W,H),BG);d=ImageDraw.Draw(im);d.rounded_rectangle((30,85,520,480),24,fill=CARD)
