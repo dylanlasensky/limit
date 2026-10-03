@@ -1079,6 +1079,19 @@
     "audio": false
   },
   {
+    "catalogKey": "stability-ball-crunch",
+    "videoSha256": "34bb59d6136b3a6664b41a59240381eb459700752c7bbc78e1b5650407ce88b0",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "reverse-crunch",
     "videoSha256": "9f1a0533ff89b07b6f2e03753aa75f346000ddfafddf6b3ddf09230f3c5c60bc",
     "duration": 8,

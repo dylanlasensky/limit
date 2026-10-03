@@ -10283,14 +10283,14 @@
   {
     "catalogKey": "stability-ball-crunch",
     "name": "Stability Ball Crunch",
-    "poster": "exercises/stability-ball-crunch/v155331387451688/58ecaa4c8e35003636514eac7bc034b578d70e0f187639c17baa5e5167b56514.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/stability-ball-crunch/v161352922828439/5dc2bdbe0aacb482dbfbf01f664e4b1e0848e2aa1df26b6e32b6412a84a69d37.png",
+    "source": "exercises/stability-ball-crunch/v161352922828439/34bb59d6136b3a6664b41a59240381eb459700752c7bbc78e1b5650407ce88b0.mp4",
+    "format": "mp4",
     "caption": "Move through a comfortable trunk range and keep your neck relaxed. Exhale as you shorten the front of your torso; return without using momentum. Use a stable foot position and keep the ball from rolling.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 155331387451688,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 161352922828439,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -10302,15 +10302,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "58ecaa4c8e35003636514eac7bc034b578d70e0f187639c17baa5e5167b56514",
-    "videoSha256": null,
-    "bytes": 40882,
-    "blockReason": "Stability Ball Crunch: current renderer lacks supported pelvis and a controlled rib-to-pelvis or leg-raise path; it also lacks a rolling support surface and changing contact points. This variation requires \"Use a stable foot position and keep the ball from rolling\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "5dc2bdbe0aacb482dbfbf01f664e4b1e0848e2aa1df26b6e32b6412a84a69d37",
+    "videoSha256": "34bb59d6136b3a6664b41a59240381eb459700752c7bbc78e1b5650407ce88b0",
+    "bytes": 78175,
+    "blockReason": "",
+    "template": "stability-ball-crunch",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

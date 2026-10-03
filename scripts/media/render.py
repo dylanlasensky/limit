@@ -79,6 +79,7 @@ TEMPLATES={
  'resistance-band-overhead-triceps-extension':('band-overhead-triceps',None),
  'resistance-band-leg-curl':('band-leg-curl',None),
  'band-ankle-dorsiflexion':('band-ankle-dorsiflexion',None),
+ 'stability-ball-crunch':('stability-ball-crunch',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -145,7 +146,23 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='band-ankle-dorsiflexion':
+ if kind=='stability-ball-crunch':
+  # A stationary ball supports the pelvis and back while two planted feet
+  # remain fixed; only the upper trunk curls through a short range.
+  center=(285,390);radius=70;hip=(330,352);knee=(376,366);foot=(427,444)
+  d.ellipse((center[0]-radius,center[1]-radius,center[0]+radius,center[1]+radius),fill=FAR,outline=INK,width=3)
+  d.arc((center[0]-43,center[1]-43,center[0]+43,center[1]+43),25,150,fill=INK,width=2)
+  limb(d,[hip,knee,foot],BLUE,17)
+  line(d,foot,(453,448),INK,9)
+  angle=math.pi+.44*u
+  shoulder=polar(hip,95,angle);head=polar(shoulder,39,angle)
+  if abs(math.dist(hip,shoulder)-95)>1e-6 or abs(math.dist(shoulder,head)-39)>1e-6:raise ValueError('Ball crunch trunk length changed')
+  if center!=(285,390) or foot!=(427,444):raise ValueError('Ball crunch support changed')
+  line(d,hip,shoulder,BLUE,25)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
+  limb(d,[shoulder,(shoulder[0]+30,shoulder[1]-30),(shoulder[0]+60,shoulder[1]-15)],INK,10)
+ elif kind=='band-ankle-dorsiflexion':
   # Seated heel rests on a fixed low pad. A band anchored in front of the
   # toes resists their upward rotation about a stationary ankle joint.
   anchor=(473,390);hip=(278,337);shoulder=(271,213);head=(270,175)
