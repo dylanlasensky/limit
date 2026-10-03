@@ -3593,14 +3593,14 @@
   {
     "catalogKey": "pike-push-up",
     "name": "Pike Push-Up",
-    "poster": "exercises/pike-push-up/v208440425618894/1310cd8cee33c08f5822603d1af37ee4ae65ca74f5ccf45ea2c3312b34cf624d.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/pike-push-up/v121013513952656/e9ada03d004d0029a2e42c17db644b3e61620aa16b9ab63d856e85d215f5a536.png",
+    "source": "exercises/pike-push-up/v121013513952656/a1b9718c130dea34aebdf4d6b14bf39555eaf0746c3c486f71076bc9830469e4.mp4",
+    "format": "mp4",
     "caption": "Brace your trunk and position your wrists above your forearms. Press upward through a comfortable path without leaning back to finish the repetition. Lower your head between your hands with control.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 208440425618894,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 121013513952656,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -3612,15 +3612,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "1310cd8cee33c08f5822603d1af37ee4ae65ca74f5ccf45ea2c3312b34cf624d",
-    "videoSha256": null,
-    "bytes": 40822,
-    "blockReason": "Pike Push-Up: needs the inverted hip setup and near-vertical shoulder press path rather than a horizontal push-up path.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "e9ada03d004d0029a2e42c17db644b3e61620aa16b9ab63d856e85d215f5a536",
+    "videoSha256": "a1b9718c130dea34aebdf4d6b14bf39555eaf0746c3c486f71076bc9830469e4",
+    "bytes": 93472,
+    "blockReason": "",
+    "template": "pike-push-up",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

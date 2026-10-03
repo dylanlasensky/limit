@@ -204,6 +204,7 @@ TEMPLATES={
  'deficit-push-up':('push-up','deficit'),
  'close-grip-push-up':('push-up','close-grip'),
  'weighted-push-up':('push-up','weighted'),
+ 'pike-push-up':('pike-push-up',None),
  'cable-crunch':('supported-trunk-crunch','kneeling-cable'),
  'machine-abdominal-crunch':('supported-trunk-crunch','machine'),
  'captain-s-chair-knee-raise':('captain-chair-raise',None),
@@ -4043,6 +4044,21 @@ def draw_pose(d,kind,option,u):
   load=(knee[0]-11,knee[1]-20)
   limb(d,[shoulder,(320,263),load],INK,10)
   weight(d,load)
+ elif kind=='pike-push-up':
+  # Floor hands and feet stay fixed. Shoulder descent drives an inverted
+  # hip via two rigid body segments, while the elbows bend to lower the head.
+  wrist=(210,445);foot=(455,445);shoulder=(250,330+60*u)
+  hip=ik(shoulder,foot,150,233,side=1)
+  elbow=ik(shoulder,wrist,65,65,side=-1)
+  head=(shoulder[0]-5,shoulder[1]+20)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,hip,150),(hip,foot,233),(shoulder,elbow,65),(elbow,wrist,65))):raise ValueError('Pike push-up segment length changed')
+  if head[1]+18>=440 or hip[1]>=shoulder[1]-70:raise ValueError('Pike push-up head or hip clearance changed')
+  limb(d,[shoulder,hip,foot],BLUE,23)
+  limb(d,[shoulder,elbow,wrist],INK,12)
+  line(d,wrist,(wrist[0]-22,446),INK,9)
+  line(d,foot,(foot[0]+21,447),INK,9)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  d.text((45,248),'INVERTED HIP / VERTICAL PRESS',font=FONTS[14],fill=MUTED)
  elif kind=='push-up':
   # Side view: hand and foot/knee supports stay fixed; shoulder, hips, and
   # elbows travel together. Elevated supports are drawn at their actual ends.

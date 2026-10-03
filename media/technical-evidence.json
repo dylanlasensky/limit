@@ -1261,6 +1261,19 @@
     "audio": false
   },
   {
+    "catalogKey": "pike-push-up",
+    "videoSha256": "a1b9718c130dea34aebdf4d6b14bf39555eaf0746c3c486f71076bc9830469e4",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-lateral-raise",
     "videoSha256": "0f9014295f217aa3eab578819e985f058bc0524b62ccb3bb28d6d9a74c395d4d",
     "duration": 8,
