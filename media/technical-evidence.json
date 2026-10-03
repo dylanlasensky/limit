@@ -687,5 +687,18 @@
     "frames": 192,
     "decodedMicros": 8000000,
     "audio": false
+  },
+  {
+    "catalogKey": "side-plank-hip-lift",
+    "videoSha256": "d1e2d19f9aa8c73af225b8d1807d89b7cef645113f588fadd55ee3ac012d7179",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
   }
 ]

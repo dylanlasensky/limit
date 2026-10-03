@@ -44,6 +44,7 @@ TEMPLATES={
  'dumbbell-floor-press':('dumbbell-horizontal-press','floor'),
  'chest-supported-dumbbell-row':('chest-supported-row','incline'),
  'dumbbell-seal-row':('chest-supported-row','seal'),
+ 'side-plank-hip-lift':('side-plank-hip-lift',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -69,7 +70,6 @@ BLOCK_REASONS={
  'pike-push-up':'needs the inverted hip setup and near-vertical shoulder press path rather than a horizontal push-up path',
  'wall-handstand-push-up':'needs a wall, inverted body support and vertical pressing path with a controlled head clearance',
  'plank-shoulder-tap':'needs a unilateral hand transfer and visible anti-rotation control while the support hand remains planted',
- 'side-plank-hip-lift':'needs a lateral view of the forearm and foot support with vertical hip travel',
  'plyometric-push-up':'needs separate takeoff, unsupported flight and controlled bilateral hand landing phases',
 }
 BG='#080d18';CARD='#131e30';INK='#eaf1fc';MUTED='#aab9d0';BLUE='#73acff';FAR='#425873'
@@ -104,7 +104,22 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='chest-supported-row':
+ if kind=='side-plank-hip-lift':
+  # The forearm and lower foot remain planted. The shoulder rotates about the
+  # elbow and a fixed-length trunk/leg chain lifts the pelvis without twisting.
+  elbow=(220,430);foot=(450,430)
+  shoulder=(elbow[0]+80*math.sin(.32*u),elbow[1]-80*math.cos(.32*u))
+  hip=ik(shoulder,foot,125,125,side=1)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((elbow,shoulder,80),(shoulder,hip,125),(hip,foot,125))):raise ValueError('Side plank segment changed length')
+  if foot!=(450,430) or elbow!=(220,430):raise ValueError('Side plank support changed')
+  limb(d,[shoulder,hip,foot],BLUE,25)
+  limb(d,[shoulder,elbow,(270,430)],INK,13)
+  line(d,foot,(478,433),INK,9)
+  head=(shoulder[0]-32,shoulder[1]-10)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  limb(d,[shoulder,(hip[0]-20,hip[1]-35),(hip[0]+2,hip[1]-18)],FAR,9)
+ elif kind=='chest-supported-row':
   # Chest contact and bench geometry are distinct from an unsupported hinge.
   # Both loaded elbows row toward the trunk while the support remains fixed.
   if option=='incline':

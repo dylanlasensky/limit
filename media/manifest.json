@@ -10886,14 +10886,14 @@
   {
     "catalogKey": "side-plank-hip-lift",
     "name": "Side Plank Hip Lift",
-    "poster": "exercises/side-plank-hip-lift/v210215137784002/08d811ddee9db776f4e92542551aed5df2d9ce119d733c1c769401797bfd0bc1.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/side-plank-hip-lift/v104911963863664/1148b51d1f80edcee2efd396eeba358f0286007a1312db4d4c4131fade7b1aba.png",
+    "source": "exercises/side-plank-hip-lift/v104911963863664/d1e2d19f9aa8c73af225b8d1807d89b7cef645113f588fadd55ee3ac012d7179.mp4",
+    "format": "mp4",
     "caption": "Set a stable stance and keep the movement controlled. Avoid forcing your lower back into a twist; use a comfortable range and log each side. Lift and lower your hips; log repetitions, not hold duration.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 210215137784002,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 104911963863664,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -10905,15 +10905,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "08d811ddee9db776f4e92542551aed5df2d9ce119d733c1c769401797bfd0bc1",
-    "videoSha256": null,
-    "bytes": 41663,
-    "blockReason": "Side Plank Hip Lift: needs a lateral view of the forearm and foot support with vertical hip travel.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "1148b51d1f80edcee2efd396eeba358f0286007a1312db4d4c4131fade7b1aba",
+    "videoSha256": "d1e2d19f9aa8c73af225b8d1807d89b7cef645113f588fadd55ee3ac012d7179",
+    "bytes": 81955,
+    "blockReason": "",
+    "template": "side-plank-hip-lift",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
