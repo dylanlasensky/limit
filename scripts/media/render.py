@@ -257,6 +257,8 @@ TEMPLATES={
  'snatch-grip-deadlift':('barbell-hinge','snatch-grip'),
  'sumo-deadlift':('barbell-hinge','sumo'),
  'deficit-deadlift':('barbell-hinge','deficit'),
+ 'trap-bar-deadlift':('barbell-hinge','trapbar-conventional'),
+ 'trap-bar-romanian-deadlift':('barbell-hinge','trapbar-romanian'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -465,7 +467,7 @@ def draw_pose(d,kind,option,u):
   # Side view with a fixed planted foot, invariant thigh/shin/torso/arm
   # lengths, explicit knee flexion, hip displacement and vertical bar path.
   ankle=(315,425 if option=='deficit' else 445);bar_x=365 if option=='kettlebell-conventional' else (340 if option=='dumbbell-romanian' else 325);leg=77.5;torso=120;arm=180 if option=='deficit' else (175 if option=='sumo' else ((140 if option=='kettlebell-conventional' else 145) if option.startswith('kettlebell') else 160))
-  if option in ('conventional','kettlebell-conventional','paused','snatch-grip','sumo','deficit'):
+  if option in ('conventional','kettlebell-conventional','paused','snatch-grip','sumo','deficit','trapbar-conventional'):
    hip=((270+30*u,325-30*u) if option=='sumo' else (255+45*u,332-37*u-(20 if option=='deficit' else 0)))
    trunk_angle=(-.7-(math.pi/2-.7)*u) if option=='sumo' else (-.55-(math.pi/2-.55)*u)
   else:
@@ -480,8 +482,8 @@ def draw_pose(d,kind,option,u):
   hand=(bar_x,bar_y)
   reach=math.dist(hip,ankle)
   knee_flex=2*math.degrees(math.acos(reach/(2*leg)))
-  if option in ('romanian','dumbbell-romanian','kettlebell-romanian') and (knee_flex>28 or knee_flex<20 or abs(reach-math.dist((300,295),ankle))>1e-6):raise ValueError('RDL knee bend or foot reach changed')
-  if option in ('conventional','kettlebell-conventional','paused','snatch-grip','sumo','deficit') and not 25<=knee_flex<=70:raise ValueError('Deadlift knee path changed')
+  if option in ('romanian','dumbbell-romanian','kettlebell-romanian','trapbar-romanian') and (knee_flex>28 or knee_flex<20 or abs(reach-math.dist((300,295),ankle))>1e-6):raise ValueError('RDL knee bend or foot reach changed')
+  if option in ('conventional','kettlebell-conventional','paused','snatch-grip','sumo','deficit','trapbar-conventional') and not 25<=knee_flex<=70:raise ValueError('Deadlift knee path changed')
   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,knee,leg),(knee,ankle,leg),(hip,shoulder,torso),(shoulder,hand,arm))):raise ValueError('Hinge segment length changed')
   if bar_y>430 or bar_y<(290 if option.startswith('kettlebell') else 320) or head[0]>455:raise ValueError('Hinge load or head clearance changed')
   d.line((205,454,454,454),fill=FAR,width=3)
@@ -506,6 +508,20 @@ def draw_pose(d,kind,option,u):
    for cx in (74,106):
     d.line((cx,207,cx,223),fill=INK,width=4)
     for yy in (207,223):d.rounded_rectangle((cx-9,yy-4,cx+9,yy+4),2,fill=FAR,outline=INK,width=1)
+  elif option.startswith('trapbar'):
+   # Side rails and a raised neutral handle distinguish a hex bar from a straight bar.
+   back_y=bar_y+8
+   d.line((211,back_y,439,back_y),fill=FAR,width=6)
+   for px in (231,419):d.rounded_rectangle((px-11,back_y-27,px+11,back_y+27),4,fill=FAR,outline=INK,width=2)
+   d.line((265,bar_y,390,bar_y),fill=INK,width=6)
+   for px in (280,375):d.line((px,bar_y,px,back_y),fill=INK,width=5)
+   limb(d,[shoulder,hand],INK,11)
+   d.rounded_rectangle((hand[0]-8,hand[1]-6,hand[0]+8,hand[1]+6),3,fill=BLUE)
+   d.rounded_rectangle((45,183,227,231),4,outline=MUTED,width=2)
+   d.text((51,187),'TOP / NEUTRAL HANDLES',font=FONTS[14],fill=MUTED)
+   d.polygon([(62,209),(75,202),(143,202),(156,209),(143,224),(75,224)],outline=INK,width=2)
+   for fx in (99,119):d.rounded_rectangle((fx-4,209,fx+4,221),2,fill=BLUE)
+   for hx in (75,143):d.line((hx,208,hx,219),fill=FAR,width=4)
   elif option.startswith('kettlebell'):
    limb(d,[shoulder,hand],INK,11)
    bell_center=(hand[0],hand[1]+(14 if option=='kettlebell-conventional' else 4))
@@ -541,7 +557,7 @@ def draw_pose(d,kind,option,u):
     d.rectangle((60,215,151,225),fill=FAR,outline=INK,width=1)
     d.rounded_rectangle((101,206,130,215),2,fill=BLUE)
    else:draw_curl_grip_inset(d,False,True,upper=True)
-  d.text((47,242),'FLOOR START / BELL CENTER' if option=='kettlebell-conventional' else ('FLOOR START / BAR CLOSE' if option in ('conventional','paused','snatch-grip','sumo','deficit') else 'SOFT KNEES / HIP HINGE'),font=FONTS[14],fill=MUTED)
+  d.text((47,242),'FLOOR START / BELL CENTER' if option=='kettlebell-conventional' else ('FLOOR START / BAR CLOSE' if option in ('conventional','paused','snatch-grip','sumo','deficit','trapbar-conventional') else 'SOFT KNEES / HIP HINGE'),font=FONTS[14],fill=MUTED)
  elif kind=='machine-triceps-extension':
   hip=(287,335);shoulder=(281,215);head=(279,176);elbow=(354,273)
   d.rounded_rectangle((247,342,332,357),4,fill=FAR)

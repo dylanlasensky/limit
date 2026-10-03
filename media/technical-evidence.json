@@ -2613,6 +2613,32 @@
     "audio": false
   },
   {
+    "catalogKey": "trap-bar-deadlift",
+    "videoSha256": "6d78c72a8b3ffc774da548b5df05e3b2cbe5d7b323d026c1c77b180fc99cd544",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "trap-bar-romanian-deadlift",
+    "videoSha256": "081f1a35d76d39aeba9abf0184fe61a67f87019ab6d55521aa9a272e08b3ff6d",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "deficit-deadlift",
     "videoSha256": "5be2d7ba9381e54240e7ec7bdec17375c2bf3053ab05ca6c5c2e3d92e2ebd230",
     "duration": 8,
