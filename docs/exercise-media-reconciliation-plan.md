@@ -10,7 +10,7 @@ This is a read-only comparison and a plan. The prior media transfer/ref action r
 
 ## Local conflict inventory
 
-The media branch changes 161 paths from the common base: 156 under `docs`, two under `media`, one under `scripts`, `packages/domain/exerciseCatalog.js`, and `worker/seed.sql`. The accepted main revision changes 36 paths from the same base, concentrated in mobile UI, release/security tooling, dependencies and worker implementation. The path intersection is **zero**. A read-only `git merge-tree` comparison of these three revisions showed no merge conflict markers. This does not establish that the combined build or release gates pass.
+The media branch changes 166 paths from the common base: 158 under `docs`, three under `media`, three under `scripts`, `packages/domain/exerciseCatalog.js`, and `worker/seed.sql`. The accepted main revision changes 36 paths from the same base, concentrated in mobile UI, release/security tooling, dependencies and worker implementation. The path intersection is **zero**. A read-only `git merge-tree` comparison of these three revisions showed no merge conflict markers. This does not establish that the combined build or release gates pass.
 
 Media catalog and seed changes must remain paired so captions match the app and worker data. Preserve the accepted main's vendor braces fork and lockfile, native history/privacy fixes, release diagnostics and worker changes. Existing worktrees, especially `app` on `codex/native-history`, remain untouched.
 
