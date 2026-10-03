@@ -429,6 +429,19 @@
     "audio": false
   },
   {
+    "catalogKey": "single-arm-cable-fly",
+    "videoSha256": "cfaf63af2c65df659ebe58c7c0015222da85f923e693f5256c1d2728a8a4f01f",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "bench-cable-fly",
     "videoSha256": "bec8433eb22e1275256e0ccedfd83ae1540619b3b3ccde06731dd3cf7d1d2ada",
     "duration": 8,

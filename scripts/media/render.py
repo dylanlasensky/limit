@@ -266,6 +266,7 @@ TEMPLATES={
  'incline-dumbbell-fly':('depth-fly','incline-dumbbell'),
  'cable-chest-fly':('depth-fly','cable-chest'),
  'bench-cable-fly':('depth-fly','bench-cable'),
+ 'single-arm-cable-fly':('depth-fly','single-arm-cable'),
  'b-stance-romanian-deadlift':('barbell-hinge','b-stance-romanian'),
  'single-leg-dumbbell-romanian-deadlift':('barbell-hinge','single-leg-romanian'),
  'supported-single-leg-romanian-deadlift':('barbell-hinge','supported-single-leg-romanian'),
@@ -506,10 +507,11 @@ def draw_pose(d,kind,option,u):
  elif kind=='depth-fly':
   # Foot-end projection plus a side inset preserve the supine bench setup.
   # Hands follow mirrored arcs at invariant reach; IK fixes the soft elbow.
-  standing=option=='cable-chest'
-  cable=option in ('cable-chest','bench-cable')
+  standing=option in ('cable-chest','single-arm-cable')
+  cable=option in ('cable-chest','bench-cable','single-arm-cable')
+  single=option=='single-arm-cable'
   if cable:
-   for tower in (89,511):
+   for tower in ((89,) if single else (89,511)):
     d.line((tower,205,tower,453),fill=FAR,width=6)
     pulley_y=275 if standing else 375
     d.ellipse((tower-9,pulley_y-9,tower+9,pulley_y+9),fill=FAR,outline=INK,width=2)
@@ -528,6 +530,9 @@ def draw_pose(d,kind,option,u):
   angle=math.pi-.12-(math.pi-.12-1.42)*u
   for side in (-1,1):
    shoulder=(300+45*side,275)
+   if single and side>0:
+    limb(d,[shoulder,(360,334),(357,379)],FAR,9)
+    continue
    left_hand3=(255+150*math.cos(angle),150*math.sin(angle))
    hand3=left_hand3 if side<0 else (600-left_hand3[0],left_hand3[1])
    shoulder3=(shoulder[0],0)

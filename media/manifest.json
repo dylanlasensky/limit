@@ -1355,14 +1355,14 @@
   {
     "catalogKey": "single-arm-cable-fly",
     "name": "Single-Arm Cable Fly",
-    "poster": "exercises/single-arm-cable-fly/v220756877474461/8010b16773353ec66eb22af2c7d9d79c370b0eaf6887191519dcc5a7274532aa.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/single-arm-cable-fly/v3095103552439/a3e4014c959b5f633c9ea261a1d6353af1a6e3c8574c3c0a0667c00db8d6f874.png",
+    "source": "exercises/single-arm-cable-fly/v3095103552439/cfaf63af2c65df659ebe58c7c0015222da85f923e693f5256c1d2728a8a4f01f.mp4",
+    "format": "mp4",
     "caption": "Keep a soft bend in your elbows and a stable rib cage. Bring your arms together in an arc; avoid forcing a deep shoulder stretch. Keep your torso square; log repetitions per side.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 220756877474461,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 3095103552439,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -1374,15 +1374,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "8010b16773353ec66eb22af2c7d9d79c370b0eaf6887191519dcc5a7274532aa",
-    "videoSha256": null,
-    "bytes": 40962,
-    "blockReason": "Single-Arm Cable Fly: current renderer lacks shoulder arc, elbow angle and bilateral or unilateral hand path; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires \"Keep your torso square; log repetitions per side\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "a3e4014c959b5f633c9ea261a1d6353af1a6e3c8574c3c0a0667c00db8d6f874",
+    "videoSha256": "cfaf63af2c65df659ebe58c7c0015222da85f923e693f5256c1d2728a8a4f01f",
+    "bytes": 81170,
+    "blockReason": "",
+    "template": "depth-fly",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
