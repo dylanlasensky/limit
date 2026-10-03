@@ -832,6 +832,32 @@
     "audio": false
   },
   {
+    "catalogKey": "leg-extension",
+    "videoSha256": "13ef388b2edcb12007fe115f5850cff6e888d41e344d879cdae141e9dafdc00e",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "single-leg-extension",
+    "videoSha256": "8719641dafe684e0dba3046d03c5b1229b1a3eab4512e5d85a1e1af9c5311d8a",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "reverse-nordic-curl",
     "videoSha256": "486e8acfa69edfd367ddb86bcf6238c020fbafce2222614fa9968a630494022c",
     "duration": 8,
