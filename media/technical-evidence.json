@@ -391,7 +391,7 @@
   },
   {
     "catalogKey": "chest-dip",
-    "videoSha256": "8cabb41590ff7a8d09e13b79c6f66b9987e117fd78ebefc338220a4df94ae85a",
+    "videoSha256": "a689daf21bafc535e8029e0334d90d33ed2a653e6b068bfbfee3d211c19501c3",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -404,7 +404,7 @@
   },
   {
     "catalogKey": "assisted-chest-dip",
-    "videoSha256": "bdf335cf04080b9a4392bf2c234c2ae576c7acdf05301d607a91a57a02198d10",
+    "videoSha256": "619574425b2f532d93c458bed5bb2a4ee635d9399826f0246cb0cc656d62af79",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",

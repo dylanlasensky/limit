@@ -43,7 +43,7 @@ pec-deck-fly,Pec Deck Fly,Machine,technical,Original LIMIT-generated schematic; 
 resistance-band-chest-fly,Resistance Band Chest Fly,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,
 lat-pulldown,Lat Pulldown,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 neutral-grip-lat-pulldown,Neutral-Grip Lat Pulldown,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
-close-grip-lat-pulldown,Close-Grip Lat Pulldown,Cable,blocked,Original LIMIT-generated schematic; no third-party footage,,,Close-Grip Lat Pulldown: the close V-bar hand path makes the front-view fixed-length elbow solution cross the torso as the grip descends; keep blocked until a depth-aware narrow-grip rig shows both elbows tracking down outside the trunk.
+close-grip-lat-pulldown,Close-Grip Lat Pulldown,Cable,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Close-Grip Lat Pulldown: current renderer lacks overhead hand anchor, scapular motion and full body or handle travel; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires ""Avoid leaning far backward"". Add exact setup and phase-specific joint/support constraints before generating a video."
 underhand-lat-pulldown,Underhand Lat Pulldown,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 single-arm-lat-pulldown,Single-Arm Lat Pulldown,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 half-kneeling-cable-pulldown,Half-Kneeling Cable Pulldown,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,

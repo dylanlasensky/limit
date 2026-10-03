@@ -490,9 +490,10 @@ def draw_pose(d,kind,option,u):
   hand=(300,280);shoulder=(330+40*u,150+75*u);hip=(290+40*u,288+75*u)
   head=(shoulder[0]+25,shoulder[1]-35)
   elbow=ik(shoulder,hand,75,70,side=-1)
-  knee=(hip[0]-45,hip[1]+40);foot=(knee[0]-30,knee[1]+45)
-  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,elbow,75),(elbow,hand,70),(shoulder,hip,math.dist((330,150),(290,288))),(hip,knee,math.hypot(45,40)),(knee,foot,math.hypot(30,45)))):raise ValueError('Dip limb or torso length changed')
-  if foot[1]>448 or head[0]>448:raise ValueError('Dip foot or head clearance changed')
+  knee=(hip[0]-45,hip[1]+40);foot=(knee[0]-50,knee[1]+18)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,elbow,75),(elbow,hand,70),(shoulder,hip,math.dist((330,150),(290,288))),(hip,knee,math.hypot(45,40)),(knee,foot,math.hypot(50,18)))):raise ValueError('Dip limb or torso length changed')
+  # Include the shoe's half-width and ground stroke in the clearance bound.
+  if foot[1]+5>=451 or head[0]>448:raise ValueError('Dip shoe touches floor or head leaves frame')
   d.line((110,454,454,454),fill=FAR,width=3)
   for rx in (191,432):
    d.line((rx,280,rx,453),fill=FAR,width=8)
@@ -501,9 +502,11 @@ def draw_pose(d,kind,option,u):
   if option=='assisted':
    d.line((132,113,132,453),fill=FAR,width=7)
    d.rounded_rectangle((118,341-40*u,147,402-40*u),3,fill=FAR,outline=INK,width=2)
-   pad_y=knee[1]+10
-   d.rounded_rectangle((knee[0]-23,pad_y,knee[0]+31,pad_y+10),4,fill=FAR,outline=INK,width=2)
-   d.line((153,pad_y+5,knee[0]-23,pad_y+5),fill=FAR,width=5)
+   pad_y=knee[1]+6
+   pad_left=knee[0]-8;pad_right=knee[0]+42
+   if not (pad_left<=knee[0]<=pad_right and abs(pad_y-knee[1])<=6):raise ValueError('Assisted dip knee lost pad contact')
+   d.rounded_rectangle((pad_left,pad_y,pad_right,pad_y+10),4,fill=FAR,outline=INK,width=2)
+   d.line((153,pad_y+5,pad_left,pad_y+5),fill=FAR,width=5)
   limb(d,[hip,knee,foot],BLUE,13)
   d.line((foot[0]-12,foot[1],foot[0]+5,foot[1]),fill=INK,width=6)
   d.line((*hip,*shoulder),fill=BLUE,width=27)
