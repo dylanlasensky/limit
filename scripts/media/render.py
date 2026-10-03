@@ -272,6 +272,8 @@ TEMPLATES={
  'resistance-band-chest-fly':('depth-fly','band-chest'),
  'dumbbell-reverse-fly':('depth-fly','reverse-dumbbell'),
  'chest-supported-reverse-fly':('depth-fly','reverse-supported'),
+ 'cable-reverse-fly':('depth-fly','reverse-cable'),
+ 'single-arm-cable-rear-delt-fly':('depth-fly','reverse-single-cable'),
  'b-stance-romanian-deadlift':('barbell-hinge','b-stance-romanian'),
  'single-leg-dumbbell-romanian-deadlift':('barbell-hinge','single-leg-romanian'),
  'supported-single-leg-romanian-deadlift':('barbell-hinge','supported-single-leg-romanian'),
@@ -512,13 +514,13 @@ def draw_pose(d,kind,option,u):
  elif kind=='depth-fly':
   # Foot-end projection plus a side inset preserve the supine bench setup.
   # Hands follow mirrored arcs at invariant reach; IK fixes the soft elbow.
-  standing=option in ('cable-chest','single-arm-cable','low-to-high-cable','high-to-low-cable','band-chest')
-  cable=option in ('cable-chest','bench-cable','single-arm-cable','low-to-high-cable','high-to-low-cable')
+  standing=option in ('cable-chest','single-arm-cable','low-to-high-cable','high-to-low-cable','band-chest','reverse-cable','reverse-single-cable')
+  cable=option in ('cable-chest','bench-cable','single-arm-cable','low-to-high-cable','high-to-low-cable','reverse-cable','reverse-single-cable')
   band=option=='band-chest'
-  reverse=option in ('reverse-dumbbell','reverse-supported')
-  single=option=='single-arm-cable'
+  reverse=option in ('reverse-dumbbell','reverse-supported','reverse-cable','reverse-single-cable')
+  single=option in ('single-arm-cable','reverse-single-cable')
   if cable:
-   for tower in ((89,) if single else (89,511)):
+   for tower in ((511,) if option=='reverse-single-cable' else ((89,) if single else (89,511))):
     d.line((tower,205,tower,453),fill=FAR,width=6)
     pulley_y=190 if option=='high-to-low-cable' else (375 if option in ('bench-cable','low-to-high-cable') else 275)
     d.ellipse((tower-9,pulley_y-9,tower+9,pulley_y+9),fill=FAR,outline=INK,width=2)
@@ -557,7 +559,7 @@ def draw_pose(d,kind,option,u):
    elbow=(elbow3[0],275-.24*elbow3[1]);hand=(hand3[0],275-.24*hand3[1])
    if segment_distance((300,174),elbow,hand)<20:raise ValueError('Fly load crossed head')
    if cable:
-    anchor=(89 if side<0 else 511,190 if option=='high-to-low-cable' else (375 if option in ('bench-cable','low-to-high-cable') else 275))
+    anchor=((511 if side<0 else 89) if option in ('reverse-cable','reverse-single-cable') else (89 if side<0 else 511),190 if option=='high-to-low-cable' else (375 if option in ('bench-cable','low-to-high-cable') else 275))
     if math.dist(anchor,hand)<12:raise ValueError('Fly cable lost tension')
     d.line((*anchor,*hand),fill=BLUE,width=4)
    limb(d,[shoulder,elbow,hand],INK,10)
@@ -610,6 +612,12 @@ def draw_pose(d,kind,option,u):
    d.line((134,189,134,187-30*u),fill=INK,width=5)
    d.ellipse((128,181-30*u,140,193-30*u),fill=BLUE)
   d.text((47,242),'TOP VIEW',font=FONTS[14],fill=MUTED)
+  if option=='reverse-cable':
+   d.rounded_rectangle((345,307,500,366),5,fill=BG,outline=MUTED,width=2)
+   d.text((352,312),'CROSSED HANDLES',font=FONTS[14],fill=MUTED)
+   d.line((360,351,484,331),fill=BLUE,width=3)
+   d.line((484,351,360,331),fill=FAR,width=3)
+   for hx,hy in ((360,351),(484,351)):d.rounded_rectangle((hx-5,hy-5,hx+5,hy+5),2,fill=INK)
  elif kind=='barbell-hinge':
   # Side view with a fixed planted foot, invariant thigh/shin/torso/arm
   # lengths, explicit knee flexion, hip displacement and vertical bar path.

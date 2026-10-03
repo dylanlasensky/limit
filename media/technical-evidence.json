@@ -1313,6 +1313,32 @@
     "audio": false
   },
   {
+    "catalogKey": "cable-reverse-fly",
+    "videoSha256": "1f543fcc59480c51fb5261731319678bf012f16656fe8bd12a2a52b96c9fdeb0",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "single-arm-cable-rear-delt-fly",
+    "videoSha256": "f7e1db1fa0cb37e4c0171072bc2a1c7d45d48bc4808e6d4ad8a138b967f67d7e",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "resistance-band-pull-apart",
     "videoSha256": "9297d48455244e95837503a6ab088e43d6b5afbf8964cff41a2322146912d1eb",
     "duration": 8,
