@@ -7088,14 +7088,14 @@
   {
     "catalogKey": "reverse-nordic-curl",
     "name": "Reverse Nordic Curl",
-    "poster": "exercises/reverse-nordic-curl/v42703475221098/17e6c87a78f4ec137e8a86c2416ae929d8ab4b58768e4143e3dba8e2f7f12e24.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/reverse-nordic-curl/v87759138643527/cc56246e55043d431282a8f3cb39e6b3a426455c3c9faf85ce469cd3d70e122f.png",
+    "source": "exercises/reverse-nordic-curl/v87759138643527/3ef505aeea3863761c45af05f6625f38ec82dade9f71ce475493c51b4b71e326.mp4",
+    "format": "mp4",
     "caption": "Align your knee with the machine pivot or set a stable supported position. Straighten your knee under control and lower without dropping the resistance. Use a padded kneeling surface and a small controlled range.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 42703475221098,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 87759138643527,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "coaching-recommended",
     "textFallback": [
@@ -7107,15 +7107,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "17e6c87a78f4ec137e8a86c2416ae929d8ab4b58768e4143e3dba8e2f7f12e24",
-    "videoSha256": null,
-    "bytes": 42716,
-    "blockReason": "Reverse Nordic Curl: current renderer lacks fixed thigh support and knee-driven lower-leg travel; it also lacks the required hand, foot or floor supports. This variation requires \"Use a padded kneeling surface and a small controlled range\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "cc56246e55043d431282a8f3cb39e6b3a426455c3c9faf85ce469cd3d70e122f",
+    "videoSha256": "3ef505aeea3863761c45af05f6625f38ec82dade9f71ce475493c51b4b71e326",
+    "bytes": 79770,
+    "blockReason": "",
+    "template": "reverse-nordic-curl",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

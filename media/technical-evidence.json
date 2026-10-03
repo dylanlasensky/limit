@@ -533,6 +533,19 @@
     "audio": false
   },
   {
+    "catalogKey": "reverse-nordic-curl",
+    "videoSha256": "3ef505aeea3863761c45af05f6625f38ec82dade9f71ce475493c51b4b71e326",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-split-squat",
     "videoSha256": "771604ea2348061ee8ba4b54dba955beb0a79289077ae8bf4d476320dc8b4c57",
     "duration": 8,

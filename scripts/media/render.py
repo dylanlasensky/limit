@@ -55,6 +55,7 @@ TEMPLATES={
  'spider-curl':('spider-curl',None),
  'side-lying-dumbbell-external-rotation':('side-lying-external-rotation',None),
  'dumbbell-side-bend':('dumbbell-side-bend',None),
+ 'reverse-nordic-curl':('reverse-nordic-curl',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -121,7 +122,23 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='side-lying-external-rotation':
+ if kind=='reverse-nordic-curl':
+  # Padded knees and tucked feet stay fixed; the whole thigh/trunk chain
+  # leans back a small amount about the knees with no lumbar hinge.
+  d.rounded_rectangle((254,438,359,453),5,fill=FAR)
+  knee=(310,431);ankle=(286,445)
+  line(d,knee,ankle,FAR,15)
+  line(d,ankle,(266,447),INK,9)
+  lean=.35*u
+  hip=(knee[0]-90*math.sin(lean),knee[1]-90*math.cos(lean))
+  shoulder=(hip[0]-120*math.sin(lean),hip[1]-120*math.cos(lean))
+  head=(shoulder[0]-35*math.sin(lean),shoulder[1]-35*math.cos(lean))
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((knee,hip,90),(hip,shoulder,120),(shoulder,head,35))):raise ValueError('Reverse Nordic body segment changed length')
+  limb(d,[knee,hip,shoulder],BLUE,25)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-20,head[0]+18,head[1]+14),fill=INK)
+  limb(d,[shoulder,(shoulder[0]+27,shoulder[1]+48),(shoulder[0]+5,shoulder[1]+72)],INK,10)
+ elif kind=='side-lying-external-rotation':
   # Side-lying torso and upper arm are fixed. A very light dumbbell follows
   # forearm rotation about the elbow at the side without trunk movement.
   shoulder=(242,385);hip=(340,389);head=(198,382)
