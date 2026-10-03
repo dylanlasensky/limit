@@ -82,6 +82,7 @@ TEMPLATES={
  'stability-ball-crunch':('stability-ball-crunch',None),
  'decline-crunch':('decline-crunch',None),
  'inverted-row':('inverted-row',None),
+ 'seated-cable-row':('seated-cable-row',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -148,7 +149,32 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='inverted-row':
+ if kind=='seated-cable-row':
+  # Fixed seat and footplate brace the athlete while a handle moves along a
+  # visible pulley cable. The torso stays upright; elbows travel behind it.
+  pulley=(155,312);hip=(346,339);shoulder=(346,216);head=(345,176)
+  d.line((127,122,127,456),fill=FAR,width=7)
+  d.rounded_rectangle((110,334,143,420),5,fill=FAR,outline=INK,width=2)
+  for y in (351,370,389,408):d.line((113,y,140,y),fill=INK,width=2)
+  d.ellipse((pulley[0]-13,pulley[1]-13,pulley[0]+13,pulley[1]+13),fill=FAR,outline=INK,width=3)
+  d.rounded_rectangle((321,352,380,365),5,fill=FAR)
+  for x in (331,368):d.line((x,365,x,455),fill=FAR,width=7)
+  d.line((238,365,238,442),fill=FAR,width=11)
+  d.line((238,365,260,365),fill=INK,width=7)
+  limb(d,[hip,(296,382),(253,368)],BLUE,17)
+  line(d,(253,368),(239,361),INK,9)
+  line(d,hip,shoulder,BLUE,27)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
+  for offset,color in ((-9,FAR),(9,INK)):
+   start=(shoulder[0]+offset,shoulder[1]);hand=(263+79*u+offset,306)
+   elbow=ik(start,hand,78,72,side=1)
+   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((start,elbow,78),(elbow,hand,72))):raise ValueError('Seated cable row arm length changed')
+   if hip!=(346,339) or pulley!=(155,312):raise ValueError('Seated cable row support changed')
+   d.line([xy(pulley),xy(hand)],fill=INK,width=3)
+   limb(d,[start,elbow,hand],color,11)
+   d.rounded_rectangle((hand[0]-6,hand[1]-7,hand[0]+6,hand[1]+7),3,fill=FAR,outline=INK,width=2)
+ elif kind=='inverted-row':
   # Bar, both grips and heels remain fixed. A straight head-to-heel chain
   # rotates about the heels as the chest approaches the securely racked bar.
   foot=(440,440);bar_y=270

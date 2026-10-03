@@ -169,6 +169,19 @@
     "audio": false
   },
   {
+    "catalogKey": "seated-cable-row",
+    "videoSha256": "f34a341099a32dd8cb7bbb2d706747321426f5cf2cf7a4fd8f168e4ed2727695",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "resistance-band-row",
     "videoSha256": "c80c1c8e89eb846b4f18d01008cdc513ef846c7bf8ed5ee39ca2cc2d775b389f",
     "duration": 8,
