@@ -1388,14 +1388,14 @@
   {
     "catalogKey": "bench-cable-fly",
     "name": "Bench Cable Fly",
-    "poster": "exercises/bench-cable-fly/v159823246016311/e0007369a2f81aa188b5382d76b396f640e9b09a2d8cda6de5ed088e2a10bd7a.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/bench-cable-fly/v5875185080336/32d1d40b6f6e94deba1bde33b64f0b09f66b4e914c411ae4b90f6279852b8b06.png",
+    "source": "exercises/bench-cable-fly/v5875185080336/bec8433eb22e1275256e0ccedfd83ae1540619b3b3ccde06731dd3cf7d1d2ada.mp4",
+    "format": "mp4",
     "caption": "Keep a soft bend in your elbows and a stable rib cage. Bring your arms together in an arc; avoid forcing a deep shoulder stretch. Position a stable bench between the cable stacks.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 159823246016311,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 5875185080336,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -1407,15 +1407,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "e0007369a2f81aa188b5382d76b396f640e9b09a2d8cda6de5ed088e2a10bd7a",
-    "videoSha256": null,
-    "bytes": 39955,
-    "blockReason": "Bench Cable Fly: current renderer lacks shoulder arc, elbow angle and bilateral or unilateral hand path; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires \"Position a stable bench between the cable stacks\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "32d1d40b6f6e94deba1bde33b64f0b09f66b4e914c411ae4b90f6279852b8b06",
+    "videoSha256": "bec8433eb22e1275256e0ccedfd83ae1540619b3b3ccde06731dd3cf7d1d2ada",
+    "bytes": 110611,
+    "blockReason": "",
+    "template": "depth-fly",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

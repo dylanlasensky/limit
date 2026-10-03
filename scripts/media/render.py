@@ -265,6 +265,7 @@ TEMPLATES={
  'dumbbell-fly':('depth-fly','flat-dumbbell'),
  'incline-dumbbell-fly':('depth-fly','incline-dumbbell'),
  'cable-chest-fly':('depth-fly','cable-chest'),
+ 'bench-cable-fly':('depth-fly','bench-cable'),
  'b-stance-romanian-deadlift':('barbell-hinge','b-stance-romanian'),
  'single-leg-dumbbell-romanian-deadlift':('barbell-hinge','single-leg-romanian'),
  'supported-single-leg-romanian-deadlift':('barbell-hinge','supported-single-leg-romanian'),
@@ -506,11 +507,15 @@ def draw_pose(d,kind,option,u):
   # Foot-end projection plus a side inset preserve the supine bench setup.
   # Hands follow mirrored arcs at invariant reach; IK fixes the soft elbow.
   standing=option=='cable-chest'
-  if standing:
+  cable=option in ('cable-chest','bench-cable')
+  if cable:
    for tower in (89,511):
     d.line((tower,205,tower,453),fill=FAR,width=6)
-    d.ellipse((tower-9,266,tower+9,284),fill=FAR,outline=INK,width=2)
-    d.rounded_rectangle((tower-13,354,tower+13,415),3,fill=FAR,outline=INK,width=2)
+    pulley_y=275 if standing else 375
+    d.ellipse((tower-9,pulley_y-9,tower+9,pulley_y+9),fill=FAR,outline=INK,width=2)
+    d.rounded_rectangle((tower-13,354 if standing else 404,tower+13,415 if standing else 443),3,fill=FAR,outline=INK,width=2)
+  if standing:
+   pass
   else:
    d.rounded_rectangle((266,188,334,425),10,fill=FAR)
    for bx in (275,325):d.line((bx,422,bx,453),fill=FAR,width=6)
@@ -530,12 +535,12 @@ def draw_pose(d,kind,option,u):
    if abs(math.dist(shoulder3,elbow3)-80)>1e-6 or abs(math.dist(elbow3,hand3)-75)>1e-6 or abs(math.dist(shoulder3,hand3)-150)>1e-6:raise ValueError('Fly shoulder arc or soft elbow changed')
    elbow=(elbow3[0],275-.24*elbow3[1]);hand=(hand3[0],275-.24*hand3[1])
    if segment_distance((300,174),elbow,hand)<20:raise ValueError('Fly load crossed head')
-   if standing:
-    anchor=(89 if side<0 else 511,275)
+   if cable:
+    anchor=(89 if side<0 else 511,275 if standing else 375)
     if math.dist(anchor,hand)<12:raise ValueError('Fly cable lost tension')
     d.line((*anchor,*hand),fill=BLUE,width=4)
    limb(d,[shoulder,elbow,hand],INK,10)
-   if standing:d.rounded_rectangle((hand[0]-9,hand[1]-6,hand[0]+9,hand[1]+6),2,fill=FAR,outline=INK,width=2)
+   if cable:d.rounded_rectangle((hand[0]-9,hand[1]-6,hand[0]+9,hand[1]+6),2,fill=FAR,outline=INK,width=2)
    else:
     d.line((hand[0]-13,hand[1],hand[0]+13,hand[1]),fill=INK,width=5)
     for px in (hand[0]-12,hand[0]+12):d.rounded_rectangle((px-5,hand[1]-11,px+5,hand[1]+11),2,fill=FAR,outline=INK,width=2)
@@ -547,9 +552,17 @@ def draw_pose(d,kind,option,u):
    d.line((62,191,175,191),fill=BLUE,width=3)
    d.line((175,183,175,218),fill=BLUE,width=12)
    d.ellipse((167,166,183,182),fill=INK)
+  elif option=='bench-cable':d.text((181,160),'LOW',font=FONTS[14],fill=MUTED)
   elif option=='incline-dumbbell':d.text((151,160),'INCLINE',font=FONTS[14],fill=MUTED)
   else:d.text((52,161),'SIDE / HAND HEIGHT',font=FONTS[14],fill=MUTED)
   if standing:pass
+  elif option=='bench-cable':
+   d.line((65,209,181,209),fill=FAR,width=6)
+   d.line((76,190,171,190),fill=BLUE,width=10)
+   d.ellipse((55,178,76,199),fill=INK)
+   d.ellipse((61,215,73,227),fill=FAR,outline=INK,width=1)
+   d.line((67,221,134,175-15*u),fill=BLUE,width=3)
+   d.ellipse((128,169-15*u,140,181-15*u),fill=BLUE)
   elif option=='incline-dumbbell':
    d.line((66,212,181,180),fill=FAR,width=6)
    d.line((74,199,170,172),fill=BLUE,width=9)
