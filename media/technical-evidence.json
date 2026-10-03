@@ -1,7 +1,7 @@
 [
   {
     "catalogKey": "dumbbell-bench-press",
-    "videoSha256": "576d2df99c41f4750ce016841d5534b863687e04e65ad8e3480de786131b4546",
+    "videoSha256": "c9e67014430538149709f2fb560c8af06c662c1808d68e78bf5abaa833d59adf",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -14,7 +14,7 @@
   },
   {
     "catalogKey": "incline-dumbbell-bench-press",
-    "videoSha256": "f5e8e63f29d9005e9ebbddc75ea7613d121ccdf04fbb147a06d0e32a70fbbebc",
+    "videoSha256": "4d292509f324044e46c647233f2e98c5ca80c4f131df7488e637ded9d8639431",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -27,7 +27,7 @@
   },
   {
     "catalogKey": "decline-dumbbell-bench-press",
-    "videoSha256": "9f19ffaac784eed71c0ef0849b7efc30f03d288cf5e560633b33b7725b36781e",
+    "videoSha256": "6ec7dffa48e3c60f0e3ab389dd4dcff86cc8d1df1d5538beeaf27a83374c652e",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -40,7 +40,7 @@
   },
   {
     "catalogKey": "dumbbell-floor-press",
-    "videoSha256": "d72c97f4756c9d4a34db14b7fc625aaa248a9085ad6e604ec5a9091420590899",
+    "videoSha256": "b8f3d6d96b58c09755b8d99f7418bd1907b02e6d8ebddc65e9127aa4d9b1ce42",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -53,7 +53,7 @@
   },
   {
     "catalogKey": "push-up",
-    "videoSha256": "8e1b4587637a6dbfa5ae998883c32af128d03977a97f0b59de108eb23c35f075",
+    "videoSha256": "fadeacdca2c2f0843a982323bd91841f17a7aee59616aa538cbed4992f8a4742",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -66,7 +66,7 @@
   },
   {
     "catalogKey": "incline-push-up",
-    "videoSha256": "d31117c4fd3c3791cce5dd6de5d2418ec8b9a83019d18140143d29c97ed9128b",
+    "videoSha256": "f72c5ba3a63115cb3c9beab4ec8a28909c8ef888f943f50873921c9814a91994",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -79,7 +79,7 @@
   },
   {
     "catalogKey": "kneeling-push-up",
-    "videoSha256": "03d86d227bc0cab03b3ee18102d6be23cdccf43a55bf337cdd1d77fec9bdeb37",
+    "videoSha256": "646b0911740ae2edd93e0fa2de2d73fbaa04f6479b8b93fc65fd2cf7cf61f729",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -92,7 +92,7 @@
   },
   {
     "catalogKey": "decline-push-up",
-    "videoSha256": "9ecedee353280b0a97530f6d224a9124b4262fb5af86cf79766f4232150a09dd",
+    "videoSha256": "0cc849a273cf080b2c05f382d75a257ef962baccfddb03ec3dd39f25e35f2bbd",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -105,7 +105,7 @@
   },
   {
     "catalogKey": "single-arm-dumbbell-row",
-    "videoSha256": "f4db2c0ad25a6e5715b307a8e32338aef7d493d3633c9a08255bc92ef3ecceb8",
+    "videoSha256": "120aef333f001f02aa36639b2fecbda3615ccca25c2662ecfdf4e76b75e0902a",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -118,7 +118,7 @@
   },
   {
     "catalogKey": "dumbbell-bent-over-row",
-    "videoSha256": "f7a3279f945c5b608eb47b5dba850983c68036c296700b26e40adb248f71ccb8",
+    "videoSha256": "1c6c19ffdd6dd0f18d9172531e0675b390d86b8fbccdb52c9f7f217a22c585c8",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -131,7 +131,7 @@
   },
   {
     "catalogKey": "chest-supported-dumbbell-row",
-    "videoSha256": "c4dd611bbb0e5fab685f5dfb962b0d91441ca91e8fb4b9e0253b942f2257b171",
+    "videoSha256": "a6c0eceec92b7bd798f314d206434db4055a83d35ebfc03cb1d7912c03111da5",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -144,7 +144,7 @@
   },
   {
     "catalogKey": "dumbbell-seal-row",
-    "videoSha256": "26dfadb60f37bee1360be5a9f0611a15a6a97260898cec257b21a1b2c97f72a7",
+    "videoSha256": "6ac7c7e67d8c63fda2faeb72d788988892495e9e3257a203d8cd9339b0a3d4fb",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -157,7 +157,7 @@
   },
   {
     "catalogKey": "dumbbell-pullover",
-    "videoSha256": "e5617e548fadba1d978eae061578aac40c4dcaa436a3022cdf5600672f757ce0",
+    "videoSha256": "221b5c1a65e0d3b4653abc388b55da76e20ec1171bb4c9c756d87e3a8a7ff3a4",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -170,7 +170,7 @@
   },
   {
     "catalogKey": "dumbbell-shoulder-press",
-    "videoSha256": "2699e95cad1b13c2ec2026a83f23f5f3d4c6f79a8803c6ca0145793ee3a69edf",
+    "videoSha256": "138dbb74472475071e3d436bab900d9d5fa941ffb0d0b373063610616f6ea0d7",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -183,7 +183,7 @@
   },
   {
     "catalogKey": "standing-dumbbell-press",
-    "videoSha256": "2f8d85bf95ef17a7a747b0899a2cca192404627aadea74a5f2c7658dcd13743d",
+    "videoSha256": "ffc1bc34a041058dba45d243c597826cded2a78678f1e4b3399886415fe4e7dc",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -196,7 +196,7 @@
   },
   {
     "catalogKey": "neutral-grip-dumbbell-shoulder-press",
-    "videoSha256": "1f42953b75d9d34b38a36e933c10d287de172ae0cab8dae71fdf40fe7e79ad6f",
+    "videoSha256": "51a947a3a4c61729530dde2d5cf97a98d0167b8ad011d2e94440f23dcfd7b9fb",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -209,7 +209,7 @@
   },
   {
     "catalogKey": "single-arm-dumbbell-overhead-press",
-    "videoSha256": "58e9adbd6195b0124ad3e78f3c3615070b9c4818cd21d66b8fc946abecb50554",
+    "videoSha256": "ba6852d97eefe12d77e84f259cbc66c71a98210cd16a977054922fd0f64fc35f",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -222,7 +222,7 @@
   },
   {
     "catalogKey": "dumbbell-lateral-raise",
-    "videoSha256": "f5857c52cbe5d864f212b56b2b4a1b66fe5bab40ae5faac10ab1019c807b72bb",
+    "videoSha256": "0f9014295f217aa3eab578819e985f058bc0524b62ccb3bb28d6d9a74c395d4d",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -235,7 +235,7 @@
   },
   {
     "catalogKey": "seated-dumbbell-lateral-raise",
-    "videoSha256": "e3d7aa222b92e35d9f6ca738929a5d176ebd71a78376a42eba835b0fc346d763",
+    "videoSha256": "d7f336de49b5d4d89f60800c3c5fb505b77434953fb520226394c140350113aa",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -248,7 +248,7 @@
   },
   {
     "catalogKey": "dumbbell-front-raise",
-    "videoSha256": "73a8f4fe412594425906cc4035759e503c60c88268cc841c3ce9773d09e6a813",
+    "videoSha256": "fb6b2925f70f63e4b2127071c737e2675d958f3ad3642797487d1e406077f3fe",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -261,7 +261,7 @@
   },
   {
     "catalogKey": "plate-front-raise",
-    "videoSha256": "7f90e8959f2c44ab455058e253ddda88fc681b967df82f567251499bdcad565c",
+    "videoSha256": "0da65a6fa1c31237021a361d0747ec453cba53c6c16a7a4b995a30533cb5274d",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -274,7 +274,7 @@
   },
   {
     "catalogKey": "dumbbell-shrug",
-    "videoSha256": "66206efdc9f76a8dc7516041dffcae737eae4299673f5b9a2fb7829077e717c4",
+    "videoSha256": "e4bc27a54e652732f0b1fa1ede6284feaf2adae70a7700945017c9d0ceff7ceb",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -287,7 +287,7 @@
   },
   {
     "catalogKey": "side-lying-dumbbell-external-rotation",
-    "videoSha256": "965a5d0beddca2a4c63aa9fca3c034e2c48eaddd55fdff00f05160ef7006f829",
+    "videoSha256": "92296553e90c5ed038aacce4b54984065875b1b8e038c09dcbc7d4ca32c7ad8d",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -300,7 +300,7 @@
   },
   {
     "catalogKey": "dumbbell-curl",
-    "videoSha256": "fd58f7fe3c8e1c763e3203a1fc1e1ed9d9c64fd955fbd29936e56d6ab6b08f95",
+    "videoSha256": "ecae92f665326a0301726bedddb1c6dad29bcf8338db7f6abe942ebd7f931aa0",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -313,7 +313,7 @@
   },
   {
     "catalogKey": "alternating-dumbbell-curl",
-    "videoSha256": "c1ad73df19345c160129787f2b189399a53d2454aa2c722363e5815b410bd61d",
+    "videoSha256": "41c6cfc1f7345e06a7b227cc5104638f73878d34f699bff5b00d526a294b5a35",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -326,7 +326,7 @@
   },
   {
     "catalogKey": "seated-dumbbell-curl",
-    "videoSha256": "4af7866840806a30f749b37e8403cbeed65ec7424b7e9563cba34461d3632c0e",
+    "videoSha256": "66f097d3d361e0cbb2975f58c4b56c26576114cfc2bed7d6d170fb2361775c69",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -339,7 +339,7 @@
   },
   {
     "catalogKey": "incline-dumbbell-curl",
-    "videoSha256": "4c392b127568a3a7388638da91148fb8baf8660e4fd989e306005be4857f1f7c",
+    "videoSha256": "7227af563e786318bace8d823d08eabfb62d97d6511e1d292de6f89b7e790ec5",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -352,7 +352,7 @@
   },
   {
     "catalogKey": "hammer-curl",
-    "videoSha256": "58cf4dd30dd7eb26aad78bcbcb9d6248dd302c1f399e148dc76d2be0015a3d71",
+    "videoSha256": "c34d72c93ed8373910e64cad029dfba891638a18f7517914eb0d221d98b957bc",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -365,7 +365,7 @@
   },
   {
     "catalogKey": "cross-body-hammer-curl",
-    "videoSha256": "bd3fca8af90928794ba7b855268491975511d9f5ad8b80522238d1d1d496e70e",
+    "videoSha256": "68fbb7def013acae12e2946d3360e392bfab35f9050e14978a15bd47d8955e12",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -378,7 +378,7 @@
   },
   {
     "catalogKey": "concentration-curl",
-    "videoSha256": "901650945355c7bcf214866973d99001289ebe4586b81c54fc4f6e58882e4bf0",
+    "videoSha256": "edf8d132080059c2ff6b2a8b2620695732accb534ccceeddc108034921e0c176",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -391,7 +391,7 @@
   },
   {
     "catalogKey": "dumbbell-preacher-curl",
-    "videoSha256": "5467062f1db2bbec33fe9c496ed21132720f0b99e72c06c126fb349bd51a30e1",
+    "videoSha256": "8b8b0e4e2ec732bd65f83c73ef32a0315e9809e16c2cc08e08f92a28ae350645",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -404,7 +404,7 @@
   },
   {
     "catalogKey": "spider-curl",
-    "videoSha256": "a25e34b6d27483bc133c6fed8c8bff10043f560d9a159271a40d18db58dd85f2",
+    "videoSha256": "f0f69c97c6af5935664e72bc1fd0f54711863b6b04ebd4d883e39191d1fb5a56",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -417,7 +417,7 @@
   },
   {
     "catalogKey": "dumbbell-overhead-triceps-extension",
-    "videoSha256": "77158c3fc61132402ca7ef960cce068ff4f69ffc04285a02a2dea85f5148bc12",
+    "videoSha256": "b02020b27b846877bd8fb38282f429622b68be4b370ecb13e7a2f6604523ac54",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -430,7 +430,7 @@
   },
   {
     "catalogKey": "single-arm-dumbbell-triceps-extension",
-    "videoSha256": "f7abe52777250f4455c8732a6c98dcb3e7457ac68d5844df922c9a84059a9237",
+    "videoSha256": "dbf5e70b5bc53243e35fc46f403d2add9f34c43d2cd2bdbdb15828c5335d9676",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -443,7 +443,7 @@
   },
   {
     "catalogKey": "dumbbell-skull-crusher",
-    "videoSha256": "945fad09acb70b4d8add8b86a8b0433bcb6597583a2cca64400815a65eb5e16b",
+    "videoSha256": "02b9d3019b4345e926fabfc56af5e16d3e52feb89a16bc71e92fed10d3117700",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -456,7 +456,7 @@
   },
   {
     "catalogKey": "dumbbell-triceps-kickback",
-    "videoSha256": "5e4ae37491801dbe9564ee5dcf21e04269893048e77b622f05dfa87f9144cf7c",
+    "videoSha256": "5c6622545ec845b803800f133e68669bfa0fd6f986c1eaeea69d4ad4cc2984a5",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -469,7 +469,7 @@
   },
   {
     "catalogKey": "dumbbell-wrist-curl",
-    "videoSha256": "41dc836bf8724fb0ac997601b347e0f7af36b70af898091344300244196bc58b",
+    "videoSha256": "aa8aedab741537545451e9d3f33e9d096909a33f7a0586593625acadb73fb4e6",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -482,7 +482,7 @@
   },
   {
     "catalogKey": "dumbbell-reverse-wrist-curl",
-    "videoSha256": "c51cddc3da0fcfb2f0bc7b19f1c3524a9a3939b16fa3e4711d71c0bb7276f85f",
+    "videoSha256": "659bd3dc8a853d18b88cc7a893f0574e3a49d29e74bd580896276650e97dec0d",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -495,7 +495,7 @@
   },
   {
     "catalogKey": "hand-gripper-close",
-    "videoSha256": "1f658d49f1b1960f5cdae823b10341b2692f51554e8832c1c03b1944c9fd8a12",
+    "videoSha256": "b23e45e25c90920f293566eb56d5a60613428710941ad74de0f4e84ee041f0cd",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -508,7 +508,7 @@
   },
   {
     "catalogKey": "goblet-squat",
-    "videoSha256": "f9fcad76fd31be837bbb2c172af3add271b33242a59f74349ed5f6e94e269abc",
+    "videoSha256": "780e6f8b626a80e5130b41a64a6cf136465b99983f2d74d8d4ac26da346a0a3b",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -521,7 +521,7 @@
   },
   {
     "catalogKey": "dumbbell-front-squat",
-    "videoSha256": "9c9d78f7de2924739f96f1a36b7f4ceccbee74ac9ed17cad6113d8c864eb14b5",
+    "videoSha256": "45c0dba9da5c7dc679dc1380a27d51c26d4b9c9fe0a1077b7331e58da84018b2",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -534,7 +534,7 @@
   },
   {
     "catalogKey": "heel-elevated-goblet-squat",
-    "videoSha256": "dc086e284494b7b5d9c4f8920457949810e0d01b9e6899df9d3b1220e6038e1f",
+    "videoSha256": "e9603b149d63974e143ca29be875af9d7b2831df25c40289de70d3e96672526f",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -547,7 +547,7 @@
   },
   {
     "catalogKey": "bodyweight-squat",
-    "videoSha256": "e590251124e10dfd1cb1c5f25cba07da92ea0ea3ce05b62c595fba56d2a1009d",
+    "videoSha256": "8366d6daf598f86145124653a000af4f8b58ae556c8c1fe9e0cef5615c84b07b",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -560,7 +560,7 @@
   },
   {
     "catalogKey": "squat-to-bench",
-    "videoSha256": "053b64321189a00912dca45fcc1ca5dd5f4a50e419d6a7c9463dbc7bef210283",
+    "videoSha256": "4db80f605e8b5d7155f884438d5ce2bea1fb292b131878781da97dd67119354b",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -573,7 +573,7 @@
   },
   {
     "catalogKey": "pistol-squat",
-    "videoSha256": "9c1d1f280ac6646d85e0c83063de488f8b15018ae45140c2917055fbb40d6826",
+    "videoSha256": "ea07f2c479fd221add339d86669fb8307b9c3859319f8a7faeee7e25eeff6e05",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -586,7 +586,7 @@
   },
   {
     "catalogKey": "reverse-nordic-curl",
-    "videoSha256": "3ef505aeea3863761c45af05f6625f38ec82dade9f71ce475493c51b4b71e326",
+    "videoSha256": "486e8acfa69edfd367ddb86bcf6238c020fbafce2222614fa9968a630494022c",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -599,7 +599,7 @@
   },
   {
     "catalogKey": "dumbbell-split-squat",
-    "videoSha256": "771604ea2348061ee8ba4b54dba955beb0a79289077ae8bf4d476320dc8b4c57",
+    "videoSha256": "fc9f8f9980f30f4180954cd07f26bc3bc7c3c7984c5d5439e5d1b682fb58a026",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -612,7 +612,7 @@
   },
   {
     "catalogKey": "bodyweight-split-squat",
-    "videoSha256": "41b9369e1ff0debd0ae991ed22382bd28e35cd3f6b0daf5b4709b739dcca3ecc",
+    "videoSha256": "37a8d268be86c2178a01e4e1b8717634fc34057fd909832b355b1ab43e0910a7",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -625,7 +625,7 @@
   },
   {
     "catalogKey": "bulgarian-split-squat",
-    "videoSha256": "c36f7e9002a8f84d9306121c4565a50a53af6a84bfbd9daf1f3f4ecb87b48685",
+    "videoSha256": "b704c7d48ee140dc88f53331118db6d2a2973e05a0c27b81467b04f58ff63958",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -638,7 +638,7 @@
   },
   {
     "catalogKey": "bodyweight-bulgarian-split-squat",
-    "videoSha256": "deb73aebe47affc87eef04cf6ae7062b086a63741b3052e6b9471c26d63cdd08",
+    "videoSha256": "45f2b3dea685fc1becb990160a8240a1786b825a7d552ece37b27225a2d5f611",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -651,7 +651,7 @@
   },
   {
     "catalogKey": "dumbbell-reverse-lunge",
-    "videoSha256": "a4f338ee57d0e98600747d1486aa6670ef05ce853944897784721d4c3b29abc3",
+    "videoSha256": "04d10473e51fc56cf390659e474c98566e8169fd6f2ef234df76dba787e0e764",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -664,7 +664,7 @@
   },
   {
     "catalogKey": "bodyweight-reverse-lunge",
-    "videoSha256": "2c656aed83d5eadb5dc6de089e64928ab2817e8932bb04cdb26a08a90a8608a5",
+    "videoSha256": "e5e4f91e5d59a7eda4fa7ef35de0aaa4f80c35513c397bbcdb794d610cd1d93a",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -677,7 +677,7 @@
   },
   {
     "catalogKey": "dumbbell-lateral-lunge",
-    "videoSha256": "5fa91e008a3b4d644ca8db77e1d3d1a2a5125f10bd1dc06471c34f301b3cfe0a",
+    "videoSha256": "d7a254f52da740520f52b904346244aa836602c0217338735eca2e67b15978e3",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -690,7 +690,7 @@
   },
   {
     "catalogKey": "bodyweight-lateral-lunge",
-    "videoSha256": "64e8aebd978ea2067f94bdba9a32d775db178da1347e15b09bea6b1530789e30",
+    "videoSha256": "9c7ee6728488b05f8c2cfa645eef54a98d10f4c8e39f9fdfdef6f2c115453451",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -703,7 +703,7 @@
   },
   {
     "catalogKey": "cossack-squat",
-    "videoSha256": "5c6513548b6265cc61d1dc13c8aace8bb34bdf0578a04a28bcb8d92ea079bda8",
+    "videoSha256": "1ea44fa09b56ecad62e062af5ff588ec594a851f14f6db9bdf6d90a6ca518b1f",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -716,7 +716,7 @@
   },
   {
     "catalogKey": "dumbbell-step-up",
-    "videoSha256": "56cfa566ef98619499d04037a1612904501772a8643adae45b1604411193e726",
+    "videoSha256": "26af9eed656f94c3614b18e62ac87e524307e36a476bc89340a5ddb01847ae9a",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -729,7 +729,7 @@
   },
   {
     "catalogKey": "bodyweight-step-up",
-    "videoSha256": "e62f970d95c9980323470a65f9eeed4a1be79fb9d430b3f9a16f03e7207745af",
+    "videoSha256": "03ebf272841b139d98bf2bd4c89421d85e01587b94bff7ff9d8fa32e81b6037b",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -742,7 +742,7 @@
   },
   {
     "catalogKey": "stability-ball-leg-curl",
-    "videoSha256": "03e25c0f4a204a784317b27a62be537cdd0f77313c06742686b4ab7eb0356afb",
+    "videoSha256": "f9cdcd26300ece2e0e2a3eb72f04a1b30e13893c1a3430698342b4aa4de03271",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -755,7 +755,7 @@
   },
   {
     "catalogKey": "slider-leg-curl",
-    "videoSha256": "07dab8f730648662a21158ac03164e9a7b671c2cb1b8139495df4b1d32631baf",
+    "videoSha256": "c42d70b767018e550ba764054c643d8d143fb0d016a5c598844edab738d1c958",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -768,7 +768,7 @@
   },
   {
     "catalogKey": "glute-bridge",
-    "videoSha256": "2733f3b8234070d70ba571b059abbd3dc18a5009a861af81f1075b88ee77d5a4",
+    "videoSha256": "82478370c99a0a3d132e9751838e0a3f43a00446c336b3baef6bff4e921c60bf",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -781,7 +781,7 @@
   },
   {
     "catalogKey": "dumbbell-glute-bridge",
-    "videoSha256": "81fac87601b1c14536f3f5c4748e2c897952ecee3003f238eaca8acf415ea828",
+    "videoSha256": "db14af6824ee56323e9b122a2847b8603d0e0567b1e1ea20ae817a6b1e354870",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -794,7 +794,7 @@
   },
   {
     "catalogKey": "quadruped-hip-extension",
-    "videoSha256": "508f97fd341e645b6d6facc482ed3fac90fcdf775849fa309d4f78a3cf2ece18",
+    "videoSha256": "a132aeed3232decec68af54ee7a4bbc704a1ac3cc6bc0857db070fee675f74cd",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -807,7 +807,7 @@
   },
   {
     "catalogKey": "side-lying-hip-abduction",
-    "videoSha256": "3fdc6f3ee3f1d536c9eb82066099889486d7e3389612ad5c1b74533fe56bf6d7",
+    "videoSha256": "3eb0a24ade30417390bc3c28b373c5056d7ab5a89e2380007de6dc231c93a906",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -820,7 +820,7 @@
   },
   {
     "catalogKey": "side-lying-hip-adduction",
-    "videoSha256": "aac31044a48e08c0d4a7e8a7f1df6e67ff6955f084c77640b007b66555ec458f",
+    "videoSha256": "44552bfe317b617657d3ff65124115f7d4c3430d11c6428ba63185234df3d3c8",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -833,7 +833,7 @@
   },
   {
     "catalogKey": "dumbbell-standing-calf-raise",
-    "videoSha256": "b462dca3dff22d1c3cfb2908d818f58d2bd25c382abbdb799a62b29e20261c16",
+    "videoSha256": "3cde2a272d1b9f3321b94c7590b3a502e3a578b99890fa901e24d96f8c587e2d",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -846,7 +846,7 @@
   },
   {
     "catalogKey": "single-leg-calf-raise",
-    "videoSha256": "82455cb942f65fef16d80303a6377cba64a96e934e2049e55886eacd74d6809e",
+    "videoSha256": "a50350638d631298f35a1b1c6f32f3e7bc9cfc353a1d5fb6661212a6b1584661",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -859,7 +859,7 @@
   },
   {
     "catalogKey": "bodyweight-calf-raise",
-    "videoSha256": "a5a7508a9a65a3c02a9fc1de647db6109756ccc5ae1b08f43b647e615730b00a",
+    "videoSha256": "490938d71e9956b5e8e564fc4f7b1c20e85635efbe2ccb59e11731cb02cc0dd4",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -872,7 +872,7 @@
   },
   {
     "catalogKey": "dumbbell-seated-calf-raise",
-    "videoSha256": "3fd3639b091bf3ff8f877525943ac3fd7a1ef3c3d59c7413265332bac1179924",
+    "videoSha256": "8c4f4ce4c314480b3d3be8d43c74ffd19c29d04ca9d36fb73930eaf95edf3115",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -885,7 +885,7 @@
   },
   {
     "catalogKey": "wall-tibialis-raise",
-    "videoSha256": "a56e3508b39b083eb2ef316b014105800ed49d4284ad6fd5e445c583f1d708a8",
+    "videoSha256": "6272c98211a2b6ecf5b060e8f6b8bf9d052d8923fcca2ce8c8d7291e80784c9c",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -898,7 +898,7 @@
   },
   {
     "catalogKey": "crunch",
-    "videoSha256": "43fc433113a8372bb83a0ca63c0880f107691ddfa8d12816a4f58b77d15c94ee",
+    "videoSha256": "c9f8d7d4033fbe4dedbb41c8dee1dd04090dd94ae61c1307e8a4d0eae742f995",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -911,7 +911,7 @@
   },
   {
     "catalogKey": "reverse-crunch",
-    "videoSha256": "3b70933cb30229ff0d2e1c5e2e75af84796d927bf4017ec9fc9f99e53d5e0e8a",
+    "videoSha256": "9f1a0533ff89b07b6f2e03753aa75f346000ddfafddf6b3ddf09230f3c5c60bc",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -924,7 +924,7 @@
   },
   {
     "catalogKey": "weighted-crunch",
-    "videoSha256": "0ada89d31ee13ce593d915ca5a4a2e67ce4e104e9876d9d195e18b05909bea73",
+    "videoSha256": "66b6200123ce9084fceeb03184cd4858ae3e66a16a33aa3949c9ec95ad38cdae",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -937,7 +937,7 @@
   },
   {
     "catalogKey": "lying-leg-raise",
-    "videoSha256": "2e15dd284ba0da293a660721d34edc91e18168546f20c527812cd84dc0a7f264",
+    "videoSha256": "cd14a654f3661f2eab5e598061f461c7c4fa61b2873f7bb7a5cf3d6f3ec603c6",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -950,7 +950,7 @@
   },
   {
     "catalogKey": "dumbbell-side-bend",
-    "videoSha256": "5fbd2a62a4c4bf3796ac12063beaad328dd7e35bcfb878233987915eaa1a0574",
+    "videoSha256": "abcfe0f2e67b06d65cbc1242bcd2fc768ce027015de283713f9364441f2ea3f2",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -963,7 +963,7 @@
   },
   {
     "catalogKey": "side-plank-hip-lift",
-    "videoSha256": "d1e2d19f9aa8c73af225b8d1807d89b7cef645113f588fadd55ee3ac012d7179",
+    "videoSha256": "a78acbe2953c04940f7cf02c04d54af748a1aeb8fb0a7973cf6f9e3167c60eba",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",

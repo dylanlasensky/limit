@@ -465,6 +465,18 @@ group(
 Leg Extension|Machine|B|Machine Leg Extension|Place the lower pad above the ankle, not on the foot.|10
 Single-Leg Extension|Machine|B|Unilateral Leg Extension|Keep your hips on the seat; log each side.
 Resistance Band Leg Extension|Resistance band|B|Band Leg Extension|Use a secure low anchor and stable seat.
+`
+);
+group(
+  "Quads",
+  [],
+  "Knee extension",
+  "Isolation",
+  [
+    "Kneel on padding with your feet relaxed and keep your hips extended.",
+    "Lean back as one line from knee to shoulder, then return through a controlled range.",
+  ],
+  `
 Reverse Nordic Curl|Bodyweight|A||Use a padded kneeling surface and a small controlled range.
 `
 );
@@ -697,6 +709,18 @@ Weighted Crunch|Weight plate|I||Hold the plate at your chest, not behind your he
 Hanging Knee Raise|Pull-up bar|I||Keep your body from swinging and curl the pelvis upward.
 Captain's Chair Knee Raise|Dip station|B|Vertical Knee Raise|Keep your upper back supported and control the lowering.
 Hanging Leg Raise|Pull-up bar|A||Use a secure grip and avoid swinging.
+`
+);
+group(
+  "Abs/core",
+  ["Hip flexors"],
+  "Hip flexion",
+  "Isolation",
+  [
+    "Lie on your back with your pelvis steady and your neck relaxed.",
+    "Raise and lower your legs through a range that keeps your lower back supported.",
+  ],
+  `
 Lying Leg Raise|Bodyweight|I||Limit the lowering range before your lower back arches.
 `
 );

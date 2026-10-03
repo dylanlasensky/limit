@@ -456,8 +456,13 @@ def draw_pose(d,kind,option,u):
    for x in (209,338):d.line((x,405,x,458),fill=FAR,width=7)
    limb(d,[hip,(362,270),(402,286)],BLUE,16)
    line(d,(402,286),(431,291),INK,9)
-   d.rounded_rectangle((392,270,418,279),4,fill=FAR)
-   d.line((405,279,405,306),fill=FAR,width=7)
+   # A paired ankle lock visibly traps the lower legs at the raised end of
+   # the decline bench; its fixed post is attached to the bench frame.
+   d.line((344,306,450,316),fill=FAR,width=8)
+   d.line((450,316,450,261),fill=FAR,width=8)
+   d.rounded_rectangle((383,263,416,277),7,fill=INK,outline=BLUE,width=2)
+   d.rounded_rectangle((383,302,416,316),7,fill=INK,outline=BLUE,width=2)
+   d.text((365,335),'ANKLE LOCK',font=FONTS[14],fill=MUTED)
    low_y,high_y=310,225
   elif incline:
    shoulder=(245,295);hip=(330,350);head=(215,265)
@@ -980,7 +985,7 @@ def frame(e,t,template=None):
   d.text((70,220),'Written guide',font=FONTS[30],fill=INK)
   wrap(d,'Movement rendering blocked until the exact setup and motion can be represented reliably.',70,270,34,18)
  im.paste(logo,(W-logo.width-30,20),logo)
- d.text((32,508),'Original generated schematic • Not human fitness-reviewed' if template else 'Written instructions remain available • No substitute animation',font=FONTS[16],fill=MUTED)
+ d.text((32,508),'Original generated schematic | Not human fitness-reviewed' if template else 'Written instructions remain available | No substitute animation',font=FONTS[16],fill=MUTED)
  return im
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 previous={r["catalogKey"]:r for r in json.loads((root/"media/manifest.json").read_text())} if (root/"media/manifest.json").exists() else {}
