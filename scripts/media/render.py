@@ -1939,10 +1939,13 @@ def draw_pose(d,kind,option,u):
   d.line([xy(pivot),xy(hand)],fill=FAR,width=9)
   d.ellipse((hand[0]-13,hand[1]-13,hand[0]+13,hand[1]+13),fill=FAR,outline=INK,width=2)
   if option=='half-kneeling':
-   rear_knee=(420,437);front_foot=(259,445)
-   limb(d,[hip,(398,382),rear_knee],FAR,16)
-   limb(d,[hip,(305,350),front_foot],BLUE,17)
-   line(d,rear_knee,(442,447),INK,8);line(d,front_foot,(238,448),INK,8)
+   floor_y=445;rear_knee=(408,437);rear_foot=(456,437)
+   front_knee=(305,350);front_foot=(259,floor_y)
+   if rear_knee[1]<floor_y-9 or rear_foot[1]!=rear_knee[1] or front_foot[1]!=floor_y:raise ValueError('Half-kneeling rear knee or front foot lost floor contact')
+   d.rounded_rectangle((391,439,426,449),4,fill=FAR,outline=INK,width=2)
+   limb(d,[hip,rear_knee,rear_foot],FAR,16)
+   limb(d,[hip,front_knee,front_foot],BLUE,17)
+   line(d,rear_foot,(474,441),INK,8);line(d,front_foot,(238,448),INK,8)
   else:
    limb(d,[hip,(334,393),(315,445)],BLUE,17)
    limb(d,[hip,(395,393),(413,445)],FAR,16)
