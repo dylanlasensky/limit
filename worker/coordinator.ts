@@ -43,6 +43,7 @@ export class AccountCoordinator extends DurableObject<Env> {
     user: ApiUser,
     op: { kind: string; name?: string; method?: string; id?: string; input?: any }
   ): Promise<{ status: number; data: unknown }> {
+    let stage = "identity-check";
     try {
       const identity = await this.env.DB.prepare("SELECT id FROM user WHERE id = ?")
         .bind(user.id)
@@ -140,6 +141,7 @@ export class AccountCoordinator extends DurableObject<Env> {
       if (op.kind === "entity") {
         if (!entityNames.includes(op.name as EntityName))
           throw new ApiError("Unknown resource.", 404);
+        stage = "entity-operation";
         const entity = repo.entity(op.name as EntityName);
         let data: unknown;
         switch (op.method) {
@@ -169,6 +171,23 @@ export class AccountCoordinator extends DurableObject<Env> {
       throw new ApiError("Unknown operation.");
     } catch (error) {
       const e = error as Error & { status?: number; code?: string };
+      if (!e.status || e.status >= 500)
+        console.error(
+          JSON.stringify({
+            event: "coordinator_failure",
+            stage,
+            kind: ["workout", "approve", "export", "delete", "entity"].includes(op.kind)
+              ? op.kind
+              : "unknown",
+            method:
+              op.kind === "entity" &&
+              ["create", "update", "delete", "bulkCreate", "updateMany", "deleteMany"].includes(
+                op.method || ""
+              )
+                ? op.method
+                : undefined,
+          })
+        );
       return {
         status: e.status || 500,
         data: {

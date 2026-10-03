@@ -1,6 +1,7 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import assert from "node:assert/strict";
+import { assertHostedVersion, deployedWorkerVersion } from "./release-version.mjs";
 const environment = process.argv[2];
 assert.ok(["preview", "production"].includes(environment), "Choose preview or production");
 const sha = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
@@ -12,19 +13,24 @@ assert.equal(
 const preview = "https://limit-preview.limit-dylanlasensky.workers.dev";
 const origin =
   environment === "production" ? "https://limit.limit-dylanlasensky.workers.dev" : preview;
-const check = async (url) => {
+const check = async (url, expectedVersion) => {
   const r = await fetch(url + "/api/health", { cache: "no-store" });
   assert.ok(r.ok);
   const health = await r.json();
-  assert.equal(health.sourceRevision, sha, "Hosted revision must match release source");
+  assertHostedVersion(health, sha, expectedVersion);
   return health;
 };
 if (environment === "production") {
-  await check(preview);
+  const previewHealth = await check(preview);
   if (!process.env.CI) {
     const tested = JSON.parse(readFileSync("release-evidence/preview.json", "utf8"));
     assert.equal(tested.status, "passed");
     assert.equal(tested.sourceRevision, sha);
+    assert.equal(
+      previewHealth.version,
+      tested.health.version,
+      "Testing Worker changed after acceptance"
+    );
     assert.equal(
       execFileSync("git", ["rev-parse", "origin/main"], { encoding: "utf8" }).trim(),
       sha
@@ -45,22 +51,32 @@ run("npx", [
   "--file",
   "worker/seed.sql",
 ]);
-run("npx", [
-  "wrangler",
-  "deploy",
-  "--env",
-  environment,
-  "--var",
-  "SOURCE_REVISION:" + sha,
-  "--tag",
-  "release-" + sha.slice(0, 7),
-  "--message",
-  "Git source " + sha,
-]);
+const deployment = spawnSync(
+  "npx",
+  [
+    "wrangler",
+    "deploy",
+    "--env",
+    environment,
+    "--var",
+    "SOURCE_REVISION:" + sha,
+    "--tag",
+    "release-" + sha.slice(0, 7),
+    "--message",
+    "Git source " + sha,
+  ],
+  { encoding: "utf8", env: process.env, maxBuffer: 10 * 1024 * 1024 }
+);
+process.stdout.write(deployment.stdout || "");
+process.stderr.write(deployment.stderr || "");
+assert.equal(deployment.status, 0, "Wrangler deployment failed");
+const deployedVersion = deployedWorkerVersion(
+  (deployment.stdout || "") + (deployment.stderr || "")
+);
 let health;
 for (let attempt = 0; attempt < 6; attempt++) {
   try {
-    health = await check(origin);
+    health = await check(origin, deployedVersion);
     break;
   } catch (error) {
     if (attempt === 5) throw error;
