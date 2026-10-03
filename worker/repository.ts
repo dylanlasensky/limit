@@ -212,8 +212,21 @@ export class Repository {
     };
     const update = async (id: string, input: Data, condition?: Data) => {
       writable();
-      const old = await get(id),
-        patch = clean(input, true),
+      let old: Data;
+      try {
+        old = await get(id);
+      } catch (error) {
+        if (!(error instanceof ApiError))
+          console.error(
+            JSON.stringify({
+              event: "entity_update_failure",
+              entity: name,
+              stage: "read-before-write",
+            })
+          );
+        throw error;
+      }
+      const patch = clean(input, true),
         data = clean({
           ...Object.fromEntries(Object.entries(old).filter(([key]) => !metadata.has(key))),
           ...patch,
@@ -222,23 +235,43 @@ export class Repository {
       const keys = Object.keys((relations as Record<string, Record<string, string>>)[name] || {});
       const q = query(condition || {}),
         now = new Date().toISOString();
-      const result = await this.db
-        .prepare(
-          `UPDATE ${table} SET data = ?, updated_at = ? ${keys.map((k) => `, "${k}" = ?`).join("")} WHERE id = ? AND ${scope} AND updated_at = ? AND (${q.sql})`
-        )
-        .bind(
-          JSON.stringify(data),
-          now,
-          ...keys.map((k) => data[k] || null),
-          id,
-          ...scopeParams,
-          old.updated_date,
-          ...q.params
-        )
-        .run();
+      let result: D1Result;
+      try {
+        result = await this.db
+          .prepare(
+            `UPDATE ${table} SET data = ?, updated_at = ? ${keys.map((k) => `, "${k}" = ?`).join("")} WHERE id = ? AND ${scope} AND updated_at = ? AND (${q.sql})`
+          )
+          .bind(
+            JSON.stringify(data),
+            now,
+            ...keys.map((k) => data[k] || null),
+            id,
+            ...scopeParams,
+            old.updated_date,
+            ...q.params
+          )
+          .run();
+      } catch (error) {
+        console.error(
+          JSON.stringify({ event: "entity_update_failure", entity: name, stage: "write" })
+        );
+        throw error;
+      }
       if (!result.meta.changes)
         throw new ApiError("Record changed. Reload before saving.", 409, "CONFLICT");
-      return get(id);
+      try {
+        return await get(id);
+      } catch (error) {
+        if (!(error instanceof ApiError))
+          console.error(
+            JSON.stringify({
+              event: "entity_update_failure",
+              entity: name,
+              stage: "read-after-write",
+            })
+          );
+        throw error;
+      }
     };
     return {
       get,

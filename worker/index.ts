@@ -18,6 +18,7 @@ export default {
       started = Date.now();
     if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(request);
     let response: Response;
+    let stage = "route";
     try {
       if (url.pathname === "/api/health")
         return Response.json(
@@ -48,6 +49,7 @@ export default {
           throw new ApiError("Untrusted origin.", 403, "ORIGIN_REJECTED");
       }
       if (url.pathname.startsWith("/api/auth/")) {
+        stage = "auth-handler";
         if (
           !(env.EMAIL_ENABLED === "true" && env.EMAIL_FROM && env.RESEND_API_KEY) &&
           /request-password-reset|send-verification-email/.test(url.pathname)
@@ -78,9 +80,11 @@ export default {
         } else {
           const isPublic =
             request.method === "GET" && parts[1] === "entities" && name === "Exercise";
+          if (!isPublic) stage = "session-lookup";
           const session = isPublic
             ? null
             : await authFor(env).api.getSession({ headers: request.headers });
+          stage = "dispatch";
           if (!isPublic && !session)
             throw new ApiError("Sign in to continue.", 401, "UNAUTHORIZED");
           const user = session?.user;
@@ -121,6 +125,7 @@ export default {
                       ? id || "create"
                       : "";
               const input = request.method === "DELETE" ? null : await readJson(request);
+              stage = "entity-coordinator";
               const serialized = await env.ACCOUNT_COORDINATOR.getByName(user.id).execute(user, {
                 kind: "entity",
                 name,
@@ -129,6 +134,7 @@ export default {
                 input,
               });
               const result = JSON.parse(serialized) as { data: unknown; status: number };
+              stage = "entity-response";
               response = Response.json(result.data, { status: result.status });
             }
           } else if (parts[1] === "uploads" && user) {
@@ -201,6 +207,8 @@ export default {
         e.status = 400;
         e.message = "Invalid request data.";
       }
+      if (!e.status || e.status >= 500)
+        console.error(JSON.stringify({ event: "api_failure", stage }));
       response = Response.json(
         {
           error: e.status ? e.message : "Something went wrong. Please try again.",
