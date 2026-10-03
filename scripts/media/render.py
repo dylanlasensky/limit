@@ -65,6 +65,7 @@ TEMPLATES={
  'weighted-crunch':('crunch','plate'),
  'hand-gripper-close':('hand-gripper-close',None),
  'slider-leg-curl':('slider-leg-curl',None),
+ 'stability-ball-leg-curl':('stability-ball-leg-curl',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -131,23 +132,28 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='slider-leg-curl':
+ if kind in ('slider-leg-curl','stability-ball-leg-curl'):
   # Supine bridge stays supported at the shoulder; both heels slide together
   # toward the pelvis on visible low-friction pads and then return.
   shoulder=(237,421);hip=(315,348);head=(201,422)
-  heel=(488-92*u,439)
+  ball=kind=='stability-ball-leg-curl'
+  heel=(488-92*u,401 if ball else 439)
   knee=ik(hip,heel,101,101,side=1)
   if any(abs(math.dist(a,b)-101)>1e-6 for a,b in ((hip,knee),(knee,heel))):raise ValueError('Slider curl leg lengths changed')
-  if heel[1]!=439 or hip!=(315,348):raise ValueError('Slider curl support changed')
+  if heel[1]!=(401 if ball else 439) or hip!=(315,348):raise ValueError('Leg curl support changed')
   d.line((165,455,510,455),fill=FAR,width=3)
-  d.rounded_rectangle((heel[0]-28,443,heel[0]+27,449),3,fill=INK)
+  if ball:
+   center=(heel[0],430)
+   d.ellipse((center[0]-29,center[1]-29,center[0]+29,center[1]+29),fill=FAR,outline=INK,width=3)
+   d.arc((center[0]-18,center[1]-18,center[0]+18,center[1]+18),30,150,fill=INK,width=2)
+  else:d.rounded_rectangle((heel[0]-28,443,heel[0]+27,449),3,fill=INK)
   limb(d,[heel,knee,hip],FAR,18)
   limb(d,[heel,(knee[0]-5,knee[1]-8),hip],BLUE,19)
   line(d,hip,shoulder,BLUE,27)
   line(d,shoulder,head,BLUE,10)
   d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
   limb(d,[shoulder,(265,438),(296,441)],INK,10)
-  line(d,heel,(heel[0]+18,438),INK,8)
+  line(d,heel,(heel[0]+18,heel[1]),INK,8)
  elif kind=='hand-gripper-close':
   # Close-up: a supported forearm and palm stay steady while the fingers
   # compress one spring gripper. Each rigid handle pivots about the spring.

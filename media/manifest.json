@@ -8720,14 +8720,14 @@
   {
     "catalogKey": "stability-ball-leg-curl",
     "name": "Stability Ball Leg Curl",
-    "poster": "exercises/stability-ball-leg-curl/v8194950056556/83daee4046434fdd94d298b502a60e706fe66bd0be69276d8a1d4fa6cd65d7ed.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/stability-ball-leg-curl/v274979568953534/b685067fda98cde0fe74e8457486efdfd46797bc3c0d9129042520051ae08296.png",
+    "source": "exercises/stability-ball-leg-curl/v274979568953534/03e25c0f4a204a784317b27a62be537cdd0f77313c06742686b4ab7eb0356afb.mp4",
+    "format": "mp4",
     "caption": "Set your knee alignment and keep your hips stable. Bend your knees under control and resist the return rather than letting the load drop. Keep hips lifted only as far as you can control.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 8194950056556,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 274979568953534,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -8739,15 +8739,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "83daee4046434fdd94d298b502a60e706fe66bd0be69276d8a1d4fa6cd65d7ed",
-    "videoSha256": null,
-    "bytes": 40394,
-    "blockReason": "Stability Ball Leg Curl: current renderer lacks fixed thigh or torso support and heel travel toward the body; it also lacks a rolling support surface and changing contact points. This variation requires \"Keep hips lifted only as far as you can control\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "b685067fda98cde0fe74e8457486efdfd46797bc3c0d9129042520051ae08296",
+    "videoSha256": "03e25c0f4a204a784317b27a62be537cdd0f77313c06742686b4ab7eb0356afb",
+    "bytes": 79308,
+    "blockReason": "",
+    "template": "stability-ball-leg-curl",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
