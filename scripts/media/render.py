@@ -168,6 +168,7 @@ TEMPLATES={
  'arnold-press':('overhead-press','arnold-seated'),
  'single-arm-cable-lateral-raise':('cable-shoulder-raise','lateral'),
  'leaning-cable-lateral-raise':('leaning-cable-lateral',None),
+ 'machine-lateral-raise':('machine-lateral',None),
  'cable-front-raise':('cable-shoulder-raise','front'),
  'barbell-bench-press':('barbell-horizontal-press','flat'),
  'incline-barbell-bench-press':('barbell-horizontal-press','incline'),
@@ -1695,6 +1696,39 @@ def draw_pose(d,kind,option,u):
    d.ellipse((hand[0]+8*math.cos(math.pi*u)-3,hand[1]+8*math.sin(math.pi*u)-3,hand[0]+8*math.cos(math.pi*u)+3,hand[1]+8*math.sin(math.pi*u)+3),fill=BLUE)
   else:d.rounded_rectangle((hand[0]-12,hand[1]-5,hand[0]+12,hand[1]+5),3,fill=FAR,outline=INK,width=2)
   d.text((52,237),{'barbell-standing':'STRICT / LEGS STILL','barbell-seated':'SEATED / FRONT PATH','smith-seated':'GUIDED RAIL / STOPS','machine-seated':'SEAT / MOVING LEVER','kettlebell-standing':'BELL RACK TO LOCKOUT','arnold-seated':'ROTATE WHILE PRESSING'}[option],font=FONTS[14],fill=MUTED)
+ elif kind=='machine-lateral':
+  # Front-view seated machine: shoulder-aligned independent lever pivots
+  # carry elbow pads on fixed arcs, with bent forearms gripping the handles.
+  d.rounded_rectangle((260,208,340,347),6,fill=FAR)
+  d.rounded_rectangle((250,347,350,361),4,fill=FAR,outline=INK,width=2)
+  for sx in (263,337):d.line((sx,361,sx,456),fill=FAR,width=7)
+  hip=(300,337);neck=(300,218);head=(300,174)
+  for side in (-1,1):
+   limb(d,[hip,(300+side*51,392),(300+side*63,445)],BLUE,16)
+   line(d,(300+side*63,445),(300+side*80,448),INK,8)
+  line(d,hip,neck,BLUE,28);line(d,neck,head,BLUE,11)
+  d.ellipse((282,154,318,194),fill=INK)
+  for side in (-1,1):
+   pivot=(300+side*31,218)
+   angle=math.pi/2-side*math.pi*u/2 if side>0 else math.pi/2+math.pi*u/2
+   elbow=polar(pivot,72,angle);outer=polar(pivot,111,angle)
+   if abs(math.dist(pivot,elbow)-72)>1e-6 or abs(math.dist(pivot,outer)-111)>1e-6 or elbow[1]<215:raise ValueError('Machine lateral lever path changed')
+   d.line((*pivot,*outer),fill=FAR,width=7)
+   d.ellipse((pivot[0]-9,pivot[1]-9,pivot[0]+9,pivot[1]+9),fill=FAR,outline=INK,width=2)
+   d.ellipse((outer[0]-13,outer[1]-13,outer[0]+13,outer[1]+13),fill=FAR,outline=INK,width=3)
+   limb(d,[pivot,elbow],INK if side>0 else FAR,12)
+   hand=(elbow[0]+side*8,elbow[1]+24)
+   forearm_depth=math.sqrt(60**2-8**2-24**2)
+   if abs(math.dist((elbow[0],elbow[1],0),(hand[0],hand[1],forearm_depth))-60)>1e-6:raise ValueError('Machine lateral bent forearm changed')
+   line(d,elbow,hand,INK if side>0 else FAR,9)
+   d.rounded_rectangle((elbow[0]-11,elbow[1]-9,elbow[0]+11,elbow[1]+9),4,fill=BLUE,outline=INK,width=2)
+   d.rounded_rectangle((hand[0]-7,hand[1]-5,hand[0]+7,hand[1]+5),3,fill=INK)
+  d.text((45,187),'SEAT / ELBOW PADS / LEVERS',font=FONTS[14],fill=MUTED)
+  d.rounded_rectangle((43,371,186,455),7,fill=BG,outline=FAR,width=2)
+  d.text((50,376),'SIDE / BENT ELBOW',font=FONTS[14],fill=MUTED)
+  d.line((76,432,114,410),fill=BLUE,width=8)
+  d.line((114,410,143,426),fill=INK,width=7)
+  d.ellipse((108,404,120,416),fill=BLUE)
  elif kind=='leaning-cable-lateral':
   # The free hand fixes the lean against the column; the opposite arm
   # abducts on an invariant-length shoulder arc with a taut low cable.
@@ -4110,15 +4144,25 @@ def draw_pose(d,kind,option,u):
 def wrap(d,text,x,y,width=39,size=18,color=MUTED):
  for ln in textwrap.wrap(text,width):d.text((x,y),ln,font=FONTS[size],fill=color);y+=size+9
  return y
+def cue_layout(e):
+ # Fit every complete catalog cue in the right panel; fail rather than
+ # silently replace required movement instructions with an ellipsis.
+ y=max(180,90+len(textwrap.wrap(e['name'],24))*35+15)
+ lines=[]
+ for i,cue in enumerate(e.get('instructions',[])[:3]):
+  for ln in textwrap.wrap(f'{i+1}. {cue}',42,break_long_words=False,break_on_hyphens=False):
+   if FONTS[16].getlength(ln)>390:raise ValueError('Exercise cue exceeds panel width: '+e['catalogKey'])
+   lines.append((y,ln));y+=25
+  y+=13
+ if lines and lines[-1][0]+18>490:raise ValueError('Exercise cues exceed panel height: '+e['catalogKey'])
+ return lines
+for item in catalog:cue_layout(item)
 logo=Image.open(root/'public/brand/limit-logo.png').convert('RGBA');logo.thumbnail((110,50))
 def frame(e,t,template=None):
  im=Image.new('RGB',(W,H),BG);d=ImageDraw.Draw(im);d.rounded_rectangle((30,85,520,480),24,fill=CARD)
  d.text((32,22),'LIMIT  /  MOVEMENT GUIDE',font=FONTS[18],fill=BLUE)
  wrap(d,e['name'],555,90,24,26,INK)
- y=max(180,90+len(textwrap.wrap(e['name'],24))*35+15)
- for i,cue in enumerate(e.get('instructions',[])[:3]):
-  short=textwrap.shorten(cue,width=95,placeholder='…')
-  y=wrap(d,f'{i+1}. {short}',555,y,36,16)+13
+ for y,ln in cue_layout(e):d.text((555,y),ln,font=FONTS[16],fill=MUTED)
  if template:
   if template[0]=='alternating-curl':
    u,label=alternating_phase(t);draw_pose(d,'alternating-curl',0 if t<4 else 1,u)
@@ -4133,7 +4177,7 @@ def frame(e,t,template=None):
   elif template[0]=='barbell-hinge' and template[1]=='paused':
    u,label=paused_deadlift_phase(t);draw_pose(d,*template,u)
   elif template[0]=='walking-lunge':
-   label='Step forward' if 1<=t<2 or 3.5<=t<5 else ('Lower into lunge' if 2<=t<3 or 5<=t<6 else ('Stand and transfer' if 3<=t<3.5 or 6<=t<6.7 else 'Set stance / finish'))
+   label='Step forward' if 1<=t<2 or 3.5<=t<5 else ('Lower into lunge' if 2<=t<3 or 5<=t<6 else ('Stand and transfer' if 3<=t<3.5 or 6<=t<6.7 else ('Set up' if t<1 else 'Finish')))
    draw_pose(d,*template,t)
   else:
    u,label=phase(t);draw_pose(d,*template,u)
@@ -4170,6 +4214,7 @@ for e in catalog:
   record['angle']='unspecified'
  if key=='single-arm-cable-lateral-raise':record['angle']='front'
  if key=='leaning-cable-lateral-raise':record['angle']='front'
+ if key=='machine-lateral-raise':record['angle']='front'
  if key=='scapular-pull-up':record['angle']='front'
  if key in ('seated-hip-abduction','seated-hip-adduction','standing-cable-hip-abduction','standing-cable-hip-adduction'):record['angle']='front'
  if key in ('high-cable-curl','cross-body-cable-triceps-extension'):record['angle']='front'

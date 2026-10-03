@@ -729,7 +729,7 @@
   },
   {
     "catalogKey": "scapular-pull-up",
-    "videoSha256": "292d941cbc343492e17bcf8ccf46020593d29999d3494aa77ebaf93d40ee6796",
+    "videoSha256": "a760f6d67a8e7f23e38a909dd5589311442311e45804d135f8152dd8c4bc7952",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -1289,6 +1289,19 @@
   {
     "catalogKey": "leaning-cable-lateral-raise",
     "videoSha256": "8bd704ad1f95a1bf06836da9ae6c9409dacf63bd6df399116d4ed20300731473",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "machine-lateral-raise",
+    "videoSha256": "043f05541a625653c472b54c2f3eb0e6b917b697e1b4e6c593ac404843564a10",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -2757,7 +2770,7 @@
   },
   {
     "catalogKey": "walking-dumbbell-lunge",
-    "videoSha256": "36aecda9d67a4a77e430073c222ffe5ed3850d12832d39de0f29601d84bd65c0",
+    "videoSha256": "400bf8b543c53afd9edfff9417d75318a763433a4b8fedb8b2020dbc21ab4fba",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -2770,7 +2783,7 @@
   },
   {
     "catalogKey": "barbell-walking-lunge",
-    "videoSha256": "90ebfcff3e42db25d227842c7c97733436fd809f6e516df205e5a007e9c1c692",
+    "videoSha256": "29aea666791b353d5f45411ff0110eee88f5007c057d2aa6d9f33fd2abe1f739",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
