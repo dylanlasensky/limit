@@ -2600,6 +2600,32 @@
     "audio": false
   },
   {
+    "catalogKey": "single-leg-dumbbell-romanian-deadlift",
+    "videoSha256": "02c64dd1a25e2d24f0305fe1a20349bef4ed2f58dde8bf3d1bc1cc7033eacc33",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "supported-single-leg-romanian-deadlift",
+    "videoSha256": "15f5bf4afbddddca6d00489d93212dad2ece294722ff85c663c90c0b419fdd1d",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "b-stance-romanian-deadlift",
     "videoSha256": "e658caab6a7024abffba4380f44041353cecc4b9d27d7b32659dedb2b89243e3",
     "duration": 8,

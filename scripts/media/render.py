@@ -264,6 +264,8 @@ TEMPLATES={
  'resistance-band-good-morning':('barbell-hinge','band-good-morning'),
  'dumbbell-fly':('depth-fly','flat-dumbbell'),
  'b-stance-romanian-deadlift':('barbell-hinge','b-stance-romanian'),
+ 'single-leg-dumbbell-romanian-deadlift':('barbell-hinge','single-leg-romanian'),
+ 'supported-single-leg-romanian-deadlift':('barbell-hinge','supported-single-leg-romanian'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -502,7 +504,7 @@ def draw_pose(d,kind,option,u):
  elif kind=='barbell-hinge':
   # Side view with a fixed planted foot, invariant thigh/shin/torso/arm
   # lengths, explicit knee flexion, hip displacement and vertical bar path.
-  ankle=(315,425 if option=='deficit' else 445);bar_x=365 if option=='kettlebell-conventional' else (340 if option in ('dumbbell-romanian','b-stance-romanian') else 325);leg=77.5;torso=120;arm=180 if option=='deficit' else (175 if option=='sumo' else ((140 if option=='kettlebell-conventional' else 145) if option.startswith('kettlebell') else 160))
+  ankle=(315,425 if option=='deficit' else 445);bar_x=365 if option=='kettlebell-conventional' else (340 if option in ('dumbbell-romanian','b-stance-romanian','single-leg-romanian','supported-single-leg-romanian') else 325);leg=77.5;torso=120;arm=180 if option=='deficit' else (175 if option=='sumo' else ((140 if option=='kettlebell-conventional' else 145) if option.startswith('kettlebell') else 160))
   if option in ('conventional','kettlebell-conventional','paused','snatch-grip','sumo','deficit','trapbar-conventional'):
    hip=((270+30*u,325-30*u) if option=='sumo' else (255+45*u,332-37*u-(20 if option=='deficit' else 0)))
    trunk_angle=(-.7-(math.pi/2-.7)*u) if option=='sumo' else (-.55-(math.pi/2-.55)*u)
@@ -518,11 +520,17 @@ def draw_pose(d,kind,option,u):
   hand=(bar_x,bar_y)
   reach=math.dist(hip,ankle)
   knee_flex=2*math.degrees(math.acos(reach/(2*leg)))
-  if option in ('romanian','dumbbell-romanian','b-stance-romanian','kettlebell-romanian','trapbar-romanian','smith-romanian','good-morning','band-good-morning') and (knee_flex>28 or knee_flex<20 or abs(reach-math.dist((300,295),ankle))>1e-6):raise ValueError('RDL knee bend or foot reach changed')
+  if option in ('romanian','dumbbell-romanian','b-stance-romanian','single-leg-romanian','supported-single-leg-romanian','kettlebell-romanian','trapbar-romanian','smith-romanian','good-morning','band-good-morning') and (knee_flex>28 or knee_flex<20 or abs(reach-math.dist((300,295),ankle))>1e-6):raise ValueError('RDL knee bend or foot reach changed')
   if option in ('conventional','kettlebell-conventional','paused','snatch-grip','sumo','deficit','trapbar-conventional') and not 25<=knee_flex<=70:raise ValueError('Deadlift knee path changed')
   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,knee,leg),(knee,ankle,leg),(hip,shoulder,torso),(shoulder,hand,arm))):raise ValueError('Hinge segment length changed')
   if bar_y>430 or bar_y<(290 if option.startswith('kettlebell') else 320) or head[0]>455:raise ValueError('Hinge load or head clearance changed')
   d.line((205,454,454,454),fill=FAR,width=3)
+  if option in ('single-leg-romanian','supported-single-leg-romanian'):
+   free_toe=polar(hip,145,1.68+1.40*u)
+   free_knee=((hip[0]+free_toe[0])/2,(hip[1]+free_toe[1])/2)
+   if free_toe[1]>441 or any(abs(math.dist(a,b)-72.5)>1e-6 for a,b in ((hip,free_knee),(free_knee,free_toe))):raise ValueError('Single-leg free foot or segment changed')
+   limb(d,[hip,free_knee,free_toe],FAR,10)
+   d.line((free_toe[0]-13,free_toe[1],free_toe[0]+8,free_toe[1]),fill=INK,width=5)
   if option=='b-stance-romanian':
    rear_toe=(245,447)
    rear_knee=ik(hip,rear_toe,85,85,side=-1)
@@ -539,7 +547,23 @@ def draw_pose(d,kind,option,u):
   line(d,ankle,(344,448),INK,9)
   line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,10)
   d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
-  if option=='band-good-morning':
+  if option in ('single-leg-romanian','supported-single-leg-romanian'):
+   if option=='supported-single-leg-romanian':
+    brace=(429,265)
+    d.line((brace[0],brace[1],brace[0],454),fill=FAR,width=8)
+    d.rounded_rectangle((413,260,446,273),3,fill=FAR)
+    support_elbow=ik(shoulder,brace,90,80,side=-1)
+    if abs(math.dist(shoulder,support_elbow)-90)>1e-6 or abs(math.dist(support_elbow,brace)-80)>1e-6:raise ValueError('Single-leg fixed support hand changed')
+    if min(segment_distance(head,shoulder,support_elbow),segment_distance(head,support_elbow,brace))<24:raise ValueError('Single-leg support arm crossed head')
+    limb(d,[shoulder,support_elbow,brace],FAR,8)
+   limb(d,[shoulder,hand],INK,10)
+   d.line((hand[0]-13,hand[1],hand[0]+13,hand[1]),fill=INK,width=5)
+   for px in (hand[0]-12,hand[0]+12):d.rounded_rectangle((px-5,hand[1]-11,px+5,hand[1]+11),2,fill=BLUE,outline=INK,width=2)
+   d.rounded_rectangle((45,183,187,231),4,outline=MUTED,width=2)
+   d.text((51,187),'LEVEL HIPS',font=FONTS[14],fill=MUTED)
+   d.line((62,215,145,215),fill=BLUE,width=6)
+   for px in (67,139):d.ellipse((px-6,209,px+6,221),fill=FAR)
+  elif option=='band-good-morning':
    upper_back=(shoulder[0]-11,shoulder[1]+2)
    anchor_far=(304,445);anchor_near=(334,445)
    if any(segment_distance(head,anchor,upper_back)<27 for anchor in (anchor_far,anchor_near)):raise ValueError('Band crossed head or neck')
