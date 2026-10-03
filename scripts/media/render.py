@@ -19,6 +19,9 @@ TEMPLATES={
  'crunch':('crunch',None),
  'reverse-crunch':('reverse-crunch',None),
  'lying-leg-raise':('lying-leg-raise',None),
+ 'side-lying-hip-abduction':('side-lying-hip-abduction',None),
+ 'side-lying-hip-adduction':('side-lying-hip-adduction',None),
+ 'wall-tibialis-raise':('wall-tibialis-raise',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -78,7 +81,54 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='reverse-crunch':
+ if kind=='side-lying-hip-adduction':
+  # Frontal-plane view: the top knee is bent and its foot supports the body;
+  # the straight lower leg lifts inward without the pelvis rolling.
+  shoulder=(235,383);hip=(330,390);head=(194,379)
+  top_knee=(367,333);top_foot=(400,428)
+  line(d,shoulder,hip,BLUE,26)
+  limb(d,[hip,top_knee,top_foot],FAR,16)
+  line(d,top_foot,(420,429),FAR,8)
+  limb(d,[shoulder,(232,421),(193,426)],INK,11)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  angle=.25-.38*u
+  knee=polar(hip,70,angle);foot=polar(knee,70,angle)
+  if any(abs(math.dist(a,b)-70)>1e-6 for a,b in ((hip,knee),(knee,foot))):raise ValueError('Hip adduction leg length changed')
+  if foot[1]>429 or hip!=(330,390):raise ValueError('Hip adduction support changed')
+  limb(d,[hip,knee,foot],BLUE,18)
+  line(d,foot,(foot[0]+13,foot[1]+2),INK,8)
+ elif kind=='wall-tibialis-raise':
+  # Upper back touches a stable wall, heels remain planted, and the toes
+  # rotate up about the heel. The knee, hip and trunk remain fixed.
+  d.line((206,105,206,460),fill=FAR,width=9)
+  shoulder=(211,213);hip=(270,327);knee=(307,385);heel=(330,447)
+  head=(229,180)
+  limb(d,[shoulder,hip,knee,heel],BLUE,19)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-16,head[1]-23,head[0]+16,head[1]+10),fill=INK)
+  limb(d,[shoulder,(263,270),(281,310)],INK,10)
+  toe=polar(heel,45,-.5*u)
+  if abs(math.dist(heel,toe)-45)>1e-6 or heel!=(330,447) or toe[1]>447:raise ValueError('Tibialis heel support changed')
+  line(d,heel,toe,INK,12)
+ elif kind=='side-lying-hip-abduction':
+  # Frontal-plane view of a side-lying setup: the pelvis and support leg are
+  # fixed, while one straight working leg abducts without trunk rotation.
+  shoulder=(235,385);hip=(330,393);head=(194,380)
+  support_knee=(380,428);support_foot=(430,430)
+  line(d,shoulder,hip,BLUE,26)
+  limb(d,[hip,support_knee,support_foot],FAR,16)
+  line(d,support_foot,(450,430),FAR,8)
+  limb(d,[shoulder,(232,421),(193,426)],INK,11)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  angle=-.12-.57*u
+  knee=polar(hip,72,angle);foot=polar(knee,72,angle)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,knee,72),(knee,foot,72))):raise ValueError('Hip abduction leg length changed')
+  if foot[1]>393 or hip!=(330,393):raise ValueError('Hip abduction support changed')
+  limb(d,[hip,knee,foot],BLUE,18)
+  line(d,foot,(foot[0]+15,foot[1]+2),INK,8)
+ elif kind=='reverse-crunch':
   # Upper back stays supported. The pelvis rolls gently toward the ribs while
   # both bent legs follow; neither foot swings from a floor contact.
   shoulder=(205,420);head=(165,420)
@@ -336,7 +386,7 @@ for e in catalog:
  reason='' if complete else (f"{e['name']}: {BLOCK_REASONS[key]}." if key in BLOCK_REASONS else reason_for(e))
  caption=' '.join(e.get('instructions',[])[:3])
  version=int(hashlib.sha256((sha(poster)+(sha(video) if complete else '')).encode()).hexdigest()[:12],16) or 1
- record={'catalogKey':key,'name':e['name'],'poster':f'exercises/{key}/v{version}/{sha(poster)}.png','source':f'exercises/{key}/v{version}/{sha(video)}.mp4' if complete else None,'format':'mp4' if complete else None,'caption':caption,'angle':'side' if complete else 'unspecified','duration':DURATION if complete else 0,'version':version,'reviewStatus':'technical' if complete else 'blocked','reviewer':None,'safetyClassification':'coaching-recommended' if e.get('coachingRecommended') else 'general','textFallback':e.get('instructions',[]),'license':'Original LIMIT-generated schematic; no third-party footage','generated':True,'width':W,'height':H,'fps':FPS if complete else 0,'posterSha256':sha(poster),'videoSha256':sha(video) if complete else None,'bytes':poster.stat().st_size+(video.stat().st_size if complete else 0),'blockReason':reason,'template':template[0] if template else None,'technicalChecks':['exact-catalog-key','fixed-framing','silent','h264-yuv420p','full-decode'] if complete else ['exact-catalog-key','written-fallback']}
+ record={'catalogKey':key,'name':e['name'],'poster':f'exercises/{key}/v{version}/{sha(poster)}.png','source':f'exercises/{key}/v{version}/{sha(video)}.mp4' if complete else None,'format':'mp4' if complete else None,'caption':caption,'angle':('front' if key in ('side-lying-hip-abduction','side-lying-hip-adduction') else 'side') if complete else 'unspecified','duration':DURATION if complete else 0,'version':version,'reviewStatus':'technical' if complete else 'blocked','reviewer':None,'safetyClassification':'coaching-recommended' if e.get('coachingRecommended') else 'general','textFallback':e.get('instructions',[]),'license':'Original LIMIT-generated schematic; no third-party footage','generated':True,'width':W,'height':H,'fps':FPS if complete else 0,'posterSha256':sha(poster),'videoSha256':sha(video) if complete else None,'bytes':poster.stat().st_size+(video.stat().st_size if complete else 0),'blockReason':reason,'template':template[0] if template else None,'technicalChecks':['exact-catalog-key','fixed-framing','silent','h264-yuv420p','full-decode'] if complete else ['exact-catalog-key','written-fallback']}
  old=previous.get(key,{})
  if complete and old.get('videoSha256')==record['videoSha256'] and old.get('posterSha256')==record['posterSha256'] and old.get('reviewStatus') in ['approved','draft']:
   for field in ['reviewStatus','reviewer','reviewEvidence']:record[field]=old[field]

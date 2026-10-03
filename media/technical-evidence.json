@@ -273,6 +273,32 @@
     "audio": false
   },
   {
+    "catalogKey": "side-lying-hip-abduction",
+    "videoSha256": "3fdc6f3ee3f1d536c9eb82066099889486d7e3389612ad5c1b74533fe56bf6d7",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "side-lying-hip-adduction",
+    "videoSha256": "aac31044a48e08c0d4a7e8a7f1df6e67ff6955f084c77640b007b66555ec458f",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-standing-calf-raise",
     "videoSha256": "b462dca3dff22d1c3cfb2908d818f58d2bd25c382abbdb799a62b29e20261c16",
     "duration": 8,
@@ -314,6 +340,19 @@
   {
     "catalogKey": "dumbbell-seated-calf-raise",
     "videoSha256": "3fd3639b091bf3ff8f877525943ac3fd7a1ef3c3d59c7413265332bac1179924",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "wall-tibialis-raise",
+    "videoSha256": "a56e3508b39b083eb2ef316b014105800ed49d4284ad6fd5e445c583f1d708a8",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
