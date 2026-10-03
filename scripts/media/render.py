@@ -118,6 +118,7 @@ TEMPLATES={
  'band-assisted-pull-up':('suspended-pull','band-assisted'),
  'hanging-knee-raise':('hanging-raise','bent-knee'),
  'hanging-leg-raise':('hanging-raise','straight-leg'),
+ 'bird-dog':('bird-dog',None),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -241,9 +242,45 @@ def draw_grip_inset(d,orientation,u=0):
   label='ROPE / NEUTRAL'
  else:raise ValueError('Unsupported grip inset')
  d.text((50,339),label,font=FONTS[14],fill=INK)
+def draw_opposite_limb_inset(d):
+ # Plan view: the highlighted reaching arm and leg leave opposite sides.
+ d.rounded_rectangle((40,273,183,362),8,fill=BG,outline=FAR,width=2)
+ d.text((49,279),'TOP VIEW',font=FONTS[14],fill=MUTED)
+ d.rounded_rectangle((102,306,121,335),5,fill=BLUE)
+ d.line((103,309,73,300),fill=BLUE,width=8)
+ d.ellipse((68,295,77,304),fill=INK)
+ d.line((121,310,145,322),fill=FAR,width=8)
+ d.ellipse((141,319,150,328),fill=FAR)
+ d.line((103,334,79,345),fill=FAR,width=8)
+ d.ellipse((74,342,83,351),fill=FAR)
+ d.line((121,334,147,346),fill=BLUE,width=8)
+ d.ellipse((143,342,152,351),fill=INK)
+ d.text((49,341),'OPPOSITE SIDES',font=FONTS[14],fill=INK)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='hanging-raise':
+ if kind=='bird-dog':
+  # Pelvis/trunk, near hand and opposite knee stay planted. The far arm and
+  # near leg reach with invariant segment lengths and no hip rotation.
+  hip=(350,302);shoulder=(238,293);head=(196,288)
+  support_hand=(230,435);support_knee=(358,437)
+  far_hand=(220-105*u,435-120*u)
+  far_elbow=ik(shoulder,far_hand,76,76,side=1)
+  if any(abs(math.dist(a,b)-76)>1e-6 for a,b in ((shoulder,far_elbow),(far_elbow,far_hand))):raise ValueError('Bird dog reaching arm changed length')
+  limb(d,[shoulder,far_elbow,far_hand],FAR,12)
+  limb(d,[hip,(360,362),support_knee],FAR,16)
+  line(d,support_knee,(388,439),FAR,10)
+  line(d,hip,shoulder,BLUE,26)
+  limb(d,[shoulder,(240,361),support_hand],INK,14)
+  angle=1.4-.95*u
+  working_knee=polar(hip,76,angle)
+  working_foot=polar(working_knee,64,angle+.17)
+  if abs(math.dist(hip,working_knee)-76)>1e-6 or abs(math.dist(working_knee,working_foot)-64)>1e-6:raise ValueError('Bird dog working leg changed length')
+  if working_foot[1]>452 or working_foot[0]>485:raise ValueError('Bird dog foot lost clearance')
+  limb(d,[hip,working_knee,working_foot],BLUE,17)
+  d.ellipse((head[0]-20,head[1]-17,head[0]+17,head[1]+17),fill=INK)
+  d.line((215,435,248,435),fill=INK,width=9)
+  draw_opposite_limb_inset(d)
+ elif kind=='hanging-raise':
   # Bar/hand/shoulder supports remain fixed. Pelvis rotates slightly while
   # bent knees or straight legs rise without foot-ground contact or swing.
   d.line((190,75,190,460),fill=FAR,width=8)

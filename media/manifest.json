@@ -10721,14 +10721,14 @@
   {
     "catalogKey": "bird-dog",
     "name": "Bird Dog",
-    "poster": "exercises/bird-dog/v2051579801696/96e067f230c318bfc35f0c77d29c746c8561005fdbde1f14f0d40daa23155123.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/bird-dog/v942446689943/ccba4774efb32fe66e8a84bba08fe6ca8863313954232de7f0a284d458ff73f6.png",
+    "source": "exercises/bird-dog/v942446689943/5383aa3c8f459f5d3f7998cdc63f2264839e15935eee61e53228df067c8ff023.mp4",
+    "format": "mp4",
     "caption": "Brace gently and keep your ribs stacked over your pelvis. Move your limbs only as far as you can keep your trunk steady; return with control. Reach opposite arm and leg without rotating the hips.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 2051579801696,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 942446689943,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -10740,15 +10740,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "96e067f230c318bfc35f0c77d29c746c8561005fdbde1f14f0d40daa23155123",
-    "videoSha256": null,
-    "bytes": 40994,
-    "blockReason": "Bird Dog: current renderer lacks the exact hand, knee or foot support, trunk bracing and limb or rollout path; it also lacks the required hand, foot or floor supports. This variation requires \"Reach opposite arm and leg without rotating the hips\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "ccba4774efb32fe66e8a84bba08fe6ca8863313954232de7f0a284d458ff73f6",
+    "videoSha256": "5383aa3c8f459f5d3f7998cdc63f2264839e15935eee61e53228df067c8ff023",
+    "bytes": 85669,
+    "blockReason": "",
+    "template": "bird-dog",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

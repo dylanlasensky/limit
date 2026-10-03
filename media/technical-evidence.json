@@ -1690,6 +1690,19 @@
     "audio": false
   },
   {
+    "catalogKey": "bird-dog",
+    "videoSha256": "5383aa3c8f459f5d3f7998cdc63f2264839e15935eee61e53228df067c8ff023",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-side-bend",
     "videoSha256": "abcfe0f2e67b06d65cbc1242bcd2fc768ce027015de283713f9364441f2ea3f2",
     "duration": 8,
