@@ -199,6 +199,15 @@ TEMPLATES={
  'deficit-push-up':('push-up','deficit'),
  'close-grip-push-up':('push-up','close-grip'),
  'weighted-push-up':('push-up','weighted'),
+ 'cable-crunch':('supported-trunk-crunch','kneeling-cable'),
+ 'machine-abdominal-crunch':('supported-trunk-crunch','machine'),
+ 'captain-s-chair-knee-raise':('captain-chair-raise',None),
+ 'cable-pallof-press':('anti-rotation','cable'),
+ 'band-pallof-press':('anti-rotation','band'),
+ 'cable-woodchop':('diagonal-pull','high-standing'),
+ 'low-to-high-cable-lift':('diagonal-pull','low-standing'),
+ 'half-kneeling-cable-chop':('diagonal-pull','high-kneeling'),
+ 'half-kneeling-cable-lift':('diagonal-pull','low-kneeling'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -390,7 +399,96 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='loaded-shrug':
+ if kind=='supported-trunk-crunch':
+  # Pelvis stays fixed; the shoulder and head travel on a short trunk arc.
+  hip=(284,351) if option=='machine' else (290,355)
+  mid=(hip[0],hip[1]-65)
+  shoulder=polar(mid,51,-math.pi/2+.83*u)
+  head=polar(shoulder,32,-math.pi/2+.65*u)
+  if option=='machine':
+   d.rounded_rectangle((246,350,336,365),5,fill=FAR)
+   d.rounded_rectangle((239,230,255,355),5,fill=FAR)
+   for x in (255,328):line(d,(x,365),(x,455),FAR,6)
+   limb(d,[hip,(365,364),(377,447)],BLUE,16);line(d,(377,447),(405,448),INK,8)
+   pivot=(405,362);d.ellipse((pivot[0]-9,pivot[1]-9,pivot[0]+9,pivot[1]+9),outline=FAR,width=4)
+   pad=(shoulder[0]+34,shoulder[1]+22)
+   line(d,pivot,pad,FAR,7)
+   d.rounded_rectangle((pad[0]-17,pad[1]-8,pad[0]+17,pad[1]+8),4,fill=FAR)
+   d.text((45,181),'SEAT / CHEST PAD / PIVOT',font=FONTS[14],fill=MUTED)
+  else:
+   line(d,(423,107),(423,450),FAR,6)
+   d.ellipse((410,135,436,161),outline=FAR,width=5)
+   d.text((45,181),'HIGH PULLEY / KNEES FIXED',font=FONTS[14],fill=MUTED)
+   limb(d,[hip,(290,435),(350,445)],BLUE,17);line(d,(350,445),(368,447),INK,8)
+   line(d,(270,447),(314,447),FAR,6)
+  limb(d,[hip,mid,shoulder],BLUE,28);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-17,head[1]-17,head[0]+17,head[1]+17),fill=INK)
+  if option=='kneeling-cable':
+   hand=(head[0]+16,head[1]+12)
+   elbow=ik(shoulder,hand,36,28,side=-1)
+   limb(d,[shoulder,elbow,hand],INK,9)
+   line(d,(423,148),hand,FAR,3)
+   d.rounded_rectangle((hand[0]-9,hand[1]-7,hand[0]+9,hand[1]+7),4,fill=FAR)
+  else:limb(d,[shoulder,(shoulder[0]+31,shoulder[1]+38),(shoulder[0]+45,shoulder[1]+40)],INK,9)
+ elif kind=='captain-chair-raise':
+  hip=(286,337);shoulder=(284,226);head=(284,190)
+  d.rounded_rectangle((247,198,264,351),4,fill=FAR)
+  for x in (229,341):
+   d.rounded_rectangle((x-15,278,x+15,293),4,fill=FAR)
+   line(d,(x,292),(x,449),FAR,5)
+  line(d,hip,shoulder,BLUE,28);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  for x in (258,312):limb(d,[(x,233),(x,276),(x,285)],INK,9)
+  knee=polar(hip,78,math.pi/2-.9*u);foot=polar(knee,60,.35-.4*u)
+  if abs(math.dist(hip,knee)-78)>1e-6 or abs(math.dist(knee,foot)-60)>1e-6 or foot[1]>446:raise ValueError('Captain chair leg or clearance changed')
+  limb(d,[hip,knee,foot],BLUE,17);line(d,foot,(foot[0]+18,foot[1]),INK,8)
+  d.text((45,181),'BACK / FOREARMS SUPPORTED',font=FONTS[14],fill=MUTED)
+ elif kind in ('anti-rotation','diagonal-pull'):
+  # Frontal oblique schematic: a fixed anchor pulls from the left; torso and
+  # pelvis stay stacked. Diagonal options move the gripped hands across body.
+  kneel=kind=='diagonal-pull' and option.endswith('kneeling')
+  hip=(300,341);shoulder=(300,218);head=(300,179)
+  if kneel:
+   limb(d,[hip,(248,391),(240,447)],BLUE,16)
+   line(d,(240,447),(215,449),INK,8)
+   limb(d,[hip,(361,368),(390,446)],BLUE,16)
+   line(d,(390,446),(416,448),INK,8)
+  else:
+   for side in (-1,1):
+    knee=(300+side*37,390);foot=(300+side*63,447)
+    limb(d,[hip,knee,foot],BLUE,16);line(d,foot,(foot[0]+side*18,449),INK,8)
+  line(d,hip,shoulder,BLUE,29);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+17),fill=INK)
+  if kind=='anti-rotation':
+   anchor=(95,259);hand=(322+68*u,270-12*u)
+   label='CHEST-HEIGHT CABLE / PRESS AWAY' if option=='cable' else 'SECURE BAND ANCHOR / PRESS AWAY'
+   if option=='cable':
+    line(d,(95,215),(95,445),FAR,6)
+    d.ellipse((83,247,107,271),outline=FAR,width=4)
+    line(d,anchor,hand,FAR,3)
+   else:
+    line(d,(95,230),(95,295),FAR,7)
+    line(d,anchor,hand,BLUE,3)
+   for offset,color in ((-10,FAR),(10,INK)):
+    start=(shoulder[0]+offset,shoulder[1]+8)
+    elbow=ik(start,hand,72,70,side=1)
+    limb(d,[start,elbow,hand],color,9)
+   d.text((45,181),label,font=FONTS[14],fill=MUTED)
+  else:
+   high=option.startswith('high')
+   anchor=(95,153 if high else 425)
+   hand=(246+127*u,224+105*u) if high else (237+136*u,348-133*u)
+   line(d,(95,116),(95,445),FAR,6)
+   d.ellipse((anchor[0]-12,anchor[1]-12,anchor[0]+12,anchor[1]+12),outline=FAR,width=4)
+   line(d,anchor,hand,FAR,3)
+   for offset,color in ((-9,FAR),(9,INK)):
+    start=(shoulder[0]+offset,shoulder[1]+9)
+    elbow=ik(start,hand,87,82,side=1)
+    limb(d,[start,elbow,hand],color,9)
+   d.text((45,181),'HIGH-TO-LOW CHOP' if high else 'LOW-TO-HIGH LIFT',font=FONTS[14],fill=MUTED)
+   if kneel:d.text((45,201),'HALF KNEEL / PELVIS STEADY',font=FONTS[14],fill=MUTED)
+  d.rounded_rectangle((hand[0]-12,hand[1]-6,hand[0]+12,hand[1]+6),3,fill=FAR,outline=INK,width=2)
+ elif kind=='loaded-shrug':
   # Front view: a level trunk and planted feet; only the shoulder girdle and
   # long arms rise. Every implement has its own fixed support or load path.
   hip=(300,335);neck=(300,207);head=(300,169)
