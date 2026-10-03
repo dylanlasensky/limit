@@ -2354,14 +2354,14 @@
   {
     "catalogKey": "single-arm-cable-row",
     "name": "Single-Arm Cable Row",
-    "poster": "exercises/single-arm-cable-row/v211872986969334/3868ede8969310deaa2b697d6221ad4ecac9851485e5004ed7102511586a9c12.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/single-arm-cable-row/v207369062351945/9203f0d516f54099af978a838e84024edd679a02568837603096b85526a7f396.png",
+    "source": "exercises/single-arm-cable-row/v207369062351945/c94043962d5d2f79c426078d7b80daf2c61e49d26d565dfa071ec9face59d6a0.mp4",
+    "format": "mp4",
     "caption": "Use a stable torso position and keep your neck in line with your spine. Row your elbows back, then reach forward under control without jerking the weight. Resist trunk rotation; log repetitions per side.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 211872986969334,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 207369062351945,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -2373,15 +2373,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "3868ede8969310deaa2b697d6221ad4ecac9851485e5004ed7102511586a9c12",
-    "videoSha256": null,
-    "bytes": 42475,
-    "blockReason": "Single-Arm Cable Row: current renderer lacks torso support or hinge angle, elbow track and load path toward the trunk; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires \"Resist trunk rotation; log repetitions per side\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "9203f0d516f54099af978a838e84024edd679a02568837603096b85526a7f396",
+    "videoSha256": "c94043962d5d2f79c426078d7b80daf2c61e49d26d565dfa071ec9face59d6a0",
+    "bytes": 79991,
+    "blockReason": "",
+    "template": "single-arm-cable-row",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

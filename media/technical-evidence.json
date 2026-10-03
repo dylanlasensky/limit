@@ -182,6 +182,19 @@
     "audio": false
   },
   {
+    "catalogKey": "single-arm-cable-row",
+    "videoSha256": "c94043962d5d2f79c426078d7b80daf2c61e49d26d565dfa071ec9face59d6a0",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "resistance-band-row",
     "videoSha256": "c80c1c8e89eb846b4f18d01008cdc513ef846c7bf8ed5ee39ca2cc2d775b389f",
     "duration": 8,
