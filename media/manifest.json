@@ -8753,14 +8753,14 @@
   {
     "catalogKey": "slider-leg-curl",
     "name": "Slider Leg Curl",
-    "poster": "exercises/slider-leg-curl/v194187545768800/912ed302319cfab6999b89e9ba96ff4b2d64a7c96edba6d3d79eaa1bf53d2de7.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/slider-leg-curl/v246569785684241/d74294d73efc55f8faeee72c7d2915fb24d1625e0b3481db22debf871a919537.png",
+    "source": "exercises/slider-leg-curl/v246569785684241/07dab8f730648662a21158ac03164e9a7b671c2cb1b8139495df4b1d32631baf.mp4",
+    "format": "mp4",
     "caption": "Set your knee alignment and keep your hips stable. Bend your knees under control and resist the return rather than letting the load drop. Use a surface with predictable sliding resistance.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 194187545768800,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 246569785684241,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -8772,15 +8772,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "912ed302319cfab6999b89e9ba96ff4b2d64a7c96edba6d3d79eaa1bf53d2de7",
-    "videoSha256": null,
-    "bytes": 39403,
-    "blockReason": "Slider Leg Curl: current renderer lacks fixed thigh or torso support and heel travel toward the body; it also lacks both sliding foot contacts and their friction-limited travel. This variation requires \"Use a surface with predictable sliding resistance\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "d74294d73efc55f8faeee72c7d2915fb24d1625e0b3481db22debf871a919537",
+    "videoSha256": "07dab8f730648662a21158ac03164e9a7b671c2cb1b8139495df4b1d32631baf",
+    "bytes": 75534,
+    "blockReason": "",
+    "template": "slider-leg-curl",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

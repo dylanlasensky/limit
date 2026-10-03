@@ -741,6 +741,19 @@
     "audio": false
   },
   {
+    "catalogKey": "slider-leg-curl",
+    "videoSha256": "07dab8f730648662a21158ac03164e9a7b671c2cb1b8139495df4b1d32631baf",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "glute-bridge",
     "videoSha256": "2733f3b8234070d70ba571b059abbd3dc18a5009a861af81f1075b88ee77d5a4",
     "duration": 8,
