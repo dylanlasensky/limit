@@ -8489,14 +8489,14 @@
   {
     "catalogKey": "b-stance-romanian-deadlift",
     "name": "B-Stance Romanian Deadlift",
-    "poster": "exercises/b-stance-romanian-deadlift/v169942044458493/833f837dda88187a50dfa5ff7b836355b7e07d547ccfb227f3076e5462a7a5ea.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/b-stance-romanian-deadlift/v91070038034221/9b81ec2eb26dd28b24ef56c3c4e4c15da7cf0ac2a0aa86065c3a517a7c83d766.png",
+    "source": "exercises/b-stance-romanian-deadlift/v91070038034221/e658caab6a7024abffba4380f44041353cecc4b9d27d7b32659dedb2b89243e3.mp4",
+    "format": "mp4",
     "caption": "Brace your trunk and move your hips backward while keeping the load close. Use a range you can control with a steady spine; stand tall without leaning backward. Use the rear foot mainly for balance; log each working leg.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 169942044458493,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 91070038034221,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -8508,15 +8508,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "833f837dda88187a50dfa5ff7b836355b7e07d547ccfb227f3076e5462a7a5ea",
-    "videoSha256": null,
-    "bytes": 45412,
-    "blockReason": "B-Stance Romanian Deadlift: current renderer lacks fixed foot pressure, hip travel, trunk angle and load path through the hinge; it also lacks the dumbbell grip, position and changing load path. This variation requires \"Use the rear foot mainly for balance; log each working leg\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "9b81ec2eb26dd28b24ef56c3c4e4c15da7cf0ac2a0aa86065c3a517a7c83d766",
+    "videoSha256": "e658caab6a7024abffba4380f44041353cecc4b9d27d7b32659dedb2b89243e3",
+    "bytes": 107491,
+    "blockReason": "",
+    "template": "barbell-hinge",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

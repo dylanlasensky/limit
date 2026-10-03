@@ -2600,6 +2600,19 @@
     "audio": false
   },
   {
+    "catalogKey": "b-stance-romanian-deadlift",
+    "videoSha256": "e658caab6a7024abffba4380f44041353cecc4b9d27d7b32659dedb2b89243e3",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "kettlebell-romanian-deadlift",
     "videoSha256": "46330ebbfb8f6b7f7822b9db70ce52ed7921f2ddd3ee6f0c78783ec4586be572",
     "duration": 8,

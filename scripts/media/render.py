@@ -263,6 +263,7 @@ TEMPLATES={
  'barbell-good-morning':('barbell-hinge','good-morning'),
  'resistance-band-good-morning':('barbell-hinge','band-good-morning'),
  'dumbbell-fly':('depth-fly','flat-dumbbell'),
+ 'b-stance-romanian-deadlift':('barbell-hinge','b-stance-romanian'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -501,7 +502,7 @@ def draw_pose(d,kind,option,u):
  elif kind=='barbell-hinge':
   # Side view with a fixed planted foot, invariant thigh/shin/torso/arm
   # lengths, explicit knee flexion, hip displacement and vertical bar path.
-  ankle=(315,425 if option=='deficit' else 445);bar_x=365 if option=='kettlebell-conventional' else (340 if option=='dumbbell-romanian' else 325);leg=77.5;torso=120;arm=180 if option=='deficit' else (175 if option=='sumo' else ((140 if option=='kettlebell-conventional' else 145) if option.startswith('kettlebell') else 160))
+  ankle=(315,425 if option=='deficit' else 445);bar_x=365 if option=='kettlebell-conventional' else (340 if option in ('dumbbell-romanian','b-stance-romanian') else 325);leg=77.5;torso=120;arm=180 if option=='deficit' else (175 if option=='sumo' else ((140 if option=='kettlebell-conventional' else 145) if option.startswith('kettlebell') else 160))
   if option in ('conventional','kettlebell-conventional','paused','snatch-grip','sumo','deficit','trapbar-conventional'):
    hip=((270+30*u,325-30*u) if option=='sumo' else (255+45*u,332-37*u-(20 if option=='deficit' else 0)))
    trunk_angle=(-.7-(math.pi/2-.7)*u) if option=='sumo' else (-.55-(math.pi/2-.55)*u)
@@ -517,11 +518,17 @@ def draw_pose(d,kind,option,u):
   hand=(bar_x,bar_y)
   reach=math.dist(hip,ankle)
   knee_flex=2*math.degrees(math.acos(reach/(2*leg)))
-  if option in ('romanian','dumbbell-romanian','kettlebell-romanian','trapbar-romanian','smith-romanian','good-morning','band-good-morning') and (knee_flex>28 or knee_flex<20 or abs(reach-math.dist((300,295),ankle))>1e-6):raise ValueError('RDL knee bend or foot reach changed')
+  if option in ('romanian','dumbbell-romanian','b-stance-romanian','kettlebell-romanian','trapbar-romanian','smith-romanian','good-morning','band-good-morning') and (knee_flex>28 or knee_flex<20 or abs(reach-math.dist((300,295),ankle))>1e-6):raise ValueError('RDL knee bend or foot reach changed')
   if option in ('conventional','kettlebell-conventional','paused','snatch-grip','sumo','deficit','trapbar-conventional') and not 25<=knee_flex<=70:raise ValueError('Deadlift knee path changed')
   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,knee,leg),(knee,ankle,leg),(hip,shoulder,torso),(shoulder,hand,arm))):raise ValueError('Hinge segment length changed')
   if bar_y>430 or bar_y<(290 if option.startswith('kettlebell') else 320) or head[0]>455:raise ValueError('Hinge load or head clearance changed')
   d.line((205,454,454,454),fill=FAR,width=3)
+  if option=='b-stance-romanian':
+   rear_toe=(245,447)
+   rear_knee=ik(hip,rear_toe,85,85,side=-1)
+   if abs(math.dist(hip,rear_knee)-85)>1e-6 or abs(math.dist(rear_knee,rear_toe)-85)>1e-6:raise ValueError('B-stance rear support length changed')
+   limb(d,[hip,rear_knee,rear_toe],FAR,9)
+   d.line((rear_toe[0]-13,rear_toe[1],rear_toe[0]+3,rear_toe[1]),fill=INK,width=5)
   if option=='deficit':
    d.rounded_rectangle((269,429,370,454),2,fill=FAR,outline=INK,width=2)
   if option in ('smith-romanian','good-morning'):
@@ -558,7 +565,7 @@ def draw_pose(d,kind,option,u):
    d.text((51,188),'BAR ON UPPER BACK',font=FONTS[14],fill=MUTED)
    d.line((67,213,160,213),fill=INK,width=4)
    d.rounded_rectangle((93,209,122,222),3,fill=BLUE)
-  elif option=='dumbbell-romanian':
+  elif option in ('dumbbell-romanian','b-stance-romanian'):
    # Two independent implements hang from separate fixed-length arms.
    far_hand=(bar_x-40,shoulder[1]+math.sqrt(arm**2-(bar_x-40-shoulder[0])**2))
    if abs(math.dist(shoulder,far_hand)-arm)>1e-6 or abs(far_hand[1]-hand[1])>10:raise ValueError('Dumbbell RDL arm path changed')
@@ -568,11 +575,17 @@ def draw_pose(d,kind,option,u):
     for px in (hx-11,hx+11):d.rounded_rectangle((px-5,hy-13,px+5,hy+13),2,fill=color,outline=INK,width=2)
    limb(d,[shoulder,hand],INK,11)
    d.rounded_rectangle((hand[0]-5,hand[1]-5,hand[0]+5,hand[1]+5),2,fill=BLUE)
-   d.rounded_rectangle((45,183,133,231),4,outline=MUTED,width=2)
-   d.text((51,187),'TWO BELLS',font=FONTS[14],fill=MUTED)
-   for cx in (74,106):
-    d.line((cx,207,cx,223),fill=INK,width=4)
-    for yy in (207,223):d.rounded_rectangle((cx-9,yy-4,cx+9,yy+4),2,fill=FAR,outline=INK,width=1)
+   if option=='b-stance-romanian':
+    d.rounded_rectangle((45,183,224,231),4,outline=MUTED,width=2)
+    d.text((51,187),'REAR TOE / FRONT FOOT',font=FONTS[14],fill=MUTED)
+    d.rounded_rectangle((63,216,86,222),2,fill=FAR)
+    d.rounded_rectangle((112,207,153,223),3,fill=BLUE)
+   else:
+    d.rounded_rectangle((45,183,133,231),4,outline=MUTED,width=2)
+    d.text((51,187),'TWO BELLS',font=FONTS[14],fill=MUTED)
+    for cx in (74,106):
+     d.line((cx,207,cx,223),fill=INK,width=4)
+     for yy in (207,223):d.rounded_rectangle((cx-9,yy-4,cx+9,yy+4),2,fill=FAR,outline=INK,width=1)
   elif option.startswith('trapbar'):
    # Side rails and a raised neutral handle distinguish a hex bar from a straight bar.
    back_y=bar_y+8
