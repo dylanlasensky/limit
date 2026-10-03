@@ -6824,14 +6824,14 @@
   {
     "catalogKey": "pistol-squat",
     "name": "Pistol Squat",
-    "poster": "exercises/pistol-squat/v273551180625632/3458c65e29bf850206e9e4d83a22c31a5e0460c81e6a9e7e56e194d035cb77e1.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/pistol-squat/v183107422724370/fd752e366fa89f04cda164d39eb83a70984fa715bd3530c3d8fa55a6a07d34b6.png",
+    "source": "exercises/pistol-squat/v183107422724370/9c1d1f280ac6646d85e0c83063de488f8b15018ae45140c2917055fbb40d6826.mp4",
+    "format": "mp4",
     "caption": "Set a stable stance, brace your trunk, and keep pressure through your whole foot. Bend at the knees and hips to a controlled, comfortable depth, then stand without bouncing. Work within controlled depth and use a support when learning.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 273551180625632,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 183107422724370,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "coaching-recommended",
     "textFallback": [
@@ -6843,15 +6843,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "3458c65e29bf850206e9e4d83a22c31a5e0460c81e6a9e7e56e194d035cb77e1",
-    "videoSha256": null,
-    "bytes": 42971,
-    "blockReason": "Pistol Squat: current renderer lacks foot support, knee tracking, hip depth and the specified stance/load setup; it also lacks the required hand, foot or floor supports. This variation requires \"Work within controlled depth and use a support when learning\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "fd752e366fa89f04cda164d39eb83a70984fa715bd3530c3d8fa55a6a07d34b6",
+    "videoSha256": "9c1d1f280ac6646d85e0c83063de488f8b15018ae45140c2917055fbb40d6826",
+    "bytes": 90760,
+    "blockReason": "",
+    "template": "pistol-squat",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

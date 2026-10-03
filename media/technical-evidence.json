@@ -533,6 +533,19 @@
     "audio": false
   },
   {
+    "catalogKey": "pistol-squat",
+    "videoSha256": "9c1d1f280ac6646d85e0c83063de488f8b15018ae45140c2917055fbb40d6826",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "reverse-nordic-curl",
     "videoSha256": "3ef505aeea3863761c45af05f6625f38ec82dade9f71ce475493c51b4b71e326",
     "duration": 8,

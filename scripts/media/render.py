@@ -56,6 +56,7 @@ TEMPLATES={
  'side-lying-dumbbell-external-rotation':('side-lying-external-rotation',None),
  'dumbbell-side-bend':('dumbbell-side-bend',None),
  'reverse-nordic-curl':('reverse-nordic-curl',None),
+ 'pistol-squat':('pistol-squat',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -122,7 +123,25 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='reverse-nordic-curl':
+ if kind=='pistol-squat':
+  # One foot stays planted. Fixed support-leg lengths allow knee flexion as
+  # the hip descends, while the free straight leg remains clear of the floor.
+  ankle=(330,441);toe=(365,449)
+  hip=(311-48*u,296+70*u)
+  knee=ik(hip,ankle,75,75,side=1)
+  if abs(math.dist(hip,knee)-75)>1e-6 or abs(math.dist(knee,ankle)-75)>1e-6:raise ValueError('Pistol support leg changed length')
+  limb(d,[hip,knee,ankle],BLUE,18)
+  line(d,ankle,toe,INK,10)
+  free_knee=add(hip,(75,-20));free_foot=add(free_knee,(75,5))
+  if free_foot[1]>=430 or any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,free_knee,math.hypot(75,20)),(free_knee,free_foot,math.hypot(75,5)))):raise ValueError('Pistol free leg changed support')
+  limb(d,[hip,free_knee,free_foot],FAR,15)
+  line(d,free_foot,(free_foot[0]+16,free_foot[1]+3),INK,8)
+  shoulder=polar(hip,125,-math.pi/2+.22*u)
+  head=polar(shoulder,34,-math.pi/2+.12*u)
+  if abs(math.dist(hip,shoulder)-125)>1e-6:raise ValueError('Pistol torso length changed')
+  body(d,hip,shoulder,head)
+  limb(d,[shoulder,(shoulder[0]+48,shoulder[1]+44),(shoulder[0]+94,shoulder[1]+48)],INK,10)
+ elif kind=='reverse-nordic-curl':
   # Padded knees and tucked feet stay fixed; the whole thigh/trunk chain
   # leans back a small amount about the knees with no lumbar hinge.
   d.rounded_rectangle((254,438,359,453),5,fill=FAR)
