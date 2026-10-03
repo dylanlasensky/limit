@@ -1,21 +1,36 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Link, Redirect, useFocusEffect, router } from "expo-router";
-import { Linking } from "react-native";
+import { Linking, Text } from "react-native";
 import { auth, list, origin } from "../lib/api";
 import { clearDrafts } from "../lib/drafts";
-import { Page, Title, Copy, Card, Action } from "../ui";
+import { Page, Title, Copy, Card, Action, styles } from "../ui";
 export default function Home() {
   const { data: session, isPending } = auth.useSession();
   const owner = session?.user.id;
-  const [plan, setPlan] = useState(""),
-    [error, setError] = useState("");
+  const [plan, setPlan] = useState<{ owner: string; name: string } | null>(null);
+  const [error, setError] = useState<{ owner: string; message: string } | null>(null);
+  const requestVersion = useRef(0);
+  const loadPlan = useCallback(async () => {
+    if (!owner) return;
+    const ticket = ++requestVersion.current;
+    try {
+      const records = await list("WorkoutPlan", { active: true });
+      if (ticket !== requestVersion.current) return;
+      if (records.some((record) => record.ownerId !== owner))
+        throw new Error("Could not verify plan ownership.");
+      setPlan({ owner, name: records[0]?.name || "" });
+      setError(null);
+    } catch (cause) {
+      if (ticket === requestVersion.current) setError({ owner, message: (cause as Error).message });
+    }
+  }, [owner]);
   useFocusEffect(
     useCallback(() => {
-      if (owner)
-        void list("WorkoutPlan", { active: true })
-          .then((p) => setPlan(p[0]?.name || ""))
-          .catch((e) => setError(e.message));
-    }, [owner])
+      void loadPlan();
+      return () => {
+        requestVersion.current += 1;
+      };
+    }, [loadPlan])
   );
   if (isPending)
     return (
@@ -24,30 +39,41 @@ export default function Home() {
       </Page>
     );
   if (!session) return <Redirect href="/sign-in" />;
+  const currentPlan = plan && plan.owner === owner ? plan.name : undefined;
+  const currentError = error && error.owner === owner ? error.message : "";
   return (
     <Page>
       <Title>Hi, {session.user.name.split(" ")[0]}.</Title>
       <Copy>Start where you are. Build from here.</Copy>
       <Card>
-        <Title>{plan || "Your next step"}</Title>
+        <Title>{currentPlan || "Your next step"}</Title>
         <Copy>
-          {plan
-            ? "Your saved weekly plan is ready."
-            : "Complete your profile on the web to build your first personalized plan."}
+          {currentPlan === undefined
+            ? currentError || "Loading your plan…"
+            : currentPlan
+              ? "Your saved weekly plan is ready."
+              : "Complete your profile on the web to build your first personalized plan."}
         </Copy>
-        {plan ? (
+        {currentPlan ? (
           <Action label="Open my week" onPress={() => router.push("/plan")} />
-        ) : (
+        ) : currentPlan === "" ? (
           <Action
             label="Set up my profile"
             onPress={() => {
               void Linking.openURL(origin + "/onboarding");
             }}
           />
-        )}
+        ) : currentError ? (
+          <Action label="Retry plan" onPress={() => void loadPlan()} />
+        ) : null}
       </Card>
-      {!!error && <Copy>{error}</Copy>}
+      {!!currentError && (
+        <Text accessibilityRole="alert" style={styles.text}>
+          {currentError}
+        </Text>
+      )}
       <Link href="/plan">View weekly plan</Link>
+      <Action label="Workout history" onPress={() => router.push("/history")} />
       <Action
         label="Sign out"
         onPress={() => {
@@ -58,7 +84,7 @@ export default function Home() {
               clearDrafts(session.user.id);
               router.replace("/sign-in");
             })
-            .catch((e) => setError(e.message));
+            .catch((e) => setError({ owner: session.user.id, message: e.message }));
         }}
       />
     </Page>

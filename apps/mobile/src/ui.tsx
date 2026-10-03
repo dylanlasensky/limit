@@ -45,14 +45,16 @@ export function Page({ children }: { children: React.ReactNode }) {
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-          <Image
-            source={require("../../../public/brand/limit-logo.png")}
-            accessibilityLabel="LIMIT"
-            style={{ width: 64, height: 64, borderRadius: 16 }}
-          />
-          {children}
-        </ScrollView>
+        <View role="main" style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+            <Image
+              source={require("../../../public/brand/limit-logo.png")}
+              accessibilityLabel="LIMIT"
+              style={{ width: 64, height: 64, borderRadius: 16 }}
+            />
+            {children}
+          </ScrollView>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
