@@ -25,7 +25,7 @@
     "test:api": "node --test tests/api/*.test.mjs",
     "postinstall": "node scripts/patch-native-decoder.mjs",
     "test:native": "node --test tests/native/*.test.mjs",
-    "security:check": "node scripts/secret-scan.mjs && node scripts/security-audit.mjs",
+    "security:check": "node scripts/secret-scan.mjs && node scripts/verify-braces-fork.mjs && node scripts/security-audit.mjs",
     "media:check": "node scripts/media/validate.mjs",
     "media:review": "node scripts/media/review.mjs"
   },
@@ -84,7 +84,8 @@
     "wrangler": "4.146.0",
     "react-native-reanimated": "4.5.1",
     "react-native-screens": "4.26.2",
-    "react-native-worklets": "0.10.1"
+    "react-native-worklets": "0.10.1",
+    "braces": "file:vendor/braces"
   },
   "workspaces": [
     "apps/mobile",
@@ -92,6 +93,7 @@
   ],
   "overrides": {
     "uuid": "11.1.1",
-    "decode-uri-component": "0.5.0"
+    "decode-uri-component": "0.5.0",
+    "braces": "$braces"
   }
 }
