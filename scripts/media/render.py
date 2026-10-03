@@ -49,6 +49,9 @@ TEMPLATES={
  'dumbbell-reverse-wrist-curl':('wrist-curl','palm-down'),
  'alternating-dumbbell-curl':('alternating-curl',None),
  'cross-body-hammer-curl':('cross-body-curl',None),
+ 'incline-dumbbell-curl':('supported-curl','incline'),
+ 'concentration-curl':('supported-curl','thigh'),
+ 'dumbbell-preacher-curl':('supported-curl','preacher'),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -115,7 +118,37 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind in ('alternating-curl','cross-body-curl'):
+ if kind=='supported-curl':
+  # The shoulder/upper arm remains fixed on each distinct support while the
+  # hand rotates around the elbow with a constant forearm length.
+  if option=='incline':
+   d.line((234,202,327,352),fill=FAR,width=18)
+   d.rounded_rectangle((281,337,350,351),5,fill=FAR)
+   for x in (295,335):d.line((x,351,x,455),fill=FAR,width=7)
+   shoulder=(251,218);hip=(310,327);head=(240,180)
+   limb(d,[hip,(360,365),(388,445)],BLUE,17)
+   line(d,(388,445),(416,448),INK,8)
+  else:
+   d.rounded_rectangle((245,339,341,353),5,fill=FAR)
+   for x in (258,327):d.line((x,353,x,456),fill=FAR,width=7)
+   shoulder=(263,218);hip=(289,327);head=(259,181)
+   limb(d,[hip,(365,354),(386,445)],BLUE,17)
+   line(d,(386,445),(415,448),INK,8)
+   if option=='preacher':
+    d.line((300,266,393,352),fill=FAR,width=20)
+    d.line((375,351,375,456),fill=FAR,width=8)
+  line(d,hip,shoulder,BLUE,27)
+  line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+15),fill=INK)
+  elbows=[(197,283),(219,283)] if option=='incline' else ([(337,330)] if option=='thigh' else [(375,330)])
+  for i,elbow in enumerate(elbows):
+   line(d,shoulder,elbow,INK if i else FAR,12)
+   angle=(1.25-2.55*u) if option=='incline' else (1.3-2.9*u if option=='thigh' else 1.35-3.55*u)
+   hand=polar(elbow,70,angle)
+   if abs(math.dist(elbow,hand)-70)>1e-6 or elbow[1]!=(283 if option=='incline' else 330):raise ValueError('Supported curl elbow changed')
+   line(d,elbow,hand,INK,11)
+   weight(d,hand,hammer=True)
+ elif kind in ('alternating-curl','cross-body-curl'):
   # Front view separates both limbs. Alternating-curl runs a full right and
   # left repetition in sequence; cross-body uses a neutral grip and draws a
   # loaded hand toward the opposite shoulder without torso movement.

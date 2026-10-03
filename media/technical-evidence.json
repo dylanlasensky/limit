@@ -299,6 +299,19 @@
     "audio": false
   },
   {
+    "catalogKey": "incline-dumbbell-curl",
+    "videoSha256": "4c392b127568a3a7388638da91148fb8baf8660e4fd989e306005be4857f1f7c",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "hammer-curl",
     "videoSha256": "58cf4dd30dd7eb26aad78bcbcb9d6248dd302c1f399e148dc76d2be0015a3d71",
     "duration": 8,
@@ -314,6 +327,32 @@
   {
     "catalogKey": "cross-body-hammer-curl",
     "videoSha256": "bd3fca8af90928794ba7b855268491975511d9f5ad8b80522238d1d1d496e70e",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "concentration-curl",
+    "videoSha256": "901650945355c7bcf214866973d99001289ebe4586b81c54fc4f6e58882e4bf0",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "dumbbell-preacher-curl",
+    "videoSha256": "5467062f1db2bbec33fe9c496ed21132720f0b99e72c06c126fb349bd51a30e1",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
