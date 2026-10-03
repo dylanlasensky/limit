@@ -68,6 +68,7 @@ TEMPLATES={
  'stability-ball-leg-curl':('stability-ball-leg-curl',None),
  'resistance-band-pull-apart':('band-pull-apart',None),
  'resistance-band-lateral-raise':('band-lateral-raise',None),
+ 'resistance-band-front-raise':('band-front-raise',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -134,7 +135,26 @@ def alternating_phase(t):
  return 0,'Switch sides' if t<4 else 'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='band-lateral-raise':
+ if kind=='band-front-raise':
+  # Side view shows a secured under-foot band and two fixed-length arms
+  # lifting forward without a trunk swing or overhead motion.
+  hip=(300,333);shoulder=(300,210);head=(300,173);anchor=(341,445)
+  limb(d,[hip,(282,388),(270,445)],FAR,16)
+  line(d,(270,445),(250,448),INK,8)
+  limb(d,[hip,(315,387),anchor],BLUE,17)
+  line(d,anchor,(363,449),INK,9)
+  body(d,hip,shoulder,head)
+  angle=math.pi/2-1.38*u
+  for dx,color in ((-11,FAR),(9,INK)):
+   start=(shoulder[0]+dx,shoulder[1])
+   elbow=polar(start,73,angle)
+   hand=polar(elbow,62,angle+.06)
+   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((start,elbow,73),(elbow,hand,62))):raise ValueError('Band front raise arm length changed')
+   if hand[1]<208 or anchor[1]!=445:raise ValueError('Band front raise support or height changed')
+   d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
+   limb(d,[start,elbow,hand],color,10)
+   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
+ elif kind=='band-lateral-raise':
   # Each band is secured under its own fixed foot and extends to a hand.
   # Fixed arm segments raise laterally to at most shoulder height.
   hip=(300,335);head=(300,171)

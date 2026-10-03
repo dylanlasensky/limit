@@ -286,6 +286,19 @@
     "audio": false
   },
   {
+    "catalogKey": "resistance-band-front-raise",
+    "videoSha256": "d72bcef44d34562361e82fdf14df623a8a703084759af201fde84b2f01628737",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "resistance-band-pull-apart",
     "videoSha256": "9297d48455244e95837503a6ab088e43d6b5afbf8964cff41a2322146912d1eb",
     "duration": 8,

@@ -3764,14 +3764,14 @@
   {
     "catalogKey": "resistance-band-front-raise",
     "name": "Resistance Band Front Raise",
-    "poster": "exercises/resistance-band-front-raise/v73098707504536/5b03fa0b620a9a17e6c6bff919c4c87eb62a9709ff1b3da19b00ca1322698d5e.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/resistance-band-front-raise/v135666387512030/06b9c63dbfd9b7ca54b974db287212ae53b8e0bcf5760dbce07f469de96edc76.png",
+    "source": "exercises/resistance-band-front-raise/v135666387512030/d72bcef44d34562361e82fdf14df623a8a703084759af201fde84b2f01628737.mp4",
+    "format": "mp4",
     "caption": "Stand or sit tall with a soft elbow bend. Lift in front of you to a comfortable height without swinging your torso. Keep the band securely anchored under your feet.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 73098707504536,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 135666387512030,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -3783,15 +3783,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "5b03fa0b620a9a17e6c6bff919c4c87eb62a9709ff1b3da19b00ca1322698d5e",
-    "videoSha256": null,
-    "bytes": 40184,
-    "blockReason": "Resistance Band Front Raise: current renderer lacks forward shoulder arc with stable trunk and elbow angle; it also lacks a secure anchor and a band whose tension direction changes correctly. This variation requires \"Keep the band securely anchored under your feet\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "06b9c63dbfd9b7ca54b974db287212ae53b8e0bcf5760dbce07f469de96edc76",
+    "videoSha256": "d72bcef44d34562361e82fdf14df623a8a703084759af201fde84b2f01628737",
+    "bytes": 92385,
+    "blockReason": "",
+    "template": "band-front-raise",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
