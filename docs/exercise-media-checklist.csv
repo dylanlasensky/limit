@@ -30,8 +30,8 @@ deficit-push-up,Deficit Push-Up,Parallettes,technical,Original LIMIT-generated s
 close-grip-push-up,Close-Grip Push-Up,Bodyweight,technical,Original LIMIT-generated schematic; no third-party footage,,,
 weighted-push-up,Weighted Push-Up,Bodyweight,technical,Original LIMIT-generated schematic; no third-party footage,,,
 suspension-push-up,Suspension Push-Up,Suspension trainer,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Suspension Push-Up: needs suspended handles, anchor lines and changing strap angles while preserving a stable body line."
-chest-dip,Chest Dip,Dip station,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Chest Dip: current renderer lacks shoulder support, grip width, elbow track and load path through the press; it also lacks parallel fixed handles and supported body clearance. This variation requires ""Use a comfortable depth; avoid forcing the shoulders backward"". Add exact setup and phase-specific joint/support constraints before generating a video."
-assisted-chest-dip,Assisted Chest Dip,Machine,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Assisted Chest Dip: current renderer lacks shoulder support, grip width, elbow track and load path through the press; it also lacks the actual seat, pads, lever or sled and safe contact points. This variation requires ""Use enough assistance to control the bottom position"". Add exact setup and phase-specific joint/support constraints before generating a video."
+chest-dip,Chest Dip,Dip station,technical,Original LIMIT-generated schematic; no third-party footage,,,
+assisted-chest-dip,Assisted Chest Dip,Machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
 dumbbell-fly,Dumbbell Fly,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 incline-dumbbell-fly,Incline Dumbbell Fly,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 cable-chest-fly,Cable Chest Fly,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,

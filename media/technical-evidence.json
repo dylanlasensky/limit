@@ -390,6 +390,32 @@
     "audio": false
   },
   {
+    "catalogKey": "chest-dip",
+    "videoSha256": "8cabb41590ff7a8d09e13b79c6f66b9987e117fd78ebefc338220a4df94ae85a",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "assisted-chest-dip",
+    "videoSha256": "bdf335cf04080b9a4392bf2c234c2ae576c7acdf05301d607a91a57a02198d10",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-fly",
     "videoSha256": "e67ea43d54b19e582eb08171318126856976d5680c7cfd25af4788aa091beefa",
     "duration": 8,

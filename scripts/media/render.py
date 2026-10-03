@@ -276,6 +276,8 @@ TEMPLATES={
  'single-arm-cable-rear-delt-fly':('depth-fly','reverse-single-cable'),
  'pec-deck-fly':('depth-fly','pecdeck-chest'),
  'reverse-pec-deck':('depth-fly','pecdeck-reverse'),
+ 'chest-dip':('chest-dip','bodyweight'),
+ 'assisted-chest-dip':('chest-dip','assisted'),
  'b-stance-romanian-deadlift':('barbell-hinge','b-stance-romanian'),
  'single-leg-dumbbell-romanian-deadlift':('barbell-hinge','single-leg-romanian'),
  'supported-single-leg-romanian-deadlift':('barbell-hinge','supported-single-leg-romanian'),
@@ -484,7 +486,36 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='cable-pull-through':
+ if kind=='chest-dip':
+  hand=(300,280);shoulder=(330+40*u,150+75*u);hip=(290+40*u,288+75*u)
+  head=(shoulder[0]+25,shoulder[1]-35)
+  elbow=ik(shoulder,hand,75,70,side=-1)
+  knee=(hip[0]-45,hip[1]+40);foot=(knee[0]-30,knee[1]+45)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,elbow,75),(elbow,hand,70),(shoulder,hip,math.dist((330,150),(290,288))),(hip,knee,math.hypot(45,40)),(knee,foot,math.hypot(30,45)))):raise ValueError('Dip limb or torso length changed')
+  if foot[1]>448 or head[0]>448:raise ValueError('Dip foot or head clearance changed')
+  d.line((110,454,454,454),fill=FAR,width=3)
+  for rx in (191,432):
+   d.line((rx,280,rx,453),fill=FAR,width=8)
+   d.rounded_rectangle((rx-11,272,rx+11,286),3,fill=FAR)
+  d.line((183,280,438,280),fill=FAR,width=7)
+  if option=='assisted':
+   d.line((132,113,132,453),fill=FAR,width=7)
+   d.rounded_rectangle((118,341-40*u,147,402-40*u),3,fill=FAR,outline=INK,width=2)
+   pad_y=knee[1]+10
+   d.rounded_rectangle((knee[0]-23,pad_y,knee[0]+31,pad_y+10),4,fill=FAR,outline=INK,width=2)
+   d.line((153,pad_y+5,knee[0]-23,pad_y+5),fill=FAR,width=5)
+  limb(d,[hip,knee,foot],BLUE,13)
+  d.line((foot[0]-12,foot[1],foot[0]+5,foot[1]),fill=INK,width=6)
+  d.line((*hip,*shoulder),fill=BLUE,width=27)
+  d.line((*shoulder,*head),fill=BLUE,width=10)
+  d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
+  limb(d,[shoulder,elbow,hand],INK,11)
+  d.rounded_rectangle((hand[0]-8,hand[1]-5,hand[0]+8,hand[1]+5),3,fill=BLUE)
+  d.rounded_rectangle((45,183,210,231),4,outline=MUTED,width=2)
+  d.text((51,188),'PARALLEL HANDLES',font=FONTS[14],fill=MUTED)
+  for hx in (92,157):d.rounded_rectangle((hx-7,207,hx+7,225),2,fill=FAR,outline=INK,width=2)
+  d.text((47,242),'KNEE PLATFORM / ASSIST' if option=='assisted' else 'AIRBORNE FEET / FORWARD LEAN',font=FONTS[14],fill=MUTED)
+ elif kind=='cable-pull-through':
   ankle=(315,445);leg=77.5;hip_x=300-65*u
   reach=math.dist((300,295),ankle)
   hip=(hip_x,445-math.sqrt(reach**2-(315-hip_x)**2))
