@@ -7,10 +7,14 @@ import { activatePlan } from "../packages/domain/planActivation.js";
 import { enrichExercise } from "../packages/domain/exerciseLibrary.js";
 
 export default async function workoutCommand(req: Request, client: any) {
+  let action = "unknown";
+  let stage = "authenticate";
   try {
     const user = await client.auth.me();
     if (!user) return Response.json({ error: "Sign in to continue." }, { status: 401 });
+    stage = "validate";
     const input = workoutCommandSchema.parse(await req.json());
+    action = input.action;
     if (!["start", "saveSet", "finish", "discard", "check", "activatePlan"].includes(input?.action))
       fail("Unknown workout action.");
     if (input.action === "check")
@@ -19,6 +23,7 @@ export default async function workoutCommand(req: Request, client: any) {
       client,
       user,
       async (assertLock: () => Promise<void>, profile: any) => {
+        stage = "load-workout";
         const db = client.asServiceRole.entities,
           filter = ownerFilter(user.id);
         if (input.action === "activatePlan")
@@ -145,6 +150,7 @@ export default async function workoutCommand(req: Request, client: any) {
           )
             fail("RIR must be from 0–10.");
           const rowKey = `${we.id}:${row.setNumber}`;
+          stage = "load-sets";
           const all = await db.ExerciseSet.filter(
             { ...filter, workoutSessionId: session.id },
             "created_date",
@@ -178,7 +184,9 @@ export default async function workoutCommand(req: Request, client: any) {
             timestamp: new Date().toISOString(),
             ...(row.rir === "" || row.rir == null ? {} : { rir: +row.rir }),
           };
+          stage = "lock-set";
           await assertLock();
+          stage = existing ? "update-set" : "create-set";
           const saved = existing
             ? await db.ExerciseSet.update(existing.id, payload)
             : await db.ExerciseSet.create(payload);
@@ -290,6 +298,8 @@ export default async function workoutCommand(req: Request, client: any) {
     return Response.json(result);
   } catch (error: any) {
     const status = error.status || 500;
+    if (status >= 500)
+      console.error(JSON.stringify({ event: "workout_command_failure", action, stage }));
     return Response.json(
       {
         error:
