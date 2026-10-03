@@ -175,6 +175,14 @@ TEMPLATES={
  'spoto-press':('barbell-horizontal-press','spoto'),
  'barbell-floor-press':('barbell-horizontal-press','floor'),
  'smith-machine-bench-press':('barbell-horizontal-press','smith'),
+ 'neutral-grip-dumbbell-bench-press':('dumbbell-bench-variant','neutral'),
+ 'single-arm-dumbbell-bench-press':('dumbbell-bench-variant','single'),
+ 'dumbbell-squeeze-press':('dumbbell-bench-variant','squeeze'),
+ 'machine-chest-press':('machine-horizontal-press','flat'),
+ 'incline-machine-chest-press':('machine-horizontal-press','incline'),
+ 'plate-loaded-chest-press':('machine-horizontal-press','plate-loaded'),
+ 'single-arm-machine-chest-press':('machine-horizontal-press','single'),
+ 'smith-machine-incline-press':('barbell-horizontal-press','smith-incline'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -366,8 +374,79 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='barbell-horizontal-press':
-  floor=option=='floor';incline=option=='incline';decline=option=='decline';smith=option=='smith'
+ if kind=='dumbbell-bench-variant':
+  # Separate dumbbells, neutral grip, unilateral trunk control, and a
+  # continuously contacting squeeze pair are distinct flat-bench mechanics.
+  shoulder=(230,345);hip=(330,345);head=(185,340)
+  d.rounded_rectangle((160,360,405,376),5,fill=FAR)
+  for x in (185,390):d.line((x,376,x,455),fill=FAR,width=7)
+  limb(d,[hip,(360,318),(394,347)],BLUE,16)
+  line(d,(394,347),(420,350),INK,9)
+  line(d,hip,shoulder,BLUE,26);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  for offset,color in ((-15,FAR),(15,INK)):
+   start=(shoulder[0]+offset,shoulder[1])
+   if option=='single' and offset<0:
+    limb(d,[start,(start[0]+7,383),(start[0]+41,398)],FAR,10)
+    continue
+   hand=(start[0]+30,325-115*u)
+   elbow=ik(start,hand,75,65,side=-1)
+   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((start,elbow,75),(elbow,hand,65))):raise ValueError('Dumbbell bench variant arm changed length')
+   limb(d,[start,elbow,hand],color,12)
+   if option=='squeeze':
+    d.rounded_rectangle((hand[0]-17,hand[1]-18,hand[0]+17,hand[1]+18),5,fill=FAR,outline=INK,width=2)
+    d.ellipse((hand[0]-4,hand[1]-4,hand[0]+4,hand[1]+4),fill=BLUE)
+   else:weight(d,hand,hammer=option=='neutral')
+  if option=='squeeze':
+   d.text((49,230),'TWO BELLS TOUCH THROUGHOUT',font=FONTS[14],fill=MUTED)
+  if option=='single':d.text((49,230),'ONE ARM / TORSO STAYS SQUARE',font=FONTS[14],fill=MUTED)
+  if option=='neutral':
+   d.rounded_rectangle((40,141,183,231),7,fill=BG,outline=FAR,width=2)
+   d.text((49,148),'TOP GRIP VIEW',font=FONTS[14],fill=MUTED)
+   for x in (89,136):
+    d.line((x,180,x,204),fill=INK,width=7)
+    d.rounded_rectangle((x-11,184,x+11,206),4,fill=BLUE,outline=INK,width=2)
+   d.text((49,211),'PALMS FACE IN',font=FONTS[14],fill=INK)
+ elif kind=='machine-horizontal-press':
+  incline=option=='incline';single=option=='single'
+  hip=(294,340) if incline else (253,340)
+  shoulder=(242,218) if incline else (240,220)
+  head=(shoulder[0]-5,shoulder[1]-39)
+  if incline:
+   d.line((222,204,309,357),fill=FAR,width=19)
+   d.rounded_rectangle((258,337,333,353),5,fill=FAR)
+  else:
+   d.rounded_rectangle((222,211,240,352),5,fill=FAR)
+   d.rounded_rectangle((221,336,322,353),5,fill=FAR)
+  for x in (236,318):d.line((x,353,x,456),fill=FAR,width=7)
+  limb(d,[hip,(347,379),(380,444)],BLUE,16)
+  line(d,(380,444),(407,448),INK,8)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-18,head[0]+18,head[1]+18),fill=INK)
+  pivot=(450,330) if incline else (342,420)
+  radius=160 if incline else 165
+  angle=(3.65+.47*u) if incline else (-1.83+.52*u)
+  hand=polar(pivot,radius,angle)
+  if abs(math.dist(pivot,hand)-radius)>1e-6:raise ValueError('Machine press lever changed length')
+  d.line((pivot[0],pivot[1],pivot[0],455),fill=FAR,width=8)
+  d.ellipse((pivot[0]-12,pivot[1]-12,pivot[0]+12,pivot[1]+12),fill=INK)
+  d.line([xy(pivot),xy(hand)],fill=FAR,width=8)
+  if option=='plate-loaded':
+   plate=polar(pivot,83,angle)
+   d.ellipse((plate[0]-19,plate[1]-19,plate[0]+19,plate[1]+19),fill=FAR,outline=INK,width=3)
+   d.ellipse((plate[0]-5,plate[1]-5,plate[0]+5,plate[1]+5),fill=BG)
+  else:
+   d.rounded_rectangle((pivot[0]-18,377,pivot[0]+19,421),4,fill=FAR,outline=INK,width=2)
+  elbow=ik(shoulder,hand,82,75,side=-1)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,elbow,82),(elbow,hand,75))):raise ValueError('Machine press arm changed length')
+  limb(d,[shoulder,elbow,hand],INK,12)
+  d.rounded_rectangle((hand[0]-10,hand[1]-5,hand[0]+10,hand[1]+5),3,fill=INK,outline=BLUE,width=2)
+  if single:
+   limb(d,[shoulder,(shoulder[0]-25,shoulder[1]+68),(shoulder[0]-20,shoulder[1]+108)],FAR,10)
+   d.text((50,232),'ONE HANDLE / TORSO SQUARE',font=FONTS[14],fill=MUTED)
+  else:d.text((50,232),'BACK PAD / MOVING LEVER',font=FONTS[14],fill=MUTED)
+ elif kind=='barbell-horizontal-press':
+  floor=option=='floor';incline=option in ('incline','smith-incline');decline=option=='decline';smith=option in ('smith','smith-incline')
   if floor:
    shoulder=(230,420);hip=(330,420);head=(185,417)
    limb(d,[hip,(361,350),(401,437)],BLUE,16)
@@ -400,7 +479,8 @@ def draw_pose(d,kind,option,u):
    line(d,(394,347),(420,350),INK,9)
    low_y,high_y=(295 if option=='spoto' else 325),210
   if smith:
-   for x in (150,370):
+   rail_center=shoulder[0]+30
+   for x in (rail_center-110,rail_center+110):
     d.line((x,91,x,457),fill=FAR,width=7)
     d.line((x-14,389,x+14,389),fill=INK,width=5)
   else:
@@ -424,7 +504,7 @@ def draw_pose(d,kind,option,u):
   d.line((center[0]-span,center[1],center[0]+span,center[1]),fill=INK,width=7)
   for x in (center[0]-span+17,center[0]+span-17):d.rounded_rectangle((x-8,center[1]-21,x+8,center[1]+21),4,fill=FAR,outline=INK,width=2)
   if smith:
-   for x in (150,370):d.rounded_rectangle((x-6,center[1]-9,x+6,center[1]+9),2,fill=INK)
+   for x in (rail_center-110,rail_center+110):d.rounded_rectangle((x-6,center[1]-9,x+6,center[1]+9),2,fill=INK)
   if option=='close':
    d.rounded_rectangle((39,141,165,231),7,fill=BG,outline=FAR,width=2)
    d.text((48,148),'TOP GRIP VIEW',font=FONTS[14],fill=MUTED)
