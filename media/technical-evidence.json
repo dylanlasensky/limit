@@ -507,6 +507,84 @@
     "audio": false
   },
   {
+    "catalogKey": "barbell-bent-over-row",
+    "videoSha256": "e4d948ca85937f40b7d54c2ff36d9598c62e3ab9c1eb61fe77adc0d0ea34676c",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "underhand-barbell-row",
+    "videoSha256": "22c51b740030cd0beaa8d5422be533465158f1317d1935925d6ca5551cb156a0",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "pendlay-row",
+    "videoSha256": "d5218b0bab44ad8101285622fc3f619a76b595699274eb69fc3fbfd1d75afb6f",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "seal-row",
+    "videoSha256": "9b734b7647bb980edb1517a29f469a65e4b451ae40cb2393c13b3e845216cb35",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "t-bar-row",
+    "videoSha256": "f4e13910014d4339de2addac20eefd764a8f00f13ac5484911483178f06c978b",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "meadows-row",
+    "videoSha256": "b80edc3b3cd81adfb762784ff9d289374c0b3ec2b4c65726f8d3506190dda75f",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "single-arm-dumbbell-row",
     "videoSha256": "120aef333f001f02aa36639b2fecbda3615ccca25c2662ecfdf4e76b75e0902a",
     "duration": 8,
@@ -611,6 +689,19 @@
     "audio": false
   },
   {
+    "catalogKey": "smith-machine-bent-over-row",
+    "videoSha256": "2acd24dfba5db854e93613de21803559a4caf1b8041f8e6f5b71944b720504c3",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "resistance-band-row",
     "videoSha256": "c80c1c8e89eb846b4f18d01008cdc513ef846c7bf8ed5ee39ca2cc2d775b389f",
     "duration": 8,
@@ -626,6 +717,19 @@
   {
     "catalogKey": "inverted-row",
     "videoSha256": "acaa4c07f2bff6827c870a08774732824258fd387dfba0c4ebc44e13f65b8842",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "suspension-row",
+    "videoSha256": "2c1a51070f8ee3a0a99f7a430641cecc49d8286e7ac322cc0e42c984b79f27c2",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -2809,7 +2913,7 @@
   },
   {
     "catalogKey": "cable-woodchop",
-    "videoSha256": "8bfa52878dd5ee500d2dd7d6d01695522355ce04b7b4f096f9149066633db250",
+    "videoSha256": "47e139969f8b150c9ccf9b4c4e40df046cb86ed0d8b90b9bc6ad902b40ee5cec",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -2822,7 +2926,7 @@
   },
   {
     "catalogKey": "low-to-high-cable-lift",
-    "videoSha256": "3b97716a62d267085d379351de98e753bd5ae91cc5e1235cbc8b1b882719cbc1",
+    "videoSha256": "375464e39b9c6b90a05404e0417e448db7828853f1b0d89fff6ea9506bf7e2ac",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -2835,7 +2939,7 @@
   },
   {
     "catalogKey": "half-kneeling-cable-chop",
-    "videoSha256": "ddd9daf0a89e1e3a459b7b04d9b7e99ae8b0dacb13e3404ce74f46a7b37cf171",
+    "videoSha256": "8c891a1e88d336f040c2f37a84e3b73dcc14561bf57a910e326332a30ed43f50",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",
@@ -2848,7 +2952,7 @@
   },
   {
     "catalogKey": "half-kneeling-cable-lift",
-    "videoSha256": "a41c32a908528ffe6b0bb66a0ce7c9194688b60b1c089ec4e2e082435ab7e8ae",
+    "videoSha256": "7e07ac74ad2fbbd3505bf52374d9b0b5d707bb53e0924f7cd70348a4e50081a8",
     "duration": 8,
     "codec": "h264",
     "pixelFormat": "yuv420p",

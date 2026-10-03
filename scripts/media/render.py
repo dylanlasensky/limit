@@ -208,6 +208,14 @@ TEMPLATES={
  'low-to-high-cable-lift':('diagonal-pull','low-standing'),
  'half-kneeling-cable-chop':('diagonal-pull','high-kneeling'),
  'half-kneeling-cable-lift':('diagonal-pull','low-kneeling'),
+ 'barbell-bent-over-row':('loaded-row','barbell'),
+ 'underhand-barbell-row':('loaded-row','underhand'),
+ 'pendlay-row':('loaded-row','pendlay'),
+ 'seal-row':('loaded-row','seal'),
+ 't-bar-row':('loaded-row','t-bar'),
+ 'meadows-row':('loaded-row','meadows'),
+ 'smith-machine-bent-over-row':('loaded-row','smith'),
+ 'suspension-row':('suspension-row',None),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -399,7 +407,87 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='supported-trunk-crunch':
+ if kind=='loaded-row':
+  seal=option=='seal';pendlay=option=='pendlay';meadows=option=='meadows'
+  if seal:
+   hip=(367,277);shoulder=(254,277);head=(218,269)
+   d.rounded_rectangle((196,298,424,313),5,fill=FAR)
+   for x in (217,405):line(d,(x,313),(x,455),FAR,6)
+   limb(d,[hip,(425,285),(471,285)],BLUE,16)
+   line(d,(471,285),(489,289),INK,8)
+   d.text((44,181),'PRONE / HIGH BENCH',font=FONTS[14],fill=MUTED)
+  else:
+   hip=(369,288 if pendlay else 308)
+   shoulder=(250,287 if pendlay else 265);head=(216,279 if pendlay else 257)
+   for offset in (0,23):
+    knee=(370+offset,381);foot=(380+offset,445)
+    limb(d,[hip,knee,foot],BLUE if not offset else FAR,16)
+    line(d,foot,(foot[0]+17,448),INK,8)
+  line(d,hip,shoulder,BLUE,27);line(d,shoulder,head,BLUE,11)
+  d.ellipse((head[0]-18,head[1]-17,head[0]+18,head[1]+17),fill=INK)
+  if option=='smith':
+   for x in (174,430):
+    line(d,(x,112),(x,455),FAR,6)
+    line(d,(x-11,405),(x+11,405),INK,4)
+   hand=(310,393-70*u)
+  elif option in ('t-bar','meadows'):
+   pivot=(95,442) if meadows else (111,442)
+   radius=200
+   hand=polar(pivot,radius,-.25-.34*u)
+   line(d,pivot,hand,INK,7)
+   d.ellipse((pivot[0]-9,pivot[1]-9,pivot[0]+9,pivot[1]+9),outline=FAR,width=4)
+   if abs(math.dist(pivot,hand)-radius)>1e-6:raise ValueError('Landmine row bar radius changed')
+   d.rounded_rectangle((hand[0]-27,hand[1]-12,hand[0]-14,hand[1]+12),3,fill=FAR)
+   d.text((45,181),'ONE ARM / OFF-CENTER END' if meadows else 'T HANDLE / FIXED PIVOT',font=FONTS[14],fill=MUTED)
+  else:
+   hand=(308,435-112*u) if pendlay else ((309,413-84*u) if seal else (310,393-70*u))
+  if meadows:
+   brace=(205,382)
+   d.rounded_rectangle((179,384,228,395),4,fill=FAR)
+   for x in (184,223):line(d,(x,395),(x,455),FAR,5)
+   support_elbow=ik(shoulder,brace,89,80,side=-1)
+   limb(d,[shoulder,support_elbow,brace],FAR,10)
+   loaded_shoulder=(shoulder[0]+25,shoulder[1]+5)
+   elbow=ik(loaded_shoulder,hand,84,78,side=1)
+   limb(d,[loaded_shoulder,elbow,hand],INK,11)
+  else:
+   starts=[(shoulder[0]-8,shoulder[1]),(shoulder[0]+8,shoulder[1])]
+   for i,start in enumerate(starts):
+    endpoint=(hand[0]+(-9 if i==0 else 9),hand[1])
+    upper=88 if pendlay else 81;lower=83 if pendlay else 79
+    elbow=ik(start,endpoint,upper,lower,side=1)
+    limb(d,[start,elbow,endpoint],FAR if i==0 else INK,10)
+  if option in ('barbell','underhand','pendlay','seal','smith'):
+   y=hand[1]
+   line(d,(176,y),(431,y),INK,6)
+   for x in (192,415):d.rounded_rectangle((x-8,y-19,x+8,y+19),3,fill=FAR,outline=INK,width=2)
+   if option=='smith':
+    for x in (174,430):d.ellipse((x-6,y-6,x+6,y+6),fill=BLUE,outline=INK,width=2)
+   if option=='underhand':draw_curl_grip_inset(d,False,False,upper=True)
+   elif option=='barbell':draw_curl_grip_inset(d,False,True,upper=True)
+   elif pendlay:
+    d.text((45,181),'FLOOR RESET / TORSO FIXED',font=FONTS[14],fill=MUTED)
+    if u==0 and abs(y-435)>1e-6:raise ValueError('Pendlay floor reset changed')
+ elif kind=='suspension-row':
+  foot=(440,445);shoulder_y=390-50*u
+  shoulder=(foot[0]-math.sqrt(160**2-(foot[1]-shoulder_y)**2),shoulder_y)
+  hip=(shoulder[0]+.62*(foot[0]-shoulder[0]),shoulder[1]+.62*(foot[1]-shoulder[1]))
+  head=(shoulder[0]-33,shoulder[1]-11)
+  anchor=(171,111);handle=(238,310)
+  for dx in (-9,9):
+   line(d,(anchor[0]+dx,anchor[1]),(handle[0]+dx,handle[1]),FAR,3)
+   d.rounded_rectangle((handle[0]+dx-5,handle[1]-7,handle[0]+dx+5,handle[1]+7),3,fill=INK)
+  line(d,shoulder,hip,BLUE,27);line(d,hip,foot,BLUE,27)
+  if abs(math.dist(shoulder,foot)-160)>1e-6:raise ValueError('Suspension row body length changed')
+  line(d,foot,(459,449),INK,8)
+  line(d,shoulder,head,BLUE,10)
+  d.ellipse((head[0]-17,head[1]-17,head[0]+17,head[1]+17),fill=INK)
+  for dx,color in ((-9,FAR),(9,INK)):
+   start=(shoulder[0]+dx,shoulder[1]);end=(handle[0]+dx,handle[1])
+   elbow=ik(start,end,60,60,side=-1)
+   limb(d,[start,elbow,end],color,10)
+  d.text((45,181),'FIXED ANCHOR / STRAPS / HEELS',font=FONTS[14],fill=MUTED)
+ elif kind=='supported-trunk-crunch':
   # Pelvis stays fixed; the shoulder and head travel on a short trunk arc.
   hip=(284,351) if option=='machine' else (290,355)
   mid=(hip[0],hip[1]-65)
@@ -447,7 +535,8 @@ def draw_pose(d,kind,option,u):
   # Frontal oblique schematic: a fixed anchor pulls from the left; torso and
   # pelvis stay stacked. Diagonal options move the gripped hands across body.
   kneel=kind=='diagonal-pull' and option.endswith('kneeling')
-  hip=(300,341);shoulder=(300,218);head=(300,179)
+  hip=(300,341);shoulder=(300+(14*u if kind=='diagonal-pull' else 0),218)
+  head=(shoulder[0],179)
   if kneel:
    limb(d,[hip,(248,391),(240,447)],BLUE,16)
    line(d,(240,447),(215,449),INK,8)
@@ -459,6 +548,21 @@ def draw_pose(d,kind,option,u):
     limb(d,[hip,knee,foot],BLUE,16);line(d,foot,(foot[0]+side*18,449),INK,8)
   line(d,hip,shoulder,BLUE,29);line(d,shoulder,head,BLUE,11)
   d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+17),fill=INK)
+  if kind=='diagonal-pull':
+   # The pelvis stays square while the shoulder line turns with the pull.
+   # A synchronized top-view inset makes transverse rotation unambiguous.
+   turn=(.52 if option.startswith('high') else -.52)*u
+   left=(shoulder[0]-35*math.cos(turn),shoulder[1]-35*math.sin(turn))
+   right=(shoulder[0]+35*math.cos(turn),shoulder[1]+35*math.sin(turn))
+   line(d,left,shoulder,FAR,9);line(d,shoulder,right,BLUE,9)
+   d.rounded_rectangle((42,277,188,362),7,fill=BG,outline=FAR,width=2)
+   d.text((49,283),'TOP VIEW / TURN',font=FONTS[14],fill=MUTED)
+   line(d,(79,340),(151,340),FAR,5)
+   line(d,(115,335),(115,317),BLUE,7)
+   a=(115-34*math.cos(turn),317-34*math.sin(turn))
+   b=(115+34*math.cos(turn),317+34*math.sin(turn))
+   line(d,a,b,BLUE,7)
+   d.text((49,343),'PELVIS STEADY',font=FONTS[14],fill=INK)
   if kind=='anti-rotation':
    anchor=(95,259);hand=(322+68*u,270-12*u)
    label='CHEST-HEIGHT CABLE / PRESS AWAY' if option=='cable' else 'SECURE BAND ANCHOR / PRESS AWAY'
