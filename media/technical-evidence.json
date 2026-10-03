@@ -351,6 +351,32 @@
     "audio": false
   },
   {
+    "catalogKey": "dumbbell-wrist-curl",
+    "videoSha256": "41dc836bf8724fb0ac997601b347e0f7af36b70af898091344300244196bc58b",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
+    "catalogKey": "dumbbell-reverse-wrist-curl",
+    "videoSha256": "c51cddc3da0fcfb2f0bc7b19f1c3524a9a3939b16fa3e4711d71c0bb7276f85f",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "goblet-squat",
     "videoSha256": "f9fcad76fd31be837bbb2c172af3add271b33242a59f74349ed5f6e94e269abc",
     "duration": 8,

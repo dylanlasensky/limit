@@ -45,6 +45,8 @@ TEMPLATES={
  'chest-supported-dumbbell-row':('chest-supported-row','incline'),
  'dumbbell-seal-row':('chest-supported-row','seal'),
  'side-plank-hip-lift':('side-plank-hip-lift',None),
+ 'dumbbell-wrist-curl':('wrist-curl','palm-up'),
+ 'dumbbell-reverse-wrist-curl':('wrist-curl','palm-down'),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -104,7 +106,23 @@ def phase(t):
  return 0,'Reset'
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='side-plank-hip-lift':
+ if kind=='wrist-curl':
+  # Close-up keeps the forearm planted on a padded bench. Only the hand and
+  # light dumbbell rotate at the wrist. Thumb side and label encode grip.
+  d.rounded_rectangle((145,313,362,333),6,fill=FAR)
+  for x in (167,340):d.line((x,333,x,456),fill=FAR,width=8)
+  elbow=(178,297);wrist=(353,297)
+  line(d,elbow,wrist,BLUE,24)
+  angle=.55-.98*u
+  hand=polar(wrist,49,angle)
+  if abs(math.dist(wrist,hand)-49)>1e-6 or wrist!=(353,297):raise ValueError('Wrist support changed')
+  line(d,wrist,hand,INK,17)
+  midpoint=((wrist[0]+hand[0])/2,(wrist[1]+hand[1])/2)
+  thumb=add(midpoint,(0,-14 if option=='palm-up' else 14))
+  d.ellipse((thumb[0]-6,thumb[1]-6,thumb[0]+6,thumb[1]+6),fill=BLUE)
+  weight(d,hand,hammer=True)
+  d.text((160,235),'PALM UP' if option=='palm-up' else 'PALM DOWN',font=FONTS[18],fill=MUTED)
+ elif kind=='side-plank-hip-lift':
   # The forearm and lower foot remain planted. The shoulder rotates about the
   # elbow and a fixed-length trunk/leg chain lifts the pelvis without twisting.
   elbow=(220,430);foot=(450,430)
