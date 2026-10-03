@@ -208,6 +208,7 @@ TEMPLATES={
  'suspension-push-up':('suspension-push-up',None),
  'wall-handstand-push-up':('wall-handstand-push-up',None),
  'glute-ham-raise':('glute-ham-raise',None),
+ 'pendulum-squat':('pendulum-squat',None),
  'cable-crunch':('supported-trunk-crunch','kneeling-cable'),
  'machine-abdominal-crunch':('supported-trunk-crunch','machine'),
  'captain-s-chair-knee-raise':('captain-chair-raise',None),
@@ -1876,6 +1877,30 @@ def draw_pose(d,kind,option,u):
   if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((shoulder,elbow,74 if option=='front' else 73),(elbow,hand,65))):raise ValueError('Cable raise arm changed length')
   d.line([xy(anchor),xy(hand)],fill=INK,width=3)
   d.rounded_rectangle((hand[0]-8,hand[1]-5,hand[0]+8,hand[1]+5),3,fill=FAR,outline=INK,width=2)
+ elif kind=='pendulum-squat':
+  # The back/shoulder carriage swings around a fixed machine pivot.
+  # Both feet stay on one platform while invariant leg lengths solve the knee.
+  pivot=(105,190);radius=220;angle=-.1+.3*u
+  shoulder=polar(pivot,radius,angle);hip=(shoulder[0]-5,shoulder[1]+125)
+  ankle=(330,445);knee=ik(hip,ankle,79,79,side=1)
+  head=(shoulder[0]-1,shoulder[1]-34)
+  if abs(math.dist(pivot,shoulder)-radius)>1e-6 or abs(math.dist(hip,shoulder)-math.hypot(5,125))>1e-6:raise ValueError('Pendulum lever or torso length changed')
+  if abs(math.dist(hip,knee)-79)>1e-6 or abs(math.dist(knee,ankle)-79)>1e-6 or knee[0]<310:raise ValueError('Pendulum knee or foot path changed')
+  d.ellipse((pivot[0]-13,pivot[1]-13,pivot[0]+13,pivot[1]+13),fill=FAR,outline=INK,width=3)
+  d.line((pivot[0],pivot[1],pivot[0],450),fill=FAR,width=8)
+  d.line([xy(pivot),xy(shoulder)],fill=FAR,width=10)
+  d.rounded_rectangle((200,225,228,239),4,fill=FAR,outline=INK,width=2)
+  d.text((45,249),'ADJUSTABLE SAFETY STOP',font=FONTS[14],fill=MUTED)
+  d.rounded_rectangle((245,445,398,461),4,fill=FAR,outline=INK,width=2)
+  d.line((257,461,257,474),fill=FAR,width=6)
+  d.line((383,461,383,474),fill=FAR,width=6)
+  d.line([xy(add(hip,(-19,0))),xy(add(shoulder,(-19,0)))],fill=FAR,width=24)
+  d.rounded_rectangle((shoulder[0]-32,shoulder[1]-9,shoulder[0]+20,shoulder[1]+15),6,fill=FAR,outline=INK,width=2)
+  limb(d,[hip,knee,ankle],BLUE,18)
+  line(d,ankle,(360,448),INK,9)
+  body(d,hip,shoulder,head)
+  elbow=(shoulder[0]+35,shoulder[1]+38);hand=(shoulder[0]+20,shoulder[1]+7)
+  limb(d,[shoulder,elbow,hand],INK,9)
  elif kind=='equipment-squat':
   smith=option.startswith('smith');hack=option=='hack'
   if smith:

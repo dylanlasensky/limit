@@ -1,12 +1,11 @@
 # Remaining exercise media engineering gaps
 
-Snapshot from `media/manifest.json` at 321 technical videos, 44 blocked variants and zero human fitness approvals. These are exact-key engineering gaps. Written movement instructions remain available. A block reason is not a failed human fitness review.
+Snapshot from `media/manifest.json` at 322 technical videos, 43 blocked variants and zero human fitness approvals. These are exact-key engineering gaps. Written movement instructions remain available. A block reason is not a failed human fitness review.
 
 | Exact key | Current blocking reason |
 | --- | --- |
 | `single-arm-landmine-press` | Single-Arm Landmine Press: the fixed-pivot press trial folds the elbow behind the torso at the chest start; a coupled bar/shoulder/forearm rig is still needed. |
 | `half-kneeling-landmine-press` | Half-Kneeling Landmine Press: the fixed-pivot press trial folds the elbow behind the torso at the chest start despite stable knee and foot contacts; a coupled bar/shoulder/forearm rig is still needed. |
-| `pendulum-squat` | Pendulum Squat: current renderer lacks foot support, knee tracking, hip depth and the specified stance/load setup; it also lacks the actual seat, pads, lever or sled and safe contact points. This variation requires "Set the safety stop before adding load". Add exact setup and phase-specific joint/support constraints before generating a video. |
 | `landmine-squat` | Landmine Squat: a constant-length bar from the fixed pivot currently drives the chest-held end away from the squat torso at depth; this needs a coupled pivot, torso and foot-contact rig before a video can be generated. |
 | `landmine-reverse-lunge` | Landmine Reverse Lunge: current renderer lacks each foot or box contact, pelvis level and the specified step or descent direction; it also lacks a fixed bar pivot and its arcing load path. This variation requires "Secure the attachment and keep the bar end near your chest". Add exact setup and phase-specific joint/support constraints before generating a video. |
 | `clean-pull` | Clean Pull: current renderer lacks floor or hang start, bar acceleration, extension and controlled reset; it also lacks a bar with visible plates, hand placement and rack or floor contact. This variation requires "This is a pull without a catch; do not turn it into an arm curl". Add exact setup and phase-specific joint/support constraints before generating a video. |

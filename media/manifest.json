@@ -7160,14 +7160,14 @@
   {
     "catalogKey": "pendulum-squat",
     "name": "Pendulum Squat",
-    "poster": "exercises/pendulum-squat/v233505234623091/4715957288b5c9d8dc75011ec5b7d58cb63b2dc3be9baffbda600bf16dc1bb7b.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/pendulum-squat/v151482685537399/2c11568923a94d7aa838547e5b1d94ab779ba98ff8164aa7eef2b096a321e820.png",
+    "source": "exercises/pendulum-squat/v151482685537399/5df623cdc0932e2a492a0cc6b1762c3e35aed838df28f44b59b2d0dd8b3604dd.mp4",
+    "format": "mp4",
     "caption": "Set a stable stance, brace your trunk, and keep pressure through your whole foot. Bend at the knees and hips to a controlled, comfortable depth, then stand without bouncing. Set the safety stop before adding load.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 233505234623091,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 151482685537399,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -7179,15 +7179,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "4715957288b5c9d8dc75011ec5b7d58cb63b2dc3be9baffbda600bf16dc1bb7b",
-    "videoSha256": null,
-    "bytes": 41340,
-    "blockReason": "Pendulum Squat: current renderer lacks foot support, knee tracking, hip depth and the specified stance/load setup; it also lacks the actual seat, pads, lever or sled and safe contact points. This variation requires \"Set the safety stop before adding load\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "2c11568923a94d7aa838547e5b1d94ab779ba98ff8164aa7eef2b096a321e820",
+    "videoSha256": "5df623cdc0932e2a492a0cc6b1762c3e35aed838df28f44b59b2d0dd8b3604dd",
+    "bytes": 87947,
+    "blockReason": "",
+    "template": "pendulum-squat",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
