@@ -143,6 +143,14 @@ TEMPLATES={
  'dumbbell-forearm-pronation':('forearm-turn','pronation'),
  'dumbbell-forearm-supination':('forearm-turn','supination'),
  'zottman-curl':('zottman-curl',None),
+ 'barbell-back-squat':('barbell-squat','back'),
+ 'high-bar-back-squat':('barbell-squat','high'),
+ 'low-bar-back-squat':('barbell-squat','low'),
+ 'paused-back-squat':('barbell-squat','paused'),
+ 'box-squat':('barbell-squat','box'),
+ 'barbell-front-squat':('barbell-squat','front'),
+ 'zercher-squat':('barbell-squat','zercher'),
+ 'safety-bar-squat':('barbell-squat','safety'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -212,6 +220,12 @@ def alternating_phase(t):
  if p<2:return 1,'Pause comfortably'
  if p<3:return (1+math.cos(math.pi*(p-2)))/2,'Lower with control'
  return 0,'Switch sides' if t<4 else 'Reset'
+def paused_squat_phase(t):
+ if t<1:return 0,'Set up'
+ if t<3:return (1-math.cos(math.pi*(t-1)/2))/2,'Descend with control'
+ if t<5:return 1,'Hold the bottom / keep braced'
+ if t<7:return (1+math.cos(math.pi*(t-5)/2))/2,'Stand with control'
+ return 0,'Reset'
 def draw_grip_inset(d,orientation,u=0):
  # A second, close camera view makes palm direction readable when the full
  # front-view pulldown cannot show depth around the overhead handle.
@@ -315,7 +329,54 @@ def draw_zottman_grip_inset(d,turn):
  d.text((50,338),'PALMS UP' if turn<.05 else ('PALMS DOWN' if turn>.95 else 'TURN WRISTS'),font=FONTS[14],fill=INK)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='anchored-rotation':
+ if kind=='barbell-squat':
+  # Fixed feet, thigh/shin/torso lengths, and visible safeties. The bar
+  # position, elbow support, and box/yoke geometry are exact to the option.
+  d.line((102,123,102,458),fill=FAR,width=8)
+  d.line((484,123,484,458),fill=FAR,width=8)
+  d.line((102,416,176,416),fill=FAR,width=7)
+  d.line((430,416,484,416),fill=FAR,width=7)
+  if option=='box':
+   d.rounded_rectangle((124,377,245,393),4,fill=FAR)
+   for x in (144,224):d.line((x,393,x,454),fill=FAR,width=8)
+  ankle=(310,447);hip=(302-72*u,294+68*u)
+  lean={'back':.32,'high':.22,'low':.47,'paused':.32,'box':.36,'front':.12,'zercher':.28,'safety':.30}[option]
+  shoulder=polar(hip,126,-math.pi/2+lean*u)
+  head=polar(shoulder,33,-math.pi/2+.10*u)
+  knee=ik(hip,ankle,79,78)
+  if any(abs(math.dist(a,b)-length)>1e-6 for a,b,length in ((hip,knee,79),(knee,ankle,78),(hip,shoulder,126))):raise ValueError('Bar squat body segment changed length')
+  limb(d,[hip,knee,ankle],BLUE,18)
+  line(d,ankle,(347,450),INK,10)
+  body(d,hip,shoulder,head)
+  if option=='front':bar=(shoulder[0]+32,shoulder[1]+12);label='FRONT RACK'
+  elif option=='zercher':bar=(shoulder[0]+48,shoulder[1]+65);label='ELBOW CROOKS'
+  elif option=='low':bar=(shoulder[0]-14,shoulder[1]+26);label='REAR SHOULDERS'
+  elif option=='high':bar=(shoulder[0]-7,shoulder[1]+4);label='UPPER TRAPS'
+  else:bar=(shoulder[0]-9,shoulder[1]+13);label='BACK RACK'
+  if option=='safety':
+   label='YOKE / FRONT HANDLES'
+   d.rounded_rectangle((bar[0]-30,bar[1]-13,bar[0]+30,bar[1]+13),7,fill=FAR,outline=INK,width=2)
+   d.line((bar[0]-78,bar[1]-17,bar[0]-52,bar[1]+16),fill=INK,width=7)
+   d.line((bar[0]-52,bar[1]+16,bar[0]+52,bar[1]+16),fill=INK,width=7)
+   d.line((bar[0]+52,bar[1]+16,bar[0]+78,bar[1]-17),fill=INK,width=7)
+   handle=(bar[0]+57,bar[1]+51)
+   d.line((bar[0]+24,bar[1]+9,handle[0],handle[1]),fill=INK,width=7)
+   limb(d,[shoulder,(shoulder[0]+42,shoulder[1]+45),handle],INK,10)
+  else:
+   d.line((bar[0]-78,bar[1],bar[0]+78,bar[1]),fill=INK,width=7)
+   if option=='zercher':
+    elbow=(bar[0]-3,bar[1]);hand=(bar[0]+27,bar[1]-17)
+    limb(d,[shoulder,elbow,hand],INK,11)
+   elif option=='front':
+    elbow=(bar[0]+38,bar[1]-12);hand=(bar[0]+9,bar[1]-6)
+    limb(d,[shoulder,elbow,hand],INK,11)
+   else:
+    elbow=(shoulder[0]+38,shoulder[1]+58);hand=(bar[0]+37,bar[1])
+    limb(d,[shoulder,elbow,hand],INK,10)
+  for px in (bar[0]-64,bar[0]+64):
+   d.rounded_rectangle((px-8,bar[1]-21,px+8,bar[1]+21),4,fill=FAR,outline=INK,width=2)
+  d.text((53,236),label,font=FONTS[14],fill=MUTED)
+ elif kind=='anchored-rotation':
   # Plan view makes the inward/outward forearm rotation unambiguous.
   cable=option.startswith('cable');external=option.endswith('external')
   d.rounded_rectangle((217,206,318,380),35,fill=FAR)
@@ -2089,6 +2150,8 @@ def frame(e,t,template=None):
    u,label=phase(t)
    turn=0 if t<=3 else (t-3 if t<4 else (1 if t<6 else (8-t)/2))
    draw_pose(d,'zottman-curl',turn,u)
+  elif template[0]=='barbell-squat' and template[1]=='paused':
+   u,label=paused_squat_phase(t);draw_pose(d,*template,u)
   else:
    u,label=phase(t);draw_pose(d,*template,u)
   d.text((55,105),label,font=FONTS[22],fill=INK)
