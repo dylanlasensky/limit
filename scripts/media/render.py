@@ -42,6 +42,7 @@ TEMPLATES={
  'dumbbell-bench-press':('dumbbell-horizontal-press','bench'),
  'incline-dumbbell-bench-press':('dumbbell-horizontal-press','incline'),
  'dumbbell-floor-press':('dumbbell-horizontal-press','floor'),
+ 'decline-dumbbell-bench-press':('dumbbell-horizontal-press','decline'),
  'chest-supported-dumbbell-row':('chest-supported-row','incline'),
  'dumbbell-seal-row':('chest-supported-row','seal'),
  'side-plank-hip-lift':('side-plank-hip-lift',None),
@@ -330,13 +331,22 @@ def draw_pose(d,kind,option,u):
   # Distinct supine bench, incline bench, and floor supports. Two separate
   # dumbbells rise above fixed shoulders; the floor version stops when the
   # upper arms gently meet the floor.
-  floor=option=='floor';incline=option=='incline'
+  floor=option=='floor';incline=option=='incline';decline=option=='decline'
   if floor:
    shoulder=(230,420);hip=(330,420);head=(185,417)
    limb(d,[hip,(361,350),(401,437)],BLUE,16)
    line(d,(401,437),(427,445),INK,9)
    d.line((155,450,445,450),fill=FAR,width=3)
    low_y,high_y=390,300
+  elif decline:
+   shoulder=(235,358);hip=(325,302);head=(205,376)
+   d.line((185,405,355,300),fill=FAR,width=18)
+   for x in (209,338):d.line((x,405,x,458),fill=FAR,width=7)
+   limb(d,[hip,(362,270),(402,286)],BLUE,16)
+   line(d,(402,286),(431,291),INK,9)
+   d.rounded_rectangle((392,270,418,279),4,fill=FAR)
+   d.line((405,279,405,306),fill=FAR,width=7)
+   low_y,high_y=310,225
   elif incline:
    shoulder=(245,295);hip=(330,350);head=(215,265)
    d.line((189,270,352,374),fill=FAR,width=18)

@@ -305,14 +305,14 @@
   {
     "catalogKey": "decline-dumbbell-bench-press",
     "name": "Decline Dumbbell Bench Press",
-    "poster": "exercises/decline-dumbbell-bench-press/v42371091916218/d71105169a34c09721877eba085c97eb25062be97d8975b3f5525cb54e2c2ea9.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/decline-dumbbell-bench-press/v35673349744154/c12f72adf5cbeb2e11d6b2abcdde069de290c2cd6f65d6b7b7406d027edff4b3.png",
+    "source": "exercises/decline-dumbbell-bench-press/v35673349744154/9f19ffaac784eed71c0ef0849b7efc30f03d288cf5e560633b33b7725b36781e.mp4",
+    "format": "mp4",
     "caption": "Set your support points before lifting and keep your wrists stacked over your forearms. Lower through a comfortable range, then press without bouncing or losing your setup. Secure your legs before positioning the weights.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 42371091916218,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 35673349744154,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -324,15 +324,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "d71105169a34c09721877eba085c97eb25062be97d8975b3f5525cb54e2c2ea9",
-    "videoSha256": null,
-    "bytes": 44554,
-    "blockReason": "Decline Dumbbell Bench Press: current renderer lacks shoulder support, grip width, elbow track and load path through the press; it also lacks the dumbbell grip, position and changing load path. This variation requires \"Secure your legs before positioning the weights\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "c12f72adf5cbeb2e11d6b2abcdde069de290c2cd6f65d6b7b7406d027edff4b3",
+    "videoSha256": "9f19ffaac784eed71c0ef0849b7efc30f03d288cf5e560633b33b7725b36781e",
+    "bytes": 91367,
+    "blockReason": "",
+    "template": "dumbbell-horizontal-press",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

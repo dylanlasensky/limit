@@ -26,6 +26,19 @@
     "audio": false
   },
   {
+    "catalogKey": "decline-dumbbell-bench-press",
+    "videoSha256": "9f19ffaac784eed71c0ef0849b7efc30f03d288cf5e560633b33b7725b36781e",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "dumbbell-floor-press",
     "videoSha256": "d72c97f4756c9d4a34db14b7fc625aaa248a9085ad6e604ec5a9091420590899",
     "duration": 8,
