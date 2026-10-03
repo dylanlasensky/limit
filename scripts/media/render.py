@@ -86,6 +86,7 @@ TEMPLATES={
  'single-arm-cable-row':('single-arm-cable-row',None),
  'standing-cable-row':('standing-cable-row',None),
  'half-kneeling-cable-row':('half-kneeling-cable-row',None),
+ 'cable-triceps-pushdown':('cable-triceps-pushdown',None),
  'glute-bridge':('bridge',False),'dumbbell-glute-bridge':('bridge',True),
  'push-up':('push-up','floor'),
  'kneeling-push-up':('push-up','knees'),
@@ -376,13 +377,19 @@ def draw_pose(d,kind,option,u):
    limb(d,[start,elbow,hand],color,11)
    if cable:d.rounded_rectangle((hand[0]-6,hand[1]-7,hand[0]+6,hand[1]+7),3,fill=FAR,outline=INK,width=2)
    else:d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
- elif kind=='band-triceps-pushdown':
-  # Side view: a high fixed wall anchor tensions the band while both elbows
-  # remain close to the ribs and the forearms extend without shoulder swing.
+ elif kind in ('band-triceps-pushdown','cable-triceps-pushdown'):
+  # Side view: a high band anchor or cable pulley tensions the load while
+  # both elbows remain beside the ribs and only the forearms extend.
+  cable=kind=='cable-triceps-pushdown'
   anchor=(438,123);hip=(302,333);shoulder=(298,213);head=(296,174)
   d.line((457,91,457,456),fill=FAR,width=5)
-  d.line((457,123,anchor[0],anchor[1]),fill=INK,width=8)
-  d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
+  if cable:
+   d.rounded_rectangle((441,334,476,420),5,fill=FAR,outline=INK,width=2)
+   for y in (352,371,390,409):d.line((444,y,473,y),fill=INK,width=2)
+   d.ellipse((anchor[0]-12,anchor[1]-12,anchor[0]+12,anchor[1]+12),fill=FAR,outline=INK,width=3)
+  else:
+   d.line((457,123,anchor[0],anchor[1]),fill=INK,width=8)
+   d.ellipse((anchor[0]-6,anchor[1]-6,anchor[0]+6,anchor[1]+6),fill=INK)
   limb(d,[hip,(285,389),(274,444)],FAR,16)
   line(d,(274,444),(253,448),INK,8)
   limb(d,[hip,(319,388),(340,444)],BLUE,17)
@@ -393,9 +400,10 @@ def draw_pose(d,kind,option,u):
    angle=-1.1+2.4*u
    hand=polar(elbow,69,angle)
    if abs(math.dist(elbow,hand)-69)>1e-6 or elbow[1]!=294:raise ValueError('Band pushdown elbow path changed')
-   d.line([xy(anchor),xy(hand)],fill=FAR,width=4)
+   d.line([xy(anchor),xy(hand)],fill=INK if cable else FAR,width=3 if cable else 4)
    limb(d,[start,elbow,hand],color,11)
-   d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
+   if cable:d.rounded_rectangle((hand[0]-6,hand[1]-7,hand[0]+6,hand[1]+7),3,fill=FAR,outline=INK,width=2)
+   else:d.ellipse((hand[0]-6,hand[1]-6,hand[0]+6,hand[1]+6),fill=BLUE)
  elif kind=='band-curl':
   # Front view: the under-foot band lengthens as each forearm rotates about
   # a fixed elbow; shoulders, torso and feet do not swing or lift.

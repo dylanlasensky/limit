@@ -5288,14 +5288,14 @@
   {
     "catalogKey": "cable-triceps-pushdown",
     "name": "Cable Triceps Pushdown",
-    "poster": "exercises/cable-triceps-pushdown/v28054736468723/898af6b00258a6dfc59897104e1c85dd42dd3da6d1615877204e31ca25a13c9f.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/cable-triceps-pushdown/v267828753413287/471d6a63b1f663a195013211bae5c18c894b8b962c416b2b33913053aaba9a99.png",
+    "source": "exercises/cable-triceps-pushdown/v267828753413287/00c757ed43cb66dcd001fc5368fd2d15678bcbca764fbca6e55d2feef66a8eee.mp4",
+    "format": "mp4",
     "caption": "Set a comfortable shoulder position and keep your upper arms steady. Straighten your elbows without snapping them, then return under control. Keep your elbows beside your ribs.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 28054736468723,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 267828753413287,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -5307,15 +5307,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "898af6b00258a6dfc59897104e1c85dd42dd3da6d1615877204e31ca25a13c9f",
-    "videoSha256": null,
-    "bytes": 41771,
-    "blockReason": "Cable Triceps Pushdown: current renderer lacks fixed upper arm, elbow hinge and full load path; it also lacks an anchored pulley, taut cable, handle and changing line of pull. This variation requires \"Keep your elbows beside your ribs\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "471d6a63b1f663a195013211bae5c18c894b8b962c416b2b33913053aaba9a99",
+    "videoSha256": "00c757ed43cb66dcd001fc5368fd2d15678bcbca764fbca6e55d2feef66a8eee",
+    "bytes": 100808,
+    "blockReason": "",
+    "template": "cable-triceps-pushdown",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
