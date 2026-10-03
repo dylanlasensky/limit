@@ -84,7 +84,7 @@ straight-arm-cable-pulldown,Straight-Arm Cable Pulldown,Cable,technical,Original
 rope-straight-arm-pulldown,Rope Straight-Arm Pulldown,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 single-arm-cable-pullover,Single-Arm Cable Pullover,Cable,technical,Original LIMIT-generated schematic; no third-party footage,,,
 dumbbell-pullover,Dumbbell Pullover,Dumbbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
-machine-pullover,Machine Pullover,Machine,blocked,Original LIMIT-generated schematic; no third-party footage,,,"Machine Pullover: current renderer lacks shoulder-driven arm path past the trunk without an elbow curl; it also lacks the actual seat, pads, lever or sled and safe contact points. This variation requires ""Adjust the seat and pad to the machine's pivot"". Add exact setup and phase-specific joint/support constraints before generating a video."
+machine-pullover,Machine Pullover,Machine,technical,Original LIMIT-generated schematic; no third-party footage,,,
 resistance-band-pulldown,Resistance Band Pulldown,Resistance band,technical,Original LIMIT-generated schematic; no third-party footage,,,
 barbell-overhead-press,Barbell Overhead Press,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,
 seated-barbell-shoulder-press,Seated Barbell Shoulder Press,Barbell,technical,Original LIMIT-generated schematic; no third-party footage,,,

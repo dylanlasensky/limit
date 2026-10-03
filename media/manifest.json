@@ -3059,14 +3059,14 @@
   {
     "catalogKey": "machine-pullover",
     "name": "Machine Pullover",
-    "poster": "exercises/machine-pullover/v145618711809389/30e269cdf82b155d268da3a4e887d5a2b2ca88723bf56c6033be33d7d271468e.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/machine-pullover/v234479540031967/6a6b91d4ee9c2506f353d933808c0bda8d8dd347f5ee15d56e440ed27cbbedd6.png",
+    "source": "exercises/machine-pullover/v234479540031967/4dcad22c5f02ffbdd5826b05eb6ad92d2c7da575a2e5409f9a11c2192393d87e.mp4",
+    "format": "mp4",
     "caption": "Keep your trunk steady and use a slight bend in your elbows. Move from the shoulders through a comfortable range rather than arching your lower back. Adjust the seat and pad to the machine's pivot.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 145618711809389,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 234479540031967,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -3078,15 +3078,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "30e269cdf82b155d268da3a4e887d5a2b2ca88723bf56c6033be33d7d271468e",
-    "videoSha256": null,
-    "bytes": 41594,
-    "blockReason": "Machine Pullover: current renderer lacks shoulder-driven arm path past the trunk without an elbow curl; it also lacks the actual seat, pads, lever or sled and safe contact points. This variation requires \"Adjust the seat and pad to the machine's pivot\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "6a6b91d4ee9c2506f353d933808c0bda8d8dd347f5ee15d56e440ed27cbbedd6",
+    "videoSha256": "4dcad22c5f02ffbdd5826b05eb6ad92d2c7da575a2e5409f9a11c2192393d87e",
+    "bytes": 84259,
+    "blockReason": "",
+    "template": "machine-pullover",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {

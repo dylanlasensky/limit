@@ -170,6 +170,7 @@ TEMPLATES={
  'leaning-cable-lateral-raise':('leaning-cable-lateral',None),
  'behind-the-body-cable-lateral-raise':('behind-cable-lateral',None),
  'machine-lateral-raise':('machine-lateral',None),
+ 'machine-pullover':('machine-pullover',None),
  'cable-front-raise':('cable-shoulder-raise','front'),
  'barbell-bench-press':('barbell-horizontal-press','flat'),
  'incline-barbell-bench-press':('barbell-horizontal-press','incline'),
@@ -1728,6 +1729,32 @@ def draw_pose(d,kind,option,u):
   d.line((137,408,137,444),fill=BLUE,width=10)
   d.rounded_rectangle((108+46*u,413-25*u,120+46*u,423-25*u),3,fill=INK)
   d.text((45,188),'START BEHIND HIP / RAISE OUT',font=FONTS[14],fill=MUTED)
+ elif kind=='machine-pullover':
+  # Seated side view: a shoulder-aligned fixed pivot drives a padded
+  # lever while the elbow angle and torso support remain unchanged.
+  pivot=(335,225);angle=-1.22+1.82*u
+  elbow=polar(pivot,72,angle);hand=polar(elbow,64,angle+0.12)
+  if abs(math.dist(pivot,elbow)-72)>1e-6 or abs(math.dist(elbow,hand)-64)>1e-6:raise ValueError('Machine pullover arm length changed')
+  if math.dist(elbow,(294,170))<33 or hand[0]>510 or hand[1]>360:raise ValueError('Machine pullover clearance changed')
+  # Fixed back, seat, lever pivot, foot platform and the moving elbow pad.
+  d.rounded_rectangle((278,210,295,350),5,fill=FAR,outline=INK,width=2)
+  d.rounded_rectangle((274,345,355,360),5,fill=FAR,outline=INK,width=2)
+  d.line((300,360,300,449),fill=FAR,width=8)
+  d.line((310,450,470,450),fill=FAR,width=7)
+  d.line((335,225,335,390),fill=FAR,width=6)
+  d.line((335,390,455,390),fill=FAR,width=6)
+  d.line([xy(pivot),xy(elbow),xy(hand)],fill=FAR,width=7)
+  d.ellipse((pivot[0]-12,pivot[1]-12,pivot[0]+12,pivot[1]+12),fill=FAR,outline=INK,width=3)
+  hip=(321,333);head=(294,170)
+  limb(d,[hip,(363,379),(410,433)],BLUE,16)
+  line(d,(410,433),(440,438),INK,9)
+  line(d,hip,pivot,BLUE,27)
+  line(d,pivot,(309,197),BLUE,11)
+  d.ellipse((head[0]-18,head[1]-19,head[0]+18,head[1]+19),fill=INK)
+  limb(d,[pivot,elbow,hand],INK,11)
+  d.rounded_rectangle((elbow[0]-12,elbow[1]-9,elbow[0]+12,elbow[1]+9),4,fill=BLUE,outline=INK,width=2)
+  d.rounded_rectangle((hand[0]-7,hand[1]-6,hand[0]+7,hand[1]+6),3,fill=INK)
+  d.text((45,187),'SEAT / BACK PAD / PIVOT',font=FONTS[14],fill=MUTED)
  elif kind=='machine-lateral':
   # Front-view seated machine: shoulder-aligned independent lever pivots
   # carry elbow pads on fixed arcs, with bent forearms gripping the handles.

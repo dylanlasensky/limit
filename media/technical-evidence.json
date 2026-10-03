@@ -1092,6 +1092,19 @@
     "audio": false
   },
   {
+    "catalogKey": "machine-pullover",
+    "videoSha256": "4dcad22c5f02ffbdd5826b05eb6ad92d2c7da575a2e5409f9a11c2192393d87e",
+    "duration": 8,
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "frames": 192,
+    "decodedMicros": 8000000,
+    "audio": false
+  },
+  {
     "catalogKey": "resistance-band-pulldown",
     "videoSha256": "9058dd57d46f2a73f2fe5b148088021f4244c6e80a550c797b7f226762e69e1f",
     "duration": 8,
