@@ -262,6 +262,7 @@ TEMPLATES={
  'smith-machine-romanian-deadlift':('barbell-hinge','smith-romanian'),
  'barbell-good-morning':('barbell-hinge','good-morning'),
  'resistance-band-good-morning':('barbell-hinge','band-good-morning'),
+ 'dumbbell-fly':('depth-fly','flat-dumbbell'),
  'lat-pulldown':('machine-lat-pulldown','bilateral'),
  'single-arm-lat-pulldown':('machine-lat-pulldown','unilateral'),
  'neutral-grip-lat-pulldown':('machine-lat-pulldown','neutral'),
@@ -466,7 +467,38 @@ def draw_kettlebell(d,center):
  d.ellipse((x-19,y-6,x+19,y+29),fill=FAR,outline=INK,width=3)
 def draw_pose(d,kind,option,u):
  ankle=(310,447);hip=(302,294);shoulder=(296,168);head=(296,135)
- if kind=='barbell-hinge':
+ if kind=='depth-fly':
+  # Foot-end projection plus a side inset preserve the supine bench setup.
+  # Hands follow mirrored arcs at invariant reach; IK fixes the soft elbow.
+  d.rounded_rectangle((266,188,334,425),10,fill=FAR)
+  for bx in (275,325):d.line((bx,422,bx,453),fill=FAR,width=6)
+  d.rounded_rectangle((279,239,321,386),13,fill=BLUE)
+  d.ellipse((280,154,320,194),fill=INK)
+  for hip_x,foot_x in ((284,253),(316,347)):
+   limb(d,[(hip_x,379),(hip_x+(foot_x-hip_x)*.45,411),(foot_x,445)],BLUE,11)
+   d.line((foot_x-13,448,foot_x+13,448),fill=INK,width=7)
+  angle=math.pi-.12-(math.pi-.12-1.42)*u
+  for side in (-1,1):
+   shoulder=(300+45*side,275)
+   left_hand3=(255+150*math.cos(angle),150*math.sin(angle))
+   hand3=left_hand3 if side<0 else (600-left_hand3[0],left_hand3[1])
+   shoulder3=(shoulder[0],0)
+   elbow3=ik(shoulder3,hand3,80,75,side=-side)
+   if abs(math.dist(shoulder3,elbow3)-80)>1e-6 or abs(math.dist(elbow3,hand3)-75)>1e-6 or abs(math.dist(shoulder3,hand3)-150)>1e-6:raise ValueError('Fly shoulder arc or soft elbow changed')
+   elbow=(elbow3[0],275-.24*elbow3[1]);hand=(hand3[0],275-.24*hand3[1])
+   if segment_distance((300,174),elbow,hand)<20:raise ValueError('Fly load crossed head')
+   limb(d,[shoulder,elbow,hand],INK,10)
+   d.line((hand[0]-13,hand[1],hand[0]+13,hand[1]),fill=INK,width=5)
+   for px in (hand[0]-12,hand[0]+12):d.rounded_rectangle((px-5,hand[1]-11,px+5,hand[1]+11),2,fill=FAR,outline=INK,width=2)
+  d.rounded_rectangle((45,154,220,231),5,outline=MUTED,width=2)
+  d.text((52,161),'SIDE / HAND HEIGHT',font=FONTS[14],fill=MUTED)
+  d.line((65,209,181,209),fill=FAR,width=6)
+  d.line((76,190,171,190),fill=BLUE,width=10)
+  d.ellipse((55,178,76,199),fill=INK)
+  d.line((134,189,134,187-30*u),fill=INK,width=5)
+  d.ellipse((128,181-30*u,140,193-30*u),fill=BLUE)
+  d.text((47,242),'TOP VIEW',font=FONTS[14],fill=MUTED)
+ elif kind=='barbell-hinge':
   # Side view with a fixed planted foot, invariant thigh/shin/torso/arm
   # lengths, explicit knee flexion, hip displacement and vertical bar path.
   ankle=(315,425 if option=='deficit' else 445);bar_x=365 if option=='kettlebell-conventional' else (340 if option=='dumbbell-romanian' else 325);leg=77.5;torso=120;arm=180 if option=='deficit' else (175 if option=='sumo' else ((140 if option=='kettlebell-conventional' else 145) if option.startswith('kettlebell') else 160))

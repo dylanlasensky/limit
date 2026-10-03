@@ -1181,14 +1181,14 @@
   {
     "catalogKey": "dumbbell-fly",
     "name": "Dumbbell Fly",
-    "poster": "exercises/dumbbell-fly/v96786787925137/d2bc1ace7319ead6d82b754e8e774d0dd69f32d9e7848a61987d12931641eebe.png",
-    "source": null,
-    "format": null,
+    "poster": "exercises/dumbbell-fly/v92052594094163/9e91fcba3326163bc38d111e3b1fa3b66da59ad51e0eea9e79ea569bd281bd07.png",
+    "source": "exercises/dumbbell-fly/v92052594094163/e67ea43d54b19e582eb08171318126856976d5680c7cfd25af4788aa091beefa.mp4",
+    "format": "mp4",
     "caption": "Keep a soft bend in your elbows and a stable rib cage. Bring your arms together in an arc; avoid forcing a deep shoulder stretch. Use a lighter load than for pressing.",
-    "angle": "unspecified",
-    "duration": 0,
-    "version": 96786787925137,
-    "reviewStatus": "blocked",
+    "angle": "side",
+    "duration": 8,
+    "version": 92052594094163,
+    "reviewStatus": "technical",
     "reviewer": null,
     "safetyClassification": "general",
     "textFallback": [
@@ -1200,15 +1200,18 @@
     "generated": true,
     "width": 960,
     "height": 540,
-    "fps": 0,
-    "posterSha256": "d2bc1ace7319ead6d82b754e8e774d0dd69f32d9e7848a61987d12931641eebe",
-    "videoSha256": null,
-    "bytes": 38038,
-    "blockReason": "Dumbbell Fly: current renderer lacks shoulder arc, elbow angle and bilateral or unilateral hand path; it also lacks the dumbbell grip, position and changing load path. This variation requires \"Use a lighter load than for pressing\". Add exact setup and phase-specific joint/support constraints before generating a video.",
-    "template": null,
+    "fps": 24,
+    "posterSha256": "9e91fcba3326163bc38d111e3b1fa3b66da59ad51e0eea9e79ea569bd281bd07",
+    "videoSha256": "e67ea43d54b19e582eb08171318126856976d5680c7cfd25af4788aa091beefa",
+    "bytes": 87172,
+    "blockReason": "",
+    "template": "depth-fly",
     "technicalChecks": [
       "exact-catalog-key",
-      "written-fallback"
+      "fixed-framing",
+      "silent",
+      "h264-yuv420p",
+      "full-decode"
     ]
   },
   {
