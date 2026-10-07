@@ -7,6 +7,11 @@ export const workoutCommandSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("start"), workoutDayId: id, timezone: z.string().min(1).max(100) }),
   z.object({ action: z.literal("discard"), sessionId: id }),
   z.object({
+    action: z.literal("selectEquipmentProfile"),
+    sessionId: id,
+    equipmentProfileId: id.nullable(),
+  }),
+  z.object({
     action: z.literal("finish"),
     sessionId: id,
     pausedMilliseconds: z.number().int().min(0).max(604800000).optional(),

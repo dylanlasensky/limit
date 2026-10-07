@@ -226,6 +226,20 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
         x.id === we.id ? { ...x, skipped: !x.skipped } : x
       ),
     }));
+  const selectEquipmentProfile = async (equipmentProfileId: string | null) => {
+    if (!state.session || state.offline) return "Connect to select a gym for this workout.";
+    try {
+      const { data } = await limitApi.functions.invoke("workoutCommand", {
+        action: "selectEquipmentProfile",
+        sessionId: state.session.id,
+        equipmentProfileId,
+      });
+      setState((current) => ({ ...current, session: data.session }));
+      return null;
+    } catch (error: any) {
+      return error?.response?.data?.error || "Couldn’t select this gym. Try again.";
+    }
+  };
   useEffect(() => {
     if (key && state.session) rowState.setRows((rs) => rs);
   }, [state.workoutExercises]);
@@ -233,6 +247,7 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
     ...state,
     ...rowState,
     replaceExercise,
+    selectEquipmentProfile,
     skipExercise,
     retry: () => retry((n: number) => n + 1),
     clearDraft: () => {
