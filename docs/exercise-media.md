@@ -144,7 +144,7 @@ A human uses the review page to mark only videos they actually inspected, record
 
 ## R2 publishing
 
-Check **account-wide** R2 usage, Standard storage and existing bucket sizes before every release. No paid Images/Stream, public bucket, external footage or generation API is needed. This manifest is approximately 16.3 MB and 389 referenced objects per environment; runtime requests also pass the existing monthly storage-operation guard. The publish command enforces a 500 MiB asset set and at most 1,000 entries, retries conservatively, and checkpoints successful objects. Content-addressed keys prevent overwrites. Historical versions count toward storage; keep each media bucket under 500 MiB and remove old unused versions only after rollback retention review.
+Check **account-wide** R2 usage, Standard storage and existing bucket sizes before every release. No paid Images/Stream, public bucket, external footage or generation API is needed. The current manifest is 30,728,186 bytes and references 691 objects per environment (365 posters and 326 videos); runtime requests also pass the existing monthly storage-operation guard. The publish command enforces a 500 MiB asset set and at most 1,000 entries, retries conservatively, and checkpoints successful objects. Content-addressed keys prevent overwrites. Historical versions count toward storage; keep each media bucket under 500 MiB and remove old unused versions only after rollback retention review.
 
 ```sh
 node scripts/media/publish.mjs preview
