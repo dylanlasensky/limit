@@ -1,5 +1,23 @@
 # LIMIT completion ledger
 
+## 2026-10-07 integration and security follow-up
+
+The clean integration commit `bbd707d7ffcca19e798d5d02cf32648ff0407a19` was published unchanged to [draft PR #72](https://github.com/dylanlasensky/limit/pull/72), based on main `ab3b76bf63f3d3afa1fb7237a527372729cf5dc0`. The manifest has 365 entries: 326 technically checked videos, 39 blocked movements, and zero human fitness approvals. No new R2 media was uploaded by this follow-up. Fresh PR CI first stopped at the unchanged security gate because five newly reported advisories affected `sharp`, `postcss-selector-parser`, `shell-quote`, `source-map-js`, and Worker MCP packages. The source and lockfiles now override only those transitive packages to patched versions. A clean root and Worker install, the unchanged security gate, media check, format/lint/types, 487 unit tests, two native bridge tests, production build and release source guard passed locally. The only remaining reported audit finding is the existing four-node `node-forge` exception, expiring 2026-10-15. Fresh CI and hosted acceptance for the follow-up commit are still required; this is not production release evidence.
+
+Malcolm's original recommendation text was not present in this checkout or readable local memory. The available local memory records the following concrete proposals, so the disposition below is limited to those proposals rather than attributing unseen advice:
+
+Separately, Malcolmston's merged [PR #1](https://github.com/dylanlasensky/limit/pull/1) (CI/tests/Dependabot), [PR #2](https://github.com/dylanlasensky/limit/pull/2) (TypeScript), [PR #25](https://github.com/dylanlasensky/limit/pull/25) (responsive navigation/dialogs), [PR #26](https://github.com/dylanlasensky/limit/pull/26) (responsive layouts), and [PR #27](https://github.com/dylanlasensky/limit/pull/27) (lazy loading/dependency cleanup) are already-adopted contributions. [PR #14](https://github.com/dylanlasensky/limit/pull/14) addressed legacy Base44 auth; [PR #31](https://github.com/dylanlasensky/limit/pull/31) subsequently replaced that auth/runtime with Cloudflare, so restoring #14's implementation would be obsolete.
+
+| Proposal recorded in local memory | Disposition | Repository reason |
+|---|---|---|
+| Separate frontend/backend/AI/domain responsibilities | Already satisfied; refine when a specific boundary fails | React/Vite lives in `src`, Worker API in `worker`, domain and contracts in `packages`, and deterministic coach checks gate AI output. |
+| Explicit development/testing/production promotion | Adopted | `wrangler.jsonc`, CI and `scripts/deploy-release.mjs` already separate environments and require exact source/version acceptance. PR #72 still needs fresh gates. |
+| ORM or package-manager migration | Unnecessary now | Current D1 ownership and transaction boundaries are tested; npm clean installs and lockfiles work. A migration needs a demonstrated benefit and complete data/release proof. |
+| AWS Lambda or Swift rewrite | Unnecessary | The deployed Worker/Expo architecture already serves the product; a rewrite would add migration risk without a demonstrated missing capability. |
+| Future OAuth through Better Auth | Deferred until an owned provider is configured | Current auth enables email/password and Expo only. No unavailable provider or Magic Link flow is advertised. |
+
+The Better Auth 1.7.7 release notes mention a critical Magic Link issue. `worker/auth.ts` enables only `expo()` and email/password verification; no Magic Link, social OAuth, SAML or OAuth Proxy configuration was found in the application source. This does not establish exposure to that specific flow. PRs #65/#66 update Worker packages separately; root/mobile alignment and full validation remain necessary before adopting them.
+
 ## Current follow-up — 2026-10-03
 
 The last source verified before this documentation update was merged main `7394185c7954f3414b65a4c43c219a562f0c51d2`: [PR #63 release evidence](https://github.com/dylanlasensky/limit/pull/63#issuecomment-5967663000) records complete CI and testing/production acceptance at 09:13:07/09:17:49 UTC on 2026-10-03. It changed documentation only; the latest product change and its own acceptance are in [PR #62](https://github.com/dylanlasensky/limit/pull/62#issuecomment-5967327100). Both hosted health endpoints and GitHub main returned the PR #63 source revision and deployed Worker version. Each environment passed 12 API checks, browser workout/offline smoke, 24 checksum/range/full-video playback checks and six public pages. Email remains disabled, native device acceptance remains open, 341 exercise videos remain blocked, and exercise media has no human approval.
