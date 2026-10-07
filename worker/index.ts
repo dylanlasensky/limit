@@ -211,20 +211,6 @@ export default {
         e.status = 400;
         e.message = "Invalid request data.";
       }
-      if (!e.status || e.status >= 500) {
-        console.error(JSON.stringify({ event: "api_failure", stage }));
-        ctx.waitUntil(
-          Promise.resolve()
-            .then(() =>
-              env.DB.prepare(
-                "INSERT INTO operational_error_count(day,stage,count) VALUES(?,?,1) ON CONFLICT(day,stage) DO UPDATE SET count=count+1"
-              )
-                .bind(new Date().toISOString().slice(0, 10), stage)
-                .run()
-            )
-            .catch(() => {})
-        );
-      }
       response = Response.json(
         {
           error: e.status ? e.message : "Something went wrong. Please try again.",
@@ -232,6 +218,22 @@ export default {
           requestId,
         },
         { status: e.status || 500 }
+      );
+    }
+    // Count the final response once. Coordinators and auth can return a 5xx
+    // without throwing, so recording only in the catch misses those failures.
+    if (response.status >= 500) {
+      console.error(JSON.stringify({ event: "api_failure", stage }));
+      ctx.waitUntil(
+        Promise.resolve()
+          .then(() =>
+            env.DB.prepare(
+              "INSERT INTO operational_error_count(day,stage,count) VALUES(?,?,1) ON CONFLICT(day,stage) DO UPDATE SET count=count+1"
+            )
+              .bind(new Date().toISOString().slice(0, 10), stage)
+              .run()
+          )
+          .catch(() => {})
       );
     }
     const headers = new Headers(response.headers);
