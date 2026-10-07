@@ -17,6 +17,7 @@ export const tables = {
   WeeklyMealPlan: "weekly_meal_plan",
   WeightEntry: "weight_entry",
   WorkoutDay: "workout_day",
+  WorkoutScheduleChange: "workout_schedule_change",
   WorkoutExercise: "workout_exercise",
   WorkoutPlan: "workout_plan",
   WorkoutSession: "workout_session",
@@ -24,6 +25,11 @@ export const tables = {
 export const relations = {
   WorkoutDay: {
     planId: "WorkoutPlan",
+  },
+  WorkoutScheduleChange: {
+    planId: "WorkoutPlan",
+    fromDayId: "WorkoutDay",
+    toDayId: "WorkoutDay",
   },
   WorkoutExercise: {
     workoutDayId: "WorkoutDay",

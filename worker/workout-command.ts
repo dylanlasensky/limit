@@ -5,6 +5,7 @@ import { fail, owned, ownerFilter, localDate } from "../packages/domain/workoutA
 import { validSet, personalBests, finishAnalytics } from "../packages/domain/workoutAnalytics.js";
 import { activatePlan } from "../packages/domain/planActivation.js";
 import { enrichExercise } from "../packages/domain/exerciseLibrary.js";
+import { dateWeekday, weekStart, affectedDates } from "../packages/domain/workoutSchedule.js";
 
 export default async function workoutCommand(req: Request, client: any) {
   let action = "unknown";
@@ -15,7 +16,18 @@ export default async function workoutCommand(req: Request, client: any) {
     stage = "validate";
     const input = workoutCommandSchema.parse(await req.json());
     action = input.action;
-    if (!["start", "saveSet", "finish", "discard", "check", "activatePlan"].includes(input?.action))
+    if (
+      ![
+        "start",
+        "saveSet",
+        "finish",
+        "discard",
+        "check",
+        "activatePlan",
+        "changeSchedule",
+        "undoScheduleChange",
+      ].includes(input?.action)
+    )
       fail("Unknown workout action.");
     if (input.action === "check")
       return Response.json({ ok: true, localDate: localDate(input.timezone), authenticated: true });
@@ -28,6 +40,95 @@ export default async function workoutCommand(req: Request, client: any) {
           filter = ownerFilter(user.id);
         if (input.action === "activatePlan")
           return activatePlan(db, user, input.planId, assertLock);
+        if (input.action === "changeSchedule" || input.action === "undoScheduleChange") {
+          const today = localDate(input.timezone);
+          const existing =
+            input.action === "undoScheduleChange"
+              ? await db.WorkoutScheduleChange.get(input.changeId)
+              : null;
+          if (existing && (!owned(existing, user.id) || !existing.active))
+            fail("Schedule change not found.", 404);
+          const planId = input.action === "changeSchedule" ? input.planId : existing!.planId;
+          const plan = await db.WorkoutPlan.get(planId);
+          if (!owned(plan, user.id) || !plan.active)
+            fail("Open your active program to adjust this week.", 409);
+          if (plan.structureLocked || plan.athleteMode === "track_only" || plan.coachProvided)
+            fail("This coach program's schedule is locked.", 409);
+          const currentPlans = await db.WorkoutPlan.filter(
+            { ...filter, active: true },
+            "-created_date",
+            1
+          );
+          if (currentPlans[0]?.id !== plan.id) fail("This program is no longer active.", 409);
+          const fromDate = input.action === "changeSchedule" ? input.fromDate : existing!.fromDate;
+          const toDate = input.action === "changeSchedule" ? input.toDate : existing!.toDate;
+          try {
+            dateWeekday(fromDate);
+            dateWeekday(toDate);
+          } catch {
+            fail("Choose valid calendar dates.");
+          }
+          if (
+            weekStart(fromDate) !== weekStart(today) ||
+            weekStart(toDate) !== weekStart(today) ||
+            fromDate < today ||
+            toDate < today ||
+            fromDate === toDate
+          )
+            fail("Choose two upcoming dates in this week.", 409);
+          const days = await db.WorkoutDay.filter({ ...filter, planId }, "weekday", 7);
+          const fromDay = days.find((day: any) => day.weekday === dateWeekday(fromDate));
+          const toDay = days.find((day: any) => day.weekday === dateWeekday(toDate));
+          if (
+            !fromDay ||
+            !toDay ||
+            fromDay.isRest ||
+            fromDay.fixedSchedule ||
+            fromDay.coachMandated ||
+            toDay.fixedSchedule ||
+            toDay.coachMandated
+          )
+            fail("These dates cannot be moved in this program.", 409);
+          if (input.action === "changeSchedule" && (toDay.isRest ? "move" : "swap") !== input.mode)
+            fail("Review the current destination before saving.", 409);
+          const sessions = await Promise.all(
+            affectedDates({ fromDate, toDate }).map((date) =>
+              db.WorkoutSession.filter({ ...filter, date }, "created_date", 1)
+            )
+          );
+          if (sessions.some((rows) => rows.length))
+            fail(
+              "A workout has already started on one of these dates. Your history was kept.",
+              409
+            );
+          const changes = await db.WorkoutScheduleChange.filter(
+            { ...filter, planId, active: true, fromDate: { $gte: weekStart(today) } },
+            "created_date",
+            100
+          );
+          if (
+            input.action === "changeSchedule" &&
+            changes.some((change: any) =>
+              affectedDates(change).some((date) => date === fromDate || date === toDate)
+            )
+          )
+            fail("One of these dates already has a temporary change. Undo it first.", 409);
+          await assertLock();
+          if (existing) {
+            const change = await db.WorkoutScheduleChange.update(existing.id, { active: false });
+            return { change };
+          }
+          const change = await db.WorkoutScheduleChange.create({
+            planId,
+            fromDayId: fromDay.id,
+            toDayId: toDay.id,
+            fromDate,
+            toDate,
+            mode: input.action === "changeSchedule" ? input.mode : existing!.mode,
+            active: true,
+          });
+          return { change };
+        }
         if (input.action === "start") {
           if (typeof input.workoutDayId !== "string") fail("Choose a workout.");
           const day = await db.WorkoutDay.get(input.workoutDayId);

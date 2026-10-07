@@ -15,6 +15,7 @@ export const serverOnly = new Set<EntityName>([
   "Exercise",
   "ExerciseSet",
   "WorkoutSession",
+  "WorkoutScheduleChange",
   "PersonalRecord",
   "MuscleRatingSnapshot",
 ]);

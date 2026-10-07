@@ -30,6 +30,8 @@ const commands = {
   finish: z.object({ summary }),
   discard: z.object({ ok: z.literal(true) }),
   activatePlan: z.object({ plan: recordSchema("WorkoutPlan") }),
+  changeSchedule: z.object({ change: recordSchema("WorkoutScheduleChange") }),
+  undoScheduleChange: z.object({ change: recordSchema("WorkoutScheduleChange") }),
 };
 const schemas = {
   askLimitCoach: z.object({
@@ -81,7 +83,16 @@ export function functionResponseSchema(
   if (name === "workoutCommand") {
     const action = z
       .object({
-        action: z.enum(["check", "start", "saveSet", "finish", "discard", "activatePlan"]),
+        action: z.enum([
+          "check",
+          "start",
+          "saveSet",
+          "finish",
+          "discard",
+          "activatePlan",
+          "changeSchedule",
+          "undoScheduleChange",
+        ]),
       })
       .parse(input).action;
     return commands[action];
