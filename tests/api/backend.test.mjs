@@ -95,6 +95,20 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
   assert.equal((await fetch(base+'/api/uploads/'+file.id,{headers:{cookie:b.cookie}})).status,404);
   const own=await fetch(base+'/api/uploads/'+file.id,{headers:{cookie}});assert.equal(own.status,200);assert.equal(await own.text(),'Disposable workout notes');
  });
+ await t.test('stores private meal shortcuts and deduplicates a retried meal log',async()=>{
+  const item=(foodName,calories)=>({foodName,quantity:1,unit:'serving',calories,estimated:true,ingredients:[foodName],possibleAllergens:['wheat']});
+  const shortcut=await call('/entities/MealShortcut',{cookie,method:'POST',body:{name:'Usual breakfast',items:[item('Toast',80),item('Yogurt',100)]}});
+  assert.equal(shortcut.status,200,JSON.stringify(shortcut.data));
+  assert.equal((await call('/entities/MealShortcut/'+shortcut.data.id,{cookie:b.cookie})).status,404);
+  assert.deepEqual((await call('/entities/MealShortcut',{cookie:b.cookie})).data,[]);
+  const body={date:'2020-06-01',mealType:'Breakfast',foodName:shortcut.data.name,quantity:1,unit:'meal',calories:180,estimated:true,ingredients:['Toast','Yogurt'],possibleAllergens:['wheat'],entryMethod:'meal_shortcut',shortcutLogId:crypto.randomUUID()};
+  const first=await call('/entities/FoodEntry',{cookie,method:'POST',body});assert.equal(first.status,200,JSON.stringify(first.data));
+  const retry=await call('/entities/FoodEntry',{cookie,method:'POST',body});assert.equal(retry.status,200,JSON.stringify(retry.data));
+  assert.equal(retry.data.id,first.data.id);
+  const rows=await call('/entities/FoodEntry?filter='+encodeURIComponent(JSON.stringify({shortcutLogId:body.shortcutLogId})),{cookie});
+  assert.equal(rows.data.length,1);
+  assert.deepEqual(first.data.ingredients,['Toast','Yogurt']);
+ });
  await t.test('exports only current account and deletes uploads, records and identity',async()=>{
   const exported=await call('/functions/exportAccount',{cookie,method:'POST',body:{}});assert.equal(exported.status,200);assert.equal(exported.data.account.id,a.data.user.id);
   const deleted=await call('/functions/deleteAccount',{cookie,method:'POST',body:{confirm:true}});assert.equal(deleted.status,200,JSON.stringify(deleted.data));assert.equal(deleted.data.success,true);

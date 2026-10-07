@@ -202,12 +202,27 @@ export class Repository {
         "data",
         ...keys.map((k) => `"${k}"`),
       ];
-      await this.db
-        .prepare(
-          `INSERT INTO ${table} (${columns.join(",")}) VALUES (${columns.map(() => "?").join(",")})`
-        )
-        .bind(id, this.ownerId, now, now, JSON.stringify(data), ...keys.map((k) => data[k] || null))
-        .run();
+      try {
+        await this.db
+          .prepare(
+            `INSERT INTO ${table} (${columns.join(",")}) VALUES (${columns.map(() => "?").join(",")})`
+          )
+          .bind(
+            id,
+            this.ownerId,
+            now,
+            now,
+            JSON.stringify(data),
+            ...keys.map((k) => data[k] || null)
+          )
+          .run();
+      } catch (error) {
+        if (name === "FoodEntry" && data.shortcutLogId) {
+          const prior = await filter({ shortcutLogId: data.shortcutLogId }, "created_date", 1);
+          if (prior.length) return prior[0];
+        }
+        throw error;
+      }
       return get(id);
     };
     const update = async (id: string, input: Data, condition?: Data) => {

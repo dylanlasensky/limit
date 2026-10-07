@@ -5,6 +5,7 @@ export const tables = {
   Exercise: "exercise",
   ExerciseSet: "exercise_set",
   FoodEntry: "food_entry",
+  MealShortcut: "meal_shortcut",
   GroceryList: "grocery_list",
   HealthConnection: "health_connection",
   HealthImport: "health_import",
