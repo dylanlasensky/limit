@@ -261,6 +261,7 @@ export default function LiveWorkout() {
               onRemoveSet={live.removeSet}
               allExercises={live.allExercises || Object.values(live.exercisesById)}
               profile={live.profile}
+              onLoadIncrementChange={(increment) => live.setLoadIncrement(we.exerciseId, increment)}
               plan={live.plan}
               onReplace={(e: any) => live.replaceExercise(we, e)}
               onSkip={() => live.skipExercise(we)}

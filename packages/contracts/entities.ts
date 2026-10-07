@@ -316,6 +316,7 @@ export const entitySchemas = {
     sessionLength: z.number().finite().min(0).max(1000000).optional(),
     priorityMuscles: z.array(z.string().max(2000)).max(1000).optional(),
     equipment: z.array(z.string().max(2000)).max(1000).optional(),
+    loadIncrements: z.record(z.string().max(2000), z.number().finite().min(0.5).max(50)).optional(),
     workoutSplit: z.string().max(2000).optional(),
     calorieTarget: z.number().finite().min(0).max(1000000).optional(),
     proteinTarget: z.number().finite().min(0).max(1000000).optional(),
