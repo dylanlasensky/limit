@@ -183,6 +183,15 @@ export default function LiveWorkout() {
         </span>
         <span>{live.rows.filter((r) => r.completed).length} sets done</span>
       </div>
+      {live.session?.timeBudget && (
+        <p
+          role="status"
+          className="mt-3 rounded-xl border border-primary/30 bg-primary/10 p-3 text-xs"
+        >
+          Today’s {live.session.timeBudget.minutes}-minute version · about{" "}
+          {live.session.timeBudget.estimatedMinutes} min planned. Your usual program is unchanged.
+        </p>
+      )}
       <WorkoutSyncStatus
         pending={pending}
         syncing={syncing}

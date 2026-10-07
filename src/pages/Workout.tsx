@@ -329,10 +329,13 @@ export default function Workout() {
           rows={weQuery.data || []}
           exercises={exercises}
           activeSession={activeSession}
+          plan={plan}
           onClose={() => setPreviewDay(null)}
-          onStart={(dayId) => {
+          onStart={(dayId, timeBudgetMinutes, timeBudgetPreview) => {
             setPreviewDay(null);
-            nav(`/live-workout/${dayId}`);
+            nav(`/live-workout/${dayId}`, {
+              state: timeBudgetMinutes ? { timeBudgetMinutes, timeBudgetPreview } : null,
+            });
           }}
         />
       </div>
