@@ -1,1 +1,1 @@
-{"name":"@limit/worker","private":true,"type":"module","dependencies":{"@better-auth/expo":"^1.7.6","agents":"^0.24.0","better-auth":"^1.7.6","zod":"^4.6.5"},"overrides":{"@modelcontextprotocol/client":"2.3.1","@modelcontextprotocol/sdk":"1.32.1"}}
+{"name":"@limit/worker","private":true,"type":"module","dependencies":{"@better-auth/expo":"^1.7.6","agents":"^0.24.0","better-auth":"^1.7.7","zod":"^4.6.5"},"overrides":{"@modelcontextprotocol/client":"2.3.1","@modelcontextprotocol/sdk":"1.32.1"}}
