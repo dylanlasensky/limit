@@ -1,0 +1,99 @@
+name: Owner TestFlight candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact tested main commit (40 lowercase hex characters)
+        required: true
+      bundle_identifier:
+        description: Owner-approved iOS bundle identifier
+        required: true
+      apple_team_id:
+        description: Owned ten-character Apple team ID
+        required: true
+      build_number:
+        description: New positive iOS build number
+        required: true
+      submit_to_testflight:
+        description: Submit this exact build to TestFlight after it succeeds
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: owner-testflight
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    if: >-
+      github.actor == 'dylanlasensky' &&
+      vars.LIMIT_TESTFLIGHT_ENABLED == 'true' &&
+      vars.LIMIT_EAS_FREE_CAPACITY_CONFIRMED == 'true' &&
+      vars.LIMIT_TESTFLIGHT_OWNER_READY == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      LIMIT_SOURCE_REVISION: ${{ inputs.source_sha }}
+      LIMIT_BUNDLE_IDENTIFIER: ${{ inputs.bundle_identifier }}
+      LIMIT_APPLE_TEAM_ID: ${{ inputs.apple_team_id }}
+      LIMIT_NATIVE_BUILD: ${{ inputs.build_number }}
+      LIMIT_NATIVE_RELEASE: 'true'
+      EXPO_PUBLIC_API_URL: https://limit.limit-dylanlasensky.workers.dev
+      LIMIT_EAS_PROJECT_ID: ${{ vars.LIMIT_EAS_PROJECT_ID }}
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      CI: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.source_sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Verify exact main source and owner setup
+        run: |
+          git fetch origin main
+          node scripts/native-testflight-preflight.mjs
+      - run: npm ci
+      - run: npm ci --prefix worker
+      - run: npm run security:check
+      - run: npm run media:check
+      - run: npm run check:release-source
+      - run: npm run worker:types
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run typecheck:worker
+      - run: npm run lint --workspace limit-mobile && npm run typecheck --workspace limit-mobile
+      - name: Expo compatibility
+        working-directory: apps/mobile
+        run: npx --yes expo-doctor@1.20.4
+      - name: Native JavaScript bundles
+        working-directory: apps/mobile
+        run: npx expo export --platform ios --platform android --platform web --output-dir /tmp/limit-native-export
+      - run: npm run test
+      - run: npm run test:native
+      - run: npm run build
+      - run: npm run db:migrate && npm run db:seed
+      - name: Local API integration
+        run: |
+          printf 'BETTER_AUTH_SECRET=%s\n' "$(openssl rand -hex 32)" > .dev.vars
+          npx wrangler dev --port 8787 > /tmp/worker.log 2>&1 &
+          for n in $(seq 1 60); do curl -fsS http://localhost:8787/api/health && break || sleep 1; done
+          npm run test:api
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/hosted/smoke.mjs
+      - run: npm run test:e2e
+      - name: Create exact source iOS build
+        if: ${{ !inputs.submit_to_testflight }}
+        working-directory: apps/mobile
+        run: npx eas-cli@24.11.0 build --platform ios --profile production --non-interactive --wait --freeze-credentials
+      - name: Build and submit that build to TestFlight
+        if: ${{ inputs.submit_to_testflight }}
+        working-directory: apps/mobile
+        run: npx eas-cli@24.11.0 build --platform ios --profile production --non-interactive --wait --freeze-credentials --auto-submit
