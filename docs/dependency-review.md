@@ -1,5 +1,11 @@
 # Dependency decisions — 2026-10-02
 
+## 2026-10-07 maintenance
+
+Fresh PR #72 CI found new advisories in root transitive `sharp`, `postcss-selector-parser`, `shell-quote`, and `source-map-js`, plus Worker `@modelcontextprotocol/client`/`sdk`. Narrow overrides and regenerated lockfiles now pass the unchanged audit: Worker zero affected nodes; root only the existing four-node node-forge exception expiring October 15. The Worker lockfile needed all 15 optional Rolldown 1.2.11 platform binding records for reproducible Linux `npm ci`; they use the same integrity metadata as the verified root lockfile. Root and Worker both clean-install using CI's npm 11.19.0. The initial root Rolldown pin experiment was removed.
+
+Expo Doctor 1.20.4 subsequently advanced five SDK 57 patch expectations. `expo`, `expo-constants`, `expo-linking`, `expo-router`, and `expo-sqlite` were aligned without an SDK major change. Local Expo Doctor passes 21/21, native lint/types and bridge tests pass, and iOS/Android/web JavaScript exports succeed. Physical-device and native compiler acceptance remain separate. Fresh full CI and hosted testing are still required for the integration head.
+
 All eight open dependency PR patches were inspected against main `65f3a7a`; none includes unique product changes. Recreate useful upgrades on the current Cloudflare branch rather than merging stale snapshots. Close the original PRs only after the replacement passes CI and merges.
 
 | PR | Disposition in finalization | Reason |
