@@ -92,6 +92,33 @@ export const entitySchemas = {
     sodium: z.number().finite().min(0).max(1000000).optional(),
     entryMethod: z.string().max(2000).optional(),
     estimated: z.boolean().optional(),
+    ingredients: z.array(z.string().trim().min(1).max(200)).max(600).optional(),
+    possibleAllergens: z.array(z.string().trim().min(1).max(100)).max(600).optional(),
+    shortcutLogId: z.string().uuid().optional(),
+  }),
+  MealShortcut: z.object({
+    name: z.string().trim().min(1).max(100),
+    createOperationId: z.string().uuid(),
+    items: z
+      .array(
+        z.object({
+          foodName: z.string().trim().min(1).max(200),
+          quantity: z.number().finite().positive().max(10000),
+          unit: z.string().trim().min(1).max(100),
+          calories: z.number().finite().min(0).max(100000),
+          protein: z.number().finite().min(0).max(100000).optional(),
+          carbs: z.number().finite().min(0).max(100000).optional(),
+          fat: z.number().finite().min(0).max(100000).optional(),
+          fiber: z.number().finite().min(0).max(100000).optional(),
+          sugar: z.number().finite().min(0).max(100000).optional(),
+          sodium: z.number().finite().min(0).max(100000).optional(),
+          estimated: z.boolean().optional(),
+          ingredients: z.array(z.string().trim().min(1).max(200)).max(30).optional(),
+          possibleAllergens: z.array(z.string().trim().min(1).max(100)).max(30).optional(),
+        })
+      )
+      .min(2)
+      .max(20),
   }),
   GroceryList: z.object({
     weekStart: z

@@ -6,6 +6,7 @@ export const ACCOUNT_ENTITIES = [
   "WorkoutDay",
   "WorkoutPlan",
   "FoodEntry",
+  "MealShortcut",
   "DietaryProfile",
   "MealRecommendation",
   "WeeklyMealPlan",

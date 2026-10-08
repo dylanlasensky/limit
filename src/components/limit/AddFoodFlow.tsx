@@ -7,6 +7,7 @@ import {
   PenLine,
   ChevronLeft,
   History,
+  Bookmark,
   type LucideIcon,
 } from "lucide-react";
 import { limitApi } from "@/api/client";
@@ -14,10 +15,12 @@ import { createFoodEntry } from "@/lib/food-entry";
 import { today } from "@/components/limit/data";
 import ManualFood from "@/components/limit/ManualFood";
 import FoodPhotoScanner from "@/components/limit/FoodPhotoScanner";
+import MealShortcuts from "@/components/limit/MealShortcuts";
 import type { DietaryProfile } from "@/components/limit/data";
-type AddFoodMode = "search" | "recent" | "food" | "meal" | "restaurant" | "manual";
+type AddFoodMode = "search" | "recent" | "shortcuts" | "food" | "meal" | "restaurant" | "manual";
 const options: Array<[string, LucideIcon, AddFoodMode, string]> = [
   ["Recent foods", History, "recent", "Quick-add something you logged"],
+  ["Saved meals", Bookmark, "shortcuts", "Log several foods together"],
   ["Nutrition label", Camera, "food", "Scan a label or package"],
   ["Plate photo", Utensils, "meal", "Estimate an editable full meal"],
   ["Restaurant meal", Store, "restaurant", "Log an estimated restaurant item"],
@@ -72,6 +75,13 @@ export default function AddFoodFlow({
             onDone={onDone}
             onManual={() => setMode("manual")}
           />
+        ) : mode === "shortcuts" ? (
+          <MealShortcuts
+            entryDate={entryDate}
+            initialMealType={initialMealType}
+            onDone={onDone}
+            onSavingChange={savingChanged}
+          />
         ) : mode === "recent" ? (
           <div className="space-y-2">
             {recent.isLoading ? (
@@ -102,6 +112,8 @@ export default function AddFoodFlow({
                           sugar,
                           sodium,
                           estimated,
+                          ingredients,
+                          possibleAllergens,
                         } = x;
                         await createFoodEntry({
                           mealType: initialMealType,
@@ -116,6 +128,8 @@ export default function AddFoodFlow({
                           sugar,
                           sodium,
                           estimated,
+                          ingredients,
+                          possibleAllergens,
                           date: entryDate || today(),
                           entryMethod: "recent",
                         });
