@@ -124,6 +124,10 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
   const undone=await call('/functions/workoutCommand',{cookie:scheduleCookie,method:'POST',body:{action:'undoScheduleChange',changeId:changed.data.change.id,timezone:'UTC'}});
   assert.equal(undone.status,200,JSON.stringify(undone.data));
   assert.equal(undone.data.change.active,false);
+  const priorClientStart=await call('/functions/workoutCommand',{cookie:scheduleCookie,method:'POST',body:{action:'start',workoutDayId:created.data[weekday].id,timezone:'UTC'}});
+  assert.equal(priorClientStart.status,200,JSON.stringify(priorClientStart.data));
+  assert.equal(priorClientStart.data.session.workoutDayId,created.data[weekday].id);
+  assert.equal((await call('/functions/workoutCommand',{cookie:scheduleCookie,method:'POST',body:{action:'discard',sessionId:priorClientStart.data.session.id}})).status,200);
  });
  await t.test('exports only current account and deletes uploads, records and identity',async()=>{
   const exported=await call('/functions/exportAccount',{cookie,method:'POST',body:{}});assert.equal(exported.status,200);assert.equal(exported.data.account.id,a.data.user.id);
