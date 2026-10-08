@@ -232,16 +232,16 @@ export default function WorkoutPreview({
               ) : (
                 <button
                   disabled={!selected.length || (budget !== null && !adaptation?.available)}
-                  onClick={() =>
-                    day?.id &&
-                    onStart(
-                      day.id,
-                      budget ?? undefined,
-                      adaptation?.available
-                        ? adaptation.selected.map((row: any) => ({ id: row.id, sets: row.sets }))
-                        : undefined
-                    )
-                  }
+                  onClick={() => {
+                    if (!day?.id) return;
+                    if (budget === null || !adaptation?.available) onStart(day.id);
+                    else
+                      onStart(
+                        day.id,
+                        budget,
+                        adaptation.selected.map((row: any) => ({ id: row.id, sets: row.sets }))
+                      );
+                  }}
                   className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary font-semibold text-primary-foreground disabled:opacity-40"
                 >
                   <Play className="h-4 w-4" aria-hidden />
