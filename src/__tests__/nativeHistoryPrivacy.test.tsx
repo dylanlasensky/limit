@@ -180,9 +180,8 @@ describe("native account isolation during navigation", () => {
     const view = render(<Plan />);
     state.session = { user: { id: "account-b", name: "Blair" } };
     view.rerender(<Plan />);
-    expect(
-      await screen.findByText("No active plan yet. Complete your profile on the web.")
-    ).toBeInTheDocument();
+    expect(await screen.findByText("No active plan yet.")).toBeInTheDocument();
+    expect(screen.getByText("Build my starting plan")).toBeInTheDocument();
     await act(async () => old.resolve([{ id: "plan-a", ownerId: "account-a" }]));
     expect(screen.queryByText("A private workout")).not.toBeInTheDocument();
     expect(api.list).toHaveBeenCalledTimes(3);
