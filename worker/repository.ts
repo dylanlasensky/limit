@@ -217,8 +217,14 @@ export class Repository {
           )
           .run();
       } catch (error) {
-        if (name === "FoodEntry" && data.shortcutLogId) {
-          const prior = await filter({ shortcutLogId: data.shortcutLogId }, "created_date", 1);
+        const replayField =
+          name === "FoodEntry"
+            ? "shortcutLogId"
+            : name === "MealShortcut"
+              ? "createOperationId"
+              : null;
+        if (replayField && data[replayField]) {
+          const prior = await filter({ [replayField]: data[replayField] }, "created_date", 1);
           if (prior.length) return prior[0];
         }
         throw error;

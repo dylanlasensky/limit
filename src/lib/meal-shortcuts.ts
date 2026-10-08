@@ -97,6 +97,39 @@ export async function logMealShortcut(
   return createFoodEntry(mealEntry(name, items, portions, mealType, date, operationId));
 }
 
+const pendingCreateKey = (ownerId: string) => `limit:pending-meal-shortcut:${ownerId}`;
+
 export async function saveMealShortcut(name: string, items: ShortcutItem[]) {
-  return limitApi.entities.MealShortcut.create({ name: name.trim(), items });
+  const owner = await limitApi.auth.me();
+  if (!owner?.id) throw new Error("Sign in again before saving this meal.");
+  const key = pendingCreateKey(owner.id);
+  const fingerprint = JSON.stringify({ name: name.trim(), items });
+  let stored: { fingerprint: string; operationId: string } | null = null;
+  try {
+    stored = JSON.parse(sessionStorage.getItem(key) || "null");
+  } catch {
+    // A stale or malformed pending record is discarded below.
+  }
+  const createOperationId =
+    stored?.fingerprint === fingerprint &&
+    typeof stored.operationId === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(stored.operationId)
+      ? stored.operationId
+      : crypto.randomUUID();
+  try {
+    sessionStorage.setItem(key, JSON.stringify({ fingerprint, operationId: createOperationId }));
+  } catch {
+    throw new Error("Browser session storage is needed to save this meal safely.");
+  }
+  const saved = await limitApi.entities.MealShortcut.create({
+    name: name.trim(),
+    items,
+    createOperationId,
+  });
+  // Only an acknowledged create clears the pending retry key. A lost response
+  // leaves the same operation ID available after a page reload.
+  if (!saved?.id || saved.createOperationId !== createOperationId)
+    throw new Error("The saved meal could not be confirmed. Please retry.");
+  sessionStorage.removeItem(key);
+  return saved;
 }

@@ -98,6 +98,7 @@ export const entitySchemas = {
   }),
   MealShortcut: z.object({
     name: z.string().trim().min(1).max(100),
+    createOperationId: z.string().uuid(),
     items: z
       .array(
         z.object({

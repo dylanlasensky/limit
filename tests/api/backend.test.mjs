@@ -97,10 +97,21 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
  });
  await t.test('stores private meal shortcuts and deduplicates a retried meal log',async()=>{
   const item=(foodName,calories)=>({foodName,quantity:1,unit:'serving',calories,estimated:true,ingredients:[foodName],possibleAllergens:['wheat']});
-  const shortcut=await call('/entities/MealShortcut',{cookie,method:'POST',body:{name:'Usual breakfast',items:[item('Toast',80),item('Yogurt',100)]}});
+  const createOperationId=crypto.randomUUID();
+  const shortcutBody={name:'Usual breakfast',items:[item('Toast',80),item('Yogurt',100)],createOperationId};
+  const shortcut=await call('/entities/MealShortcut',{cookie,method:'POST',body:shortcutBody});
   assert.equal(shortcut.status,200,JSON.stringify(shortcut.data));
+  // Simulate a committed create whose response was lost: retry must return the same row.
+  const shortcutRetry=await call('/entities/MealShortcut',{cookie,method:'POST',body:shortcutBody});
+  assert.equal(shortcutRetry.status,200,JSON.stringify(shortcutRetry.data));
+  assert.equal(shortcutRetry.data.id,shortcut.data.id);
+  const ownShortcuts=await call('/entities/MealShortcut?filter='+encodeURIComponent(JSON.stringify({createOperationId})),{cookie});
+  assert.equal(ownShortcuts.data.length,1);
   assert.equal((await call('/entities/MealShortcut/'+shortcut.data.id,{cookie:b.cookie})).status,404);
   assert.deepEqual((await call('/entities/MealShortcut',{cookie:b.cookie})).data,[]);
+  const otherOwner=await call('/entities/MealShortcut',{cookie:b.cookie,method:'POST',body:shortcutBody});
+  assert.equal(otherOwner.status,200,JSON.stringify(otherOwner.data));
+  assert.notEqual(otherOwner.data.id,shortcut.data.id);
   const body={date:'2020-06-01',mealType:'Breakfast',foodName:shortcut.data.name,quantity:1,unit:'meal',calories:180,estimated:true,ingredients:['Toast','Yogurt'],possibleAllergens:['wheat'],entryMethod:'meal_shortcut',shortcutLogId:crypto.randomUUID()};
   const first=await call('/entities/FoodEntry',{cookie,method:'POST',body});assert.equal(first.status,200,JSON.stringify(first.data));
   const retry=await call('/entities/FoodEntry',{cookie,method:'POST',body});assert.equal(retry.status,200,JSON.stringify(retry.data));
