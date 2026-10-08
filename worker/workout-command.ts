@@ -5,6 +5,9 @@ import { fail, owned, ownerFilter, localDate } from "../packages/domain/workoutA
 import { validSet, personalBests, finishAnalytics } from "../packages/domain/workoutAnalytics.js";
 import { activatePlan } from "../packages/domain/planActivation.js";
 import { enrichExercise } from "../packages/domain/exerciseLibrary.js";
+import { equipmentAvailable, equipmentPool } from "../packages/domain/exerciseSelection";
+import { dateWeekday, weekStart, affectedDates } from "../packages/domain/workoutSchedule.js";
+import { previewSessionBudget } from "../packages/domain/sessionBudget.js";
 
 export default async function workoutCommand(req: Request, client: any) {
   let action = "unknown";
@@ -15,7 +18,19 @@ export default async function workoutCommand(req: Request, client: any) {
     stage = "validate";
     const input = workoutCommandSchema.parse(await req.json());
     action = input.action;
-    if (!["start", "saveSet", "finish", "discard", "check", "activatePlan"].includes(input?.action))
+    if (
+      ![
+        "start",
+        "saveSet",
+        "finish",
+        "discard",
+        "check",
+        "activatePlan",
+        "selectEquipmentProfile",
+        "changeSchedule",
+        "undoScheduleChange",
+      ].includes(input?.action)
+    )
       fail("Unknown workout action.");
     if (input.action === "check")
       return Response.json({ ok: true, localDate: localDate(input.timezone), authenticated: true });
@@ -28,6 +43,95 @@ export default async function workoutCommand(req: Request, client: any) {
           filter = ownerFilter(user.id);
         if (input.action === "activatePlan")
           return activatePlan(db, user, input.planId, assertLock);
+        if (input.action === "changeSchedule" || input.action === "undoScheduleChange") {
+          const today = localDate(input.timezone);
+          const existing =
+            input.action === "undoScheduleChange"
+              ? await db.WorkoutScheduleChange.get(input.changeId)
+              : null;
+          if (existing && (!owned(existing, user.id) || !existing.active))
+            fail("Schedule change not found.", 404);
+          const planId = input.action === "changeSchedule" ? input.planId : existing!.planId;
+          const plan = await db.WorkoutPlan.get(planId);
+          if (!owned(plan, user.id) || !plan.active)
+            fail("Open your active program to adjust this week.", 409);
+          if (plan.structureLocked || plan.athleteMode === "track_only" || plan.coachProvided)
+            fail("This coach program's schedule is locked.", 409);
+          const currentPlans = await db.WorkoutPlan.filter(
+            { ...filter, active: true },
+            "-created_date",
+            1
+          );
+          if (currentPlans[0]?.id !== plan.id) fail("This program is no longer active.", 409);
+          const fromDate = input.action === "changeSchedule" ? input.fromDate : existing!.fromDate;
+          const toDate = input.action === "changeSchedule" ? input.toDate : existing!.toDate;
+          try {
+            dateWeekday(fromDate);
+            dateWeekday(toDate);
+          } catch {
+            fail("Choose valid calendar dates.");
+          }
+          if (
+            weekStart(fromDate) !== weekStart(today) ||
+            weekStart(toDate) !== weekStart(today) ||
+            fromDate < today ||
+            toDate < today ||
+            fromDate === toDate
+          )
+            fail("Choose two upcoming dates in this week.", 409);
+          const days = await db.WorkoutDay.filter({ ...filter, planId }, "weekday", 7);
+          const fromDay = days.find((day: any) => day.weekday === dateWeekday(fromDate));
+          const toDay = days.find((day: any) => day.weekday === dateWeekday(toDate));
+          if (
+            !fromDay ||
+            !toDay ||
+            fromDay.isRest ||
+            fromDay.fixedSchedule ||
+            fromDay.coachMandated ||
+            toDay.fixedSchedule ||
+            toDay.coachMandated
+          )
+            fail("These dates cannot be moved in this program.", 409);
+          if (input.action === "changeSchedule" && (toDay.isRest ? "move" : "swap") !== input.mode)
+            fail("Review the current destination before saving.", 409);
+          const sessions = await Promise.all(
+            affectedDates({ fromDate, toDate }).map((date) =>
+              db.WorkoutSession.filter({ ...filter, date }, "created_date", 1)
+            )
+          );
+          if (sessions.some((rows) => rows.length))
+            fail(
+              "A workout has already started on one of these dates. Your history was kept.",
+              409
+            );
+          const changes = await db.WorkoutScheduleChange.filter(
+            { ...filter, planId, active: true, fromDate: { $gte: weekStart(today) } },
+            "created_date",
+            100
+          );
+          if (
+            input.action === "changeSchedule" &&
+            changes.some((change: any) =>
+              affectedDates(change).some((date) => date === fromDate || date === toDate)
+            )
+          )
+            fail("One of these dates already has a temporary change. Undo it first.", 409);
+          await assertLock();
+          if (existing) {
+            const change = await db.WorkoutScheduleChange.update(existing.id, { active: false });
+            return { change };
+          }
+          const change = await db.WorkoutScheduleChange.create({
+            planId,
+            fromDayId: fromDay.id,
+            toDayId: toDay.id,
+            fromDate,
+            toDate,
+            mode: input.action === "changeSchedule" ? input.mode : existing!.mode,
+            active: true,
+          });
+          return { change };
+        }
         if (input.action === "start") {
           if (typeof input.workoutDayId !== "string") fail("Choose a workout.");
           const day = await db.WorkoutDay.get(input.workoutDayId);
@@ -68,6 +172,32 @@ export default async function workoutCommand(req: Request, client: any) {
           );
           if (!exercises.length)
             fail("This workout has no exercises. Rebuild your plan in Profile.", 409);
+          let timeBudget;
+          if (input.timeBudgetMinutes !== undefined) {
+            if (
+              plan.structureLocked ||
+              plan.athleteMode === "track_only" ||
+              day.coachMandated ||
+              day.fixedSchedule
+            )
+              fail("This athlete program cannot be shortened.", 409);
+            const preview = previewSessionBudget(exercises, input.timeBudgetMinutes);
+            if (!preview.available)
+              fail(preview.reason || "This workout cannot fit that time budget.", 409);
+            if (
+              JSON.stringify(input.timeBudgetPreview) !==
+              JSON.stringify(preview.selected.map((row: any) => ({ id: row.id, sets: row.sets })))
+            )
+              fail(
+                "This workout changed since your preview. Review it again before starting.",
+                409
+              );
+            timeBudget = {
+              minutes: input.timeBudgetMinutes,
+              estimatedMinutes: preview.estimatedMinutes,
+              exercises: preview.selected.map((row: any) => ({ id: row.id, sets: row.sets })),
+            };
+          }
           await assertLock();
           const session = await db.WorkoutSession.create({
             ownerId: user.id,
@@ -79,12 +209,26 @@ export default async function workoutCommand(req: Request, client: any) {
             startedAt: new Date().toISOString(),
             status: "active",
             targetMuscles: day.targetMuscles || [],
+            ...(timeBudget ? { timeBudget } : {}),
           });
           return { session };
         }
         if (typeof input.sessionId !== "string") fail("A workout session is required.");
         const session = await db.WorkoutSession.get(input.sessionId);
         if (!owned(session, user.id)) fail("Workout not found.", 404);
+        if (input.action === "selectEquipmentProfile") {
+          if (session.status !== "active") fail("This workout is no longer active.", 409);
+          if (
+            input.equipmentProfileId &&
+            !profile?.equipmentProfiles?.some((item: any) => item.id === input.equipmentProfileId)
+          )
+            fail("Equipment profile not found.", 404);
+          await assertLock();
+          const updated = await db.WorkoutSession.update(session.id, {
+            equipmentProfileId: input.equipmentProfileId,
+          });
+          return { session: updated };
+        }
         if (input.action === "saveSet") {
           if (session.status !== "active")
             fail("This workout is no longer active. Your local changes have been kept.", 409);
@@ -103,9 +247,25 @@ export default async function workoutCommand(req: Request, client: any) {
           const we = await db.WorkoutExercise.get(row.workoutExerciseId);
           if (!owned(we, user.id) || we.workoutDayId !== session.workoutDayId)
             fail("Exercise does not belong to this workout.", 403);
+          let budgetExtensionSets = 0;
+          if (session.timeBudget) {
+            const selected = session.timeBudget.exercises.find((item: any) => item.id === we.id);
+            if (!selected)
+              fail(
+                "This exercise is outside today’s shorter workout. Refresh in the latest app or continue on the web; the original plan was not changed.",
+                409
+              );
+            if (row.setNumber > selected.sets) {
+              if (row.budgetExtension !== true)
+                fail("Confirm an extra set to extend today’s shorter workout.", 409);
+              budgetExtensionSets = row.setNumber - selected.sets;
+            }
+          }
           const plan = await db.WorkoutPlan.get(session.planId);
           const locked =
             plan.structureLocked || plan.athleteMode === "track_only" || we.coachMandated;
+          if (budgetExtensionSets && locked)
+            fail("This prescribed workout cannot be extended.", 409);
           if (locked && row.exerciseId && row.exerciseId !== we.exerciseId)
             fail("This exercise is locked by your imported program.", 409);
           const original = we.exerciseId
@@ -130,14 +290,19 @@ export default async function workoutCommand(req: Request, client: any) {
               (original.category !== "Power" && exercise.programEligible === false))
           )
             fail("Choose a replacement with the same muscle and movement category.");
+          const selectedGear = profile?.equipmentProfiles?.find(
+            (item: any) => item.id === session.equipmentProfileId
+          )?.equipment;
+          if (session.equipmentProfileId && !selectedGear)
+            fail("This gym was removed from your profile. Choose today's gym again.", 409);
           if (
             original &&
             exercise.id !== original.id &&
-            profile.equipment?.length &&
-            !profile.equipment.some((e: any) => /full|commercial|gym/i.test(e)) &&
-            exercise.equipment !== "Bodyweight" &&
-            !profile.equipment.some((e: any) =>
-              e.toLowerCase().includes(exercise.equipment.toLowerCase())
+            !equipmentAvailable(
+              exercise,
+              equipmentPool({
+                equipment: selectedGear || profile?.equipment || [],
+              })
             )
           )
             fail("This replacement requires equipment outside your profile.");
@@ -186,6 +351,18 @@ export default async function workoutCommand(req: Request, client: any) {
           };
           stage = "lock-set";
           await assertLock();
+          if (budgetExtensionSets) {
+            await db.WorkoutSession.update(session.id, {
+              timeBudget: {
+                ...session.timeBudget,
+                manualExtensionSets:
+                  (session.timeBudget.manualExtensionSets || 0) + budgetExtensionSets,
+                exercises: session.timeBudget.exercises.map((item: any) =>
+                  item.id === we.id ? { ...item, sets: row.setNumber } : item
+                ),
+              },
+            });
+          }
           stage = existing ? "update-set" : "create-set";
           const saved = existing
             ? await db.ExerciseSet.update(existing.id, payload)

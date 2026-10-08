@@ -1,10 +1,12 @@
 import React, { Fragment, useId } from "react";
 import {
   BODY_VIEW_BOX,
+  bodyProportion,
   detailLines,
   headPath,
+  regionTransform,
   regions,
-  silhouette,
+  silhouetteFor,
 } from "@/components/limit/athleticBodyArtwork";
 import type { BodyView } from "@/components/limit/athleticBodyArtwork";
 import type { MuscleGroup, MuscleLevel, MuscleRating } from "@/components/limit/muscleRating";
@@ -55,6 +57,7 @@ interface BodyMapProps {
   compact?: boolean;
   selected?: MuscleGroup;
   onSelect?: (muscle: MuscleGroup) => void;
+  sex?: string | null;
 }
 
 export default function BodyMap({
@@ -63,7 +66,10 @@ export default function BodyMap({
   compact = false,
   selected,
   onSelect,
+  sex,
 }: BodyMapProps) {
+  const proportion = bodyProportion(sex);
+  const outline = silhouetteFor(view, proportion);
   const uid = useId().replace(/:/g, ""),
     body = `body-${uid}`,
     clip = `clip-${uid}`,
@@ -77,7 +83,7 @@ export default function BodyMap({
       viewBox={BODY_VIEW_BOX}
       preserveAspectRatio="xMidYMid meet"
       className={compact ? "h-40 w-16" : "mx-auto h-[430px] w-60 max-w-full"}
-      aria-label={`${view} muscle rating chart`}
+      aria-label={`${proportion} ${view} muscle rating chart`}
     >
       <defs>
         <linearGradient id={body} x1="0" y1="0" x2="1" y2="1">
@@ -86,7 +92,7 @@ export default function BodyMap({
           <stop offset="1" stopColor="hsl(var(--muted-foreground))" stopOpacity=".18" />
         </linearGradient>
         <clipPath id={clip}>
-          <path d={silhouette[view]} />
+          <path d={outline} />
         </clipPath>
         <filter id={glow} x="-35%" y="-35%" width="170%" height="170%">
           <feGaussianBlur stdDeviation={compact ? "1.2" : "2.2"} />
@@ -109,7 +115,7 @@ export default function BodyMap({
         strokeOpacity=".1"
         strokeWidth=".45"
       />
-      <path d={silhouette[view]} fill={`url(#${body})`} fillOpacity=".76" />
+      <path d={outline} fill={`url(#${body})`} fillOpacity=".76" />
       <g clipPath={`url(#${clip})`}>
         {regions[view].map(([muscle, label, path], index) => {
           const state = stateFor(muscle),
@@ -120,6 +126,7 @@ export default function BodyMap({
               {active && (
                 <path
                   d={path}
+                  transform={regionTransform(proportion, muscle)}
                   fill={state.color}
                   opacity={state.glow}
                   filter={`url(#${glow})`}
@@ -128,24 +135,31 @@ export default function BodyMap({
               )}
               <path
                 d={path}
+                transform={regionTransform(proportion, muscle)}
                 fill={`url(#muscle-${uid}-${index})`}
                 fillOpacity={opacity}
                 stroke={state.edge}
                 strokeOpacity={active ? 0.8 : 0.28}
                 strokeWidth={active ? 1.05 : 0.48}
                 vectorEffect="non-scaling-stroke"
-                role="button"
-                tabIndex={0}
+                role={onSelect ? "button" : undefined}
+                tabIndex={onSelect ? 0 : undefined}
                 aria-label={`${label}: ${rating?.muscles?.[muscle]?.level || "Calibrating"}`}
                 onClick={() => onSelect?.(muscle)}
-                onKeyDown={(event) => ["Enter", " "].includes(event.key) && onSelect?.(muscle)}
-                className="cursor-pointer transition-opacity duration-200"
+                onKeyDown={(event) => {
+                  if (onSelect && ["Enter", " "].includes(event.key)) {
+                    event.preventDefault();
+                    onSelect(muscle);
+                  }
+                }}
+                className={onSelect ? "cursor-pointer transition-opacity duration-200" : undefined}
               />
             </Fragment>
           );
         })}
         <path
           d={detailLines[view]}
+          transform={regionTransform(proportion, view === "front" ? "Core" : "Back")}
           fill="none"
           stroke="hsl(var(--foreground))"
           strokeOpacity=".22"
@@ -155,7 +169,7 @@ export default function BodyMap({
         />
       </g>
       <path
-        d={silhouette[view]}
+        d={outline}
         fill="none"
         stroke="hsl(var(--foreground))"
         strokeOpacity=".09"

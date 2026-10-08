@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { limitApi } from "@/api/client";
 import { listExercises } from "@/lib/training/exerciseLibrary";
 import { useAuth } from "@/lib/AuthContext";
 import { draftKey, readDraft, initialRows } from "@/components/workout/workoutDraft";
 import useWorkoutRows from "@/components/workout/useWorkoutRows";
+import { LoadIncrementQueue } from "@/lib/training/loadIncrementQueue";
 
 export interface WorkoutRow {
   key: string;
@@ -54,9 +56,19 @@ export interface LiveWorkoutState {
 }
 
 export default function useLiveWorkout(workoutDayId: string | undefined) {
+  const location = useLocation();
+  const budgetState = location.state as {
+    timeBudgetMinutes?: number;
+    timeBudgetPreview?: { id: string; sets: number }[];
+  } | null;
+  const timeBudgetMinutes = budgetState?.timeBudgetMinutes;
+  const timeBudgetPreview = budgetState?.timeBudgetPreview;
   const { user } = useAuth(),
     client = useQueryClient(),
     key = user?.id ? draftKey(user.id, workoutDayId as string) : null;
+  const ownerRef = useRef(user?.id);
+  ownerRef.current = user?.id;
+  const incrementQueue = useRef(new LoadIncrementQueue());
   const [state, setState] = useState<LiveWorkoutState>({
       loading: true,
       day: null,
@@ -86,6 +98,7 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
           action: "start",
           workoutDayId,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          ...(timeBudgetMinutes ? { timeBudgetMinutes, timeBudgetPreview } : {}),
         });
         const session = data.session;
         if (data.redirectWorkoutDayId && data.redirectWorkoutDayId !== workoutDayId) {
@@ -113,7 +126,11 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
         const exercisesById: Record<string, any> = Object.fromEntries(
           exercises.map((e: any) => [e.id, e])
         );
+        const budgetSets = new Map<string, number>(
+          session.timeBudget?.exercises?.map((row: any) => [row.id, row.sets]) || []
+        );
         const workoutExercises: any[] = templates
+          .filter((we: any) => !session.timeBudget || budgetSets.has(we.id))
           .sort((a: any, b: any) => a.order - b.order)
           .map((we: any) => {
             const saved = savedSets.find((s: any) => s.workoutExerciseId === we.id);
@@ -122,10 +139,15 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
                 ? draft!.workoutExercises?.find((e: any) => e.id === we.id)
                 : null;
             return (
-              local ||
+              (local ? { ...local, sets: budgetSets.get(we.id) ?? local.sets } : null) ||
               (saved
-                ? { ...we, exerciseId: saved.exerciseId, exerciseName: saved.exerciseName }
-                : we)
+                ? {
+                    ...we,
+                    exerciseId: saved.exerciseId,
+                    exerciseName: saved.exerciseName,
+                    sets: budgetSets.get(we.id) ?? we.sets,
+                  }
+                : { ...we, sets: budgetSets.get(we.id) ?? we.sets })
             );
           });
         const previousByExercise: Record<string, any[]> = {};
@@ -180,7 +202,7 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
     return () => {
       cancelled = true;
     };
-  }, [key, workoutDayId, attempt]);
+  }, [key, workoutDayId, attempt, timeBudgetMinutes, timeBudgetPreview]);
   const invalidateAll = () =>
     [
       "activePlan",
@@ -226,6 +248,40 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
         x.id === we.id ? { ...x, skipped: !x.skipped } : x
       ),
     }));
+  const setLoadIncrement = async (exerciseId: string, increment: number) => {
+    const profile = state.profile;
+    if (!profile?.id || !exerciseId || !user?.id)
+      throw new Error("Save your profile before setting load steps.");
+    await incrementQueue.current.save(
+      user.id,
+      profile,
+      exerciseId,
+      increment,
+      (ownerId) => ownerRef.current === ownerId,
+      (profileId, loadIncrements) =>
+        limitApi.entities.UserProfile.update(profileId, { loadIncrements }),
+      (loadIncrements) => {
+        setState((s) =>
+          s.profile?.id === profile.id ? { ...s, profile: { ...s.profile, loadIncrements } } : s
+        );
+        void client.invalidateQueries({ queryKey: ["userProfile"] });
+      }
+    );
+  };
+  const selectEquipmentProfile = async (equipmentProfileId: string | null) => {
+    if (!state.session || state.offline) return "Connect to select a gym for this workout.";
+    try {
+      const { data } = await limitApi.functions.invoke("workoutCommand", {
+        action: "selectEquipmentProfile",
+        sessionId: state.session.id,
+        equipmentProfileId,
+      });
+      setState((current) => ({ ...current, session: data.session }));
+      return null;
+    } catch (error: any) {
+      return error?.response?.data?.error || "Couldn’t select this gym. Try again.";
+    }
+  };
   useEffect(() => {
     if (key && state.session) rowState.setRows((rs) => rs);
   }, [state.workoutExercises]);
@@ -233,7 +289,9 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
     ...state,
     ...rowState,
     replaceExercise,
+    selectEquipmentProfile,
     skipExercise,
+    setLoadIncrement,
     retry: () => retry((n: number) => n + 1),
     clearDraft: () => {
       // A completed server save must not be reported as failed just because

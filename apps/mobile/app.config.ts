@@ -1,10 +1,13 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
+const productionApiOrigin = "https://limit.limit-dylanlasensky.workers.dev";
 export default ({ config }: ConfigContext): ExpoConfig => {
   const bundle = process.env.LIMIT_BUNDLE_IDENTIFIER;
   const team = process.env.LIMIT_APPLE_TEAM_ID;
   const build = process.env.LIMIT_NATIVE_BUILD;
   const revision = process.env.LIMIT_SOURCE_REVISION;
   if (process.env.LIMIT_NATIVE_RELEASE === "true") {
+    if (process.env.EXPO_PUBLIC_API_URL !== productionApiOrigin)
+      throw new Error(`Set EXPO_PUBLIC_API_URL to ${productionApiOrigin} for a native release.`);
     if (
       !bundle ||
       !/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*){2,}$/.test(bundle) ||
@@ -33,6 +36,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ...(bundle ? { package: bundle } : {}),
       ...(build ? { versionCode: Number(build) } : {}),
     },
-    extra: { ...config.extra, sourceRevision: revision || "development" },
+    extra: {
+      ...config.extra,
+      ...(process.env.LIMIT_EAS_PROJECT_ID
+        ? { eas: { ...config.extra?.eas, projectId: process.env.LIMIT_EAS_PROJECT_ID } }
+        : {}),
+      sourceRevision: revision || "development",
+    },
   };
 };

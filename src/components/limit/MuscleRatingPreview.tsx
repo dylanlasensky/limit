@@ -5,8 +5,9 @@ import BodyMap from "@/components/limit/BodyMap";
 import type { MuscleRating } from "@/components/limit/muscleRating";
 interface MuscleRatingPreviewProps {
   rating: MuscleRating;
+  sex?: string | null;
 }
-export default function MuscleRatingPreview({ rating }: MuscleRatingPreviewProps) {
+export default function MuscleRatingPreview({ rating, sex }: MuscleRatingPreviewProps) {
   const high = Object.values(rating.muscles).filter((x) =>
     ["Advanced", "Elite"].includes(x.level)
   ).length;
@@ -35,8 +36,8 @@ export default function MuscleRatingPreview({ rating }: MuscleRatingPreviewProps
           </span>
         </div>
         <div className="limit-grid flex h-44 items-center justify-center gap-1 overflow-hidden rounded-2xl border border-border/50 bg-background/50">
-          <BodyMap rating={rating} view="front" compact />
-          <BodyMap rating={rating} view="back" compact />
+          <BodyMap rating={rating} view="front" compact sex={sex} />
+          <BodyMap rating={rating} view="back" compact sex={sex} />
         </div>
       </div>
     </Link>

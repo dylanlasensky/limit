@@ -13,6 +13,8 @@ export default function Layout() {
     >
       <Stack.Screen name="index" options={{ title: "Today" }} />
       <Stack.Screen name="sign-in" options={{ title: "Your account" }} />
+      <Stack.Screen name="account" options={{ title: "Your account" }} />
+      <Stack.Screen name="onboarding" options={{ title: "Set up training" }} />
       <Stack.Screen name="plan" options={{ title: "Your week" }} />
       <Stack.Screen name="history/index" options={{ title: "Workout history" }} />
       <Stack.Screen name="history/[id]" options={{ title: "Workout details" }} />

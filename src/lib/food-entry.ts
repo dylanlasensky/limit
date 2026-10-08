@@ -33,6 +33,9 @@ const editableFields = [
   "fiber",
   "sugar",
   "sodium",
+  "ingredients",
+  "possibleAllergens",
+  "shortcutLogId",
 ];
 function foodPayload(entry: Record<string, any>) {
   const valid = validateFoodEntry(entry);

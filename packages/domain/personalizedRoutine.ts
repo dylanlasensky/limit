@@ -8,6 +8,8 @@ import {
   slotsFor,
 } from "./programEngine";
 import { equipmentPool, selectExercise } from "./exerciseSelection";
+import { estimateMinutes } from "./sessionEstimate.js";
+export { estimateMinutes } from "./sessionEstimate.js";
 
 export interface DayExercise {
   exerciseId: string;
@@ -32,18 +34,6 @@ const unilateral = (row: any) =>
 // Planning estimate, not a timer: six minutes for preparation/warm-ups,
 // a minute to change stations, controlled reps (both sides where applicable),
 // and prescribed rest BETWEEN sets. Never shorten rest to fit more work.
-export const estimateMinutes = (rows: any[]): number => {
-  if (!rows.length) return 0;
-  return Math.ceil(
-    6 +
-      rows.reduce((total, row) => {
-        const sets = Math.max(1, Number(row.sets) || 3);
-        const work = Math.max(45, (Number(row.repMax) || 12) * 3) * (unilateral(row) ? 2 : 1);
-        return total + (60 + sets * work + (sets - 1) * (row.restSeconds ?? 120)) / 60;
-      }, 0)
-  );
-};
-
 export const sessionMinutes = (profile: any): number =>
   Math.min(90, Math.max(30, Number(profile.sessionLength) || 60));
 
