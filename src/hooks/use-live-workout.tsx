@@ -226,6 +226,15 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
         x.id === we.id ? { ...x, skipped: !x.skipped } : x
       ),
     }));
+  const setLoadIncrement = async (exerciseId: string, increment: number) => {
+    const profile = state.profile;
+    if (!profile?.id || !exerciseId)
+      throw new Error("Save your profile before setting load steps.");
+    const loadIncrements = { ...(profile.loadIncrements || {}), [exerciseId]: increment };
+    await limitApi.entities.UserProfile.update(profile.id, { loadIncrements });
+    setState((s) => ({ ...s, profile: { ...s.profile, loadIncrements } }));
+    void client.invalidateQueries({ queryKey: ["userProfile"] });
+  };
   useEffect(() => {
     if (key && state.session) rowState.setRows((rs) => rs);
   }, [state.workoutExercises]);
@@ -234,6 +243,7 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
     ...rowState,
     replaceExercise,
     skipExercise,
+    setLoadIncrement,
     retry: () => retry((n: number) => n + 1),
     clearDraft: () => {
       // A completed server save must not be reported as failed just because

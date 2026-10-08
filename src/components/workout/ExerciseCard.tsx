@@ -20,6 +20,7 @@ interface ExerciseCardProps {
   savingIds: Set<string>;
   allExercises: any[];
   profile?: Record<string, any> | null;
+  onLoadIncrementChange?: (increment: number) => Promise<void>;
   plan?: Record<string, any> | null;
   onReplace: (exercise: any) => void;
   onSkip: () => void;
@@ -36,21 +37,25 @@ export default function ExerciseCard({
   savingIds,
   allExercises,
   profile,
+  onLoadIncrementChange,
   plan,
   onReplace,
   onSkip,
 }: ExerciseCardProps) {
   const [compact, setCompact] = useState(false);
   const [calculatorOpen, setCalculatorOpen] = useState(false);
+  const [stepError, setStepError] = useState("");
+  const [stepSaving, setStepSaving] = useState(false);
   const usesPlates = /barbell|smith|trap bar|landmine/i.test(
     exercise?.equipment || workoutExercise.equipment || workoutExercise.exerciseName || ""
   );
   const [details, setDetails] = useState(false),
     locked =
       plan?.structureLocked || plan?.athleteMode === "track_only" || workoutExercise.coachMandated,
+    increment = profile?.loadIncrements?.[workoutExercise.exerciseId] || 5,
     suggestion = locked
       ? null
-      : suggestProgression(previousSets, workoutExercise.repMin, workoutExercise.repMax);
+      : suggestProgression(previousSets, workoutExercise.repMin, workoutExercise.repMax, increment);
   return (
     <section
       className={`limit-surface mt-5 min-w-0 rounded-[1.5rem] p-3 sm:p-5 transition-opacity ${workoutExercise.skipped ? "opacity-55" : ""}`}
@@ -130,6 +135,42 @@ export default function ExerciseCard({
               <p className="limit-kicker">NEXT TARGET · {suggestion.weight} LB</p>
               <p className="mt-0.5 text-xs text-muted-foreground">{suggestion.note}</p>
             </div>
+          )}
+          {!locked && onLoadIncrementChange && (
+            <label className="mt-3 block text-xs text-muted-foreground">
+              Available load increase for this exercise
+              <select
+                className="ml-2 min-h-11 rounded-xl border border-input bg-background px-2 text-foreground"
+                aria-label={`Load increase for ${workoutExercise.exerciseName}`}
+                value={increment}
+                disabled={stepSaving}
+                onChange={async (event) => {
+                  setStepError("");
+                  setStepSaving(true);
+                  try {
+                    await onLoadIncrementChange(Number(event.target.value));
+                  } catch {
+                    setStepError("Couldn’t save the load increase. Try again.");
+                  } finally {
+                    setStepSaving(false);
+                  }
+                }}
+              >
+                {[2.5, 5, 10, 15, 20].map((step) => (
+                  <option key={step} value={step}>
+                    +{step} lb
+                  </option>
+                ))}
+              </select>
+              <span className="mt-1 block">
+                Suggestions only. Set weight and reps remain yours to edit.
+              </span>
+              {stepError && (
+                <span role="alert" className="mt-1 block text-destructive">
+                  {stepError}
+                </span>
+              )}
+            </label>
           )}
           <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3">
             {previousSets.length > 0 && (
