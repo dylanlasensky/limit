@@ -35,6 +35,7 @@ export const workoutCommandSchema = z.discriminatedUnion("action", [
       rir: numeric.nullable().optional(),
       completed: z.boolean(),
       setType: z.enum(["working", "warmup"]).optional(),
+      budgetExtension: z.boolean().optional(),
     }),
   }),
 ]);

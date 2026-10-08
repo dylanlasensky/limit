@@ -16,6 +16,7 @@ interface ExerciseCardProps {
   onEdit: (key: string, field: EditableSetField, value: string) => void;
   onToggle: (key: string) => void;
   onAddSet: () => void;
+  timeBudget?: boolean;
   onRemoveSet: (key: string) => void;
   savingIds: Set<string>;
   allExercises: any[];
@@ -32,6 +33,7 @@ export default function ExerciseCard({
   onEdit,
   onToggle,
   onAddSet,
+  timeBudget = false,
   onRemoveSet,
   savingIds,
   allExercises,
@@ -182,7 +184,7 @@ export default function ExerciseCard({
               disabled={rows.length >= 30}
               className="mt-4 min-h-11 w-full rounded-xl border border-dashed border-border/70 bg-secondary/30 text-xs font-black tracking-wide text-muted-foreground transition-colors active:bg-secondary disabled:opacity-40"
             >
-              + ADD SET
+              {timeBudget ? "+ ADD SET · EXTENDS TODAY" : "+ ADD SET"}
             </button>
           )}
         </>

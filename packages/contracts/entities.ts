@@ -413,6 +413,7 @@ export const entitySchemas = {
       .object({
         minutes: z.number().int().min(20).max(120),
         estimatedMinutes: z.number().int().nonnegative(),
+        manualExtensionSets: z.number().int().nonnegative().max(3000).optional(),
         exercises: z
           .array(z.object({ id: z.string().max(2000), sets: z.number().int().min(1).max(30) }))
           .max(100),

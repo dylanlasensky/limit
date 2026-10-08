@@ -189,7 +189,12 @@ export default function LiveWorkout() {
           className="mt-3 rounded-xl border border-primary/30 bg-primary/10 p-3 text-xs"
         >
           Today’s {live.session.timeBudget.minutes}-minute version · about{" "}
-          {live.session.timeBudget.estimatedMinutes} min planned. Your usual program is unchanged.
+          {live.session.timeBudget.estimatedMinutes} min originally planned.
+          {live.session.timeBudget.manualExtensionSets > 0 ||
+          live.rows.some((row) => row.budgetExtension && !row.removed)
+            ? " Extra sets extend today’s session."
+            : ""}{" "}
+          Your usual program is unchanged.
         </p>
       )}
       <WorkoutSyncStatus
@@ -267,6 +272,7 @@ export default function LiveWorkout() {
               onEdit={live.edit}
               onToggle={handleToggle}
               onAddSet={() => live.addSet(we.id)}
+              timeBudget={!!live.session?.timeBudget}
               onRemoveSet={live.removeSet}
               allExercises={live.allExercises || Object.values(live.exercisesById)}
               profile={live.profile}
