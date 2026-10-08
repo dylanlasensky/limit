@@ -43,6 +43,40 @@ export function list<N extends EntityName>(
 export function get<N extends EntityName>(name: N, id: string) {
   return request("/entities/" + name + "/" + encodeURIComponent(id), recordSchema(name));
 }
+export function create<N extends EntityName>(name: N, data: unknown) {
+  return request("/entities/" + name, recordSchema(name), data);
+}
+export function update<N extends EntityName>(name: N, id: string, data: unknown) {
+  return requestWithMethod(
+    "/entities/" + name + "/" + encodeURIComponent(id),
+    "PATCH",
+    recordSchema(name),
+    data
+  );
+}
+export function bulkCreate<N extends EntityName>(name: N, data: unknown[]) {
+  return request("/entities/" + name + "/bulkCreate", recordSchema(name).array(), data);
+}
+async function requestWithMethod<T>(
+  path: string,
+  method: string,
+  schema: z.ZodType<T>,
+  body: unknown
+): Promise<T> {
+  const cookie = Platform.OS === "web" ? "" : await auth.getCookie();
+  const response = await fetch(origin + "/api" + path, {
+    method,
+    credentials: Platform.OS === "web" ? "include" : "omit",
+    headers: {
+      ...(Platform.OS === "web" ? {} : { Cookie: cookie || "" }),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || data.message || "Could not save. Try again.");
+  return schema.parse(data);
+}
 export function command(body: unknown) {
   return request("/functions/workoutCommand", functionResponseSchema("workoutCommand", body), body);
 }

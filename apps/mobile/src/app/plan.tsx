@@ -64,7 +64,10 @@ export default function Plan() {
         </Card>
       ))}
       {currentDays?.length === 0 && (
-        <Copy>No active plan yet. Complete your profile on the web.</Copy>
+        <>
+          <Copy>No active plan yet.</Copy>
+          <Action label="Build my starting plan" onPress={() => router.push("/onboarding")} />
+        </>
       )}
       {currentDays === null && !currentError && <Copy>Loading your plan…</Copy>}
       {!!currentError && (
