@@ -82,20 +82,6 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
   const done=await call('/functions/workoutCommand',{cookie,method:'POST',body:finish});assert.equal(done.status,200,JSON.stringify(done.data));assert.equal(done.data.summary.workingSets,1);assert.equal(done.data.summary.volume,0);
   const again=await call('/functions/workoutCommand',{cookie,method:'POST',body:finish});assert.deepEqual(again.data.summary,done.data.summary);
  });
- await t.test('coach fails closed on missing consent and only activates explicitly approved proposals',async()=>{
-  assert.equal((await call('/functions/askLimitCoach',{cookie,method:'POST',body:{question:'Build a plan'}})).status,403);
-  const answer=await call('/functions/askLimitCoach',{cookie,method:'POST',body:{question:'Build a plan',propose:true,aiConsent:'cloudflare-ai-v1'}});
-  assert.equal(answer.status,200,JSON.stringify(answer.data));if(base.startsWith('http://localhost'))assert.equal(answer.data.source,'deterministic');else assert.ok(['workers-ai','deterministic'].includes(answer.data.source));assert.ok(answer.data.proposal,JSON.stringify(answer.data));t.diagnostic('Coach response source: '+answer.data.source);
-  const before=(await call('/entities/WorkoutPlan?filter='+encodeURIComponent('{"active":true}'),{cookie})).data;assert.equal(before[0].id,plan.id);
-  assert.equal((await call('/functions/approvePlan',{cookie,method:'POST',body:{proposalId:answer.data.proposal.id,approved:false}})).status,400);
-  const approved=await call('/functions/approvePlan',{cookie,method:'POST',body:{proposalId:answer.data.proposal.id,approved:true}});assert.equal(approved.status,200,JSON.stringify(approved.data));assert.equal(approved.data.plan.active,true);
-  const active=(await call('/entities/WorkoutPlan?filter='+encodeURIComponent('{"active":true}'),{cookie})).data;assert.equal(active.length,1);
- });
- await t.test('keeps uploaded files private',async()=>{
-  const r=await fetch(base+'/api/uploads',{method:'POST',headers:{cookie,origin:base,'content-type':'text/plain'},body:'Disposable workout notes'});assert.equal(r.status,200);const file=await r.json();
-  assert.equal((await fetch(base+'/api/uploads/'+file.id,{headers:{cookie:b.cookie}})).status,404);
-  const own=await fetch(base+'/api/uploads/'+file.id,{headers:{cookie}});assert.equal(own.status,200);assert.equal(await own.text(),'Disposable workout notes');
- });
  await t.test('explicit extra warmup and working sets extend only the shortened session',async()=>{
   for(let order=2;order<=4;order++){
    const added=await call('/entities/WorkoutExercise',{cookie,method:'POST',body:{workoutDayId:days[3].id,exerciseId:exercise.id,exerciseName:exercise.name+' '+order,primaryMuscle:exercise.primaryMuscle,order,sets:4,repMin:8,repMax:12,restSeconds:180}});
@@ -124,6 +110,20 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
   const finished=await call('/functions/workoutCommand',{cookie,method:'POST',body:{action:'finish',sessionId:shorter.id,expectedSets:[{id:warmup.data.set.id,revision:warmup.data.set.revision},{id:working.data.set.id,revision:working.data.set.revision}]}});
   assert.equal(finished.status,200,JSON.stringify(finished.data));
   assert.equal((await call('/entities/WorkoutExercise/'+first.id,{cookie})).data.sets,first.sets);
+ });
+ await t.test('coach fails closed on missing consent and only activates explicitly approved proposals',async()=>{
+  assert.equal((await call('/functions/askLimitCoach',{cookie,method:'POST',body:{question:'Build a plan'}})).status,403);
+  const answer=await call('/functions/askLimitCoach',{cookie,method:'POST',body:{question:'Build a plan',propose:true,aiConsent:'cloudflare-ai-v1'}});
+  assert.equal(answer.status,200,JSON.stringify(answer.data));if(base.startsWith('http://localhost'))assert.equal(answer.data.source,'deterministic');else assert.ok(['workers-ai','deterministic'].includes(answer.data.source));assert.ok(answer.data.proposal,JSON.stringify(answer.data));t.diagnostic('Coach response source: '+answer.data.source);
+  const before=(await call('/entities/WorkoutPlan?filter='+encodeURIComponent('{"active":true}'),{cookie})).data;assert.equal(before[0].id,plan.id);
+  assert.equal((await call('/functions/approvePlan',{cookie,method:'POST',body:{proposalId:answer.data.proposal.id,approved:false}})).status,400);
+  const approved=await call('/functions/approvePlan',{cookie,method:'POST',body:{proposalId:answer.data.proposal.id,approved:true}});assert.equal(approved.status,200,JSON.stringify(approved.data));assert.equal(approved.data.plan.active,true);
+  const active=(await call('/entities/WorkoutPlan?filter='+encodeURIComponent('{"active":true}'),{cookie})).data;assert.equal(active.length,1);
+ });
+ await t.test('keeps uploaded files private',async()=>{
+  const r=await fetch(base+'/api/uploads',{method:'POST',headers:{cookie,origin:base,'content-type':'text/plain'},body:'Disposable workout notes'});assert.equal(r.status,200);const file=await r.json();
+  assert.equal((await fetch(base+'/api/uploads/'+file.id,{headers:{cookie:b.cookie}})).status,404);
+  const own=await fetch(base+'/api/uploads/'+file.id,{headers:{cookie}});assert.equal(own.status,200);assert.equal(await own.text(),'Disposable workout notes');
  });
  await t.test('exports only current account and deletes uploads, records and identity',async()=>{
   const exported=await call('/functions/exportAccount',{cookie,method:'POST',body:{}});assert.equal(exported.status,200);assert.equal(exported.data.account.id,a.data.user.id);
