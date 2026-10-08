@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Camera,
   Utensils,
-  Store,
   PenLine,
   ChevronLeft,
   History,
@@ -17,13 +16,12 @@ import ManualFood from "@/components/limit/ManualFood";
 import FoodPhotoScanner from "@/components/limit/FoodPhotoScanner";
 import MealShortcuts from "@/components/limit/MealShortcuts";
 import type { DietaryProfile } from "@/components/limit/data";
-type AddFoodMode = "search" | "recent" | "shortcuts" | "food" | "meal" | "restaurant" | "manual";
+type AddFoodMode = "search" | "recent" | "shortcuts" | "food" | "meal" | "manual";
 const options: Array<[string, LucideIcon, AddFoodMode, string]> = [
   ["Recent foods", History, "recent", "Quick-add something you logged"],
   ["Saved meals", Bookmark, "shortcuts", "Log several foods together"],
   ["Nutrition label", Camera, "food", "Scan a label or package"],
   ["Plate photo", Utensils, "meal", "Estimate an editable full meal"],
-  ["Restaurant meal", Store, "restaurant", "Log an estimated restaurant item"],
   ["Manual entry", PenLine, "manual", "Enter exact nutrition yourself"],
 ];
 interface AddFoodFlowProps {
@@ -164,7 +162,6 @@ export default function AddFoodFlow({
             onSavingChange={savingChanged}
             initialMealType={initialMealType}
             entryMethod={mode}
-            estimated={mode === "restaurant"}
             onDone={onDone}
           />
         )}
