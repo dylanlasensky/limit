@@ -5,6 +5,7 @@ import { fail, owned, ownerFilter, localDate } from "../packages/domain/workoutA
 import { validSet, personalBests, finishAnalytics } from "../packages/domain/workoutAnalytics.js";
 import { activatePlan } from "../packages/domain/planActivation.js";
 import { enrichExercise } from "../packages/domain/exerciseLibrary.js";
+import { previewSessionBudget } from "../packages/domain/sessionBudget.js";
 
 export default async function workoutCommand(req: Request, client: any) {
   let action = "unknown";
@@ -68,6 +69,32 @@ export default async function workoutCommand(req: Request, client: any) {
           );
           if (!exercises.length)
             fail("This workout has no exercises. Rebuild your plan in Profile.", 409);
+          let timeBudget;
+          if (input.timeBudgetMinutes !== undefined) {
+            if (
+              plan.structureLocked ||
+              plan.athleteMode === "track_only" ||
+              day.coachMandated ||
+              day.fixedSchedule
+            )
+              fail("This athlete program cannot be shortened.", 409);
+            const preview = previewSessionBudget(exercises, input.timeBudgetMinutes);
+            if (!preview.available)
+              fail(preview.reason || "This workout cannot fit that time budget.", 409);
+            if (
+              JSON.stringify(input.timeBudgetPreview) !==
+              JSON.stringify(preview.selected.map((row: any) => ({ id: row.id, sets: row.sets })))
+            )
+              fail(
+                "This workout changed since your preview. Review it again before starting.",
+                409
+              );
+            timeBudget = {
+              minutes: input.timeBudgetMinutes,
+              estimatedMinutes: preview.estimatedMinutes,
+              exercises: preview.selected.map((row: any) => ({ id: row.id, sets: row.sets })),
+            };
+          }
           await assertLock();
           const session = await db.WorkoutSession.create({
             ownerId: user.id,
@@ -79,6 +106,7 @@ export default async function workoutCommand(req: Request, client: any) {
             startedAt: new Date().toISOString(),
             status: "active",
             targetMuscles: day.targetMuscles || [],
+            ...(timeBudget ? { timeBudget } : {}),
           });
           return { session };
         }
@@ -103,9 +131,21 @@ export default async function workoutCommand(req: Request, client: any) {
           const we = await db.WorkoutExercise.get(row.workoutExerciseId);
           if (!owned(we, user.id) || we.workoutDayId !== session.workoutDayId)
             fail("Exercise does not belong to this workout.", 403);
+          let budgetExtensionSets = 0;
+          if (session.timeBudget) {
+            const selected = session.timeBudget.exercises.find((item: any) => item.id === we.id);
+            if (!selected) fail("This exercise is outside today’s shorter workout.", 409);
+            if (row.setNumber > selected.sets) {
+              if (row.budgetExtension !== true)
+                fail("Confirm an extra set to extend today’s shorter workout.", 409);
+              budgetExtensionSets = row.setNumber - selected.sets;
+            }
+          }
           const plan = await db.WorkoutPlan.get(session.planId);
           const locked =
             plan.structureLocked || plan.athleteMode === "track_only" || we.coachMandated;
+          if (budgetExtensionSets && locked)
+            fail("This prescribed workout cannot be extended.", 409);
           if (locked && row.exerciseId && row.exerciseId !== we.exerciseId)
             fail("This exercise is locked by your imported program.", 409);
           const original = we.exerciseId
@@ -186,6 +226,18 @@ export default async function workoutCommand(req: Request, client: any) {
           };
           stage = "lock-set";
           await assertLock();
+          if (budgetExtensionSets) {
+            await db.WorkoutSession.update(session.id, {
+              timeBudget: {
+                ...session.timeBudget,
+                manualExtensionSets:
+                  (session.timeBudget.manualExtensionSets || 0) + budgetExtensionSets,
+                exercises: session.timeBudget.exercises.map((item: any) =>
+                  item.id === we.id ? { ...item, sets: row.setNumber } : item
+                ),
+              },
+            });
+          }
           stage = existing ? "update-set" : "create-set";
           const saved = existing
             ? await db.ExerciseSet.update(existing.id, payload)

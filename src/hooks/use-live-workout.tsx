@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { limitApi } from "@/api/client";
 import { listExercises } from "@/lib/training/exerciseLibrary";
@@ -54,6 +55,13 @@ export interface LiveWorkoutState {
 }
 
 export default function useLiveWorkout(workoutDayId: string | undefined) {
+  const location = useLocation();
+  const budgetState = location.state as {
+    timeBudgetMinutes?: number;
+    timeBudgetPreview?: { id: string; sets: number }[];
+  } | null;
+  const timeBudgetMinutes = budgetState?.timeBudgetMinutes;
+  const timeBudgetPreview = budgetState?.timeBudgetPreview;
   const { user } = useAuth(),
     client = useQueryClient(),
     key = user?.id ? draftKey(user.id, workoutDayId as string) : null;
@@ -86,6 +94,7 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
           action: "start",
           workoutDayId,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          ...(timeBudgetMinutes ? { timeBudgetMinutes, timeBudgetPreview } : {}),
         });
         const session = data.session;
         if (data.redirectWorkoutDayId && data.redirectWorkoutDayId !== workoutDayId) {
@@ -113,7 +122,11 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
         const exercisesById: Record<string, any> = Object.fromEntries(
           exercises.map((e: any) => [e.id, e])
         );
+        const budgetSets = new Map<string, number>(
+          session.timeBudget?.exercises?.map((row: any) => [row.id, row.sets]) || []
+        );
         const workoutExercises: any[] = templates
+          .filter((we: any) => !session.timeBudget || budgetSets.has(we.id))
           .sort((a: any, b: any) => a.order - b.order)
           .map((we: any) => {
             const saved = savedSets.find((s: any) => s.workoutExerciseId === we.id);
@@ -122,10 +135,15 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
                 ? draft!.workoutExercises?.find((e: any) => e.id === we.id)
                 : null;
             return (
-              local ||
+              (local ? { ...local, sets: budgetSets.get(we.id) ?? local.sets } : null) ||
               (saved
-                ? { ...we, exerciseId: saved.exerciseId, exerciseName: saved.exerciseName }
-                : we)
+                ? {
+                    ...we,
+                    exerciseId: saved.exerciseId,
+                    exerciseName: saved.exerciseName,
+                    sets: budgetSets.get(we.id) ?? we.sets,
+                  }
+                : { ...we, sets: budgetSets.get(we.id) ?? we.sets })
             );
           });
         const previousByExercise: Record<string, any[]> = {};
@@ -180,7 +198,7 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
     return () => {
       cancelled = true;
     };
-  }, [key, workoutDayId, attempt]);
+  }, [key, workoutDayId, attempt, timeBudgetMinutes, timeBudgetPreview]);
   const invalidateAll = () =>
     [
       "activePlan",

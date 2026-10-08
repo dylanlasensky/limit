@@ -168,6 +168,9 @@ export default function useWorkoutRows(state: WorkoutDraftState, storageKey?: st
       const reusable = mine.find((r) => r.removed && !r.savedId && !r.pending);
       const number = reusable?.setNumber ?? Math.max(0, ...mine.map((r) => r.setNumber)) + 1;
       if (!last || number > 30) return rs;
+      const budgetSets = stateRef.current.session?.timeBudget?.exercises?.find(
+        (item: { id: string; sets: number }) => item.id === we
+      )?.sets;
       const next = {
         ...last,
         key: reusable?.key ?? we + ":" + number,
@@ -180,6 +183,7 @@ export default function useWorkoutRows(state: WorkoutDraftState, storageKey?: st
         removed: false,
         revision: "",
         operationId: "",
+        budgetExtension: budgetSets !== undefined && number > budgetSets,
       };
       return reusable ? rs.map((r) => (r === reusable ? next : r)) : [...rs, next];
     });

@@ -409,6 +409,16 @@ export const entitySchemas = {
     durationMinutes: z.number().finite().min(0).max(1000000).optional(),
     status: z.enum(["active", "completed", "skipped"] as const),
     targetMuscles: z.array(z.string().max(2000)).max(1000).optional(),
+    timeBudget: z
+      .object({
+        minutes: z.number().int().min(20).max(120),
+        estimatedMinutes: z.number().int().nonnegative(),
+        manualExtensionSets: z.number().int().nonnegative().max(3000).optional(),
+        exercises: z
+          .array(z.object({ id: z.string().max(2000), sets: z.number().int().min(1).max(30) }))
+          .max(100),
+      })
+      .optional(),
     notes: z.string().max(2000).optional(),
     totalVolume: z.number().finite().min(0).max(1000000).optional(),
     setCount: z.number().finite().min(0).max(1000000).optional(),

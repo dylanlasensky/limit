@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { previewSessionBudget } from '../../packages/domain/sessionBudget.js';
 const base=process.env.LIMIT_API_URL||'http://localhost:8787';
 const password='Local-test-password-123!';
 async function call(path,{cookie='',method='GET',body,origin=base}={}) {
@@ -80,6 +81,35 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
   const finish={action:'finish',sessionId:session.id,expectedSets:[{id:set.id,revision:set.revision},{id:warmup.data.set.id,revision:warmup.data.set.revision}]};
   const done=await call('/functions/workoutCommand',{cookie,method:'POST',body:finish});assert.equal(done.status,200,JSON.stringify(done.data));assert.equal(done.data.summary.workingSets,1);assert.equal(done.data.summary.volume,0);
   const again=await call('/functions/workoutCommand',{cookie,method:'POST',body:finish});assert.deepEqual(again.data.summary,done.data.summary);
+ });
+ await t.test('explicit extra warmup and working sets extend only the shortened session',async()=>{
+  for(let order=2;order<=4;order++){
+   const added=await call('/entities/WorkoutExercise',{cookie,method:'POST',body:{workoutDayId:days[3].id,exerciseId:exercise.id,exerciseName:exercise.name+' '+order,primaryMuscle:exercise.primaryMuscle,order,sets:4,repMin:8,repMax:12,restSeconds:180}});
+   assert.equal(added.status,200,JSON.stringify(added.data));
+  }
+  const templates=(await call('/entities/WorkoutExercise?filter='+encodeURIComponent(JSON.stringify({workoutDayId:days[3].id})),{cookie})).data.sort((x,y)=>x.order-y.order);
+  const preview=previewSessionBudget(templates,40);
+  assert.equal(preview.available,true,JSON.stringify(preview));
+  const begun=await call('/functions/workoutCommand',{cookie,method:'POST',body:{action:'start',workoutDayId:days[3].id,timezone:'America/New_York',timeBudgetMinutes:40,timeBudgetPreview:preview.selected.map(row=>({id:row.id,sets:row.sets}))}});
+  assert.equal(begun.status,200,JSON.stringify(begun.data));
+  const shorter=begun.data.session;
+  const first=preview.selected[0];
+  const extra={action:'saveSet',sessionId:shorter.id,row:{workoutExerciseId:first.id,exerciseId:exercise.id,setNumber:first.sets+1,operationId:crypto.randomUUID(),revision:'',weight:'0',reps:'5',setType:'warmup',completed:true}};
+  assert.equal((await call('/functions/workoutCommand',{cookie,method:'POST',body:extra})).status,409);
+  const warmup=await call('/functions/workoutCommand',{cookie,method:'POST',body:{...extra,row:{...extra.row,budgetExtension:true}}});
+  assert.equal(warmup.status,200,JSON.stringify(warmup.data));
+  assert.equal(warmup.data.set.setType,'warmup');
+  const retry=await call('/functions/workoutCommand',{cookie,method:'POST',body:{...extra,row:{...extra.row,budgetExtension:true}}});
+  assert.equal(retry.status,200,JSON.stringify(retry.data));
+  assert.equal(retry.data.set.id,warmup.data.set.id);
+  const working=await call('/functions/workoutCommand',{cookie,method:'POST',body:{...extra,row:{...extra.row,setNumber:first.sets+2,operationId:crypto.randomUUID(),reps:'8',setType:'working',budgetExtension:true}}});
+  assert.equal(working.status,200,JSON.stringify(working.data));
+  const savedSession=await call('/entities/WorkoutSession/'+shorter.id,{cookie});
+  assert.equal(savedSession.data.timeBudget.exercises.find(item=>item.id===first.id).sets,first.sets+2);
+  assert.equal(savedSession.data.timeBudget.manualExtensionSets,2);
+  const finished=await call('/functions/workoutCommand',{cookie,method:'POST',body:{action:'finish',sessionId:shorter.id,expectedSets:[{id:warmup.data.set.id,revision:warmup.data.set.revision},{id:working.data.set.id,revision:working.data.set.revision}]}});
+  assert.equal(finished.status,200,JSON.stringify(finished.data));
+  assert.equal((await call('/entities/WorkoutExercise/'+first.id,{cookie})).data.sets,first.sets);
  });
  await t.test('coach fails closed on missing consent and only activates explicitly approved proposals',async()=>{
   assert.equal((await call('/functions/askLimitCoach',{cookie,method:'POST',body:{question:'Build a plan'}})).status,403);
