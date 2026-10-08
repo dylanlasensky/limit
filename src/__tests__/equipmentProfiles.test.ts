@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { entitySchemas } from "../../packages/contracts/entities";
 import { workoutCommandSchema } from "../../packages/contracts/workout";
+import { functionResponseSchema } from "../../packages/contracts/functions";
 import {
   equipmentAvailable,
   equipmentPool,
@@ -23,6 +24,21 @@ describe("session equipment profiles", () => {
         action: "selectEquipmentProfile",
         sessionId: "session-1",
         equipmentProfileId: "home",
+      }).success
+    ).toBe(true);
+    expect(
+      functionResponseSchema("workoutCommand", { action: "selectEquipmentProfile" }).safeParse({
+        session: {
+          id: "session-1",
+          ownerId: "user-1",
+          created_by_id: "user-1",
+          created_date: "2026-10-08T00:00:00.000Z",
+          updated_date: "2026-10-08T00:00:00.000Z",
+          name: "Strength",
+          date: "2026-10-08",
+          status: "active",
+          equipmentProfileId: "home",
+        },
       }).success
     ).toBe(true);
   });
