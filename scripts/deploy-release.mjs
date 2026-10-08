@@ -74,12 +74,14 @@ const deployedVersion = deployedWorkerVersion(
   (deployment.stdout || "") + (deployment.stderr || "")
 );
 let health;
-for (let attempt = 0; attempt < 6; attempt++) {
+// Wrangler can report a new version before every edge serves it. The health
+// check still requires the exact source and Worker version before acceptance.
+for (let attempt = 0; attempt < 30; attempt++) {
   try {
     health = await check(origin, deployedVersion);
     break;
   } catch (error) {
-    if (attempt === 5) throw error;
+    if (attempt === 29) throw error;
     await new Promise((resolve) => setTimeout(resolve, 3000));
   }
 }

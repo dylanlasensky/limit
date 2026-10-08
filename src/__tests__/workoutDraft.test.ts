@@ -67,6 +67,28 @@ describe("workout draft recovery", () => {
     expect(readDraft(key)?.rows[0].weight).toBe("110");
     expect(readDraft(draftKey("b", "day"))).toBeNull();
   });
+  it("keeps a prior-client offline draft tied to the workout day across a date swap", () => {
+    const key = draftKey("account-a", "day-wednesday");
+    const previousClientDraft = {
+      day: { id: "day-wednesday", weekday: 2, name: "Strength" },
+      session: { id: "session-1", workoutDayId: "day-wednesday", status: "active" },
+      rows: [local],
+    };
+    localStorage.setItem(key, JSON.stringify(previousClientDraft));
+
+    // The schedule override changes a date's displayed workout, not its day ID
+    // or the persisted draft format used by clients already in the field.
+    expect(draftKey("account-a", "day-wednesday")).toBe(key);
+    const restored = readDraft(key);
+    expect(restored?.session?.workoutDayId).toBe("day-wednesday");
+    expect(initialRows([template], {}, [saved], restored?.rows)[0]).toMatchObject({
+      weight: "110",
+      revision: "server-v1",
+      operationId: "local-v3",
+      pending: true,
+    });
+    expect(readDraft(draftKey("account-b", "day-wednesday"))).toBeNull();
+  });
   it.each(["garbage", '{"rows":[null]}', '{"rows":[{"key":"a","setNumber":999}]}'])(
     "ignores malformed drafts: %s",
     (value) => {

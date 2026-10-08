@@ -24,7 +24,7 @@ export default function SetRow({ row, previous, onEdit, onToggle, saving }: SetR
     Number(previous.reps) <= 100;
   const canCopy = validPrevious && !done && !saving && !row.pending && !row.savedId;
   return (
-    <div className="mt-2 grid grid-cols-[22px_48px_minmax(0,1fr)_minmax(0,1fr)_40px_44px] items-center gap-2">
+    <div className="mt-2 grid grid-cols-[22px_48px_minmax(0,1fr)_minmax(0,1fr)_44px] items-center gap-2">
       <button
         type="button"
         aria-label={`Set ${row.setNumber} type: ${row.setType || "working"}. Tap to change`}
@@ -74,18 +74,6 @@ export default function SetRow({ row, previous, onEdit, onToggle, saving }: SetR
         placeholder={previous ? String(previous.reps) : "reps"}
         onChange={(e) => onEdit("reps", e.target.value)}
         className={`h-12 min-w-0 w-full rounded-xl border text-center font-bold tabular-nums outline-none transition-all ${done ? "border-primary/35 bg-primary/10 text-primary shadow-[inset_0_0_18px_hsl(var(--primary)/.08)]" : "border-border/50 bg-secondary/70 focus:border-primary/50"}`}
-      />
-      <input
-        aria-label={`Set ${row.setNumber} reps left (reps in reserve), optional`}
-        disabled={saving}
-        type="number"
-        inputMode="numeric"
-        value={row.rir ?? ""}
-        placeholder="Left"
-        min="0"
-        max="10"
-        onChange={(e) => onEdit("rir", e.target.value)}
-        className={`h-12 min-w-0 w-full rounded-xl border text-center text-sm tabular-nums outline-none transition-all ${done ? "border-primary/35 bg-primary/10 text-primary shadow-[inset_0_0_18px_hsl(var(--primary)/.08)]" : "border-border/50 bg-secondary/70 focus:border-primary/50"}`}
       />
       <motion.button
         whileTap={{ scale: 0.88 }}

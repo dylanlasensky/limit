@@ -92,6 +92,33 @@ export const entitySchemas = {
     sodium: z.number().finite().min(0).max(1000000).optional(),
     entryMethod: z.string().max(2000).optional(),
     estimated: z.boolean().optional(),
+    ingredients: z.array(z.string().trim().min(1).max(200)).max(600).optional(),
+    possibleAllergens: z.array(z.string().trim().min(1).max(100)).max(600).optional(),
+    shortcutLogId: z.string().uuid().optional(),
+  }),
+  MealShortcut: z.object({
+    name: z.string().trim().min(1).max(100),
+    createOperationId: z.string().uuid(),
+    items: z
+      .array(
+        z.object({
+          foodName: z.string().trim().min(1).max(200),
+          quantity: z.number().finite().positive().max(10000),
+          unit: z.string().trim().min(1).max(100),
+          calories: z.number().finite().min(0).max(100000),
+          protein: z.number().finite().min(0).max(100000).optional(),
+          carbs: z.number().finite().min(0).max(100000).optional(),
+          fat: z.number().finite().min(0).max(100000).optional(),
+          fiber: z.number().finite().min(0).max(100000).optional(),
+          sugar: z.number().finite().min(0).max(100000).optional(),
+          sodium: z.number().finite().min(0).max(100000).optional(),
+          estimated: z.boolean().optional(),
+          ingredients: z.array(z.string().trim().min(1).max(200)).max(30).optional(),
+          possibleAllergens: z.array(z.string().trim().min(1).max(100)).max(30).optional(),
+        })
+      )
+      .min(2)
+      .max(20),
   }),
   GroceryList: z.object({
     weekStart: z
@@ -316,6 +343,17 @@ export const entitySchemas = {
     sessionLength: z.number().finite().min(0).max(1000000).optional(),
     priorityMuscles: z.array(z.string().max(2000)).max(1000).optional(),
     equipment: z.array(z.string().max(2000)).max(1000).optional(),
+    loadIncrements: z.record(z.string().max(2000), z.number().finite().min(0.5).max(50)).optional(),
+    equipmentProfiles: z
+      .array(
+        z.object({
+          id: z.string().min(1).max(100),
+          name: z.string().trim().min(1).max(40),
+          equipment: z.array(z.string().min(1).max(100)).min(1).max(30),
+        })
+      )
+      .max(10)
+      .optional(),
     workoutSplit: z.string().max(2000).optional(),
     calorieTarget: z.number().finite().min(0).max(1000000).optional(),
     proteinTarget: z.number().finite().min(0).max(1000000).optional(),
@@ -352,6 +390,15 @@ export const entitySchemas = {
     isRest: z.boolean().optional(),
     coachMandated: z.boolean().optional(),
     fixedSchedule: z.boolean().optional(),
+  }),
+  WorkoutScheduleChange: z.object({
+    planId: z.string().min(1).max(150),
+    fromDayId: z.string().min(1).max(150),
+    toDayId: z.string().min(1).max(150),
+    fromDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    toDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    mode: z.enum(["move", "swap"]),
+    active: z.boolean(),
   }),
   WorkoutExercise: z.object({
     workoutDayId: z.string().max(2000),
@@ -396,6 +443,7 @@ export const entitySchemas = {
     importNotes: z.string().max(2000).optional(),
   }),
   WorkoutSession: z.object({
+    equipmentProfileId: z.string().min(1).max(100).nullable().optional(),
     workoutDayId: z.string().max(2000).optional(),
     planId: z.string().max(2000).optional(),
     name: z.string().max(2000),
@@ -409,6 +457,16 @@ export const entitySchemas = {
     durationMinutes: z.number().finite().min(0).max(1000000).optional(),
     status: z.enum(["active", "completed", "skipped"] as const),
     targetMuscles: z.array(z.string().max(2000)).max(1000).optional(),
+    timeBudget: z
+      .object({
+        minutes: z.number().int().min(20).max(120),
+        estimatedMinutes: z.number().int().nonnegative(),
+        manualExtensionSets: z.number().int().nonnegative().max(3000).optional(),
+        exercises: z
+          .array(z.object({ id: z.string().max(2000), sets: z.number().int().min(1).max(30) }))
+          .max(100),
+      })
+      .optional(),
     notes: z.string().max(2000).optional(),
     totalVolume: z.number().finite().min(0).max(1000000).optional(),
     setCount: z.number().finite().min(0).max(1000000).optional(),

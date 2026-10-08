@@ -16,10 +16,12 @@ interface ExerciseCardProps {
   onEdit: (key: string, field: EditableSetField, value: string) => void;
   onToggle: (key: string) => void;
   onAddSet: () => void;
+  timeBudget?: boolean;
   onRemoveSet: (key: string) => void;
   savingIds: Set<string>;
   allExercises: any[];
   profile?: Record<string, any> | null;
+  onLoadIncrementChange?: (increment: number) => Promise<void>;
   plan?: Record<string, any> | null;
   onReplace: (exercise: any) => void;
   onSkip: () => void;
@@ -32,25 +34,30 @@ export default function ExerciseCard({
   onEdit,
   onToggle,
   onAddSet,
+  timeBudget = false,
   onRemoveSet,
   savingIds,
   allExercises,
   profile,
+  onLoadIncrementChange,
   plan,
   onReplace,
   onSkip,
 }: ExerciseCardProps) {
   const [compact, setCompact] = useState(false);
   const [calculatorOpen, setCalculatorOpen] = useState(false);
+  const [stepError, setStepError] = useState("");
+  const [stepSaving, setStepSaving] = useState(false);
   const usesPlates = /barbell|smith|trap bar|landmine/i.test(
     exercise?.equipment || workoutExercise.equipment || workoutExercise.exerciseName || ""
   );
   const [details, setDetails] = useState(false),
     locked =
       plan?.structureLocked || plan?.athleteMode === "track_only" || workoutExercise.coachMandated,
+    increment = profile?.loadIncrements?.[workoutExercise.exerciseId] || 5,
     suggestion = locked
       ? null
-      : suggestProgression(previousSets, workoutExercise.repMin, workoutExercise.repMax);
+      : suggestProgression(previousSets, workoutExercise.repMin, workoutExercise.repMax, increment);
   return (
     <section
       className={`limit-surface mt-5 min-w-0 rounded-[1.5rem] p-3 sm:p-5 transition-opacity ${workoutExercise.skipped ? "opacity-55" : ""}`}
@@ -131,6 +138,42 @@ export default function ExerciseCard({
               <p className="mt-0.5 text-xs text-muted-foreground">{suggestion.note}</p>
             </div>
           )}
+          {!locked && onLoadIncrementChange && (
+            <label className="mt-3 block text-xs text-muted-foreground">
+              Available load increase for this exercise
+              <select
+                className="ml-2 min-h-11 rounded-xl border border-input bg-background px-2 text-foreground"
+                aria-label={`Load increase for ${workoutExercise.exerciseName}`}
+                value={increment}
+                disabled={stepSaving}
+                onChange={async (event) => {
+                  setStepError("");
+                  setStepSaving(true);
+                  try {
+                    await onLoadIncrementChange(Number(event.target.value));
+                  } catch {
+                    setStepError("Couldn’t save the load increase. Try again.");
+                  } finally {
+                    setStepSaving(false);
+                  }
+                }}
+              >
+                {[2.5, 5, 10, 15, 20].map((step) => (
+                  <option key={step} value={step}>
+                    +{step} lb
+                  </option>
+                ))}
+              </select>
+              <span className="mt-1 block">
+                Suggestions only. Set weight and reps remain yours to edit.
+              </span>
+              {stepError && (
+                <span role="alert" className="mt-1 block text-destructive">
+                  {stepError}
+                </span>
+              )}
+            </label>
+          )}
           <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3">
             {previousSets.length > 0 && (
               <p className="py-2 text-xs text-muted-foreground">
@@ -148,12 +191,11 @@ export default function ExerciseCard({
               </button>
             )}
           </div>
-          <div className="mt-4 grid grid-cols-[22px_48px_minmax(0,1fr)_minmax(0,1fr)_40px_44px] gap-2 text-center text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+          <div className="mt-4 grid grid-cols-[22px_48px_minmax(0,1fr)_minmax(0,1fr)_44px] gap-2 text-center text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
             <span>Set</span>
             <span>Prev</span>
             <span>Lb</span>
             <span>Reps</span>
-            <span>Left</span>
             <span />
           </div>
           {rows.map((row, index) => (
@@ -182,7 +224,7 @@ export default function ExerciseCard({
               disabled={rows.length >= 30}
               className="mt-4 min-h-11 w-full rounded-xl border border-dashed border-border/70 bg-secondary/30 text-xs font-black tracking-wide text-muted-foreground transition-colors active:bg-secondary disabled:opacity-40"
             >
-              + ADD SET
+              {timeBudget ? "+ ADD SET · EXTENDS TODAY" : "+ ADD SET"}
             </button>
           )}
         </>

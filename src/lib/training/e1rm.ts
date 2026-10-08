@@ -4,7 +4,8 @@ export const epley = (weight: number | string, reps: number | string): number =>
   Number.isFinite(+weight) && +weight > 0 && Number.isInteger(+reps) && +reps >= 1 && +reps <= 12
     ? +weight * (+reps === 1 ? 1 : 1 + +reps / 30)
     : 0;
-export const roundLoad = (w: number): number => Math.max(0, Math.round(w / 5) * 5);
+export const roundLoad = (w: number, increment = 5): number =>
+  Math.max(0, Math.round(w / increment) * increment);
 
 // Progressive overload suggestion from the most recent completed sets of an exercise.
 export interface SetRow {
@@ -26,7 +27,8 @@ export interface ProgressionSuggestion {
 export const suggestProgression = (
   previousSets: SetRow[] | null | undefined,
   repMin = 6,
-  repMax = 10
+  repMax = 10,
+  increment = 5
 ): ProgressionSuggestion | null => {
   if (previousSets?.some(isPowerExercise)) return null;
   const done = (previousSets || []).filter(
@@ -47,11 +49,18 @@ export const suggestProgression = (
     atTop.length === done.length &&
     worstReps >= repMax &&
     comfortable
-  )
+  ) {
+    const step = Number.isFinite(increment) && increment >= 0.5 && increment <= 50 ? increment : 5;
+    if (step > 5 && step > top * 0.1)
+      return {
+        weight: top,
+        note: `The next available load is +${step} lb. Keep ${top} lb and try one more total rep before increasing.`,
+      };
     return {
-      weight: roundLoad(top + 5),
-      note: "Every working set reached the top of the range. Try +5 lb if form stays controlled.",
+      weight: Math.round((top + step) * 100) / 100,
+      note: `Every working set reached the top of the range. Try +${step} lb if form stays controlled.`,
     };
+  }
   if (worstReps < repMin)
     return { weight: top, note: "Hold this weight and build back into the range." };
   return { weight: top, note: `Try +1 total rep at ${top} lb.` };

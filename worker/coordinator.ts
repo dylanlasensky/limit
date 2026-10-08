@@ -30,6 +30,14 @@ export class AccountCoordinator extends DurableObject<Env> {
     });
   }
 
+  async inspectBudget(): Promise<Budget | null> {
+    return (await this.ctx.storage.get<Budget>("budget")) || null;
+  }
+
+  async inspectEmailBudget(): Promise<EmailBudget | null> {
+    return (await this.ctx.storage.get<EmailBudget>("email-budget")) || null;
+  }
+
   private tail: Promise<unknown> = Promise.resolve();
   async execute(
     user: ApiUser,

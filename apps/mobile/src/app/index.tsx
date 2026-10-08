@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { Link, Redirect, useFocusEffect, router } from "expo-router";
-import { Linking, Text } from "react-native";
-import { auth, list, origin } from "../lib/api";
+import { Text } from "react-native";
+import { auth, list } from "../lib/api";
 import { clearDrafts } from "../lib/drafts";
 import { Page, Title, Copy, Card, Action, styles } from "../ui";
 export default function Home() {
@@ -52,7 +52,7 @@ export default function Home() {
             ? currentError || "Loading your plan…"
             : currentPlan
               ? "Your saved weekly plan is ready."
-              : "Complete your profile on the web to build your first personalized plan."}
+              : "Choose your training preferences to build your first personalized plan."}
         </Copy>
         {currentPlan ? (
           <Action label="Open my week" onPress={() => router.push("/plan")} />
@@ -60,7 +60,7 @@ export default function Home() {
           <Action
             label="Set up my profile"
             onPress={() => {
-              void Linking.openURL(origin + "/onboarding");
+              router.push("/onboarding");
             }}
           />
         ) : currentError ? (
@@ -74,6 +74,7 @@ export default function Home() {
       )}
       <Link href="/plan">View weekly plan</Link>
       <Action label="Workout history" onPress={() => router.push("/history")} />
+      <Action label="Account, privacy and support" onPress={() => router.push("/account")} />
       <Action
         label="Sign out"
         onPress={() => {

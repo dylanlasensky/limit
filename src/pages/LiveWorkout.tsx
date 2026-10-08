@@ -11,6 +11,11 @@ import WorkoutSyncStatus from "@/components/workout/WorkoutSyncStatus";
 import Elapsed from "@/components/workout/Elapsed";
 import ScreenState from "@/components/limit/ScreenState";
 import {
+  equipmentAvailable,
+  equipmentPool,
+  suitableReplacement,
+} from "@/lib/training/exerciseSelection";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -29,6 +34,8 @@ export default function LiveWorkout() {
     [discarding, setDiscarding] = useState(false),
     [finishError, setFinishError] = useState(""),
     [inlineError, setInlineError] = useState(""),
+    [previewGymId, setPreviewGymId] = useState<string | null | undefined>(undefined),
+    [selectingGym, setSelectingGym] = useState(false),
     [summary, setSummary] = useState<any | null>(null);
   const actionInFlight = useRef(false);
   const uiKey = live.session ? `limit-workout-ui:${live.session.ownerId}:${live.session.id}` : "";
@@ -63,6 +70,14 @@ export default function LiveWorkout() {
     doneExercises = live.workoutExercises.filter(
       (we) => !we.skipped && live.rows.some((r) => r.workoutExerciseId === we.id && r.completed)
     ).length;
+  const gyms: any[] = live.profile?.equipmentProfiles || [];
+  const selectedGym = gyms.find((gym) => gym.id === live.session?.equipmentProfileId);
+  const previewGym = gyms.find((gym) => gym.id === previewGymId);
+  const previewProfile = { equipment: previewGym?.equipment || live.profile?.equipment || [] };
+  const unavailable = live.workoutExercises.filter((we) => {
+    const exercise = live.exercisesById[we.exerciseId];
+    return exercise && !equipmentAvailable(exercise, equipmentPool(previewProfile));
+  });
   const handleToggle = async (key: string) => {
     const row = live.rows.find((r) => r.key === key),
       was = row?.completed,
@@ -183,12 +198,114 @@ export default function LiveWorkout() {
         </span>
         <span>{live.rows.filter((r) => r.completed).length} sets done</span>
       </div>
+      {live.session?.timeBudget && (
+        <p
+          role="status"
+          className="mt-3 rounded-xl border border-primary/30 bg-primary/10 p-3 text-xs"
+        >
+          Today’s {live.session.timeBudget.minutes}-minute version · about{" "}
+          {live.session.timeBudget.estimatedMinutes} min originally planned.
+          {live.session.timeBudget.manualExtensionSets > 0 ||
+          live.rows.some((row) => row.budgetExtension && !row.removed)
+            ? " Extra sets extend today’s session."
+            : ""}{" "}
+          Your usual program is unchanged.
+        </p>
+      )}
       <WorkoutSyncStatus
         pending={pending}
         syncing={syncing}
         error={live.syncError}
         onRetry={live.flush}
       />
+      {gyms.length > 0 && (
+        <div className="mt-4 rounded-2xl border border-border p-4">
+          <label className="block text-sm font-bold" htmlFor="workout-gym">
+            Today's gym
+          </label>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Preview equipment gaps before choosing. Your program and completed sets stay unchanged.
+          </p>
+          <select
+            id="workout-gym"
+            className="mt-3 min-h-11 w-full rounded-xl border bg-background px-3"
+            value={
+              previewGymId === undefined
+                ? live.session?.equipmentProfileId || ""
+                : previewGymId || ""
+            }
+            onChange={(event) => setPreviewGymId(event.target.value || null)}
+          >
+            <option value="">Default equipment</option>
+            {gyms.map((gym) => (
+              <option key={gym.id} value={gym.id}>
+                {gym.name}
+              </option>
+            ))}
+          </select>
+          {previewGymId !== undefined && (
+            <div className="mt-3 text-sm">
+              {unavailable.length ? (
+                <>
+                  <p className="font-semibold">
+                    {unavailable.length} movement{unavailable.length === 1 ? "" : "s"} need a
+                    review:
+                  </p>
+                  <ul className="mt-2 space-y-2">
+                    {unavailable.map((we) => {
+                      const source = live.exercisesById[we.exerciseId];
+                      const locked =
+                        live.plan?.structureLocked ||
+                        live.plan?.athleteMode === "track_only" ||
+                        we.coachMandated;
+                      const options = locked
+                        ? []
+                        : (live.allExercises || [])
+                            .filter((item) => suitableReplacement(source, item, previewProfile))
+                            .slice(0, 3);
+                      return (
+                        <li key={we.id} className="rounded-xl bg-secondary p-3">
+                          <b>{we.exerciseName}</b> ·{" "}
+                          {locked
+                            ? "Locked by your program; ask your coach"
+                            : options.length
+                              ? `Consider ${options.map((item) => item.name).join(", ")}`
+                              : "No suitable replacement found"}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </>
+              ) : (
+                <p>All planned movements are available with this equipment.</p>
+              )}
+              <p className="mt-2 text-xs text-muted-foreground">
+                Selecting a gym never replaces movements automatically. Use each movement’s options
+                to choose a substitution.
+              </p>
+              <button
+                type="button"
+                disabled={selectingGym}
+                className="limit-button mt-3 min-h-11 rounded-xl px-4 text-sm font-bold"
+                onClick={async () => {
+                  setSelectingGym(true);
+                  const error = await live.selectEquipmentProfile(previewGymId);
+                  setSelectingGym(false);
+                  if (error) setInlineError(error);
+                  else setPreviewGymId(undefined);
+                }}
+              >
+                Use {previewGym?.name || "default equipment"} for this workout
+              </button>
+            </div>
+          )}
+          {selectedGym && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Using {selectedGym.name} for replacement choices.
+            </p>
+          )}
+        </div>
+      )}
       {live.conflict && (
         <div role="alert" className="mb-4 rounded-xl border border-border p-4 text-sm">
           Another screen saved a different version. Your local edits have not replaced it.
@@ -258,9 +375,13 @@ export default function LiveWorkout() {
               onEdit={live.edit}
               onToggle={handleToggle}
               onAddSet={() => live.addSet(we.id)}
+              timeBudget={!!live.session?.timeBudget}
               onRemoveSet={live.removeSet}
               allExercises={live.allExercises || Object.values(live.exercisesById)}
-              profile={live.profile}
+              profile={
+                selectedGym ? { ...live.profile, equipment: selectedGym.equipment } : live.profile
+              }
+              onLoadIncrementChange={(increment) => live.setLoadIncrement(we.exerciseId, increment)}
               plan={live.plan}
               onReplace={(e: any) => live.replaceExercise(we, e)}
               onSkip={() => live.skipExercise(we)}

@@ -8,6 +8,7 @@ import { ApiError, readJson } from "./errors";
 import { rateLimit } from "./rate-limit";
 import { entityNames, recordSchema, type EntityName } from "../packages/contracts/entities";
 import { upload, privateFile, mediaInfo, mediaAsset } from "./files";
+import { ownerOperations } from "./owner-ops";
 export { AccountCoordinator } from "./coordinator";
 export { LimitCoach } from "./coach";
 
@@ -89,7 +90,10 @@ export default {
             throw new ApiError("Sign in to continue.", 401, "UNAUTHORIZED");
           const user = session?.user;
           const repo = new Repository(env.DB, user?.id || "");
-          if (parts[1] === "me" && request.method === "GET") response = Response.json(user);
+          if (url.pathname === "/api/owner-ops" && request.method === "GET" && user) {
+            stage = "owner-ops";
+            response = await ownerOperations(env, user.id);
+          } else if (parts[1] === "me" && request.method === "GET") response = Response.json(user);
           else if (parts[1] === "entities" && entityNames.includes(name)) {
             const entity = repo.entity(name),
               id = parts[3];
@@ -207,8 +211,6 @@ export default {
         e.status = 400;
         e.message = "Invalid request data.";
       }
-      if (!e.status || e.status >= 500)
-        console.error(JSON.stringify({ event: "api_failure", stage }));
       response = Response.json(
         {
           error: e.status ? e.message : "Something went wrong. Please try again.",
@@ -216,6 +218,22 @@ export default {
           requestId,
         },
         { status: e.status || 500 }
+      );
+    }
+    // Count the final response once. Coordinators and auth can return a 5xx
+    // without throwing, so recording only in the catch misses those failures.
+    if (response.status >= 500) {
+      console.error(JSON.stringify({ event: "api_failure", stage }));
+      ctx.waitUntil(
+        Promise.resolve()
+          .then(() =>
+            env.DB.prepare(
+              "INSERT INTO operational_error_count(day,stage,count) VALUES(?,?,1) ON CONFLICT(day,stage) DO UPDATE SET count=count+1"
+            )
+              .bind(new Date().toISOString().slice(0, 10), stage)
+              .run()
+          )
+          .catch(() => {})
       );
     }
     const headers = new Headers(response.headers);

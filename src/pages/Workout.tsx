@@ -7,8 +7,10 @@ import { useAuth } from "@/lib/AuthContext";
 import SegmentedTabs from "@/components/limit/SegmentedTabs";
 import ScreenState from "@/components/limit/ScreenState";
 import ExerciseLibrary from "@/components/workout/ExerciseLibrary";
-import { format, startOfWeek } from "date-fns";
+import { addDays, format, startOfWeek } from "date-fns";
 import useActivePlan, { todayWeekday } from "@/hooks/use-active-plan";
+import { scheduledDay, useWeekSchedule } from "@/hooks/use-week-schedule";
+import WeekScheduleEditor from "@/components/workout/WeekScheduleEditor";
 import WeekStrip from "@/components/workout/WeekStrip";
 import TodayWorkoutHero from "@/components/workout/TodayWorkoutHero";
 import PlanOptions from "@/components/workout/PlanOptions";
@@ -41,6 +43,7 @@ export default function Workout() {
     setSearchParams(value === "Schedule" ? {} : { tab: value.toLowerCase() }, { replace: true });
   const nav = useNavigate();
   const planQuery = useActivePlan();
+  const changesQuery = useWeekSchedule(planQuery.data?.plan?.id, user?.id, currentDate);
   const exQuery = useQuery({
     queryKey: ["exercises"],
     queryFn: () => listExercises(),
@@ -71,6 +74,17 @@ export default function Workout() {
     queryFn: () => limitApi.entities.WorkoutSession.filter({ status: "active" }, "-created_date"),
     staleTime: 15000,
   });
+  const weekStartKey = format(
+    startOfWeek(new Date(`${currentDate}T12:00:00`), { weekStartsOn: 1 }),
+    "yyyy-MM-dd"
+  );
+  const weekSessionsQuery = useQuery({
+    queryKey: ["workoutWeekSessions", user?.id, weekStartKey],
+    enabled: !!user?.id,
+    queryFn: () =>
+      limitApi.entities.WorkoutSession.filter({ date: { $gte: weekStartKey } }, "-date", 100),
+    staleTime: 15000,
+  });
   const recentSetsQuery = useQuery({
     queryKey: ["libraryRecentSets", user?.id],
     enabled: tab === "Exercises" && !!user?.id,
@@ -79,27 +93,44 @@ export default function Workout() {
   });
 
   const { plan, days = [] } = planQuery.data || {};
+  const changes = changesQuery.data || [];
   const exercises: any[] = exQuery.data || [],
     history = uniqueHistory(historyQuery.data?.pages || []);
   const weekday = todayWeekday();
-  const today = days.find((d: any) => d.weekday === weekday);
-  const weekStartDate = startOfWeek(new Date(), { weekStartsOn: 1 });
+  const weekStartDate = startOfWeek(new Date(`${currentDate}T12:00:00`), { weekStartsOn: 1 });
+  const weekDates = Array.from({ length: 7 }, (_, i) =>
+    format(addDays(weekStartDate, i), "yyyy-MM-dd")
+  );
+  const visibleDays = weekDates.map((date, i) => {
+    const recurring = days.find((d: any) => d.weekday === i);
+    const effective = scheduledDay(days, changes, date);
+    return effective
+      ? { ...effective, weekday: i, temporary: effective.id !== recurring?.id }
+      : {
+          ...recurring,
+          weekday: i,
+          isRest: true,
+          name: "Rest",
+          temporary: !!recurring && !recurring.isRest,
+        };
+  });
+  const today = visibleDays[weekday];
   const completedWeekdays = new Set(
     history
-      .filter((s) => (s.date || "") >= format(weekStartDate, "yyyy-MM-dd"))
-      .map((s) => days.findIndex((d: any) => d.id === s.workoutDayId))
-      .filter((i) => i >= 0)
-      .map((i): number => days[i].weekday)
+      .filter((s) => weekDates.includes(s.date || ""))
+      .map((s) => weekDates.indexOf(s.date || ""))
   );
   const trainingDays = days.filter((d: any) => !d.isRest);
   const todayStr = currentDate;
   const activeSession = activeQuery.data?.[0];
   const activeDay = days.find((d: any) => d.id === activeSession?.workoutDayId);
-  const completedToday = history.find((s) => s.workoutDayId === today?.id && s.date === todayStr);
+  const completedToday = history.find((s) => s.date === todayStr && s.workoutDayId === today?.id);
   const nextDay = today?.isRest
     ? (() => {
         for (let i = 1; i <= 7; i++) {
-          const d = days.find((x: any) => x.weekday === (weekday + i) % 7 && !x.isRest);
+          const futureDate = format(addDays(new Date(`${currentDate}T12:00:00`), i), "yyyy-MM-dd");
+          const d = scheduledDay(days, changes, futureDate);
+          if (d?.isRest) continue;
           if (d)
             return {
               ...today,
@@ -116,8 +147,10 @@ export default function Workout() {
   const refresh = () =>
     Promise.all([
       planQuery.refetch(),
+      changesQuery.refetch(),
       historyQuery.refetch(),
       activeQuery.refetch(),
+      weekSessionsQuery.refetch(),
       weQuery.refetch(),
       exQuery.refetch(),
       ...(tab === "Exercises" ? [recentSetsQuery.refetch()] : []),
@@ -127,7 +160,9 @@ export default function Workout() {
     (planQuery.error ||
       weQuery.error ||
       (historyQuery.error && !history.length) ||
-      activeQuery.error)
+      activeQuery.error ||
+      weekSessionsQuery.error ||
+      (plan && changesQuery.error))
   ) {
     return (
       <ScreenState
@@ -200,7 +235,7 @@ export default function Workout() {
             <div className="lg:grid lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)] lg:items-start lg:gap-6">
               <div className="min-w-0 lg:sticky lg:top-6">
                 <WeekStrip
-                  days={days}
+                  days={visibleDays}
                   completedWeekdays={completedWeekdays}
                   onPreview={setPreviewDay}
                 />
@@ -235,7 +270,7 @@ export default function Workout() {
                   </details>
                 )}
                 <div className="space-y-2">
-                  {days.map((d: any) => (
+                  {visibleDays.map((d: any) => (
                     <div
                       key={d.id}
                       className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 transition-all ${d.weekday === weekday ? "border-primary/40 bg-primary/[.07] shadow-[inset_3px_0_0_hsl(var(--primary))]" : "border-border/50 bg-card/60"}`}
@@ -254,6 +289,11 @@ export default function Workout() {
                           {d.fixedSchedule && (
                             <span className="rounded-full bg-secondary px-2 py-0.5 text-[8px] font-black tracking-wider text-muted-foreground">
                               FIXED
+                            </span>
+                          )}
+                          {d.temporary && (
+                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[8px] font-black tracking-wider text-primary">
+                              THIS WEEK
                             </span>
                           )}
                         </div>
@@ -287,6 +327,15 @@ export default function Workout() {
                     </div>
                   ))}
                 </div>
+                <WeekScheduleEditor
+                  plan={plan}
+                  days={days}
+                  changes={changes}
+                  history={weekSessionsQuery.data || []}
+                  activeSession={activeSession}
+                  today={currentDate}
+                  userId={user?.id}
+                />
                 <PlanOptions
                   plan={plan}
                   onGenerate={() => nav("/profile")}
@@ -329,10 +378,13 @@ export default function Workout() {
           rows={weQuery.data || []}
           exercises={exercises}
           activeSession={activeSession}
+          plan={plan}
           onClose={() => setPreviewDay(null)}
-          onStart={(dayId) => {
+          onStart={(dayId, timeBudgetMinutes, timeBudgetPreview) => {
             setPreviewDay(null);
-            nav(`/live-workout/${dayId}`);
+            nav(`/live-workout/${dayId}`, {
+              state: timeBudgetMinutes ? { timeBudgetMinutes, timeBudgetPreview } : null,
+            });
           }}
         />
       </div>
