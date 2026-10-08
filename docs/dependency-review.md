@@ -1,5 +1,11 @@
 # Dependency decisions — 2026-10-02
 
+## 2026-10-08 Better Auth patch review
+
+[GHSA-965c-763c-88jm](https://github.com/better-auth/better-auth/security/advisories/GHSA-965c-763c-88jm) affects Better Auth before 1.7.7 when Magic Link and social or Generic OAuth sign-in share database-backed verification state. LIMIT's `worker/auth.ts` config enables email/password and the Expo plugin, with no Magic Link or social/Generic OAuth provider. The described account-takeover path is therefore not exposed by the current LIMIT configuration. This is a configuration assessment, not a claim that older package code is generally safe.
+
+The root web dependency, native app dependencies, and Worker Better Auth plus Expo integration are updated together to 1.7.7. No Magic Link, OAuth Proxy, or migration cutover is needed for LIMIT's current configuration. Clean root and Worker installs succeeded; root/Worker audit remains at the existing four-node node-forge signing exception only, expiring 2026-10-15. Root typecheck, 487 unit tests and two native bridge tests passed locally. Full CI and hosted auth acceptance must pass before this branch is merged or deployed.
+
 ## 2026-10-07 maintenance
 
 Fresh PR #72 CI found new advisories in root transitive `sharp`, `postcss-selector-parser`, `shell-quote`, and `source-map-js`, plus Worker `@modelcontextprotocol/client`/`sdk`. Narrow overrides and regenerated lockfiles now pass the unchanged audit: Worker zero affected nodes; root only the existing four-node node-forge exception expiring October 15. The Worker lockfile needed all 15 optional Rolldown 1.2.11 platform binding records for reproducible Linux `npm ci`; they use the same integrity metadata as the verified root lockfile. Root and Worker both clean-install using CI's npm 11.19.0. The initial root Rolldown pin experiment was removed.
