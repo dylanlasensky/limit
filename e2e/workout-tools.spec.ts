@@ -101,9 +101,8 @@ for (const appearance of ["light", "dark"]) {
       .click();
     await expect(page.getByLabel("Set 1 weight in pounds", { exact: true })).toHaveValue("135");
     await expect(page.getByLabel("Set 1 repetitions", { exact: true })).toHaveValue("8");
-    await expect(page.getByLabel("Set 1 reps left (reps in reserve), optional", { exact: true })).toHaveValue(
-      ""
-    );
+    await expect(page.getByText("Left", { exact: true })).toHaveCount(0);
+    await expect(page.getByLabel(/reps left/i)).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Finish", exact: true })).toBeDisabled();
     expect(writes.filter((item) => item.action === "saveSet")).toHaveLength(0);
 

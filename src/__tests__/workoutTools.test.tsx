@@ -32,6 +32,20 @@ const draft: WorkoutSetRow = {
 };
 
 describe("copy previous set", () => {
+  it("shows weight and reps without a reps-left field, including for historical sets", () => {
+    render(
+      <SetRow
+        row={{ ...draft, weight: "135", reps: "8", rir: 2 }}
+        onEdit={vi.fn()}
+        onToggle={vi.fn()}
+      />
+    );
+    expect(screen.getByRole("spinbutton", { name: "Set 1 weight in pounds" })).toHaveValue(135);
+    expect(screen.getByRole("spinbutton", { name: "Set 1 repetitions" })).toHaveValue(8);
+    expect(screen.getAllByRole("spinbutton")).toHaveLength(2);
+    expect(screen.queryByPlaceholderText("Left")).not.toBeInTheDocument();
+  });
+
   it("copies weight and reps without completing a set or copying subjective effort", () => {
     const edit = vi.fn();
     const toggle = vi.fn();
