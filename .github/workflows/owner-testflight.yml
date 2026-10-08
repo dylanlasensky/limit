@@ -15,6 +15,9 @@ on:
       build_number:
         description: New positive iOS build number
         required: true
+      asc_app_id:
+        description: Verified existing App Store Connect app ID
+        required: true
       submit_to_testflight:
         description: Submit this exact build to TestFlight after it succeeds
         type: boolean
@@ -22,6 +25,7 @@ on:
 
 permissions:
   contents: read
+  checks: read
 
 concurrency:
   group: owner-testflight
@@ -41,10 +45,14 @@ jobs:
       LIMIT_BUNDLE_IDENTIFIER: ${{ inputs.bundle_identifier }}
       LIMIT_APPLE_TEAM_ID: ${{ inputs.apple_team_id }}
       LIMIT_NATIVE_BUILD: ${{ inputs.build_number }}
+      LIMIT_ASC_APP_ID: ${{ inputs.asc_app_id }}
       LIMIT_NATIVE_RELEASE: 'true'
       EXPO_PUBLIC_API_URL: https://limit.limit-dylanlasensky.workers.dev
       LIMIT_EAS_PROJECT_ID: ${{ vars.LIMIT_EAS_PROJECT_ID }}
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      GITHUB_TOKEN: ${{ github.token }}
+      LIMIT_UNSIGNED_NATIVE_CHECK_NAME: ${{ vars.LIMIT_UNSIGNED_NATIVE_CHECK_NAME }}
+      LIMIT_MOBILE_API_CHECK_NAME: ${{ vars.LIMIT_MOBILE_API_CHECK_NAME }}
       CI: '1'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -59,6 +67,8 @@ jobs:
         run: |
           git fetch origin main
           node scripts/native-testflight-preflight.mjs
+      - name: Verify unsigned native launch, prior-client API and deployed production revision
+        run: node scripts/check-native-release-evidence.mjs
       - run: npm ci
       - run: npm ci --prefix worker
       - run: npm run security:check
@@ -89,6 +99,13 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: node tests/hosted/smoke.mjs
       - run: npm run test:e2e
+      - name: Prepare candidate-specific EAS archive configuration
+        run: node scripts/prepare-eas-candidate.mjs
+      - name: Verify resolved Expo config before EAS upload
+        working-directory: apps/mobile
+        run: |
+          npx expo config --type public --json > /tmp/limit-expo-candidate.json
+          node ../../scripts/verify-expo-candidate.mjs /tmp/limit-expo-candidate.json
       - name: Create exact source iOS build
         if: ${{ !inputs.submit_to_testflight }}
         working-directory: apps/mobile

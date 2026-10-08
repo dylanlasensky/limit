@@ -37,6 +37,10 @@ export function checkTestFlightCandidate({ env, head, main, clean, easConfig, no
     !/^[0-9a-f-]{36}$/i.test(env.LIMIT_EAS_PROJECT_ID)
   )
     fail("owner-controlled Expo access and an existing EAS project ID are required");
+  if (!/^[1-9][0-9]*$/.test(env.LIMIT_ASC_APP_ID || ""))
+    fail("the verified existing App Store Connect app ID is required");
+  if (!env.LIMIT_UNSIGNED_NATIVE_CHECK_NAME || !env.LIMIT_MOBILE_API_CHECK_NAME)
+    fail("named exact-source native launch and mobile API compatibility checks are required");
   if (nodeForgePresent) fail("the node-forge tooling advisory blocks signed native builds");
   return true;
 }

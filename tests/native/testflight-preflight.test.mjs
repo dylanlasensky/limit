@@ -14,6 +14,9 @@ const candidate = () => ({
     LIMIT_NATIVE_BUILD: "42",
     EXPO_TOKEN: "present",
     LIMIT_EAS_PROJECT_ID: "11111111-1111-4111-8111-111111111111",
+    LIMIT_ASC_APP_ID: "1234567890",
+    LIMIT_UNSIGNED_NATIVE_CHECK_NAME: "verified-native-launch",
+    LIMIT_MOBILE_API_CHECK_NAME: "verified-mobile-api-compatibility",
   },
   head: sha,
   main: sha,
@@ -51,6 +54,18 @@ for (const [name, change] of [
     "missing Expo access",
     (x) => {
       x.env.EXPO_TOKEN = "";
+    },
+  ],
+  [
+    "missing App Store Connect app",
+    (x) => {
+      x.env.LIMIT_ASC_APP_ID = "";
+    },
+  ],
+  [
+    "missing native check definition",
+    (x) => {
+      x.env.LIMIT_UNSIGNED_NATIVE_CHECK_NAME = "";
     },
   ],
   [
