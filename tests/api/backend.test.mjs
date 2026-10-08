@@ -95,6 +95,36 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
   assert.equal((await fetch(base+'/api/uploads/'+file.id,{headers:{cookie:b.cookie}})).status,404);
   const own=await fetch(base+'/api/uploads/'+file.id,{headers:{cookie}});assert.equal(own.status,200);assert.equal(await own.text(),'Disposable workout notes');
  });
+ await t.test('moves this week only, protects ownership, and supports undo',async()=>{
+  const scheduleCookie=b.cookie;
+  assert.equal((await call('/entities/UserProfile',{cookie:scheduleCookie,method:'POST',body:{name:'Schedule test'}})).status,200);
+  const check=await call('/functions/workoutCommand',{cookie:scheduleCookie,method:'POST',body:{action:'check',timezone:'UTC'}});
+  assert.equal(check.status,200);
+  const today=check.data.localDate;
+  const weekday=(new Date(today+'T12:00:00Z').getUTCDay()+6)%7;
+  if(weekday===6) return; // Sunday has no second date left in this week.
+  const tomorrow=new Date(today+'T12:00:00Z');tomorrow.setUTCDate(tomorrow.getUTCDate()+1);
+  const toDate=tomorrow.toISOString().slice(0,10);
+  const p=await call('/entities/WorkoutPlan',{cookie:scheduleCookie,method:'POST',body:{name:'One-week adjustment',daysPerWeek:6,active:false}});
+  assert.equal(p.status,200);
+  const schedule=Array.from({length:7},(_,i)=>({planId:p.data.id,weekday:i,name:i===weekday?'Today session':i===weekday+1?'Recovery':'Training',isRest:i===weekday+1}));
+  const created=await call('/entities/WorkoutDay/bulkCreate',{cookie:scheduleCookie,method:'POST',body:schedule});
+  assert.equal(created.status,200);
+  for(const day of created.data.filter(d=>!d.isRest))
+   assert.equal((await call('/entities/WorkoutExercise',{cookie:scheduleCookie,method:'POST',body:{workoutDayId:day.id,exerciseId:exercise.id,exerciseName:exercise.name,order:1,sets:2,repMin:8,repMax:12}})).status,200);
+  assert.equal((await call('/functions/workoutCommand',{cookie:scheduleCookie,method:'POST',body:{action:'activatePlan',planId:p.data.id}})).status,200);
+  const body={action:'changeSchedule',planId:p.data.id,fromDate:today,toDate,mode:'move',timezone:'UTC'};
+  const changed=await call('/functions/workoutCommand',{cookie:scheduleCookie,method:'POST',body});
+  assert.equal(changed.status,200,JSON.stringify(changed.data));
+  assert.equal(changed.data.change.fromDayId,created.data[weekday].id);
+  assert.equal((await call('/entities/WorkoutScheduleChange',{cookie:scheduleCookie,method:'POST',body:changed.data.change})).status,403);
+  assert.equal((await call('/entities/WorkoutScheduleChange/'+changed.data.change.id,{cookie})).status,404);
+  assert.equal((await call('/functions/workoutCommand',{cookie:scheduleCookie,method:'POST',body})).status,409);
+  assert.equal((await call('/entities/WorkoutDay/'+created.data[weekday].id,{cookie:scheduleCookie})).data.weekday,weekday);
+  const undone=await call('/functions/workoutCommand',{cookie:scheduleCookie,method:'POST',body:{action:'undoScheduleChange',changeId:changed.data.change.id,timezone:'UTC'}});
+  assert.equal(undone.status,200,JSON.stringify(undone.data));
+  assert.equal(undone.data.change.active,false);
+ });
  await t.test('exports only current account and deletes uploads, records and identity',async()=>{
   const exported=await call('/functions/exportAccount',{cookie,method:'POST',body:{}});assert.equal(exported.status,200);assert.equal(exported.data.account.id,a.data.user.id);
   const deleted=await call('/functions/deleteAccount',{cookie,method:'POST',body:{confirm:true}});assert.equal(deleted.status,200,JSON.stringify(deleted.data));assert.equal(deleted.data.success,true);

@@ -4,10 +4,12 @@ import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, BookOpen, Utensils } from "lucide-react";
 import { limitApi } from "@/api/client";
+import { useAuth } from "@/lib/AuthContext";
 import { sumMacros } from "@/components/limit/data";
 import useLocalDate from "@/hooks/use-local-date";
 import ScreenState from "@/components/limit/ScreenState";
 import useActivePlan, { todayWeekday } from "@/hooks/use-active-plan";
+import { scheduledDay, useWeekSchedule } from "@/hooks/use-week-schedule";
 import HomeWorkout from "@/components/limit/HomeWorkout";
 import MacroCard from "@/components/limit/MacroCard";
 import PullToRefresh from "@/components/limit/PullToRefresh";
@@ -28,6 +30,7 @@ const greeting = () => {
 
 export default function Home() {
   const date = useLocalDate();
+  const { user } = useAuth();
   const client = useQueryClient();
   const profile = useQuery({
     queryKey: ["userProfile"],
@@ -40,6 +43,7 @@ export default function Home() {
     staleTime: 30000,
   });
   const planQuery = useActivePlan();
+  const changesQuery = useWeekSchedule(planQuery.data?.plan?.id, user?.id, date);
   const workoutExercises = useQuery({
     queryKey: ["workoutExercises", planQuery.data?.plan?.id],
     enabled: !!planQuery.data?.days?.length,
@@ -87,7 +91,9 @@ export default function Home() {
   const sessions: any[] = historyQuery.data || [];
   const m = sumMacros(foods);
   const weekday = todayWeekday();
-  const day = days.find((x: any) => x.weekday === weekday);
+  const day =
+    scheduledDay(days, changesQuery.data || [], date) ||
+    (plan ? { isRest: true, name: "Rest" } : null);
   const dayExercises = (workoutExercises.data || []).filter((x: any) => x.workoutDayId === day?.id);
   const todaySessions: any[] = sessionsQuery.data || [];
   const activeSession = todaySessions.find((s) => s.status === "active");
@@ -111,6 +117,7 @@ export default function Home() {
       profile.refetch(),
       foodsQuery.refetch(),
       planQuery.refetch(),
+      changesQuery.refetch(),
       workoutExercises.refetch(),
       sessionsQuery.refetch(),
       historyQuery.refetch(),
@@ -119,7 +126,13 @@ export default function Home() {
     ]);
   if (profile.isLoading || planQuery.isLoading || sessionsQuery.isLoading)
     return <ScreenState loading />;
-  if (profile.error || planQuery.error || sessionsQuery.error || workoutExercises.error) {
+  if (
+    profile.error ||
+    planQuery.error ||
+    sessionsQuery.error ||
+    workoutExercises.error ||
+    changesQuery.error
+  ) {
     return (
       <ScreenState
         title="Couldn’t load your dashboard"

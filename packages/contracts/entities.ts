@@ -353,6 +353,15 @@ export const entitySchemas = {
     coachMandated: z.boolean().optional(),
     fixedSchedule: z.boolean().optional(),
   }),
+  WorkoutScheduleChange: z.object({
+    planId: z.string().min(1).max(150),
+    fromDayId: z.string().min(1).max(150),
+    toDayId: z.string().min(1).max(150),
+    fromDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    toDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    mode: z.enum(["move", "swap"]),
+    active: z.boolean(),
+  }),
   WorkoutExercise: z.object({
     workoutDayId: z.string().max(2000),
     exerciseId: z.string().max(2000).optional(),
