@@ -148,12 +148,11 @@ export default function ExerciseCard({
               </button>
             )}
           </div>
-          <div className="mt-4 grid grid-cols-[22px_48px_minmax(0,1fr)_minmax(0,1fr)_40px_44px] gap-2 text-center text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+          <div className="mt-4 grid grid-cols-[22px_48px_minmax(0,1fr)_minmax(0,1fr)_44px] gap-2 text-center text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
             <span>Set</span>
             <span>Prev</span>
             <span>Lb</span>
             <span>Reps</span>
-            <span>Left</span>
             <span />
           </div>
           {rows.map((row, index) => (
