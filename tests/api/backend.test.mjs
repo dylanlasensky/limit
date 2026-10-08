@@ -71,6 +71,8 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
   assert.equal((await call('/functions/workoutCommand',{cookie:b.cookie,method:'POST',body})).status,409);
  });
  await t.test('selects owned session equipment and persists it',async()=>{
+  const otherProfile=await call('/entities/UserProfile',{cookie:b.cookie,method:'POST',body:{name:'Other API account',equipment:['Bodyweight'],experienceLevel:'beginner',availableDays:['Monday','Thursday'],sessionLength:30}});
+  assert.equal(otherProfile.status,200,JSON.stringify(otherProfile.data));
   const updatedProfile=await call('/entities/UserProfile/'+profile.id,{cookie,method:'PATCH',body:{equipmentProfiles:[{id:'home',name:'Home',equipment:['Bodyweight']}]}});
   assert.equal(updatedProfile.status,200,JSON.stringify(updatedProfile.data));
   const selected=await call('/functions/workoutCommand',{cookie,method:'POST',body:{action:'selectEquipmentProfile',sessionId:session.id,equipmentProfileId:'home'}});
