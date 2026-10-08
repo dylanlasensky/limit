@@ -124,7 +124,7 @@ export default function Workout() {
   const todayStr = currentDate;
   const activeSession = activeQuery.data?.[0];
   const activeDay = days.find((d: any) => d.id === activeSession?.workoutDayId);
-  const completedToday = history.find((s) => s.date === todayStr);
+  const completedToday = history.find((s) => s.date === todayStr && s.workoutDayId === today?.id);
   const nextDay = today?.isRest
     ? (() => {
         for (let i = 1; i <= 7; i++) {
