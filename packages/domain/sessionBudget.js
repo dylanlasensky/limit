@@ -1,4 +1,4 @@
-import { estimateMinutes } from "./personalizedRoutine.ts";
+import { estimateMinutes } from "./sessionEstimate.js";
 
 // A session-only snapshot. Keep the first two movements and every prescribed
 // rest interval; reduce accessory volume from the end of the day first.
