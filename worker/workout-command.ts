@@ -5,6 +5,7 @@ import { fail, owned, ownerFilter, localDate } from "../packages/domain/workoutA
 import { validSet, personalBests, finishAnalytics } from "../packages/domain/workoutAnalytics.js";
 import { activatePlan } from "../packages/domain/planActivation.js";
 import { enrichExercise } from "../packages/domain/exerciseLibrary.js";
+import { equipmentAvailable, equipmentPool } from "../packages/domain/exerciseSelection";
 
 export default async function workoutCommand(req: Request, client: any) {
   let action = "unknown";
@@ -15,7 +16,17 @@ export default async function workoutCommand(req: Request, client: any) {
     stage = "validate";
     const input = workoutCommandSchema.parse(await req.json());
     action = input.action;
-    if (!["start", "saveSet", "finish", "discard", "check", "activatePlan"].includes(input?.action))
+    if (
+      ![
+        "start",
+        "saveSet",
+        "finish",
+        "discard",
+        "check",
+        "activatePlan",
+        "selectEquipmentProfile",
+      ].includes(input?.action)
+    )
       fail("Unknown workout action.");
     if (input.action === "check")
       return Response.json({ ok: true, localDate: localDate(input.timezone), authenticated: true });
@@ -85,6 +96,19 @@ export default async function workoutCommand(req: Request, client: any) {
         if (typeof input.sessionId !== "string") fail("A workout session is required.");
         const session = await db.WorkoutSession.get(input.sessionId);
         if (!owned(session, user.id)) fail("Workout not found.", 404);
+        if (input.action === "selectEquipmentProfile") {
+          if (session.status !== "active") fail("This workout is no longer active.", 409);
+          if (
+            input.equipmentProfileId &&
+            !profile?.equipmentProfiles?.some((item: any) => item.id === input.equipmentProfileId)
+          )
+            fail("Equipment profile not found.", 404);
+          await assertLock();
+          const updated = await db.WorkoutSession.update(session.id, {
+            equipmentProfileId: input.equipmentProfileId,
+          });
+          return { session: updated };
+        }
         if (input.action === "saveSet") {
           if (session.status !== "active")
             fail("This workout is no longer active. Your local changes have been kept.", 409);
@@ -130,14 +154,19 @@ export default async function workoutCommand(req: Request, client: any) {
               (original.category !== "Power" && exercise.programEligible === false))
           )
             fail("Choose a replacement with the same muscle and movement category.");
+          const selectedGear = profile?.equipmentProfiles?.find(
+            (item: any) => item.id === session.equipmentProfileId
+          )?.equipment;
+          if (session.equipmentProfileId && !selectedGear)
+            fail("This gym was removed from your profile. Choose today's gym again.", 409);
           if (
             original &&
             exercise.id !== original.id &&
-            profile.equipment?.length &&
-            !profile.equipment.some((e: any) => /full|commercial|gym/i.test(e)) &&
-            exercise.equipment !== "Bodyweight" &&
-            !profile.equipment.some((e: any) =>
-              e.toLowerCase().includes(exercise.equipment.toLowerCase())
+            !equipmentAvailable(
+              exercise,
+              equipmentPool({
+                equipment: selectedGear || profile?.equipment || [],
+              })
             )
           )
             fail("This replacement requires equipment outside your profile.");

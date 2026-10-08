@@ -70,6 +70,19 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
   assert.equal(starts[0].status,200);assert.equal(starts[1].status,200);assert.equal(starts[0].data.session.id,starts[1].data.session.id);session=starts[0].data.session;
   assert.equal((await call('/functions/workoutCommand',{cookie:b.cookie,method:'POST',body})).status,409);
  });
+ await t.test('selects owned session equipment and persists it',async()=>{
+  const otherProfile=await call('/entities/UserProfile',{cookie:b.cookie,method:'POST',body:{name:'Other API account',equipment:['Bodyweight'],experienceLevel:'beginner',availableDays:['Monday','Thursday'],sessionLength:30}});
+  assert.equal(otherProfile.status,200,JSON.stringify(otherProfile.data));
+  const updatedProfile=await call('/entities/UserProfile/'+profile.id,{cookie,method:'PATCH',body:{equipmentProfiles:[{id:'home',name:'Home',equipment:['Bodyweight']}]}});
+  assert.equal(updatedProfile.status,200,JSON.stringify(updatedProfile.data));
+  const selected=await call('/functions/workoutCommand',{cookie,method:'POST',body:{action:'selectEquipmentProfile',sessionId:session.id,equipmentProfileId:'home'}});
+  assert.equal(selected.status,200,JSON.stringify(selected.data));
+  assert.equal(selected.data.session.equipmentProfileId,'home');
+  const saved=await call('/entities/WorkoutSession/'+session.id,{cookie});
+  assert.equal(saved.status,200);
+  assert.equal(saved.data.equipmentProfileId,'home');
+  assert.equal((await call('/functions/workoutCommand',{cookie:b.cookie,method:'POST',body:{action:'selectEquipmentProfile',sessionId:session.id,equipmentProfileId:'home'}})).status,404);
+ });
  await t.test('replays set operation IDs, rejects stale revisions and completes once',async()=>{
   const rows=(await call('/entities/WorkoutExercise?filter='+encodeURIComponent(JSON.stringify({workoutDayId:days[0].id})),{cookie})).data;
   const body={action:'saveSet',sessionId:session.id,row:{workoutExerciseId:rows[0].id,exerciseId:exercise.id,setNumber:1,operationId:crypto.randomUUID(),revision:'',weight:'0',reps:'10',rir:'3',completed:true}};

@@ -316,6 +316,16 @@ export const entitySchemas = {
     sessionLength: z.number().finite().min(0).max(1000000).optional(),
     priorityMuscles: z.array(z.string().max(2000)).max(1000).optional(),
     equipment: z.array(z.string().max(2000)).max(1000).optional(),
+    equipmentProfiles: z
+      .array(
+        z.object({
+          id: z.string().min(1).max(100),
+          name: z.string().trim().min(1).max(40),
+          equipment: z.array(z.string().min(1).max(100)).min(1).max(30),
+        })
+      )
+      .max(10)
+      .optional(),
     workoutSplit: z.string().max(2000).optional(),
     calorieTarget: z.number().finite().min(0).max(1000000).optional(),
     proteinTarget: z.number().finite().min(0).max(1000000).optional(),
@@ -396,6 +406,7 @@ export const entitySchemas = {
     importNotes: z.string().max(2000).optional(),
   }),
   WorkoutSession: z.object({
+    equipmentProfileId: z.string().min(1).max(100).nullable().optional(),
     workoutDayId: z.string().max(2000).optional(),
     planId: z.string().max(2000).optional(),
     name: z.string().max(2000),

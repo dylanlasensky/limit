@@ -20,6 +20,7 @@ const profileFields = new Set([
   "sessionLength",
   "priorityMuscles",
   "equipment",
+  "equipmentProfiles",
   "workoutSplit",
   "calorieTarget",
   "proteinTarget",
@@ -58,6 +59,20 @@ export function profilePayload(profile: Record<string, any>) {
     throw new Error(
       "Choose your available equipment, including Bodyweight if you train without equipment."
     );
+  if (Array.isArray(result.equipmentProfiles)) {
+    const names = new Set<string>();
+    const ids = new Set<string>();
+    result.equipmentProfiles = result.equipmentProfiles.map((gym: any) => {
+      const name = typeof gym.name === "string" ? gym.name.trim() : "";
+      if (!name || !Array.isArray(gym.equipment) || !gym.equipment.length)
+        throw new Error("Name each gym and choose its available equipment.");
+      const folded = name.toLocaleLowerCase();
+      if (names.has(folded) || ids.has(gym.id)) throw new Error("Give each gym a different name.");
+      names.add(folded);
+      ids.add(gym.id);
+      return { ...gym, name };
+    });
+  }
   for (const key of ["calorieTarget", "proteinTarget", "carbTarget", "fatTarget"]) {
     if (
       result[key] != null &&
