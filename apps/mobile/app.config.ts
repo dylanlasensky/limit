@@ -36,6 +36,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ...(bundle ? { package: bundle } : {}),
       ...(build ? { versionCode: Number(build) } : {}),
     },
-    extra: { ...config.extra, sourceRevision: revision || "development" },
+    extra: {
+      ...config.extra,
+      ...(process.env.LIMIT_EAS_PROJECT_ID
+        ? { eas: { ...config.extra?.eas, projectId: process.env.LIMIT_EAS_PROJECT_ID } }
+        : {}),
+      sourceRevision: revision || "development",
+    },
   };
 };
