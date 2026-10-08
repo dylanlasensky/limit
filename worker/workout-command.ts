@@ -250,7 +250,11 @@ export default async function workoutCommand(req: Request, client: any) {
           let budgetExtensionSets = 0;
           if (session.timeBudget) {
             const selected = session.timeBudget.exercises.find((item: any) => item.id === we.id);
-            if (!selected) fail("This exercise is outside today’s shorter workout.", 409);
+            if (!selected)
+              fail(
+                "This exercise is outside today’s shorter workout. Refresh in the latest app or continue on the web; the original plan was not changed.",
+                409
+              );
             if (row.setNumber > selected.sets) {
               if (row.budgetExtension !== true)
                 fail("Confirm an extra set to extend today’s shorter workout.", 409);

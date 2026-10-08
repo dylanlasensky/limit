@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { previewSessionBudget } from '../../packages/domain/sessionBudget.js';
 const base=process.env.LIMIT_API_URL||'http://localhost:8787';
-const password='Local-test-password-123!';
+const password=`${crypto.randomUUID()}A!`;
 async function call(path,{cookie='',method='GET',body,origin=base}={}) {
  const r=await fetch(base+'/api'+path,{method,headers:{cookie,origin,...(body?{'content-type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});
  const data=await r.json();return {status:r.status,data,cookie:r.headers.getSetCookie().map(s=>s.split(';')[0]).join('; ')};
@@ -30,7 +30,7 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
  await t.test('login, logout and invalid credentials enforce sessions',async()=>{
   const signed=await call('/auth/sign-in/email',{method:'POST',body:{email:a.data.user.email,password:emailEnabled?process.env.LIMIT_TEST_PASSWORD_A:password}});assert.equal(signed.status,200);assert.equal((await call('/me',{cookie:signed.cookie})).status,200);
   assert.equal((await call('/auth/sign-out',{cookie:signed.cookie,method:'POST',body:{}})).status,200);assert.equal((await call('/me',{cookie:signed.cookie})).status,401);
-  const wrong=await call('/auth/sign-in/email',{method:'POST',body:{email:a.data.user.email,password:'wrong-password-12345'}});assert.equal(wrong.status,401);
+  const wrong=await call('/auth/sign-in/email',{method:'POST',body:{email:a.data.user.email,password:password+'-incorrect'}});assert.equal(wrong.status,401);
   const absent=await call('/me',{cookie:'better-auth.session_token=invalid'});assert.equal(absent.status,401);
   if(!emailEnabled){const reset=await call('/auth/request-password-reset',{method:'POST',body:{email:a.data.user.email,redirectTo:base+'/reset-password'}});assert.equal(reset.status,503);}
  });
@@ -96,17 +96,22 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
   const again=await call('/functions/workoutCommand',{cookie,method:'POST',body:finish});assert.deepEqual(again.data.summary,done.data.summary);
  });
  await t.test('explicit extra warmup and working sets extend only the shortened session',async()=>{
-  for(let order=2;order<=4;order++){
+  for(let order=2;order<=14;order++){
    const added=await call('/entities/WorkoutExercise',{cookie,method:'POST',body:{workoutDayId:days[3].id,exerciseId:exercise.id,exerciseName:exercise.name+' '+order,primaryMuscle:exercise.primaryMuscle,order,sets:4,repMin:8,repMax:12,restSeconds:180}});
    assert.equal(added.status,200,JSON.stringify(added.data));
   }
   const templates=(await call('/entities/WorkoutExercise?filter='+encodeURIComponent(JSON.stringify({workoutDayId:days[3].id})),{cookie})).data.sort((x,y)=>x.order-y.order);
   const preview=previewSessionBudget(templates,40);
   assert.equal(preview.available,true,JSON.stringify(preview));
+  assert.ok(preview.removed.length>0,'The compatibility check needs a movement removed by the saved budget');
   const begun=await call('/functions/workoutCommand',{cookie,method:'POST',body:{action:'start',workoutDayId:days[3].id,timezone:'America/New_York',timeBudgetMinutes:40,timeBudgetPreview:preview.selected.map(row=>({id:row.id,sets:row.sets}))}});
   assert.equal(begun.status,200,JSON.stringify(begun.data));
   const shorter=begun.data.session;
   const first=preview.selected[0];
+  const priorClient=await call('/functions/workoutCommand',{cookie,method:'POST',body:{action:'saveSet',sessionId:shorter.id,row:{workoutExerciseId:preview.removed[0].id,exerciseId:exercise.id,setNumber:1,operationId:crypto.randomUUID(),revision:'',weight:'0',reps:'8',completed:true}}});
+  assert.equal(priorClient.status,409,JSON.stringify(priorClient.data));
+  assert.match(JSON.stringify(priorClient.data),/latest app or continue on the web/);
+  assert.deepEqual((await call('/entities/ExerciseSet?filter='+encodeURIComponent(JSON.stringify({workoutSessionId:shorter.id})),{cookie})).data,[]);
   const extra={action:'saveSet',sessionId:shorter.id,row:{workoutExerciseId:first.id,exerciseId:exercise.id,setNumber:first.sets+1,operationId:crypto.randomUUID(),revision:'',weight:'0',reps:'5',setType:'warmup',completed:true}};
   assert.equal((await call('/functions/workoutCommand',{cookie,method:'POST',body:extra})).status,409);
   const warmup=await call('/functions/workoutCommand',{cookie,method:'POST',body:{...extra,row:{...extra.row,budgetExtension:true}}});
@@ -140,7 +145,9 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
  });
  await t.test('moves this week only, protects ownership, and supports undo',async()=>{
   const scheduleCookie=b.cookie;
-  assert.equal((await call('/entities/UserProfile',{cookie:scheduleCookie,method:'POST',body:{name:'Schedule test'}})).status,200);
+  const scheduleProfile=await call('/entities/UserProfile',{cookie:scheduleCookie});
+  assert.equal(scheduleProfile.status,200);
+  assert.equal(scheduleProfile.data.length,1);
   const check=await call('/functions/workoutCommand',{cookie:scheduleCookie,method:'POST',body:{action:'check',timezone:'UTC'}});
   assert.equal(check.status,200);
   const today=check.data.localDate;

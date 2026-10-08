@@ -2,8 +2,10 @@ import React, { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { limitApi } from "@/api/client";
 import { today } from "@/components/limit/data";
+import { useAuth } from "@/lib/AuthContext";
 import {
   logMealShortcut,
+  pendingMealLog,
   portionedItem,
   saveMealShortcut,
   shortcutItemFromFood,
@@ -24,6 +26,8 @@ export default function MealShortcuts({
   onSavingChange,
 }: Props) {
   const client = useQueryClient();
+  const { user } = useAuth();
+  const logDate = entryDate || today();
   const shortcuts = useQuery({
     queryKey: ["mealShortcuts"],
     queryFn: () => limitApi.entities.MealShortcut.list("name", 100),
@@ -41,7 +45,7 @@ export default function MealShortcuts({
   const [portions, setPortions] = useState<number[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const operationId = useRef(crypto.randomUUID());
+  const [retryPending, setRetryPending] = useState(false);
   const pending = useRef(false);
   const foods = [
     ...new Map(
@@ -78,6 +82,12 @@ export default function MealShortcuts({
         <p className="text-xs text-muted-foreground">
           Adjust each portion before logging. Nutrition updates with the portion.
         </p>
+        {retryPending && (
+          <p className="rounded-xl border border-border p-3 text-sm">
+            A previous log may already be saved. Retry these original portions to confirm it before
+            making another log.
+          </p>
+        )}
         {active.items.map((item, index) => (
           <label
             key={index}
@@ -90,6 +100,7 @@ export default function MealShortcuts({
             <span className="flex items-center gap-2">
               <input
                 aria-label={`${item.foodName} portion`}
+                disabled={retryPending}
                 type="number"
                 min="0.01"
                 max="10000"
@@ -129,16 +140,25 @@ export default function MealShortcuts({
           className="min-h-12 w-full rounded-xl bg-primary font-bold text-primary-foreground"
           onClick={() =>
             void run(async () => {
-              await logMealShortcut(
-                active.name,
-                active.items,
-                portions,
-                initialMealType,
-                entryDate || today(),
-                operationId.current
-              );
-              void client.invalidateQueries({ queryKey: ["foodEntries", entryDate || today()] });
-              onDone(true);
+              try {
+                await logMealShortcut(
+                  active.id,
+                  active.name,
+                  active.items,
+                  portions,
+                  initialMealType,
+                  logDate
+                );
+                setRetryPending(false);
+                void client.invalidateQueries({ queryKey: ["foodEntries", logDate] });
+                onDone(true);
+              } catch (cause) {
+                if (user?.id)
+                  setRetryPending(
+                    Boolean(pendingMealLog(user.id, active.id, logDate, initialMealType))
+                  );
+                throw cause;
+              }
             })
           }
         >
@@ -146,7 +166,7 @@ export default function MealShortcuts({
         </button>
         <button
           type="button"
-          disabled={busy}
+          disabled={busy || retryPending}
           className="min-h-11 w-full rounded-xl border border-border text-sm"
           onClick={() =>
             void run(async () => {
@@ -233,7 +253,7 @@ export default function MealShortcuts({
               setName("");
               setActive(saved);
               setPortions(saved.items.map((item) => item.quantity));
-              operationId.current = crypto.randomUUID();
+              setRetryPending(false);
             })
           }
         >
@@ -260,9 +280,19 @@ export default function MealShortcuts({
             key={shortcut.id}
             className="flex min-h-14 w-full items-center justify-between rounded-xl bg-secondary p-4 text-left text-sm"
             onClick={() => {
-              setActive(shortcut);
-              setPortions(shortcut.items.map((item) => item.quantity));
-              operationId.current = crypto.randomUUID();
+              try {
+                const retry = user?.id
+                  ? pendingMealLog(user.id, shortcut.id, logDate, initialMealType)
+                  : null;
+                setActive(
+                  retry ? { id: shortcut.id, name: retry.name, items: retry.items } : shortcut
+                );
+                setPortions(retry?.portions || shortcut.items.map((item) => item.quantity));
+                setRetryPending(Boolean(retry));
+                setError("");
+              } catch (cause) {
+                setError(cause instanceof Error ? cause.message : "Couldn’t recover this meal.");
+              }
             }}
           >
             <b>{shortcut.name}</b>
@@ -273,6 +303,11 @@ export default function MealShortcuts({
       {shortcuts.error && (
         <p role="alert" className="text-sm text-destructive">
           Couldn’t load saved meals.
+        </p>
+      )}
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
         </p>
       )}
       {!shortcuts.isLoading && !shortcuts.data?.length && (

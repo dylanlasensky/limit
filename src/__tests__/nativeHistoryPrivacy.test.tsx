@@ -92,7 +92,7 @@ describe("native account isolation during navigation", () => {
     view.rerender(<History />);
     expect(await screen.findByText("B workout")).toBeInTheDocument();
     await act(async () => old.resolve([sessionRecord("account-a", "A private workout")]));
-    expect(screen.queryByText("A private workout")).not.toBeInTheDocument();
+    expect(screen.queryByText(/A private workout/)).not.toBeInTheDocument();
   });
 
   it("hides workout details immediately when the account changes", async () => {
@@ -148,13 +148,15 @@ describe("native account isolation during navigation", () => {
           isRest: false,
         },
       ])
+      .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ id: "plan-b", ownerId: "account-b" }])
-      .mockReturnValueOnce(next.promise);
+      .mockReturnValueOnce(next.promise)
+      .mockResolvedValueOnce([]);
     const view = render(<Plan />);
-    expect(await screen.findByText("A private workout")).toBeInTheDocument();
+    expect(await screen.findByText(/A private workout/)).toBeInTheDocument();
     state.session = { user: { id: "account-b", name: "Blair" } };
     view.rerender(<Plan />);
-    expect(screen.queryByText("A private workout")).not.toBeInTheDocument();
+    expect(screen.queryByText(/A private workout/)).not.toBeInTheDocument();
     expect(screen.getByText("Loading your plan…")).toBeInTheDocument();
     await act(async () =>
       next.resolve([
@@ -168,7 +170,7 @@ describe("native account isolation during navigation", () => {
         },
       ])
     );
-    expect(screen.getByText("B workout")).toBeInTheDocument();
+    expect(screen.getByText(/B workout/)).toBeInTheDocument();
   });
 
   it("drops a late weekly plan response from the prior account", async () => {
@@ -176,6 +178,7 @@ describe("native account isolation during navigation", () => {
     api.list
       .mockReturnValueOnce(old.promise)
       .mockResolvedValueOnce([{ id: "plan-b", ownerId: "account-b" }])
+      .mockResolvedValueOnce([])
       .mockResolvedValueOnce([]);
     const view = render(<Plan />);
     state.session = { user: { id: "account-b", name: "Blair" } };
@@ -184,6 +187,6 @@ describe("native account isolation during navigation", () => {
     expect(screen.getByText("Build my starting plan")).toBeInTheDocument();
     await act(async () => old.resolve([{ id: "plan-a", ownerId: "account-a" }]));
     expect(screen.queryByText("A private workout")).not.toBeInTheDocument();
-    expect(api.list).toHaveBeenCalledTimes(3);
+    expect(api.list).toHaveBeenCalledTimes(4);
   });
 });

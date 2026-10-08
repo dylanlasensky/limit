@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { limitApi } from "@/api/client";
@@ -6,6 +6,7 @@ import { listExercises } from "@/lib/training/exerciseLibrary";
 import { useAuth } from "@/lib/AuthContext";
 import { draftKey, readDraft, initialRows } from "@/components/workout/workoutDraft";
 import useWorkoutRows from "@/components/workout/useWorkoutRows";
+import { LoadIncrementQueue } from "@/lib/training/loadIncrementQueue";
 
 export interface WorkoutRow {
   key: string;
@@ -65,6 +66,9 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
   const { user } = useAuth(),
     client = useQueryClient(),
     key = user?.id ? draftKey(user.id, workoutDayId as string) : null;
+  const ownerRef = useRef(user?.id);
+  ownerRef.current = user?.id;
+  const incrementQueue = useRef(new LoadIncrementQueue());
   const [state, setState] = useState<LiveWorkoutState>({
       loading: true,
       day: null,
@@ -246,12 +250,23 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
     }));
   const setLoadIncrement = async (exerciseId: string, increment: number) => {
     const profile = state.profile;
-    if (!profile?.id || !exerciseId)
+    if (!profile?.id || !exerciseId || !user?.id)
       throw new Error("Save your profile before setting load steps.");
-    const loadIncrements = { ...(profile.loadIncrements || {}), [exerciseId]: increment };
-    await limitApi.entities.UserProfile.update(profile.id, { loadIncrements });
-    setState((s) => ({ ...s, profile: { ...s.profile, loadIncrements } }));
-    void client.invalidateQueries({ queryKey: ["userProfile"] });
+    await incrementQueue.current.save(
+      user.id,
+      profile,
+      exerciseId,
+      increment,
+      (ownerId) => ownerRef.current === ownerId,
+      (profileId, loadIncrements) =>
+        limitApi.entities.UserProfile.update(profileId, { loadIncrements }),
+      (loadIncrements) => {
+        setState((s) =>
+          s.profile?.id === profile.id ? { ...s, profile: { ...s.profile, loadIncrements } } : s
+        );
+        void client.invalidateQueries({ queryKey: ["userProfile"] });
+      }
+    );
   };
   const selectEquipmentProfile = async (equipmentProfileId: string | null) => {
     if (!state.session || state.offline) return "Connect to select a gym for this workout.";

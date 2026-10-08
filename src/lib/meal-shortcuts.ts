@@ -87,14 +87,85 @@ export function mealEntry(
 }
 
 export async function logMealShortcut(
+  shortcutId: string,
   name: string,
   items: ShortcutItem[],
   portions: number[],
   mealType: string,
-  date: string,
-  operationId: string
+  date: string
 ) {
-  return createFoodEntry(mealEntry(name, items, portions, mealType, date, operationId));
+  const owner = await limitApi.auth.me();
+  if (!owner?.id) throw new Error("Sign in again before logging this meal.");
+  const key = pendingMealLogKey(owner.id, shortcutId, date, mealType);
+  const pending = pendingMealLog(owner.id, shortcutId, date, mealType);
+  const fingerprint = JSON.stringify({ name, items, portions, mealType, date });
+  if (pending && pending.fingerprint !== fingerprint)
+    throw new Error("Retry the pending meal with its original portions before starting a new log.");
+  const operationId = pending?.operationId || crypto.randomUUID();
+  const payload = pending?.payload || mealEntry(name, items, portions, mealType, date, operationId);
+  if (!pending) {
+    try {
+      sessionStorage.setItem(
+        key,
+        JSON.stringify({ fingerprint, operationId, name, items, portions, payload })
+      );
+    } catch {
+      throw new Error("Browser session storage is needed to log this meal safely.");
+    }
+  }
+  const saved = await createFoodEntry(payload);
+  if (saved?.shortcutLogId !== operationId)
+    throw new Error("The meal log could not be confirmed. Please retry its original portions.");
+  sessionStorage.removeItem(key);
+  return saved;
+}
+
+const pendingMealLogKey = (ownerId: string, shortcutId: string, date: string, mealType: string) =>
+  `limit:pending-meal-log:${ownerId}:${shortcutId}:${date}:${mealType}`;
+
+type PendingMealLog = {
+  fingerprint: string;
+  operationId: string;
+  name: string;
+  items: ShortcutItem[];
+  portions: number[];
+  payload: ReturnType<typeof mealEntry>;
+};
+
+export function pendingMealLog(
+  ownerId: string,
+  shortcutId: string,
+  date: string,
+  mealType: string
+) {
+  const raw = sessionStorage.getItem(pendingMealLogKey(ownerId, shortcutId, date, mealType));
+  if (!raw) return null;
+  try {
+    const pending = JSON.parse(raw) as PendingMealLog;
+    if (
+      !pending ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        pending.operationId
+      ) ||
+      !Array.isArray(pending.items) ||
+      !Array.isArray(pending.portions) ||
+      pending.payload?.shortcutLogId !== pending.operationId ||
+      pending.payload.date !== date ||
+      pending.payload.mealType !== mealType ||
+      pending.fingerprint !==
+        JSON.stringify({
+          name: pending.name,
+          items: pending.items,
+          portions: pending.portions,
+          mealType,
+          date,
+        })
+    )
+      throw new Error("Invalid pending meal log.");
+    return pending;
+  } catch {
+    throw new Error("A pending meal log needs recovery. Contact support before logging it again.");
+  }
 }
 
 const pendingCreateKey = (ownerId: string) => `limit:pending-meal-shortcut:${ownerId}`;

@@ -7,24 +7,13 @@ import { loadDraft, saveDraft, removeDraft } from "../../lib/drafts";
 import { Page, Title, Copy, Card, Input, Action, styles } from "../../ui";
 import { MediaGuide } from "../../media-guide";
 import { recordSchema, type SavedRecord } from "../../../../../packages/contracts/entities";
-type Row = {
-  workoutExerciseId: string;
-  exerciseId: string;
-  setNumber: number;
-  weight: string;
-  reps: string;
-  rir: string;
-  completed: boolean;
-  operationId: string;
-  revision: string;
-  savedId?: string;
-  pending: boolean;
-};
+import { scopeWorkoutSession, type WorkoutRow as Row } from "../../lib/workout-session";
 type Draft = {
   session: SavedRecord<"WorkoutSession">;
   exercises: SavedRecord<"WorkoutExercise">[];
   catalog: SavedRecord<"Exercise">[];
   rows: Row[];
+  excludedRows?: Row[];
   index: number;
   paused: boolean;
   pausedAt: number | null;
@@ -97,38 +86,29 @@ export default function Workout() {
           list("ExerciseSet", { workoutSessionId: session.id }),
         ]);
         if (cancelled) return;
-        if (cached?.session.id === session.id) {
-          persist({ ...cached, catalog });
-          return;
-        }
-        const rows = exercises.flatMap((e) =>
-          Array.from({ length: e.sets || 3 }, (_, i) => {
-            const saved = sets.find((s) => s.workoutExerciseId === e.id && s.setNumber === i + 1);
-            return {
-              workoutExerciseId: e.id,
-              exerciseId: e.exerciseId || "",
-              setNumber: i + 1,
-              weight: saved?.weight?.toString() || "",
-              reps: saved?.reps?.toString() || "",
-              rir: saved?.rir?.toString() || "",
-              completed: saved?.completed || false,
-              operationId: Crypto.randomUUID(),
-              revision: saved?.revision || "",
-              savedId: saved?.id,
-              pending: false,
-            };
-          })
-        );
-        persist({
+        const sameDraft = cached?.session.id === session.id ? cached : null;
+        const scoped = scopeWorkoutSession(
           session,
-          exercises: exercises.sort((a, b) => (a.order || 0) - (b.order || 0)),
+          exercises,
+          sets,
+          sameDraft?.rows,
+          sameDraft?.excludedRows,
+          Crypto.randomUUID
+        );
+        if (!scoped.exercises.length)
+          throw new Error("This workout changed. Open your current plan and try again.");
+        persist({
+          ...sameDraft,
+          session,
+          exercises: scoped.exercises,
           catalog,
-          rows,
-          index: 0,
-          paused: false,
-          pausedAt: null,
-          pausedMs: 0,
-          restUntil: null,
+          rows: scoped.rows,
+          excludedRows: scoped.excludedRows,
+          index: Math.min(sameDraft?.index || 0, scoped.exercises.length - 1),
+          paused: sameDraft?.paused || false,
+          pausedAt: sameDraft?.pausedAt ?? null,
+          pausedMs: sameDraft?.pausedMs || 0,
+          restUntil: sameDraft?.restUntil ?? null,
         });
       } catch (e) {
         if (!cancelled) setError({ key, message: (e as Error).message });
@@ -172,6 +152,13 @@ export default function Workout() {
     }
   };
   const finish = async (finishedAt: number) => {
+    if (current.current?.excludedRows?.length) {
+      setError({
+        key,
+        message: "Review excluded local sets before finishing this shorter workout.",
+      });
+      return;
+    }
     if (!current.current || !(await sync())) return;
     setBusy(true);
     try {
@@ -229,6 +216,18 @@ export default function Workout() {
         <Text accessibilityRole="alert" style={styles.text}>
           {shownError}
         </Text>
+      )}
+      {!!draft.excludedRows?.length && (
+        <Card>
+          <Copy>
+            {draft.excludedRows.length} unsynced local set(s) are outside today’s shorter workout.
+            They remain on this device until you explicitly discard them.
+          </Copy>
+          <Action
+            label="Discard excluded local sets"
+            onPress={() => persist({ ...draft, excludedRows: [] })}
+          />
+        </Card>
       )}
       <Copy>
         {draft.rows.some((r) => r.pending)
@@ -328,7 +327,7 @@ export default function Workout() {
         />
         <Action
           label="Finish workout"
-          disabled={busy || !draft.rows.some((r) => r.completed)}
+          disabled={busy || !!draft.excludedRows?.length || !draft.rows.some((r) => r.completed)}
           onPress={() => {
             void finish(Date.now());
           }}

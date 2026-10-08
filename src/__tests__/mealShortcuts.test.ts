@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  logMealShortcut,
   mealEntry,
+  pendingMealLog,
   portionedItem,
   saveMealShortcut,
   shortcutItemFromFood,
 } from "@/lib/meal-shortcuts";
 
-const api = vi.hoisted(() => ({ me: vi.fn(), create: vi.fn() }));
+const api = vi.hoisted(() => ({ me: vi.fn(), create: vi.fn(), foodCreate: vi.fn() }));
+vi.mock("@/lib/food-entry", () => ({ createFoodEntry: api.foodCreate }));
 vi.mock("@/api/client", () => ({
   limitApi: {
     auth: { me: api.me },
@@ -101,5 +104,63 @@ describe("meal shortcuts", () => {
     expect(sessionStorage.getItem("limit:pending-meal-shortcut:account-a")).toBeNull();
     await saveMealShortcut("Usual breakfast", [eggs, toast]);
     expect(api.create.mock.calls[3][0].createOperationId).not.toBe(firstId);
+  });
+
+  it("retries the exact logged portions after a lost response and permits a new log only after ack", async () => {
+    let owner = "account-a";
+    api.me.mockImplementation(async () => ({ id: owner }));
+    const persisted = new Map<string, any>();
+    let loseResponse = true;
+    api.foodCreate.mockImplementation(async (body) => {
+      const key = `${owner}:${body.shortcutLogId}`;
+      if (!persisted.has(key)) persisted.set(key, { ...body, id: crypto.randomUUID() });
+      if (loseResponse) {
+        loseResponse = false;
+        throw new Error("Connection lost after commit");
+      }
+      return persisted.get(key);
+    });
+    const date = "2020-06-01";
+    await expect(
+      logMealShortcut("shortcut-a", "Usual breakfast", [eggs, toast], [2, 1], "Breakfast", date)
+    ).rejects.toThrow("Connection lost after commit");
+    const pending = pendingMealLog(owner, "shortcut-a", date, "Breakfast");
+    expect(pending?.portions).toEqual([2, 1]);
+    expect(pending?.payload).toMatchObject({ calories: 220 });
+    await expect(
+      logMealShortcut("shortcut-a", "Usual breakfast", [eggs, toast], [3, 1], "Breakfast", date)
+    ).rejects.toThrow("original portions");
+    expect(api.foodCreate).toHaveBeenCalledTimes(1);
+    owner = "account-b";
+    await logMealShortcut(
+      "shortcut-a",
+      "Usual breakfast",
+      [eggs, toast],
+      [3, 1],
+      "Breakfast",
+      date
+    );
+    expect(persisted.size).toBe(2);
+    owner = "account-a";
+    const saved = await logMealShortcut(
+      "shortcut-a",
+      pending!.name,
+      pending!.items,
+      pending!.portions,
+      "Breakfast",
+      date
+    );
+    expect(saved.id).toBe(persisted.get(`account-a:${pending!.operationId}`).id);
+    expect(persisted.size).toBe(2);
+    expect(pendingMealLog(owner, "shortcut-a", date, "Breakfast")).toBeNull();
+    await logMealShortcut(
+      "shortcut-a",
+      "Usual breakfast",
+      [eggs, toast],
+      [3, 1],
+      "Breakfast",
+      date
+    );
+    expect(persisted.size).toBe(3);
   });
 });
