@@ -4,6 +4,7 @@ export const ACCOUNT_ENTITIES = [
   "WorkoutSession",
   "WorkoutExercise",
   "WorkoutDay",
+  "WorkoutScheduleChange",
   "WorkoutPlan",
   "FoodEntry",
   "DietaryProfile",
