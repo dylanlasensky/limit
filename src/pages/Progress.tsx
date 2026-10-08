@@ -355,6 +355,7 @@ export default function Progress() {
               </div>
               {trainingView === "balance" ? (
                 <MuscleRatingPanel
+                  sex={training.data?.profile?.sex}
                   rating={
                     training.data
                       ? calculateMuscleRating({
