@@ -86,3 +86,18 @@ test("isolation starts with an unfinished Alpha draft and excludes login screens
   assert.match(isolate, /"assertNotVisible":\{"id":"input-repetitions","text":"17"\}/);
   assert.doesNotMatch(isolate, /08-signed-out-route/);
 });
+
+test("driver readiness precedes credentials and later invocations avoid reinstallation", () => {
+  const harness = readFileSync(
+    new URL("../../scripts/native-behavior.mjs", import.meta.url),
+    "utf8"
+  );
+  assert.ok(
+    harness.indexOf("result.readiness = readHierarchy(true)") <
+      harness.indexOf("accounts = await makeAccounts()")
+  );
+  assert.match(harness, /"--no-reinstall-driver"/);
+  assert.match(harness, /timeout: 240000/);
+  assert.match(harness, /coldStart \? 240000 : 45000/);
+  assert.doesNotMatch(harness, /console\.(log|error)\(run\.(stdout|stderr)/);
+});

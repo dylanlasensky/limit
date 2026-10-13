@@ -10,6 +10,11 @@ import {
   assertOneSavedSet,
 } from "./native-behavior-support.mjs";
 import { behaviorFlows } from "./native-behavior-flows.mjs";
+import {
+  readCommandDiagnostics,
+  summarizeHierarchy,
+  summarizeProcess,
+} from "./native-behavior-diagnostics.mjs";
 
 const bundle = "com.example.limit.simulator";
 const stateFile = () => join(process.env.RUNNER_TEMP, "limit-native-fixtures.json");
@@ -157,17 +162,59 @@ export async function runNativeBehavior(device, evidenceDir) {
   const temp = join(process.env.RUNNER_TEMP, "limit-native-behavior");
   mkdirSync(temp, { recursive: true });
   try {
-    accounts = await makeAccounts();
-    const [alpha, beta] = accounts;
-    const credentials = accounts.flatMap((a) => [a.email, a.password, a.cookie]);
     const maestro = join(process.env.RUNNER_TEMP, "maestro/bin/maestro");
     assert.ok(existsSync(maestro));
     const javaHome = read("/usr/libexec/java_home", ["-v", "17"]);
-    const flowEnv = {
+    const commonEnv = {
       ...process.env,
       JAVA_HOME: javaHome,
       MAESTRO_CLI_NO_ANALYTICS: "1",
       MAESTRO_API_URL: "http://127.0.0.1:9",
+      XDG_STATE_HOME: join(temp, "maestro-state"),
+    };
+    result.maestro = execFileSync(maestro, ["--version"], {
+      encoding: "utf8",
+      env: commonEnv,
+    }).trim();
+    const readHierarchy = (coldStart) => {
+      const startedAt = Date.now();
+      const run = spawnSync(
+        maestro,
+        ["--device", device.udid, "hierarchy", ...(coldStart ? [] : ["--no-reinstall-driver"])],
+        {
+          env: commonEnv,
+          encoding: "utf8",
+          timeout: coldStart ? 240000 : 45000,
+          maxBuffer: 8 * 1024 * 1024,
+        }
+      );
+      const outcome = summarizeProcess(run, startedAt);
+      let ui = { status: "unavailable" };
+      if (outcome.status === "passed") {
+        try {
+          ui = summarizeHierarchy(JSON.parse(run.stdout));
+        } catch {
+          /* No raw parse error or tree output. */
+        }
+      }
+      return { ...outcome, ui };
+    };
+    // Initialize/observe the pinned driver before creating any test credentials.
+    // Raw hierarchy and driver logs never enter the upload directory.
+    result.readiness = readHierarchy(true);
+    save();
+    assert.equal(result.readiness.status, "passed", "Native driver readiness failed");
+    assert.ok(result.readiness.ui.states?.includes("signedOut"), "Signed-out screen unavailable");
+    for (const id of ["input-email", "input-password-at-least-12-characters", "action-sign-in"])
+      assert.ok(
+        result.readiness.ui.controls?.some((control) => control.id === id),
+        "Sign-in control unavailable"
+      );
+    accounts = await makeAccounts();
+    const [alpha, beta] = accounts;
+    const credentials = accounts.flatMap((a) => [a.email, a.password, a.cookie]);
+    const flowEnv = {
+      ...commonEnv,
       MAESTRO_ALPHA_EMAIL: alpha.email,
       MAESTRO_ALPHA_PASSWORD: alpha.password,
       MAESTRO_BETA_EMAIL: beta.email,
@@ -177,10 +224,6 @@ export async function runNativeBehavior(device, evidenceDir) {
       MAESTRO_BETA_DAY: beta.dayId,
       MAESTRO_EVIDENCE: resolve(evidenceDir),
     };
-    result.maestro = execFileSync(maestro, ["--version"], {
-      encoding: "utf8",
-      env: flowEnv,
-    }).trim();
     const flows = behaviorFlows();
     const runFlow = (name) => {
       const path = join(temp, name + ".yaml");
@@ -193,7 +236,15 @@ export async function runNativeBehavior(device, evidenceDir) {
       const startedAt = Date.now();
       const run = spawnSync(
         maestro,
-        ["--device", device.udid, "test", "--debug-output", join(temp, name + "-debug"), path],
+        [
+          "--device",
+          device.udid,
+          "test",
+          "--no-reinstall-driver",
+          "--debug-output",
+          join(temp, name + "-debug"),
+          path,
+        ],
         { env: flowEnv, encoding: "utf8", timeout: 240000, maxBuffer: 8 * 1024 * 1024 }
       );
       const log = redact((run.stdout || "") + (run.stderr || ""), credentials);
@@ -201,17 +252,20 @@ export async function runNativeBehavior(device, evidenceDir) {
       if (run.status !== 0) {
         console.error(log.split("\n").slice(-60).join("\n"));
       }
-      result.stages.push({
+      const outcome = summarizeProcess(run, startedAt);
+      const stage = {
         name,
-        status: run.status === 0 ? "passed" : "failed",
-        elapsedMs: Date.now() - startedAt,
-        exitCode: run.status,
-        signal: run.signal,
-        errorCode: run.error?.code ?? null,
+        ...outcome,
+        timing: readCommandDiagnostics(join(temp, name + "-debug"), startedAt),
         completedAt: new Date().toISOString(),
-      });
+      };
+      result.stages.push(stage);
       save();
-      assert.equal(run.status, 0, name + " failed");
+      if (outcome.status !== "passed") {
+        stage.failureUI = readHierarchy(false);
+        save();
+      }
+      assert.equal(outcome.status, "passed", name + " failed");
     };
     runFlow("01-auth-and-save");
     const { value: sessions } = await api(alpha, query("WorkoutSession", { status: "active" }));
