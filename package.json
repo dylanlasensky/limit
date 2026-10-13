@@ -69,7 +69,7 @@
     "autoprefixer": "^10.4.20",
     "baseline-browser-mapping": "^2.8.32",
     "braces": "file:vendor/braces",
-    "eslint": "^9.19.0",
+    "eslint": "^10.12.0",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.18",
