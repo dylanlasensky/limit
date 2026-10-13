@@ -23,6 +23,7 @@
     "db:migrate": "wrangler d1 migrations apply DB --local",
     "db:seed": "node scripts/seed-d1.mjs worker/seed.sql && wrangler d1 execute DB --local --file worker/seed.sql",
     "test:api": "node --test tests/api/*.test.mjs",
+    "test:hosted-harness": "node --test tests/hosted/*.test.mjs",
     "postinstall": "node scripts/patch-native-decoder.mjs",
     "test:native": "node --test tests/native/*.test.mjs",
     "security:check": "node scripts/secret-scan.mjs && node scripts/verify-braces-fork.mjs && node scripts/security-audit.mjs",
