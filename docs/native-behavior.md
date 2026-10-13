@@ -10,12 +10,16 @@ The public-repository-only standard `macos-26` runner compiles with Xcode 26.4.1
 2. Open a protected workout deep link while signed out, sign in through real secure native fields, open the owned workout and save one set. Independently assert its owner, session, repetitions and uniqueness through the API.
 3. Edit the saved row without syncing. Background/foreground and terminate/relaunch the app, reopen the deep link, and assert retained edits. Verify the backend still holds the earlier value. Pause/resume is also exercised.
 4. Sync, edit again and double-tap Finish. Verify one completed session and exactly one set with the latest repetitions, then inspect native history/detail.
-5. Open a second Alpha workout and leave an unfinished 17-repetition draft. Read the actual native SQLite database to prove that draft exists before logout.
+5. Open a second Alpha workout and leave an unfinished 17-repetition draft. Terminate/relaunch and reopen the workout, then read the actual native SQLite database to prove that draft survives before logout.
 6. Sign out, confirm protected-route redirection, sign in as Beta, reject Alpha's history and unfinished-workout deep links, and open Beta's own workout without Alpha's draft. Assert server 404 isolation and inspect the actual native SQLite database after logout for zero drafts.
 
 Fixtures are created only after compilation. Credentials are random, kept in memory and a runner-temporary mode-0600 file, masked/redacted from logs, and never committed or uploaded. Raw Maestro debug directories are not uploaded. Both synthetic accounts are deleted even when a stage fails; incomplete cleanup fails the job and the always-run step retries cleanup. Artifact retention is one day, with bounded logs and selected post-login screenshots, not an app binary. Automatic failure screenshots and login-form screenshots are suppressed because those screens can contain credentials. A stage failure stays a failure; assertions are not skipped or automatically retried into a pass.
 
 The only app instrumentation is stable accessibility test identifiers on existing controls. No fake session, alternate network client, relaxed authorization, password-field weakening or mock workout behavior is added.
+
+## Reproduced draft fix
+
+Rehydration previously replaced uncompleted local weight, repetitions and reps-left values with blank server defaults because only completed pending rows were retained. A failing unit regression reproduced the loss. The merge now retains an uncompleted local row when no saved server set exists, without marking it complete or pending. A separate regression preserves server precedence when another client has already saved the set. The simulator candidate also reopens the unfinished Alpha draft before account isolation.
 
 ## Remaining boundaries
 

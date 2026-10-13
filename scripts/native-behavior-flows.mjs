@@ -102,6 +102,13 @@ export function behaviorFlows() {
       ...edit("input-weight", "0"),
       ...edit("input-repetitions", "17"),
       ...loggedReps("17"),
+      "stopApp",
+      "launchApp",
+      ...link("workout/${MAESTRO_ALPHA_DRAFT_DAY}"),
+      ...loggedReps("17"),
+      scroll("input-weight", "UP"),
+      { assertVisible: { id: "input-weight", text: "0" } },
+      ...loggedReps("17"),
       shot("06-unfinished-alpha-draft"),
     ],
     "05-account-isolation": [

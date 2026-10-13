@@ -69,4 +69,39 @@ describe("native resume of a web-shortened workout", () => {
       ).excludedRows
     ).toEqual([pending]);
   });
+  it("restores uncompleted input after a relaunch without marking it ready to sync", () => {
+    const unfinished = {
+      workoutExerciseId: "lift-a",
+      exerciseId: "exercise-a",
+      setNumber: 1,
+      weight: "0",
+      reps: "17",
+      rir: "3",
+      completed: false,
+      operationId: "unfinished-op",
+      revision: "",
+      pending: false,
+    } satisfies WorkoutRow;
+    const scoped = scopeWorkoutSession(session, template, [], [unfinished], [], () => "new-op");
+    expect(scoped.rows).toEqual([unfinished]);
+    expect(scoped.rows.filter((row) => row.pending)).toEqual([]);
+  });
+  it("uses a remotely saved set instead of stale uncompleted local input", () => {
+    const unfinished = {
+      workoutExerciseId: "lift-a",
+      exerciseId: "exercise-a",
+      setNumber: 1,
+      weight: "0",
+      reps: "17",
+      rir: "3",
+      completed: false,
+      operationId: "unfinished-op",
+      revision: "",
+      pending: false,
+    } satisfies WorkoutRow;
+    const scoped = scopeWorkoutSession(session, template, saved, [unfinished], [], () => "new-op");
+    expect(scoped.rows).toMatchObject([
+      { reps: "8", weight: "20", savedId: "saved-a", completed: true },
+    ]);
+  });
 });

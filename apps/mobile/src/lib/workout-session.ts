@@ -40,7 +40,9 @@ export function scopeWorkoutSession(
       const saved = savedSets.find(
         (set) => set.workoutExerciseId === exercise.id && set.setNumber === setNumber
       );
-      if (cached?.pending) return cached;
+      // Uncompleted input is local-only, so it is not pending a server save yet.
+      // Keep it through rehydration unless a saved server set now exists.
+      if (cached && (cached.pending || (!saved && !cached.completed))) return cached;
       return {
         workoutExerciseId: exercise.id,
         exerciseId: saved?.exerciseId || exercise.exerciseId || "",
