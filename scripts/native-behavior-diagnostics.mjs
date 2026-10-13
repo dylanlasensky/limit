@@ -1,5 +1,6 @@
 import { lstatSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { behaviorFlows } from "./native-behavior-flows.mjs";
 
 const kinds = new Set([
   "applyConfigurationCommand",
@@ -268,6 +269,50 @@ export function readPreInputFailureImage(directory, context) {
     return bytes;
   } catch {
     return null;
+  }
+}
+
+// Read only explicit, completed checkpoint captures from the pinned bundle layout.
+// The caller publishes these only after all behavior, backend and cleanup checks pass.
+export function readSuccessfulFlowImages(directory, flow, status) {
+  try {
+    if (status !== "passed") throw new Error();
+    const flowCommands = behaviorFlows()[flow];
+    const expected = flowCommands
+      ?.filter((command) => command.takeScreenshot)
+      .map((command) => command.takeScreenshot);
+    if (!expected?.length || expected.some((name) => !/^\d{2}-[a-z-]+$/.test(name)))
+      throw new Error();
+    const { path, entries } = readCommandFile(directory);
+    if (!Array.isArray(entries) || entries.length > 500) throw new Error();
+    if (entries.some((entry) => entry.metadata?.status === "FAILED")) throw new Error();
+    const commands = entries.filter((entry) => entry.command?.takeScreenshotCommand);
+    if (
+      commands.length !== expected.length ||
+      commands.some(
+        (entry, index) =>
+          entry.metadata?.status !== "COMPLETED" ||
+          entry.command.takeScreenshotCommand.path !== expected[index]
+      )
+    )
+      throw new Error();
+    const folder = join(dirname(path), "takeScreenshot");
+    if (!lstatSync(folder).isDirectory()) throw new Error();
+    return expected.map((name) => {
+      const file = join(folder, name + ".png"),
+        stat = lstatSync(file);
+      if (!stat.isFile() || stat.size < 24 || stat.size > 8 * 1024 * 1024) throw new Error();
+      const bytes = readFileSync(file);
+      if (!bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])))
+        throw new Error();
+      if (bytes.toString("ascii", 12, 16) !== "IHDR") throw new Error();
+      const width = bytes.readUInt32BE(16),
+        height = bytes.readUInt32BE(20);
+      if (!width || !height || width > 4096 || height > 4096) throw new Error();
+      return { name: name + ".png", bytes };
+    });
+  } catch {
+    throw new Error("Native checkpoint screenshot evidence is invalid");
   }
 }
 

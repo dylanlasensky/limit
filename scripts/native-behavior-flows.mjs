@@ -53,7 +53,7 @@ const login = (who) => [
     },
   },
 ];
-const shot = (name) => ({ takeScreenshot: "${MAESTRO_EVIDENCE}/" + name });
+const shot = (name) => ({ takeScreenshot: name });
 const alphaWorkout = () => link("workout/${MAESTRO_ALPHA_DAY}");
 const loggedReps = (value) => [
   scroll("input-repetitions"),

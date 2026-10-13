@@ -97,6 +97,26 @@ test("isolation starts with an unfinished Alpha draft and excludes login screens
   assert.doesNotMatch(isolate, /08-signed-out-route/);
 });
 
+test("checkpoint screenshots use unique relative names within Maestro's artifact folder", () => {
+  const shots = Object.values(behaviorFlows())
+    .flat()
+    .filter((command) => command.takeScreenshot)
+    .map((command) => command.takeScreenshot);
+  assert.equal(shots.length, 7);
+  assert.equal(new Set(shots).size, shots.length);
+  for (const shot of shots) assert.match(shot, /^\d{2}-[a-z-]+$/);
+  const harness = readFileSync(
+    new URL("../../scripts/native-behavior.mjs", import.meta.url),
+    "utf8"
+  );
+  assert.doesNotMatch(harness, /MAESTRO_EVIDENCE|--test-output-dir/);
+  assert.match(harness, /result.status === "passed" && result.cleanup === "passed"/);
+  assert.ok(
+    harness.indexOf("await cleanupNativeFixtures();", harness.indexOf("} finally {")) <
+      harness.indexOf("writeFileSync(join(checkpoints")
+  );
+});
+
 test("driver readiness precedes credentials and later invocations avoid reinstallation", () => {
   const harness = readFileSync(
     new URL("../../scripts/native-behavior.mjs", import.meta.url),

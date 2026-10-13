@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 import {
   previewOrigin,
@@ -17,6 +17,7 @@ import {
   summarizeProcess,
   summarizeLimitProcess,
   readPreInputFailureImage,
+  readSuccessfulFlowImages,
 } from "./native-behavior-diagnostics.mjs";
 
 const bundle = "com.example.limit.simulator";
@@ -163,6 +164,7 @@ export async function runNativeBehavior(device, evidenceDir, { freshInstall = fa
     writeFileSync(join(evidenceDir, "behavior.json"), JSON.stringify(result, null, 2) + "\n");
   save();
   let accounts = [];
+  let checkpointImages = [];
   let originalError;
   const temp = join(process.env.RUNNER_TEMP, "limit-native-behavior");
   mkdirSync(temp, { recursive: true });
@@ -230,7 +232,6 @@ export async function runNativeBehavior(device, evidenceDir, { freshInstall = fa
       MAESTRO_ALPHA_DAY: alpha.dayId,
       MAESTRO_ALPHA_DRAFT_DAY: alpha.draftDayId,
       MAESTRO_BETA_DAY: beta.dayId,
-      MAESTRO_EVIDENCE: resolve(evidenceDir),
     };
     const flows = behaviorFlows();
     const runFlow = (name) => {
@@ -368,6 +369,9 @@ print("Native SQLite logout cleanup passed")
       "native SQLite cleared on logout",
       "unchanged preview version",
     ];
+    checkpointImages = result.stages.flatMap((stage) =>
+      readSuccessfulFlowImages(join(temp, stage.name + "-debug"), stage.name, stage.status)
+    );
     result.status = "passed";
   } catch (error) {
     originalError = error;
@@ -384,6 +388,20 @@ print("Native SQLite logout cleanup passed")
       result.cleanup = "failed";
       result.status = "failed";
       originalError ||= error;
+    }
+    if (result.status === "passed" && result.cleanup === "passed") {
+      const checkpoints = join(evidenceDir, "checkpoints");
+      try {
+        mkdirSync(checkpoints);
+        for (const image of checkpointImages)
+          writeFileSync(join(checkpoints, image.name), image.bytes, { flag: "wx" });
+        result.screenshots = checkpointImages.map((image) => "checkpoints/" + image.name);
+      } catch {
+        rmSync(checkpoints, { recursive: true, force: true });
+        result.status = "failed";
+        originalError = new Error("Native checkpoint screenshot export failed");
+        result.failure = originalError.message;
+      }
     }
     result.completedAt = new Date().toISOString();
     save();
