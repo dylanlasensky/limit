@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { homedir } from "node:os";
 import { gzipSync } from "node:zlib";
 import {
   previewOrigin,
@@ -52,17 +51,6 @@ export async function cleanupNativeFixtures() {
     throw new Error("Synthetic account cleanup incomplete: " + failures.length);
   }
   rmSync(stateFile());
-}
-function flushDNS() {
-  read("sudo", ["dscacheutil", "-flushcache"]);
-  read("sudo", ["killall", "-HUP", "mDNSResponder"]);
-}
-function restoreHosts() {
-  const backup = join(process.env.RUNNER_TEMP, "limit-native-hosts-backup");
-  if (!existsSync(backup)) return;
-  read("sudo", ["cp", backup, "/etc/hosts"]);
-  flushDNS();
-  rmSync(backup);
 }
 async function makeAccounts() {
   const accounts = [];
@@ -118,6 +106,7 @@ async function makeAccounts() {
       }))
     );
     account.dayId = days[0].id;
+    account.draftDayId = days[3].id;
     for (const day of days.filter((d) => !d.isRest)) {
       await api(account, "/entities/WorkoutExercise", {
         workoutDayId: day.id,
@@ -150,8 +139,11 @@ export async function runNativeBehavior(device, evidenceDir) {
     apiHealth: before,
     scope:
       "Unsigned iOS simulator UI behavior against disposable preview accounts; no physical device, signing or store acceptance",
-    networkScope:
-      "Only preview hostname denied on disposable runner; actual request failure required. This is API unavailability, not iOS airplane mode.",
+    uncovered: [
+      "Native network-loss/API-unavailability recovery; no approved app-scoped fault method",
+      "Physical-device and signed/TestFlight acceptance",
+      "Email/OAuth callback delivery",
+    ],
     startedAt: new Date().toISOString(),
     status: "pending",
     stages: [],
@@ -181,6 +173,7 @@ export async function runNativeBehavior(device, evidenceDir) {
       MAESTRO_BETA_EMAIL: beta.email,
       MAESTRO_BETA_PASSWORD: beta.password,
       MAESTRO_ALPHA_DAY: alpha.dayId,
+      MAESTRO_ALPHA_DRAFT_DAY: alpha.draftDayId,
       MAESTRO_BETA_DAY: beta.dayId,
       MAESTRO_EVIDENCE: resolve(evidenceDir),
     };
@@ -205,34 +198,12 @@ export async function runNativeBehavior(device, evidenceDir) {
       const log = redact((run.stdout || "") + (run.stderr || ""), credentials);
       writeFileSync(join(evidenceDir, name + ".log.gz"), gzipSync(log));
       if (run.status !== 0) {
-        spawnSync("xcrun", [
-          "simctl",
-          "io",
-          device.udid,
-          "screenshot",
-          join(evidenceDir, name + "-failure.png"),
-        ]);
         console.error(log.split("\n").slice(-60).join("\n"));
       }
       assert.equal(run.status, 0, name + " failed");
       result.stages.push({ name, status: "passed", completedAt: new Date().toISOString() });
       save();
     };
-    // Official Maestro workaround for simulator Password AutoFill. No app auth behavior is changed.
-    for (const suffix of [
-      "data/Library/UserConfigurationProfiles/EffectiveUserSettings.plist",
-      "data/Containers/Shared/SystemGroup/systemgroup.com.apple.configurationprofiles/Library/ConfigurationProfiles/UserSettings.plist",
-    ]) {
-      const path = join(homedir(), "Library/Developer/CoreSimulator/Devices", device.udid, suffix);
-      if (existsSync(path))
-        read("plutil", [
-          "-replace",
-          "restrictedBool.allowPasswordAutoFill.value",
-          "-bool",
-          "NO",
-          path,
-        ]);
-    }
     runFlow("01-auth-and-save");
     const { value: sessions } = await api(alpha, query("WorkoutSession", { status: "active" }));
     assert.equal(sessions.length, 1);
@@ -249,46 +220,30 @@ export async function runNativeBehavior(device, evidenceDir) {
     await checkSet(10);
     runFlow("02-background-relaunch");
     await checkSet(10); // Editing a saved row must remain a local draft until explicit sync.
-    const backup = join(process.env.RUNNER_TEMP, "limit-native-hosts-backup");
-    writeFileSync(backup, readFileSync("/etc/hosts"), { mode: 0o600 });
-    const blocked = join(temp, "blocked-hosts");
-    const hostname = new URL(previewOrigin).hostname;
-    writeFileSync(
-      blocked,
-      readFileSync(backup, "utf8") + "\n127.0.0.1 " + hostname + "\n::1 " + hostname + "\n"
-    );
-    try {
-      read("sudo", ["cp", blocked, "/etc/hosts"]);
-      flushDNS();
-      const probe = spawnSync("curl", [
-        "--noproxy",
-        "*",
-        "--connect-timeout",
-        "5",
-        "--max-time",
-        "8",
-        "--fail",
-        "--silent",
-        previewOrigin + "/api/health",
-      ]);
-      assert.notEqual(
-        probe.status,
-        0,
-        "API must actually be unreachable before offline assertions"
-      );
-      runFlow("03-api-unavailable");
-    } finally {
-      restoreHosts();
-    }
-    await checkSet(10);
-    runFlow("04-reconnect-and-finish");
+    runFlow("03-finish");
     const { value: completed } = await api(alpha, query("WorkoutSession", { status: "completed" }));
     assert.equal(completed.length, 1, "Repeated Finish must create one completed workout");
     assert.equal(completed[0].id, alpha.sessionId);
     await checkSet(13);
+    runFlow("04-prepare-private-draft");
+    const draftContainer = read("xcrun", [
+      "simctl",
+      "get_app_container",
+      device.udid,
+      bundle,
+      "data",
+    ]);
+    const retainedDraftCheck = `import pathlib, sqlite3, json, sys
+paths=list(pathlib.Path(sys.argv[1]).rglob("limit-drafts.db"))
+assert len(paths)==1
+rows=sqlite3.connect(paths[0]).execute("SELECT payload FROM drafts WHERE owner=?", (sys.argv[2],)).fetchall()
+assert any(any(str(r.get("reps"))=="17" for r in json.loads(row[0])["rows"]) for row in rows), "Alpha must have a real unfinished draft before logout"
+print("Unfinished Alpha draft verified before account switch")
+`;
+    read("python3", ["-c", retainedDraftCheck, draftContainer, alpha.id]);
     runFlow("05-account-isolation");
     await api(beta, "/entities/WorkoutSession/" + alpha.sessionId, undefined, 404);
-    await api(beta, "/entities/WorkoutDay/" + alpha.dayId, undefined, 404);
+    await api(beta, "/entities/WorkoutDay/" + alpha.draftDayId, undefined, 404);
     const container = read("xcrun", ["simctl", "get_app_container", device.udid, bundle, "data"]);
     const sqliteCheck = `import pathlib, sqlite3, sys
 paths=list(pathlib.Path(sys.argv[1]).rglob("limit-drafts.db"))
@@ -303,10 +258,10 @@ print("Native SQLite logout cleanup passed")
     result.backendAssertions = [
       "single saved set",
       "unsynced edits stay local",
-      "failed Finish retains draft",
       "one completed workout",
       "latest 13 reps persisted",
       "cross-account 404s",
+      "unfinished Alpha draft exists before logout",
       "native SQLite cleared on logout",
       "unchanged preview version",
     ];
@@ -314,10 +269,12 @@ print("Native SQLite logout cleanup passed")
   } catch (error) {
     originalError = error;
     result.status = "failed";
-    result.failure = error.message;
+    result.failure = redact(
+      error.message,
+      accounts.flatMap((a) => [a.email, a.password, a.cookie])
+    );
   } finally {
     try {
-      restoreHosts();
       await cleanupNativeFixtures();
       result.cleanup = "passed";
     } catch (error) {
@@ -333,7 +290,6 @@ print("Native SQLite logout cleanup passed")
 }
 if (process.argv.includes("--cleanup")) {
   assert.equal(process.env.CI, "true");
-  restoreHosts();
   await cleanupNativeFixtures();
 }
 if (process.argv.includes("--check-fixtures")) {

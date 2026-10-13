@@ -1,4 +1,5 @@
 import test from "node:test";
+import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import {
   assertPreview,
@@ -40,4 +41,31 @@ test("flows drive real input and do not replace unsupported iOS networking with 
   assert.ok(commands.includes("assertNotVisible"));
   assert.ok(!commands.includes("setAirplaneMode"));
   assert.ok(!commands.includes("clearState", commands.indexOf("02-background-relaunch")));
+});
+
+test("candidate cannot change host networking or simulator security settings", () => {
+  const harness = readFileSync(
+    new URL("../../scripts/native-behavior.mjs", import.meta.url),
+    "utf8"
+  );
+  assert.doesNotMatch(
+    harness,
+    /\/etc\/hosts|flushcache|mDNSResponder|plutil|PasswordAutoFill|sudo/
+  );
+  assert.match(
+    harness,
+    /Native network-loss\/API-unavailability recovery; no approved app-scoped fault method/
+  );
+  assert.doesNotMatch(harness, /-failure\.png/);
+});
+test("isolation starts with an unfinished Alpha draft and excludes login screenshots", () => {
+  const flows = behaviorFlows();
+  const prepare = JSON.stringify(flows["04-prepare-private-draft"]);
+  const isolate = JSON.stringify(flows["05-account-isolation"]);
+  assert.match(prepare, /MAESTRO_ALPHA_DRAFT_DAY/);
+  assert.match(prepare, /"inputText":"17"/);
+  assert.doesNotMatch(prepare, /action-complete-set|action-finish-workout/);
+  assert.match(isolate, /MAESTRO_ALPHA_DRAFT_DAY/);
+  assert.match(isolate, /"assertNotVisible":\{"id":"input-repetitions","text":"17"\}/);
+  assert.doesNotMatch(isolate, /08-signed-out-route/);
 });
