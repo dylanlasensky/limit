@@ -25,6 +25,13 @@ on:
         ".github/workflows/native-simulator.yml",
       ]
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "Driver probe only, or full LIMIT app behavior"
+        type: choice
+        required: true
+        default: driver-probe
+        options: [driver-probe, app-behavior]
 permissions:
   contents: read
 concurrency:
@@ -33,7 +40,7 @@ concurrency:
 jobs:
   unsigned-native-launch:
     # Standard hosted runners are free for public repositories. Never run this on a paid/private runner.
-    if: github.event.repository.private == false && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.draft == false))
+    if: github.event.repository.private == false && (github.event_name != 'workflow_dispatch' || inputs.mode == 'app-behavior') && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.draft == false))
     runs-on: macos-26
     timeout-minutes: 75
     env:
@@ -70,5 +77,35 @@ jobs:
         with:
           name: unsigned-native-${{ github.event.pull_request.head.sha || github.sha }}
           path: release-evidence/native-simulator/
+          retention-days: 1
+          if-no-files-found: error
+  driver-probe:
+    if: github.event.repository.private == false && github.event_name == 'workflow_dispatch' && inputs.mode == 'driver-probe'
+    runs-on: macos-26
+    timeout-minutes: 12
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.4.1.app/Contents/Developer
+      LIMIT_DRIVER_PROBE: "true"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      - name: Install pinned open-source Maestro CLI
+        run: |
+          curl --fail --location --retry 2 --output "$RUNNER_TEMP/maestro.zip" https://github.com/mobile-dev-inc/Maestro/releases/download/cli-2.11.0/maestro.zip
+          python3 - <<'PY'
+          import hashlib, os, pathlib
+          archive = pathlib.Path(os.environ['RUNNER_TEMP']) / 'maestro.zip'
+          assert hashlib.sha256(archive.read_bytes()).hexdigest() == '5384593cb4e7a106489e75a821d157dd43f4e438df6bc308b72e82c685e1283a'
+          PY
+          unzip -q "$RUNNER_TEMP/maestro.zip" -d "$RUNNER_TEMP"
+      - name: Observe stock simulator accessibility
+        run: node scripts/native-driver-probe.mjs
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: native-driver-probe-${{ github.sha }}
+          path: release-evidence/native-driver-probe/result.json
           retention-days: 1
           if-no-files-found: error
