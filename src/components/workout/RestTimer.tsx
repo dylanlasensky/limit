@@ -23,6 +23,8 @@ export default function RestTimer({ endsAt, onAdjust, onSkip }: RestTimerProps) 
     ss = String(remaining % 60).padStart(2, "0");
   return (
     <motion.div
+      role="region"
+      aria-label="Rest timer"
       initial={{ y: 80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-[26rem] md:max-w-lg rounded-[1.75rem] border border-primary/30 bg-background/90 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] shadow-[0_0_50px_hsl(var(--primary)/.16)] backdrop-blur-2xl"

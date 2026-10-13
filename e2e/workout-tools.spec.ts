@@ -269,6 +269,10 @@ test("workout save states remain clear and retry preserves the set", async ({ pa
   const retry = page.getByRole("button", { name: "Retry", exact: true });
   await expect(retry).toBeVisible();
   await expect(page.getByLabel("Set 1 weight in pounds", { exact: true })).toHaveValue("135");
+  await expect(page.getByRole("region", { name: "Rest timer", exact: true })).toHaveCSS(
+    "opacity",
+    "1"
+  );
   await page.screenshot({ path: testInfo.outputPath("workout-retry.png"), fullPage: true });
   fixture.fail(false);
   await retry.click();
@@ -291,6 +295,20 @@ test("long names and large previous values fit with enlarged text and reduced vi
   await expect(
     page.getByRole("heading", { name: "Long exercise name for narrow-screen workout logging" })
   ).toBeVisible();
+  const defaultCopy = page.getByRole("button", {
+    name: "Copy previous values for set 1: 1250.5 pounds, 100 reps",
+    exact: true,
+  });
+  await defaultCopy.click();
+  const defaultFits = await page
+    .getByLabel("Set 1 weight in pounds", { exact: true })
+    .evaluate((element) => {
+      const input = element as HTMLInputElement;
+      const context = document.createElement("canvas").getContext("2d")!;
+      context.font = getComputedStyle(input).font;
+      return input.clientWidth >= context.measureText(input.value).width + 8;
+    });
+  expect(defaultFits).toBe(true);
   await page.addStyleTag({ content: "html { font-size: 24px !important; }" });
   const copy = page.getByRole("button", {
     name: "Copy previous values for set 1: 1250.5 pounds, 100 reps",
