@@ -77,7 +77,8 @@ export function scopeWorkoutSession(
           row.workoutExerciseId === exercise.id &&
           row.setNumber === setNumber &&
           !acknowledged(row) &&
-          (!saved || (row.pending && row.revision === (saved.revision || "")))
+          (!saved ||
+            (row.revision === (saved.revision || "") && (row.pending || row.savedId === saved.id)))
       );
       if (local) {
         selected.add(local.operationId);

@@ -285,13 +285,24 @@ describe("native resume of a web-shortened workout", () => {
     expect(resumed.rows).toMatchObject([{ reps: "12", draftEdited: false }]);
     expect(resumed.excludedRows).toEqual([]);
   });
-  it("retains explicitly edited incomplete input when a server set exists", () => {
+  it("restores edited incomplete input when its saved server version is unchanged", () => {
     const remote = { ...saved[0], completed: false };
     const first = scopeWorkoutSession(session, template, [remote], [], [], () => "first-op");
     const edited = { ...first.rows[0], reps: "17", draftEdited: true, operationId: "edit-op" };
     const resumed = scopeWorkoutSession(session, template, [remote], [edited], [], () => "new-op");
-    expect(resumed.rows).toMatchObject([{ reps: "8", draftEdited: false }]);
-    expect(resumed.excludedRows).toEqual([edited]);
+    expect(resumed.rows).toEqual([edited]);
+    expect(resumed.excludedRows).toEqual([]);
+    const changed = { ...remote, revision: "changed-remotely", reps: 12 };
+    const conflict = scopeWorkoutSession(
+      session,
+      template,
+      [changed],
+      [edited],
+      [],
+      () => "new-op"
+    );
+    expect(conflict.rows).toMatchObject([{ reps: "12", draftEdited: false }]);
+    expect(conflict.excludedRows).toEqual([edited]);
   });
   it("recognizes unchanged legacy incomplete snapshots but preserves their edited values", () => {
     const remote = { ...saved[0], completed: false };
@@ -303,7 +314,7 @@ describe("native resume of a web-shortened workout", () => {
     ).toEqual([]);
     const edited = { ...legacy, reps: "17" };
     expect(
-      scopeWorkoutSession(session, template, [remote], [edited], [], () => "new-op").excludedRows
+      scopeWorkoutSession(session, template, [remote], [edited], [], () => "new-op").rows
     ).toEqual([edited]);
   });
   it("preserves deliberately cleared unfinished input as local edit intent", () => {
@@ -318,7 +329,8 @@ describe("native resume of a web-shortened workout", () => {
       operationId: "clear-op",
     };
     const resumed = scopeWorkoutSession(session, template, [remote], [cleared], [], () => "new-op");
-    expect(resumed.excludedRows).toEqual([cleared]);
+    expect(resumed.rows).toEqual([cleared]);
+    expect(resumed.excludedRows).toEqual([]);
     const localOnly = scopeWorkoutSession(session, template, [], [cleared], [], () => "new-op");
     expect(localOnly.rows).toEqual([cleared]);
   });
