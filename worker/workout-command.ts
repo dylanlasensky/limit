@@ -16,7 +16,9 @@ export default async function workoutCommand(req: Request, client: any) {
     const user = await client.auth.me();
     if (!user) return Response.json({ error: "Sign in to continue." }, { status: 401 });
     stage = "validate";
-    const input = workoutCommandSchema.parse(await req.json());
+    const parsed = workoutCommandSchema.safeParse(await req.json());
+    if (!parsed.success) fail("Check the workout values and try again.", 400);
+    const input = parsed.data!;
     action = input.action;
     if (
       ![
@@ -26,6 +28,7 @@ export default async function workoutCommand(req: Request, client: any) {
         "discard",
         "check",
         "activatePlan",
+        "setLoadIncrement",
         "selectEquipmentProfile",
         "changeSchedule",
         "undoScheduleChange",
@@ -43,6 +46,16 @@ export default async function workoutCommand(req: Request, client: any) {
           filter = ownerFilter(user.id);
         if (input.action === "activatePlan")
           return activatePlan(db, user, input.planId, assertLock);
+        if (input.action === "setLoadIncrement") {
+          if (!owned(profile, user.id)) fail("Profile not found.", 404);
+          await db.Exercise.get(input.exerciseId);
+          await assertLock();
+          return {
+            profile: await db.UserProfile.update(profile.id, {
+              loadIncrements: { ...profile.loadIncrements, [input.exerciseId]: input.increment },
+            }),
+          };
+        }
         if (input.action === "changeSchedule" || input.action === "undoScheduleChange") {
           const today = localDate(input.timezone);
           const existing =

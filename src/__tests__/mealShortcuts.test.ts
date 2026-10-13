@@ -8,12 +8,20 @@ import {
   shortcutItemFromFood,
 } from "@/lib/meal-shortcuts";
 
-const api = vi.hoisted(() => ({ me: vi.fn(), create: vi.fn(), foodCreate: vi.fn() }));
-vi.mock("@/lib/food-entry", () => ({ createFoodEntry: api.foodCreate }));
+const api = vi.hoisted(() => ({
+  me: vi.fn(),
+  create: vi.fn(),
+  foodCreate: vi.fn(),
+  foodFilter: vi.fn(),
+}));
+vi.mock("@/lib/food-entry", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/food-entry")>()),
+  createFoodEntry: api.foodCreate,
+}));
 vi.mock("@/api/client", () => ({
   limitApi: {
     auth: { me: api.me },
-    entities: { FoodEntry: {}, MealShortcut: { create: api.create } },
+    entities: { FoodEntry: { filter: api.foodFilter }, MealShortcut: { create: api.create } },
   },
 }));
 
@@ -44,6 +52,55 @@ const toast = shortcutItemFromFood({
 });
 
 describe("meal shortcuts", () => {
+  it("keeps invalid portions editable and allows a corrected log", async () => {
+    api.me.mockResolvedValue({ id: "account-a" });
+    api.foodCreate.mockImplementation(async (body) => ({ ...body, id: "saved" }));
+    await expect(
+      logMealShortcut("meal", "Breakfast", [eggs, toast], [10000, 1], "Breakfast", "2020-06-01")
+    ).rejects.toThrow("Nutrition values");
+    expect(api.foodCreate).not.toHaveBeenCalled();
+    expect(pendingMealLog("account-a", "meal", "2020-06-01", "Breakfast")).toBeNull();
+    await logMealShortcut("meal", "Breakfast", [eggs, toast], [2, 1], "Breakfast", "2020-06-01");
+    expect(api.foodCreate).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([false, true])(
+    "recovers an older invalid pending meal after checking whether it was saved (%s)",
+    async (wasSaved) => {
+      api.me.mockResolvedValue({ id: "account-a" });
+      const name = "Breakfast",
+        items = [eggs, toast],
+        portions = [10000, 1],
+        mealType = "Breakfast",
+        date = "2020-06-01";
+      const operationId = crypto.randomUUID();
+      const payload = mealEntry(name, items, portions, mealType, date, operationId);
+      const key = `limit:pending-meal-log:account-a:meal:${date}:${mealType}`;
+      sessionStorage.setItem(
+        key,
+        JSON.stringify({
+          name,
+          items,
+          portions,
+          operationId,
+          payload,
+          fingerprint: JSON.stringify({ name, items, portions, mealType, date }),
+        })
+      );
+      api.foodFilter.mockRejectedValueOnce(new Error("Offline"));
+      await expect(logMealShortcut("meal", name, items, portions, mealType, date)).rejects.toThrow(
+        "Offline"
+      );
+      expect(sessionStorage.getItem(key)).not.toBeNull();
+      api.foodFilter.mockResolvedValueOnce(wasSaved ? [{ ...payload, id: "saved" }] : []);
+      const result = logMealShortcut("meal", name, items, portions, mealType, date);
+      if (wasSaved) await expect(result).resolves.toMatchObject({ id: "saved" });
+      else await expect(result).rejects.toThrow("Adjust its portions");
+      expect(api.foodCreate).not.toHaveBeenCalled();
+      expect(sessionStorage.getItem(key)).toBeNull();
+    }
+  );
+
   it("scales edited portions and preserves ingredient, allergen and estimate metadata", () => {
     const entry = mealEntry(
       "Usual breakfast",

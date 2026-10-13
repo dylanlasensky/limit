@@ -2,26 +2,18 @@ type LoadIncrements = Record<string, number>;
 
 export class LoadIncrementQueue {
   private tail: Promise<unknown> = Promise.resolve();
-  private snapshot: { ownerId: string; profileId: string; values: LoadIncrements } | null = null;
 
   save(
     ownerId: string,
-    profile: { id: string; loadIncrements?: LoadIncrements },
     exerciseId: string,
     increment: number,
     isCurrentOwner: (ownerId: string) => boolean,
-    update: (profileId: string, values: LoadIncrements) => Promise<unknown>,
+    update: (exerciseId: string, increment: number) => Promise<LoadIncrements>,
     onSaved: (values: LoadIncrements) => void
   ) {
     const task = this.tail.then(async () => {
       if (!isCurrentOwner(ownerId)) throw new Error("Your account changed. Save this step again.");
-      const previous =
-        this.snapshot?.ownerId === ownerId && this.snapshot.profileId === profile.id
-          ? this.snapshot.values
-          : {};
-      const values = { ...profile.loadIncrements, ...previous, [exerciseId]: increment };
-      await update(profile.id, values);
-      this.snapshot = { ownerId, profileId: profile.id, values };
+      const values = await update(exerciseId, increment);
       if (isCurrentOwner(ownerId)) onSaved(values);
     });
     this.tail = task.catch(() => undefined);

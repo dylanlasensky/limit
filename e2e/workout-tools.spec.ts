@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-async function mockWorkout(page: Page) {
+async function mockWorkout(page: Page, hasHistory = true) {
   const writes: Record<string, any>[] = [];
   const errors: string[] = [];
   const previous = {
@@ -39,8 +39,8 @@ async function mockWorkout(page: Page) {
         category: "Compound",
       },
     ],
-    WorkoutSession: [{ id: "previous-session",name:"Upper body",date:"2026-09-26", status: "completed" }],
-    ExerciseSet: [previous],
+    WorkoutSession: hasHistory ? [{ id: "previous-session",name:"Upper body",date:"2026-09-26", status: "completed" }] : [],
+    ExerciseSet: hasHistory ? [previous] : [],
   };
   page.on("pageerror", (error) => errors.push(error.message));
   await page.route("**/*", async (route) => {
@@ -93,6 +93,11 @@ for (const appearance of ["light", "dark"]) {
     await expect(page.locator("html")).toHaveClass(new RegExp(appearance));
     await expect(page.getByRole("heading", { name: "Bench Press" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Finish", exact: true })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Show movement guide", exact: true })).toBeVisible();
+    const setType = await page.getByRole("button", { name: /Set 1 type:/ }).boundingBox();
+    expect(setType!.width).toBeGreaterThanOrEqual(44);
+    expect(setType!.height).toBeGreaterThanOrEqual(44);
+    await page.screenshot({ path: testInfo.outputPath(`workout-${appearance}.png`), fullPage: true });
     await page
       .getByRole("button", {
         name: "Copy previous values for set 1: 135 pounds, 8 reps",
@@ -106,6 +111,7 @@ for (const appearance of ["light", "dark"]) {
     await expect(page.getByRole("button", { name: "Finish", exact: true })).toBeDisabled();
     expect(writes.filter((item) => item.action === "saveSet")).toHaveLength(0);
 
+    await page.getByText("Weight tools", { exact: true }).click();
     await page.getByRole("button", { name: "Plate calculator", exact: true }).click();
     const calculator = page.getByRole("dialog", { name: "Plate calculator" });
     await expect(calculator).toBeVisible();
@@ -134,8 +140,8 @@ for (const appearance of ["light", "dark"]) {
     await expect(calculator).not.toBeVisible();
     await expect(page.getByLabel("Set 1 weight in pounds", { exact: true })).toHaveValue("135");
     await expect(page.getByLabel("Set 1 repetitions", { exact: true })).toHaveValue("8");
-    await page.getByRole("button", { name: "Complete set", exact: true }).first().click();
-    await expect(page.getByRole("button", { name: "Uncheck set", exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Complete set 1", exact: true }).first().click();
+    await expect(page.getByRole("button", { name: "Uncheck set 1", exact: true })).toBeVisible();
     expect(writes.filter((item) => item.action === "saveSet")).toHaveLength(1);
     expect(writes.find((item) => item.action === "saveSet")?.row).toMatchObject({
       weight: "135",
@@ -145,3 +151,26 @@ for (const appearance of ["light", "dark"]) {
     expect(errors).toEqual([]);
   });
 }
+
+
+test("first workout guidance collapses into a focused logger and survives refresh", async ({ page }, testInfo) => {
+  await mockWorkout(page, false);
+  await page.goto("/live-workout/day");
+  const ready = page.getByRole("button", { name: "Ready to log sets", exact: true });
+  await expect(ready).toBeVisible();
+  await ready.click();
+  const weight = page.getByLabel("Set 1 weight in pounds", { exact: true });
+  await expect(weight).toBeFocused();
+  await expect(page.getByRole("button", { name: "Show movement guide", exact: true })).toBeVisible();
+  await expect(page.getByLabel("Load increase for Bench Press")).not.toBeVisible();
+  const box = await weight.boundingBox();
+  expect(box!.width).toBeGreaterThanOrEqual(44);
+  expect(box!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("workout-ready.png"), fullPage: true });
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Show movement guide", exact: true })).toBeVisible();
+  await expect(ready).toHaveCount(0);
+  await page.getByRole("button", { name: "Show movement guide", exact: true }).click();
+  await expect(ready).toBeVisible();
+});

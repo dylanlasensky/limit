@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Text, View } from "react-native";
 import { Redirect, router, useLocalSearchParams } from "expo-router";
 import * as Crypto from "expo-crypto";
@@ -31,7 +31,15 @@ export default function Workout() {
     [busy, setBusy] = useState(false),
     [now, setNow] = useState(() => Date.now());
   const current = useRef<Draft | null>(null),
-    saving = useRef(false);
+    saving = useRef(false),
+    finishing = useRef(false),
+    activeKey = useRef(key);
+  useLayoutEffect(() => {
+    activeKey.current = key;
+    return () => {
+      activeKey.current = "";
+    };
+  }, [key]);
   const persist = useCallback(
     (value: Draft) => {
       saveDraft(owner, key, value);
@@ -131,6 +139,7 @@ export default function Workout() {
           sessionId: current.current!.session.id,
           row,
         });
+        if (activeKey.current !== key) return false;
         const saved = recordSchema("ExerciseSet").parse(response.set);
         persist({
           ...current.current!,
@@ -142,7 +151,7 @@ export default function Workout() {
         });
       }
       setError(null);
-      return true;
+      return !current.current?.rows.some((row) => row.pending);
     } catch (e) {
       setError({ key, message: (e as Error).message });
       return false;
@@ -152,6 +161,7 @@ export default function Workout() {
     }
   };
   const finish = async (finishedAt: number) => {
+    if (saving.current || finishing.current || current.current?.session.ownerId !== owner) return;
     if (current.current?.excludedRows?.length) {
       setError({
         key,
@@ -159,9 +169,12 @@ export default function Workout() {
       });
       return;
     }
-    if (!current.current || !(await sync())) return;
-    setBusy(true);
+    finishing.current = true;
     try {
+      if (!current.current || !(await sync()) || activeKey.current !== key) return;
+      setBusy(true);
+      if (current.current.rows.some((row) => row.pending))
+        throw new Error("Some edits still need to sync. Your workout draft is safe.");
       await command({
         action: "finish",
         sessionId: current.current.session.id,
@@ -172,11 +185,13 @@ export default function Workout() {
           .filter((r) => r.completed && r.savedId)
           .map((r) => ({ id: r.savedId, revision: r.revision })),
       });
+      if (activeKey.current !== key) return;
       removeDraft(owner, key);
       router.replace("/plan");
     } catch (e) {
       setError({ key, message: (e as Error).message });
     } finally {
+      finishing.current = false;
       setBusy(false);
     }
   };
@@ -192,7 +207,12 @@ export default function Workout() {
     );
   const exercise = draft.exercises[draft.index],
     catalog = draft.catalog.find((e) => e.id === exercise?.exerciseId);
-  const edit = (row: Row, patch: Partial<Row>) =>
+  const changeDraft = (value: Draft) => {
+    if (saving.current || finishing.current) return;
+    persist(value);
+  };
+  const edit = (row: Row, patch: Partial<Row>) => {
+    if (saving.current || finishing.current) return;
     persist({
       ...draft,
       rows: draft.rows.map((r) =>
@@ -206,6 +226,7 @@ export default function Workout() {
           : r
       ),
     });
+  };
   return (
     <Page>
       <Title>{draft.session.name}</Title>
@@ -225,7 +246,8 @@ export default function Workout() {
           </Copy>
           <Action
             label="Discard excluded local sets"
-            onPress={() => persist({ ...draft, excludedRows: [] })}
+            disabled={busy}
+            onPress={() => changeDraft({ ...draft, excludedRows: [] })}
           />
         </Card>
       )}
@@ -236,10 +258,11 @@ export default function Workout() {
       </Copy>
       <Action
         label={draft.paused ? "Resume workout" : "Pause workout"}
+        disabled={busy}
         onPress={() => {
           const time = Date.now();
           const duration = draft.pausedAt === null ? 0 : time - draft.pausedAt;
-          persist({
+          changeDraft({
             ...draft,
             paused: !draft.paused,
             pausedAt: draft.paused ? null : time,
@@ -272,12 +295,14 @@ export default function Workout() {
               </Copy>
               <Input
                 label="Weight"
+                editable={!busy}
                 numeric
                 value={row.weight}
                 onChangeText={(weight) => edit(row, { weight })}
               />
               <Input
                 label="Repetitions"
+                editable={!busy}
                 numeric
                 value={row.reps}
                 onChangeText={(reps) => edit(row, { reps })}
@@ -294,6 +319,7 @@ export default function Workout() {
                   Number(row.weight) < 0
                 }
                 onPress={() => {
+                  if (saving.current || finishing.current) return;
                   edit(row, { completed: true });
                   persist({
                     ...current.current!,
@@ -310,13 +336,13 @@ export default function Workout() {
       <View style={{ gap: 12 }}>
         <Action
           label="Previous movement"
-          disabled={draft.index === 0}
-          onPress={() => persist({ ...draft, index: draft.index - 1 })}
+          disabled={busy || draft.index === 0}
+          onPress={() => changeDraft({ ...draft, index: draft.index - 1 })}
         />
         <Action
           label="Next movement"
-          disabled={draft.index === draft.exercises.length - 1}
-          onPress={() => persist({ ...draft, index: draft.index + 1 })}
+          disabled={busy || draft.index === draft.exercises.length - 1}
+          onPress={() => changeDraft({ ...draft, index: draft.index + 1 })}
         />
         <Action
           label="Retry sync"

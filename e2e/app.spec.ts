@@ -1169,8 +1169,8 @@ test("a workout set survives reload and finishes only with its saved revision", 
   await page.goto("/live-workout/day");
   await page.getByLabel("Set 1 weight in pounds", { exact: true }).fill("135");
   await page.getByLabel("Set 1 repetitions", { exact: true }).fill("8");
-  await page.getByRole("button", { name: "Complete set", exact: true }).first().click();
-  await expect(page.getByRole("button", { name: "Uncheck set", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "Complete set 1", exact: true }).first().click();
+  await expect(page.getByRole("button", { name: "Uncheck set 1", exact: true })).toBeEnabled();
   await page.reload();
   await expect(page.getByLabel("Set 1 weight in pounds", { exact: true })).toHaveValue("135");
   await page.getByRole("button", { name: "Finish", exact: true }).click();

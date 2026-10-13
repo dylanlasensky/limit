@@ -109,7 +109,7 @@ try {
     );
     await page.screenshot({ path: output + `/workout-${width}.png`, fullPage: true });
   }
-  await page.getByRole("button", { name: "Complete set", exact: true }).first().click();
+  await page.getByRole("button", { name: "Complete set 1", exact: true }).first().click();
   await page.getByRole("button", { name: "Finish", exact: true }).click();
   await page.getByText("Workout complete", { exact: false }).first().waitFor({ timeout: 30000 });
   assert.deepEqual(errors, []);

@@ -1,5 +1,5 @@
 import { limitApi } from "@/api/client";
-import { createFoodEntry } from "@/lib/food-entry";
+import { createFoodEntry, foodPayload } from "@/lib/food-entry";
 
 export const nutrients = [
   "calories",
@@ -103,6 +103,23 @@ export async function logMealShortcut(
     throw new Error("Retry the pending meal with its original portions before starting a new log.");
   const operationId = pending?.operationId || crypto.randomUUID();
   const payload = pending?.payload || mealEntry(name, items, portions, mealType, date, operationId);
+  try {
+    foodPayload(payload);
+  } catch (error) {
+    if (pending) {
+      // Older clients could record locally invalid portions as an uncertain write.
+      // Check the server before releasing that ID; never discard a possible saved meal.
+      const existing = await limitApi.entities.FoodEntry.filter({ shortcutLogId: operationId });
+      if (!Array.isArray(existing) || existing.length > 1)
+        throw new Error("The pending meal could not be confirmed. Please retry.");
+      if (existing.length && existing[0].shortcutLogId !== operationId)
+        throw new Error("The pending meal could not be confirmed. Please retry.");
+      sessionStorage.removeItem(key);
+      if (existing.length) return existing[0];
+      throw new Error("This meal was not saved. Adjust its portions and try again.");
+    }
+    throw error;
+  }
   if (!pending) {
     try {
       sessionStorage.setItem(
