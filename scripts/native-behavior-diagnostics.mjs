@@ -81,13 +81,16 @@ export function summarizeHierarchy(root, expectedInputs) {
     errorCategories: [],
     authContexts: [],
     authErrorPresent: false,
+    hierarchyCounts: { nodes: 0, labelledNodes: 0, skippedInputSubtrees: 0, truncated: false },
   };
   const inputValues = { email: [], password: [] };
+  let nestedAuthInput = false;
   const queue = [root];
   let visited = 0;
   while (queue.length && visited++ < 10000) {
     const node = queue.shift();
-    if (!node || typeof node !== "object") continue;
+    if (!node || typeof node !== "object" || Array.isArray(node)) continue;
+    result.hierarchyCounts.nodes += 1;
     const attributes = node.attributes || {};
     const id = attributes["resource-id"];
     const context =
@@ -98,6 +101,12 @@ export function summarizeHierarchy(root, expectedInputs) {
     if (id === "auth-error") result.authErrorPresent = true;
     if (id === "input-email") inputValues.email.push(attributes.value);
     if (id === "input-password-at-least-12-characters") inputValues.password.push(attributes.value);
+    if (
+      (id === "input-email" || id === "input-password-at-least-12-characters") &&
+      Array.isArray(node.children) &&
+      node.children.length
+    )
+      nestedAuthInput = true;
     if (controls.has(id))
       result.controls.push({
         id,
@@ -106,20 +115,36 @@ export function summarizeHierarchy(root, expectedInputs) {
     if (
       (typeof id === "string" && id.startsWith("input-")) ||
       /TextField|SecureText|EditText|TextInput/i.test(attributes.class || "")
-    )
+    ) {
+      result.hierarchyCounts.skippedInputSubtrees += 1;
       continue;
+    }
     // Pinned iOS driver exposes accessibilityText, but no class/type field.
     // Never inspect its text/title/value fields (they can contain input values).
     const label = attributes.accessibilityText;
+    if (typeof label === "string" && label.length) result.hierarchyCounts.labelledNodes += 1;
     if (states.has(label)) result.states.push(states.get(label));
     if (errors.has(label)) result.errorCategories.push(errors.get(label));
-    if (Array.isArray(node.children)) queue.push(...node.children);
+    if (Array.isArray(node.children)) {
+      const remaining = Math.max(0, 10000 - visited - queue.length);
+      if (node.children.length > remaining) result.hierarchyCounts.truncated = true;
+      queue.push(...node.children.slice(0, remaining));
+    }
   }
   result.states = [...new Set(result.states)];
   result.errorCategories = [...new Set(result.errorCategories)];
   result.authContexts = [
     ...new Map(result.authContexts.map((context) => [JSON.stringify(context), context])).values(),
   ];
+  const fields = [...inputValues.email, ...inputValues.password];
+  result.emptyAuthInputs =
+    !result.hierarchyCounts.truncated &&
+    !nestedAuthInput &&
+    inputValues.email.length &&
+    inputValues.password.length &&
+    fields.every((v) => typeof v === "string")
+      ? fields.every((v) => v === "")
+      : null;
   if (
     typeof expectedInputs?.email === "string" &&
     expectedInputs.email.endsWith("@example.invalid") &&
@@ -147,6 +172,103 @@ export function summarizeHierarchy(root, expectedInputs) {
     };
   }
   return result;
+}
+
+// This is deliberately narrower than the ordinary failure diagnostics: only the
+// first signed-out assertions, before any credential-field tap or input command.
+// The exact pinned command prefix must be complete and contain no unknown action.
+export function readPreInputFailureImage(directory, context) {
+  try {
+    if (
+      context?.flow !== "01-auth-and-save" ||
+      context.firstFlow !== true ||
+      context.hostedFreshInstall !== true ||
+      context.initialInputsEmpty !== true
+    )
+      return null;
+    const { path, entries } = readCommandFile(directory);
+    if (!Array.isArray(entries) || ![3, 6, 7].includes(entries.length)) return null;
+    const active = entries.map((entry) =>
+      Object.entries(entry.command || {}).filter(([, value]) => value != null)
+    );
+    if (active.some((commands) => commands.length !== 1)) return null;
+    const names = active.map(([command]) => command[0]);
+    const expected = [
+      "defineVariablesCommand",
+      "applyConfigurationCommand",
+      "assertConditionCommand",
+    ];
+    if (entries.length > 3) {
+      expected.push("openLinkCommand", "runFlowCommand");
+      if (entries.length === 7) expected.push("tapOnElement");
+      expected.push("assertConditionCommand");
+    }
+    if (JSON.stringify(names) !== JSON.stringify(expected)) return null;
+    const isOpenTap = (command) =>
+      command?.tapOnElement?.selector?.textRegex === "Open" &&
+      !command.tapOnElement.selector.idRegex;
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i],
+        name = names[i];
+      const state = entry.metadata?.status;
+      if (
+        i === entries.length - 1
+          ? state !== "FAILED"
+          : state !== "COMPLETED" &&
+            !(name === "runFlowCommand" && entries.length === 6 && state === "SKIPPED")
+      )
+        return null;
+      const command = active[i][0][1];
+      if (
+        name === "assertConditionCommand" &&
+        command.condition?.visible?.textRegex !== "Welcome back."
+      )
+        return null;
+      if (
+        name === "openLinkCommand" &&
+        !/^limit:\/\/workout\/(?:\$\{MAESTRO_ALPHA_DAY\}|[a-f0-9-]{36})$/.test(command.link || "")
+      )
+        return null;
+      if (name === "tapOnElement" && !isOpenTap(entry.command)) return null;
+      if (
+        name === "runFlowCommand" &&
+        (command.commands?.length !== 1 ||
+          !isOpenTap(command.commands[0]) ||
+          Object.entries(command.commands[0]).filter(([, value]) => value != null).length !== 1)
+      )
+        return null;
+    }
+    const artifacts = entries.at(-1).metadata?.artifacts;
+    if (!Array.isArray(artifacts)) return null;
+    const images = artifacts.filter((item) => item?.type === "SCREENSHOT");
+    const trees = artifacts.filter((item) => item?.type === "SCREEN_HIERARCHY");
+    if (images.length !== 1 || trees.length !== 1) return null;
+    const relative = images[0].path,
+      tree = trees[0].path;
+    if (
+      typeof relative !== "string" ||
+      typeof tree !== "string" ||
+      [...(relative + tree)].some((character) => character.charCodeAt(0) < 32)
+    )
+      return null;
+    if (!/^screenshots\/step-\d{3,}(?:-[^/\\]+)?\.png$/.test(relative)) return null;
+    if (!/^screen-hierarchy\/step-\d{3,}(?:-[^/\\]+)?\.json$/.test(tree)) return null;
+    if (relative.slice("screenshots/".length, -4) !== tree.slice("screen-hierarchy/".length, -5))
+      return null;
+    if (!lstatSync(join(dirname(path), "screenshots")).isDirectory()) return null;
+    const file = join(dirname(path), relative),
+      stat = lstatSync(file);
+    if (!stat.isFile() || stat.size < 24 || stat.size > 8 * 1024 * 1024) return null;
+    const bytes = readFileSync(file);
+    if (!bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) return null;
+    if (bytes.toString("ascii", 12, 16) !== "IHDR") return null;
+    const width = bytes.readUInt32BE(16),
+      height = bytes.readUInt32BE(20);
+    if (!width || !height || width > 4096 || height > 4096) return null;
+    return bytes;
+  } catch {
+    return null;
+  }
 }
 
 function readCommandFile(directory) {
@@ -229,4 +351,24 @@ export function summarizeProcess(run, startedAt, now = Date.now()) {
     signal: run.signal == null ? null : signals.has(run.signal) ? run.signal : "OTHER",
     errorCode: run.error ? (errorCodes.has(run.error.code) ? run.error.code : "OTHER") : null,
   };
+}
+
+// Process presence is not foreground state or route success. Raw launchctl output
+// stays in memory; malformed, truncated or timed-out observations remain unknown.
+export function summarizeLimitProcess(run, startedAt, now = Date.now()) {
+  const outcome = summarizeProcess(run, startedAt, now);
+  const result = { ...outcome, observationStatus: "unavailable", processRunning: null };
+  if (outcome.status !== "passed" || typeof run.stdout !== "string") return result;
+  if (run.stdout.length > 1024 * 1024) return result;
+  const lines = run.stdout.trim().split(/\r?\n/);
+  if (!/^PID\s+Status\s+Label$/.test(lines.shift()?.trim() || "")) return result;
+  const rows = lines.map((line) => /^\s*(\d+|-)\s+-?\d+\s+(\S+)\s*$/.exec(line));
+  if (rows.some((row) => !row)) return result;
+  result.observationStatus = "available";
+  result.processRunning = rows.some(
+    (row) =>
+      /^[1-9]\d*$/.test(row[1]) &&
+      /^(?:UIKitApplication:)?com\.example\.limit\.simulator(?:\[[^\s]+\])?$/.test(row[2])
+  );
+  return result;
 }

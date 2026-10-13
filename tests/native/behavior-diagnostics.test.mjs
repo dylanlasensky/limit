@@ -9,6 +9,8 @@ import {
   readCommandDiagnostics,
   readFailedStepHierarchy,
   summarizeProcess,
+  summarizeLimitProcess,
+  readPreInputFailureImage,
 } from "../../scripts/native-behavior-diagnostics.mjs";
 
 test("command diagnostics retain startup/action timing without sensitive payloads", () => {
@@ -332,4 +334,232 @@ test("input evidence fails closed for missing or duplicate nodes and non-fixture
     undefined
   );
   assert.equal(summarizeHierarchy({}, { ...expected, password: "short" }).inputEvidence, undefined);
+});
+
+test("hierarchy counts distinguish structural captures without exposing labels or input descendants", () => {
+  assert.deepEqual(summarizeHierarchy({}).hierarchyCounts, {
+    nodes: 1,
+    labelledNodes: 0,
+    skippedInputSubtrees: 0,
+    truncated: false,
+  });
+  const result = summarizeHierarchy({
+    children: [
+      { attributes: { accessibilityText: "private unknown screen" } },
+      {
+        attributes: { "resource-id": "input-email", accessibilityText: "private email" },
+        children: [{ attributes: { accessibilityText: "private password" } }],
+      },
+    ],
+  });
+  assert.deepEqual(result.hierarchyCounts, {
+    nodes: 3,
+    labelledNodes: 1,
+    skippedInputSubtrees: 1,
+    truncated: false,
+  });
+  assert.deepEqual(result.states, []);
+  assert.doesNotMatch(JSON.stringify(result), /private|unknown screen/);
+  const oversized = summarizeHierarchy({
+    children: Array.from({ length: 10020 }, () => ({
+      attributes: { accessibilityText: "private record" },
+    })),
+  });
+  assert.deepEqual(oversized.hierarchyCounts, {
+    nodes: 10000,
+    labelledNodes: 9999,
+    skippedInputSubtrees: 0,
+    truncated: true,
+  });
+  assert.doesNotMatch(JSON.stringify(oversized), /private record/);
+});
+
+test("LIMIT process observation exports presence only and rejects malformed or timed-out output", () => {
+  const row = "321\t0\tUIKitApplication:com.example.limit.simulator[private-token][rb-legacy]";
+  const observe = (stdout, extra = {}) =>
+    summarizeLimitProcess({ status: 0, stdout, stderr: "private-error", ...extra }, 1000, 1020);
+  const running = observe("PID\tStatus\tLabel\n" + row + "\n44\t0\tprivate.other.app\n");
+  assert.equal(running.processRunning, true);
+  assert.equal(running.observationStatus, "available");
+  assert.equal(running.elapsedMs, 20);
+  assert.doesNotMatch(JSON.stringify(running), /private|UIKit|simulator\[/);
+  for (const body of [
+    "-\t0\tcom.example.limit.simulator",
+    "321\t0\tcom.example.limit.simulator.other",
+    "321\t0\tother.com.example.limit.simulator",
+  ])
+    assert.equal(observe("PID Status Label\n" + body).processRunning, false);
+  for (const stdout of [
+    "",
+    row,
+    "PID Status Label\nmalformed private-output",
+    "x".repeat(1024 * 1024 + 1),
+  ])
+    assert.equal(observe(stdout).processRunning, null);
+  const timedOut = observe("PID Status Label\n" + row, {
+    error: { code: "ETIMEDOUT", message: "private-secret" },
+  });
+  assert.equal(timedOut.processRunning, null);
+  assert.equal(timedOut.status, "failed");
+  assert.doesNotMatch(JSON.stringify(timedOut), /private/);
+});
+
+function preInputImageFixture(run) {
+  const temp = mkdtempSync(join(tmpdir(), "limit-preinput-"));
+  const imagePath = join(temp, "screenshots/step-006-assertCondition.png");
+  const treePath = "screen-hierarchy/step-006-assertCondition.json";
+  const png = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aemcAAAAASUVORK5CYII=",
+    "base64"
+  );
+  const open = { tapOnElement: { selector: { textRegex: "Open" } } };
+  const commands = [
+    { defineVariablesCommand: {} },
+    { applyConfigurationCommand: {} },
+    { assertConditionCommand: { condition: { visible: { textRegex: "Welcome back." } } } },
+    { openLinkCommand: { link: "limit://workout/${MAESTRO_ALPHA_DAY}" } },
+    { runFlowCommand: { commands: [open] } },
+    open,
+    { assertConditionCommand: { condition: { visible: { textRegex: "Welcome back." } } } },
+  ].map((command, index) => ({
+    command,
+    metadata: {
+      status: index === 6 ? "FAILED" : "COMPLETED",
+      artifacts:
+        index === 6
+          ? [
+              { type: "SCREENSHOT", path: "screenshots/step-006-assertCondition.png" },
+              { type: "SCREEN_HIERARCHY", path: treePath },
+            ]
+          : [],
+    },
+  }));
+  const context = {
+    flow: "01-auth-and-save",
+    firstFlow: true,
+    hostedFreshInstall: true,
+    initialInputsEmpty: true,
+  };
+  const write = () => writeFileSync(join(temp, "commands.json"), JSON.stringify(commands));
+  try {
+    mkdirSync(join(temp, "screenshots"));
+    writeFileSync(imagePath, png);
+    write();
+    run({ temp, imagePath, png, commands, context, write });
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
+test("pre-input image requires the exact first-flow prefix and proven empty initial fields", () => {
+  preInputImageFixture(({ temp, png, context, commands, write }) => {
+    assert.deepEqual(readPreInputFailureImage(temp, context), png);
+    for (const change of [
+      { flow: "05-account-isolation" },
+      { firstFlow: false },
+      { hostedFreshInstall: false },
+      { initialInputsEmpty: false },
+      { initialInputsEmpty: null },
+    ])
+      assert.equal(readPreInputFailureImage(temp, { ...context, ...change }), null);
+    const original = structuredClone(commands);
+    for (const mutation of [
+      () => {
+        commands[5].command = { inputTextCommand: { text: "private-password" } };
+      },
+      () => {
+        commands[5].command.tapOnElement.selector = { idRegex: "input-email" };
+      },
+      () => {
+        commands[0].command.unknownPrivateCommand = {};
+      },
+      () => {
+        commands[4].command.runFlowCommand.commands.push({ inputTextCommand: { text: "private" } });
+      },
+      () => {
+        commands[2].metadata.status = "UNKNOWN";
+      },
+      () => {
+        commands[6].metadata.status = "COMPLETED";
+      },
+      () => {
+        commands[3].command.openLinkCommand.link = "https://private.example";
+      },
+      () => {
+        commands.push({
+          command: { inputTextCommand: { text: "private" } },
+          metadata: { status: "RUNNING" },
+        });
+      },
+    ]) {
+      commands.splice(0, commands.length, ...structuredClone(original));
+      mutation();
+      write();
+      assert.equal(readPreInputFailureImage(temp, context), null);
+    }
+  });
+  const field = (id, value) => ({ attributes: { "resource-id": id, value } });
+  assert.equal(
+    summarizeHierarchy({
+      children: [field("input-email", ""), field("input-password-at-least-12-characters", "")],
+    }).emptyAuthInputs,
+    true
+  );
+  assert.equal(
+    summarizeHierarchy({
+      children: [
+        field("input-email", "private"),
+        field("input-password-at-least-12-characters", ""),
+      ],
+    }).emptyAuthInputs,
+    false
+  );
+  assert.equal(summarizeHierarchy({ children: [field("input-email", "")] }).emptyAuthInputs, null);
+  const emptyFields = [
+    field("input-email", ""),
+    field("input-password-at-least-12-characters", ""),
+  ];
+  assert.equal(
+    summarizeHierarchy({ children: [...emptyFields, ...Array.from({ length: 10000 }, () => ({}))] })
+      .emptyAuthInputs,
+    null
+  );
+  emptyFields[0].children = [{ attributes: { value: "private-descendant" } }];
+  assert.equal(summarizeHierarchy({ children: emptyFields }).emptyAuthInputs, null);
+});
+
+test("pre-input image rejects unsafe, ambiguous, oversized and non-PNG artifacts", () => {
+  preInputImageFixture(({ temp, imagePath, context, commands, write, png }) => {
+    const artifacts = commands[6].metadata.artifacts;
+    for (const path of [
+      "/private/file.png",
+      "screenshots/../file.png",
+      "screenshots/step-006-assertCondition\n.png",
+      "screenshots/step-007-assertCondition.png",
+    ]) {
+      artifacts[0].path = path;
+      write();
+      assert.equal(readPreInputFailureImage(temp, context), null);
+    }
+    artifacts[0].path = "screenshots/step-006-assertCondition.png";
+    artifacts.push({ ...artifacts[0] });
+    write();
+    assert.equal(readPreInputFailureImage(temp, context), null);
+    artifacts.pop();
+    write();
+    for (const content of [Buffer.from("private-not-png"), Buffer.alloc(8 * 1024 * 1024 + 1)]) {
+      writeFileSync(imagePath, content);
+      assert.equal(readPreInputFailureImage(temp, context), null);
+    }
+    rmSync(imagePath);
+    writeFileSync(join(temp, "private.png"), png);
+    symlinkSync(join(temp, "private.png"), imagePath);
+    assert.equal(readPreInputFailureImage(temp, context), null);
+    rmSync(imagePath);
+    rmSync(join(temp, "screenshots"), { recursive: true });
+    mkdirSync(join(temp, "other"));
+    writeFileSync(join(temp, "other/step-006-assertCondition.png"), png);
+    symlinkSync(join(temp, "other"), join(temp, "screenshots"));
+    assert.equal(readPreInputFailureImage(temp, context), null);
+  });
 });

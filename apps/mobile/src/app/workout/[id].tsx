@@ -27,10 +27,13 @@ export default function Workout() {
     key = owner + ":" + id;
   const [draft, setDraft] = useState<Draft | null>(null),
     [draftKey, setDraftKey] = useState(""),
+    [refreshingKey, setRefreshingKey] = useState(""),
     [error, setError] = useState<{ key: string; message: string } | null>(null),
     [busy, setBusy] = useState(false),
     [now, setNow] = useState(() => Date.now());
   const current = useRef<Draft | null>(null),
+    currentKey = useRef(""),
+    refreshing = useRef<{ key: string } | null>(null),
     saving = useRef(false),
     finishing = useRef(false),
     activeKey = useRef(key);
@@ -44,6 +47,7 @@ export default function Workout() {
     (value: Draft) => {
       saveDraft(owner, key, value);
       current.current = value;
+      currentKey.current = key;
       setDraft(value);
       setDraftKey(key);
     },
@@ -56,21 +60,26 @@ export default function Workout() {
   useEffect(() => {
     if (!owner || !id) return;
     let cancelled = false;
+    const refresh = { key };
+    refreshing.current = refresh;
     void (async () => {
-      const stored = await Promise.resolve(loadDraft(owner, key) as Draft | null);
-      const cached = stored?.session.ownerId === owner ? stored : null;
-      if (cancelled) return;
-      if (cached) {
-        current.current = cached;
-        setDraft(cached);
-        setDraftKey(key);
-      }
       try {
+        const stored = await Promise.resolve(loadDraft(owner, key) as Draft | null);
+        const cached = stored?.session.ownerId === owner ? stored : null;
+        if (cancelled || activeKey.current !== key) return;
+        setRefreshingKey(key);
+        if (cached) {
+          current.current = cached;
+          currentKey.current = key;
+          setDraft(cached);
+          setDraftKey(key);
+        }
         const response = await command({
           action: "start",
           workoutDayId: id,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         });
+        if (cancelled || activeKey.current !== key) return;
         if (
           typeof response.redirectWorkoutDayId === "string" &&
           response.redirectWorkoutDayId !== id
@@ -93,8 +102,10 @@ export default function Workout() {
           list("Exercise"),
           list("ExerciseSet", { workoutSessionId: session.id }),
         ]);
-        if (cancelled) return;
-        const sameDraft = cached?.session.id === session.id ? cached : null;
+        if (cancelled || activeKey.current !== key) return;
+        const latest = currentKey.current === key ? current.current : null;
+        const sameDraft =
+          latest?.session.ownerId === owner && latest.session.id === session.id ? latest : null;
         const scoped = scopeWorkoutSession(
           session,
           exercises,
@@ -119,7 +130,13 @@ export default function Workout() {
           restUntil: sameDraft?.restUntil ?? null,
         });
       } catch (e) {
-        if (!cancelled) setError({ key, message: (e as Error).message });
+        if (!cancelled && activeKey.current === key)
+          setError({ key, message: (e as Error).message });
+      } finally {
+        if (refreshing.current === refresh) {
+          refreshing.current = null;
+          if (!cancelled && activeKey.current === key) setRefreshingKey("");
+        }
       }
     })();
     return () => {
@@ -127,7 +144,7 @@ export default function Workout() {
     };
   }, [owner, id, key, persist]);
   const sync = async () => {
-    if (current.current?.session.ownerId !== owner) return false;
+    if (current.current?.session.ownerId !== owner || refreshing.current?.key === key) return false;
     if (saving.current) return false;
     saving.current = true;
     setBusy(true);
@@ -167,7 +184,13 @@ export default function Workout() {
     }
   };
   const finish = async (finishedAt: number) => {
-    if (saving.current || finishing.current || current.current?.session.ownerId !== owner) return;
+    if (
+      saving.current ||
+      finishing.current ||
+      refreshing.current?.key === key ||
+      current.current?.session.ownerId !== owner
+    )
+      return;
     if (current.current?.excludedRows?.length) {
       setError({
         key,
@@ -203,6 +226,7 @@ export default function Workout() {
   };
   if (!account && !isPending) return <Redirect href="/sign-in" />;
   const shownError = error?.key === key ? error.message : "";
+  const checkingSavedWorkout = refreshingKey === key;
   if (!draft || draftKey !== key || draft.session.ownerId !== owner)
     return (
       <Page>
@@ -266,6 +290,7 @@ export default function Workout() {
           />
         </Card>
       )}
+      {checkingSavedWorkout && <Copy>Checking your saved workout…</Copy>}
       <Copy>
         {draft.rows.some((r) => r.pending)
           ? "Saved on this device · waiting to sync"
@@ -361,14 +386,19 @@ export default function Workout() {
         />
         <Action
           label="Retry sync"
-          disabled={busy}
+          disabled={busy || checkingSavedWorkout}
           onPress={() => {
             void sync();
           }}
         />
         <Action
           label="Finish workout"
-          disabled={busy || !!draft.excludedRows?.length || !draft.rows.some((r) => r.completed)}
+          disabled={
+            busy ||
+            checkingSavedWorkout ||
+            !!draft.excludedRows?.length ||
+            !draft.rows.some((r) => r.completed)
+          }
           onPress={() => {
             void finish(Date.now());
           }}

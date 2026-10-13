@@ -73,7 +73,17 @@ test("candidate cannot change host networking or simulator security settings", (
     harness,
     /Native network-loss\/API-unavailability recovery; no approved app-scoped fault method/
   );
-  assert.doesNotMatch(harness, /-failure\.png/);
+  // Only the reviewed first-flow, pre-input diagnostic image is permitted.
+  // Populated or later-flow failure captures remain forbidden by the gate tests.
+  assert.deepEqual(harness.match(/[a-z-]*failure\.png/g), [
+    "pre-input-failure.png",
+    "pre-input-failure.png",
+  ]);
+  assert.match(harness, /const preInputImage = readPreInputFailureImage/);
+  assert.match(harness, /firstFlow: result.stages.length === 1/);
+  assert.match(harness, /freshInstall && process.env.RUNNER_ENVIRONMENT === "github-hosted"/);
+  assert.match(harness, /initialInputsEmpty: result.readiness.ui.emptyAuthInputs === true/);
+  assert.doesNotMatch(harness, /"screenshot"/);
 });
 test("isolation starts with an unfinished Alpha draft and excludes login screenshots", () => {
   const flows = behaviorFlows();

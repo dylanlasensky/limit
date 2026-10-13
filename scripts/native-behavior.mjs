@@ -15,6 +15,8 @@ import {
   readFailedStepHierarchy,
   summarizeHierarchy,
   summarizeProcess,
+  summarizeLimitProcess,
+  readPreInputFailureImage,
 } from "./native-behavior-diagnostics.mjs";
 
 const bundle = "com.example.limit.simulator";
@@ -80,7 +82,7 @@ async function makeAccounts() {
     assert.ok(account.cookie && account.id);
     accounts.push(account);
     persist(accounts);
-    // Masks protect console output; raw Maestro debug files never become artifacts.
+    // Masks protect console output; raw debug bundles stay private; only the guarded pre-input image may be copied.
     if (process.env.GITHUB_ACTIONS === "true")
       for (const value of [account.email, account.password, account.cookie])
         console.log("::add-mask::" + value);
@@ -131,7 +133,7 @@ async function makeAccounts() {
   }
   return accounts;
 }
-export async function runNativeBehavior(device, evidenceDir) {
+export async function runNativeBehavior(device, evidenceDir, { freshInstall = false } = {}) {
   assert.equal(process.platform, "darwin");
   assert.equal(process.env.CI, "true");
   assert.equal(process.env.LIMIT_NATIVE_RELEASE, "false");
@@ -273,6 +275,34 @@ export async function runNativeBehavior(device, evidenceDir) {
           email: expected.email,
           password: expected.password,
         });
+        const processCheckStartedAt = Date.now();
+        const processCheck = spawnSync(
+          "xcrun",
+          ["simctl", "spawn", device.udid, "launchctl", "list"],
+          {
+            env: commonEnv,
+            encoding: "utf8",
+            timeout: 15000,
+            killSignal: "SIGKILL",
+            maxBuffer: 1024 * 1024,
+          }
+        );
+        stage.appProcess = summarizeLimitProcess(processCheck, processCheckStartedAt);
+        const preInputImage = readPreInputFailureImage(join(temp, name + "-debug"), {
+          flow: name,
+          firstFlow: result.stages.length === 1,
+          hostedFreshInstall: freshInstall && process.env.RUNNER_ENVIRONMENT === "github-hosted",
+          initialInputsEmpty: result.readiness.ui.emptyAuthInputs === true,
+        });
+        stage.preInputImage = { status: "not-captured" };
+        if (preInputImage) {
+          writeFileSync(join(evidenceDir, "pre-input-failure.png"), preInputImage);
+          stage.preInputImage = {
+            status: "captured",
+            file: "pre-input-failure.png",
+            scope: "first-flow-before-credential-field-interaction",
+          };
+        }
         save();
       }
       assert.equal(outcome.status, "passed", name + " failed");

@@ -116,7 +116,7 @@ try {
   evidence.launched = true;
   evidence.simulator = device.name;
   if (process.env.LIMIT_NATIVE_BEHAVIOR === "true") {
-    await runNativeBehavior(device, evidenceDir);
+    await runNativeBehavior(device, evidenceDir, { freshInstall: true });
     evidence.behavior = "passed";
     evidence.scope =
       "Unsigned simulator compile, rendered launch and bounded synthetic-account behavior; no physical device, signing or store acceptance";
