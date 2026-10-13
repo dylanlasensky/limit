@@ -412,7 +412,7 @@ function preInputImageFixture(run) {
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aemcAAAAASUVORK5CYII=",
     "base64"
   );
-  const open = { tapOnElement: { selector: { textRegex: "Open" } } };
+  const open = { tapOnElement: { selector: { textRegex: "Open" }, retryIfNoChange: true } };
   const commands = [
     { defineVariablesCommand: {} },
     { applyConfigurationCommand: {} },

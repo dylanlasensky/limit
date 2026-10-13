@@ -15,7 +15,14 @@ const edit = (name, value) => [
 ];
 const link = (path) => [
   { openLink: "limit://" + path },
-  { runFlow: { when: { visible: "Open in.*LIMIT.*" }, commands: [{ tapOn: "Open" }] } },
+  {
+    runFlow: {
+      when: { visible: "Open in.*LIMIT.*" },
+      // A reported tap did not close this system prompt in the verified native capture.
+      // Pinned Maestro permits one extra attempt only when its UI-change check fails.
+      commands: [{ tapOn: { text: "Open", retryTapIfNoChange: true } }],
+    },
+  },
 ];
 const login = (who) => [
   { assertVisible: "Welcome back." },

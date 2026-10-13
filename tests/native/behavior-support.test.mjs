@@ -138,3 +138,28 @@ test("both sign-ins verify the complete email and enabled form before submission
   const email = "native-synthetic@example.invalid";
   assert.equal(redact("\\Q" + email + "\\E", [email]), "\\Q[REDACTED]\\E");
 });
+
+test("only the named LIMIT deep-link confirmation permits Maestro's bounded missed-tap retry", () => {
+  const flows = behaviorFlows();
+  let prompts = 0;
+  const inspect = (commands) => {
+    for (const command of commands) {
+      if (command.runFlow) {
+        prompts += 1;
+        assert.deepEqual(command.runFlow, {
+          when: { visible: "Open in.*LIMIT.*" },
+          commands: [{ tapOn: { text: "Open", retryTapIfNoChange: true } }],
+        });
+      } else {
+        assert.doesNotMatch(
+          JSON.stringify(command),
+          /"(?:retryTapIfNoChange|repeat|autoVerify|waitToSettleTimeoutMs)":/
+        );
+      }
+    }
+  };
+  for (const commands of Object.values(flows)) inspect(commands);
+  assert.ok(prompts > 0);
+  // The existing post-link signed-out assertion remains mandatory before any input.
+  assert.deepEqual(flows["01-auth-and-save"][3], { assertVisible: "Welcome back." });
+});
