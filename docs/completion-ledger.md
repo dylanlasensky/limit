@@ -1,5 +1,13 @@
 # LIMIT completion ledger
 
+## October 12 release integration
+
+PR #90 merged at `66d7542ab02c6b76cb331513cbdd9a08b943c070`; PR #91 merged into the feature integration at `4e8916a170b46a195794d2f83fae59a24db2ee92`. The prior production media gate passed all 326 checksums and complete playbacks on unchanged bd9306e/d44e4c5c; its immutable event-log hash is in the release checkpoint. The integrated feature release must pass its own CI and hosted gates; baseline evidence is not reused as new acceptance.
+
+Fresh read-only Wrangler inspection found only the four existing Standard R2 buckets: preview media 48 MB, production media 47.6 MB, private buckets empty. This is storage inventory, not current account-wide operations or billing verification; the dashboard requires owner login. No new R2 media was uploaded. Both hosted environments contain only the authentication secret, and email remains disabled pending the documented verified sender/key actions.
+
+The final logger review and browser evidence are in [release recovery](release-recovery.md). SDK 57 native lint/types, Doctor 21/21 and iOS/Android/web JavaScript exports passed in a temporary checkout after macOS denied the linter access to an ancestor Documents directory. Xcode is still 26.2; SDK 57 requires 26.4+. Native compilation/device/signing acceptance remains open. Registry and official advisory checks still show node-forge 1.4.0 with no patched release; the October 15 exception was not extended.
+
 ## 2026-10-07 integration and security follow-up
 
 The signed-in Cloudflare account billing and R2 dashboards were checked before further media upload: four existing Standard buckets held 34.07 MB total (17.2 MB preview media, 16.87 MB production media, private buckets empty). Billing showed $0.00 current and projected cost, about 875 Class A operations, 2.45k Class B operations, and 0.01 GB-months of storage against included tiers. This is a point-in-time account-wide baseline, not a hard spend cap. The publisher's local asset verification freshly decoded all 326 videos and matched the checksum-bound technical evidence: 365 entries, 39 blocked, zero human approved, 30,728,186 manifest bytes. No new R2 assets or manifest were uploaded at this point.
@@ -10,7 +18,7 @@ The clean integration commit `bbd707d7ffcca19e798d5d02cf32648ff0407a19` was publ
 
 Malcolm's original recommendation text was not present in this checkout or readable local memory. The available local memory records the following concrete proposals, so the disposition below is limited to those proposals rather than attributing unseen advice:
 
-Separately, Malcolmston's merged [PR #1](https://github.com/dylanlasensky/limit/pull/1) (CI/tests/Dependabot), [PR #2](https://github.com/dylanlasensky/limit/pull/2) (TypeScript), [PR #25](https://github.com/dylanlasensky/limit/pull/25) (responsive navigation/dialogs), [PR #26](https://github.com/dylanlasensky/limit/pull/26) (responsive layouts), and [PR #27](https://github.com/dylanlasensky/limit/pull/27) (lazy loading/dependency cleanup) are already-adopted contributions. [PR #14](https://github.com/dylanlasensky/limit/pull/14) addressed legacy Base44 auth; [PR #31](https://github.com/dylanlasensky/limit/pull/31) subsequently replaced that auth/runtime with Cloudflare, so restoring #14's implementation would be obsolete.
+Separately, Malcolmston's merged [PR #1](https://github.com/dylanlasensky/limit/pull/1) (CI/tests/Dependabot), [PR #2](https://github.com/dylanlasensky/limit/pull/2) (TypeScript), [PR #25](https://github.com/dylanlasensky/limit/pull/25) (responsive navigation/dialogs), [PR #26](https://github.com/dylanlasensky/limit/pull/26) (responsive layouts), and [PR #27](https://github.com/dylanlasensky/limit/pull/27) (lazy loading/dependency cleanup) are already-adopted contributions. [PR #14](https://github.com/dylanlasensky/limit/pull/14) addressed the retired authentication stack; [PR #31](https://github.com/dylanlasensky/limit/pull/31) subsequently replaced that auth/runtime with Cloudflare, so restoring #14's implementation would be obsolete.
 
 | Proposal recorded in local memory | Disposition | Repository reason |
 |---|---|---|

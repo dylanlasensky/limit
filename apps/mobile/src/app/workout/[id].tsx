@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Text, View } from "react-native";
 import { Redirect, router, useLocalSearchParams } from "expo-router";
 import * as Crypto from "expo-crypto";
@@ -7,24 +7,13 @@ import { loadDraft, saveDraft, removeDraft } from "../../lib/drafts";
 import { Page, Title, Copy, Card, Input, Action, styles } from "../../ui";
 import { MediaGuide } from "../../media-guide";
 import { recordSchema, type SavedRecord } from "../../../../../packages/contracts/entities";
-type Row = {
-  workoutExerciseId: string;
-  exerciseId: string;
-  setNumber: number;
-  weight: string;
-  reps: string;
-  rir: string;
-  completed: boolean;
-  operationId: string;
-  revision: string;
-  savedId?: string;
-  pending: boolean;
-};
+import { scopeWorkoutSession, type WorkoutRow as Row } from "../../lib/workout-session";
 type Draft = {
   session: SavedRecord<"WorkoutSession">;
   exercises: SavedRecord<"WorkoutExercise">[];
   catalog: SavedRecord<"Exercise">[];
   rows: Row[];
+  excludedRows?: Row[];
   index: number;
   paused: boolean;
   pausedAt: number | null;
@@ -42,7 +31,15 @@ export default function Workout() {
     [busy, setBusy] = useState(false),
     [now, setNow] = useState(() => Date.now());
   const current = useRef<Draft | null>(null),
-    saving = useRef(false);
+    saving = useRef(false),
+    finishing = useRef(false),
+    activeKey = useRef(key);
+  useLayoutEffect(() => {
+    activeKey.current = key;
+    return () => {
+      activeKey.current = "";
+    };
+  }, [key]);
   const persist = useCallback(
     (value: Draft) => {
       saveDraft(owner, key, value);
@@ -97,38 +94,29 @@ export default function Workout() {
           list("ExerciseSet", { workoutSessionId: session.id }),
         ]);
         if (cancelled) return;
-        if (cached?.session.id === session.id) {
-          persist({ ...cached, catalog });
-          return;
-        }
-        const rows = exercises.flatMap((e) =>
-          Array.from({ length: e.sets || 3 }, (_, i) => {
-            const saved = sets.find((s) => s.workoutExerciseId === e.id && s.setNumber === i + 1);
-            return {
-              workoutExerciseId: e.id,
-              exerciseId: e.exerciseId || "",
-              setNumber: i + 1,
-              weight: saved?.weight?.toString() || "",
-              reps: saved?.reps?.toString() || "",
-              rir: saved?.rir?.toString() || "",
-              completed: saved?.completed || false,
-              operationId: Crypto.randomUUID(),
-              revision: saved?.revision || "",
-              savedId: saved?.id,
-              pending: false,
-            };
-          })
-        );
-        persist({
+        const sameDraft = cached?.session.id === session.id ? cached : null;
+        const scoped = scopeWorkoutSession(
           session,
-          exercises: exercises.sort((a, b) => (a.order || 0) - (b.order || 0)),
+          exercises,
+          sets,
+          sameDraft?.rows,
+          sameDraft?.excludedRows,
+          Crypto.randomUUID
+        );
+        if (!scoped.exercises.length)
+          throw new Error("This workout changed. Open your current plan and try again.");
+        persist({
+          ...sameDraft,
+          session,
+          exercises: scoped.exercises,
           catalog,
-          rows,
-          index: 0,
-          paused: false,
-          pausedAt: null,
-          pausedMs: 0,
-          restUntil: null,
+          rows: scoped.rows,
+          excludedRows: scoped.excludedRows,
+          index: Math.min(sameDraft?.index || 0, scoped.exercises.length - 1),
+          paused: sameDraft?.paused || false,
+          pausedAt: sameDraft?.pausedAt ?? null,
+          pausedMs: sameDraft?.pausedMs || 0,
+          restUntil: sameDraft?.restUntil ?? null,
         });
       } catch (e) {
         if (!cancelled) setError({ key, message: (e as Error).message });
@@ -151,6 +139,7 @@ export default function Workout() {
           sessionId: current.current!.session.id,
           row,
         });
+        if (activeKey.current !== key) return false;
         const saved = recordSchema("ExerciseSet").parse(response.set);
         persist({
           ...current.current!,
@@ -162,7 +151,7 @@ export default function Workout() {
         });
       }
       setError(null);
-      return true;
+      return !current.current?.rows.some((row) => row.pending);
     } catch (e) {
       setError({ key, message: (e as Error).message });
       return false;
@@ -172,9 +161,20 @@ export default function Workout() {
     }
   };
   const finish = async (finishedAt: number) => {
-    if (!current.current || !(await sync())) return;
-    setBusy(true);
+    if (saving.current || finishing.current || current.current?.session.ownerId !== owner) return;
+    if (current.current?.excludedRows?.length) {
+      setError({
+        key,
+        message: "Review excluded local sets before finishing this shorter workout.",
+      });
+      return;
+    }
+    finishing.current = true;
     try {
+      if (!current.current || !(await sync()) || activeKey.current !== key) return;
+      setBusy(true);
+      if (current.current.rows.some((row) => row.pending))
+        throw new Error("Some edits still need to sync. Your workout draft is safe.");
       await command({
         action: "finish",
         sessionId: current.current.session.id,
@@ -185,11 +185,13 @@ export default function Workout() {
           .filter((r) => r.completed && r.savedId)
           .map((r) => ({ id: r.savedId, revision: r.revision })),
       });
+      if (activeKey.current !== key) return;
       removeDraft(owner, key);
       router.replace("/plan");
     } catch (e) {
       setError({ key, message: (e as Error).message });
     } finally {
+      finishing.current = false;
       setBusy(false);
     }
   };
@@ -205,7 +207,12 @@ export default function Workout() {
     );
   const exercise = draft.exercises[draft.index],
     catalog = draft.catalog.find((e) => e.id === exercise?.exerciseId);
-  const edit = (row: Row, patch: Partial<Row>) =>
+  const changeDraft = (value: Draft) => {
+    if (saving.current || finishing.current) return;
+    persist(value);
+  };
+  const edit = (row: Row, patch: Partial<Row>) => {
+    if (saving.current || finishing.current) return;
     persist({
       ...draft,
       rows: draft.rows.map((r) =>
@@ -219,6 +226,7 @@ export default function Workout() {
           : r
       ),
     });
+  };
   return (
     <Page>
       <Title>{draft.session.name}</Title>
@@ -230,6 +238,19 @@ export default function Workout() {
           {shownError}
         </Text>
       )}
+      {!!draft.excludedRows?.length && (
+        <Card>
+          <Copy>
+            {draft.excludedRows.length} unsynced local set(s) are outside today’s shorter workout.
+            They remain on this device until you explicitly discard them.
+          </Copy>
+          <Action
+            label="Discard excluded local sets"
+            disabled={busy}
+            onPress={() => changeDraft({ ...draft, excludedRows: [] })}
+          />
+        </Card>
+      )}
       <Copy>
         {draft.rows.some((r) => r.pending)
           ? "Saved on this device · waiting to sync"
@@ -237,10 +258,11 @@ export default function Workout() {
       </Copy>
       <Action
         label={draft.paused ? "Resume workout" : "Pause workout"}
+        disabled={busy}
         onPress={() => {
           const time = Date.now();
           const duration = draft.pausedAt === null ? 0 : time - draft.pausedAt;
-          persist({
+          changeDraft({
             ...draft,
             paused: !draft.paused,
             pausedAt: draft.paused ? null : time,
@@ -273,12 +295,14 @@ export default function Workout() {
               </Copy>
               <Input
                 label="Weight"
+                editable={!busy}
                 numeric
                 value={row.weight}
                 onChangeText={(weight) => edit(row, { weight })}
               />
               <Input
                 label="Repetitions"
+                editable={!busy}
                 numeric
                 value={row.reps}
                 onChangeText={(reps) => edit(row, { reps })}
@@ -295,6 +319,7 @@ export default function Workout() {
                   Number(row.weight) < 0
                 }
                 onPress={() => {
+                  if (saving.current || finishing.current) return;
                   edit(row, { completed: true });
                   persist({
                     ...current.current!,
@@ -311,13 +336,13 @@ export default function Workout() {
       <View style={{ gap: 12 }}>
         <Action
           label="Previous movement"
-          disabled={draft.index === 0}
-          onPress={() => persist({ ...draft, index: draft.index - 1 })}
+          disabled={busy || draft.index === 0}
+          onPress={() => changeDraft({ ...draft, index: draft.index - 1 })}
         />
         <Action
           label="Next movement"
-          disabled={draft.index === draft.exercises.length - 1}
-          onPress={() => persist({ ...draft, index: draft.index + 1 })}
+          disabled={busy || draft.index === draft.exercises.length - 1}
+          onPress={() => changeDraft({ ...draft, index: draft.index + 1 })}
         />
         <Action
           label="Retry sync"
@@ -328,7 +353,7 @@ export default function Workout() {
         />
         <Action
           label="Finish workout"
-          disabled={busy || !draft.rows.some((r) => r.completed)}
+          disabled={busy || !!draft.excludedRows?.length || !draft.rows.some((r) => r.completed)}
           onPress={() => {
             void finish(Date.now());
           }}

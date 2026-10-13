@@ -67,4 +67,28 @@ describe("profile settings payload", () => {
       /2 and 6/
     );
   });
+  it("saves distinct named equipment profiles without changing default gear", () => {
+    const gyms = [
+      { id: "campus", name: " Campus ", equipment: ["Full commercial gym"] },
+      { id: "home", name: "Home", equipment: ["Dumbbells", "Bench"] },
+    ];
+    expect(
+      profilePayload({ ...profile, equipment: ["Bodyweight only"], equipmentProfiles: gyms })
+    ).toMatchObject({
+      equipment: ["Bodyweight only"],
+      equipmentProfiles: [
+        { id: "campus", name: "Campus", equipment: ["Full commercial gym"] },
+        { id: "home", name: "Home", equipment: ["Dumbbells", "Bench"] },
+      ],
+    });
+    expect(() =>
+      profilePayload({
+        ...profile,
+        equipmentProfiles: [
+          { id: "a", name: "Home", equipment: ["Dumbbells"] },
+          { id: "b", name: "home", equipment: ["Bodyweight only"] },
+        ],
+      })
+    ).toThrow(/different name/);
+  });
 });

@@ -14,6 +14,7 @@ export interface WorkoutSetRow {
   revision: string;
   pending: boolean;
   operationId?: string;
+  budgetExtension?: boolean;
   removed?: boolean;
 }
 

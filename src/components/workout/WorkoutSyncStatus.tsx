@@ -34,7 +34,7 @@ export default function WorkoutSyncStatus({
               : "All completed sets synced")}
       </span>
       {!syncing && (pending || error) ? (
-        <button onClick={onRetry} className="min-h-9 shrink-0 px-2 font-bold text-primary">
+        <button onClick={onRetry} className="min-h-11 shrink-0 px-2 font-bold text-primary">
           Retry
         </button>
       ) : null}

@@ -96,12 +96,14 @@ export function Input({
   onChangeText,
   numeric = false,
   secret = false,
+  editable = true,
 }: {
   label: string;
   value: string;
   onChangeText: (v: string) => void;
   numeric?: boolean;
   secret?: boolean;
+  editable?: boolean;
 }) {
   return (
     <View style={{ gap: 6 }}>
@@ -110,6 +112,8 @@ export function Input({
         accessibilityLabel={label}
         style={styles.input}
         value={value}
+        editable={editable}
+        accessibilityState={{ disabled: !editable }}
         onChangeText={onChangeText}
         keyboardType={numeric ? "decimal-pad" : "default"}
         secureTextEntry={secret}

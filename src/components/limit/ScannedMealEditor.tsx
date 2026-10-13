@@ -76,6 +76,8 @@ export default function ScannedMealEditor({
         ),
         entryMethod: "scan_meal",
         estimated: true,
+        ingredients: items.map((item) => item.name.trim()).filter(Boolean),
+        possibleAllergens: result.possibleAllergens || [],
       });
       onDone();
     } catch (e: any) {

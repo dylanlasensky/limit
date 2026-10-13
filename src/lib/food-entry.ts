@@ -1,5 +1,6 @@
 import { limitApi } from "@/api/client";
 import { isDiaryDate } from "@/lib/food-diary";
+import { entitySchemas } from "../../packages/contracts/entities";
 
 export function validateFoodEntry(entry: Record<string, any>): Record<string, any> {
   if (typeof entry.foodName !== "string" || !entry.foodName.trim())
@@ -33,8 +34,11 @@ const editableFields = [
   "fiber",
   "sugar",
   "sodium",
+  "ingredients",
+  "possibleAllergens",
+  "shortcutLogId",
 ];
-function foodPayload(entry: Record<string, any>) {
+export function foodPayload(entry: Record<string, any>) {
   const valid = validateFoodEntry(entry);
   if (!isDiaryDate(valid.date)) throw new Error("Choose today or an earlier diary date.");
   const numericFields = [
@@ -49,10 +53,12 @@ function foodPayload(entry: Record<string, any>) {
   ];
   if (valid.unit !== undefined && (typeof valid.unit !== "string" || !valid.unit.trim()))
     throw new Error("Add a portion unit, such as servings or cups.");
-  return Object.fromEntries(
-    [...editableFields, "entryMethod", "estimated"]
-      .filter((key) => valid[key] !== undefined)
-      .map((key) => [key, numericFields.includes(key) ? +valid[key] : valid[key]])
+  return entitySchemas.FoodEntry.parse(
+    Object.fromEntries(
+      [...editableFields, "entryMethod", "estimated"]
+        .filter((key) => valid[key] !== undefined)
+        .map((key) => [key, numericFields.includes(key) ? +valid[key] : valid[key]])
+    )
   );
 }
 export async function createFoodEntry(entry: Record<string, any>) {

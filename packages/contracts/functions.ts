@@ -26,10 +26,14 @@ const commands = {
     session: recordSchema("WorkoutSession"),
     redirectWorkoutDayId: z.string().optional(),
   }),
+  selectEquipmentProfile: z.object({ session: recordSchema("WorkoutSession") }),
   saveSet: z.object({ set: recordSchema("ExerciseSet") }),
   finish: z.object({ summary }),
   discard: z.object({ ok: z.literal(true) }),
   activatePlan: z.object({ plan: recordSchema("WorkoutPlan") }),
+  setLoadIncrement: z.object({ profile: recordSchema("UserProfile") }),
+  changeSchedule: z.object({ change: recordSchema("WorkoutScheduleChange") }),
+  undoScheduleChange: z.object({ change: recordSchema("WorkoutScheduleChange") }),
 };
 const schemas = {
   askLimitCoach: z.object({
@@ -81,7 +85,18 @@ export function functionResponseSchema(
   if (name === "workoutCommand") {
     const action = z
       .object({
-        action: z.enum(["check", "start", "saveSet", "finish", "discard", "activatePlan"]),
+        action: z.enum([
+          "check",
+          "start",
+          "selectEquipmentProfile",
+          "saveSet",
+          "finish",
+          "discard",
+          "activatePlan",
+          "setLoadIncrement",
+          "changeSchedule",
+          "undoScheduleChange",
+        ]),
       })
       .parse(input).action;
     return commands[action];

@@ -15,6 +15,7 @@ Each Worker owns separate AccountCoordinator and LimitCoach SQLite Durable Objec
 | Name | Location | Meaning |
 |---|---|---|
 | BETTER_AUTH_SECRET | Worker secret / local .dev.vars | Random 32+ character session-signing secret; unique per environment |
+| OWNER_USER_ID | Worker secret | Optional exact account ID permitted to view read-only operations; see [owner operations](owner-operations.md) |
 | RESEND_API_KEY | Worker secret | Optional transactional email key |
 | EMAIL_FROM | Wrangler variable | Verified sender address |
 | EMAIL_ENABLED | Wrangler variable | Enable verification on signup and password-reset delivery after sender/key setup |

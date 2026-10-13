@@ -31,6 +31,7 @@ const ImportWorkout = lazy(() => import("@/pages/ImportWorkout"));
 const Nutrition = lazy(() => import("@/pages/Nutrition"));
 const Progress = lazy(() => import("@/pages/Progress"));
 const Profile = lazy(() => import("@/pages/Profile"));
+const OwnerOperations = lazy(() => import("@/pages/OwnerOperations"));
 import LimitShell from "@/components/limit/LimitShell";
 // Add page imports here
 
@@ -79,6 +80,7 @@ const AuthenticatedApp = () => {
           <Route path="/progress" element={<Progress />} />
           <Route path="/workout/history/:id" element={<WorkoutDetail />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/owner-ops" element={<OwnerOperations />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />

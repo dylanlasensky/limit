@@ -14,8 +14,9 @@ const tiers: Array<[string, string]> = [
 interface MuscleRatingPanelProps {
   rating: MuscleRating;
   snapshots?: Array<Partial<RatingSnapshot> & Record<string, any>>;
+  sex?: string | null;
 }
-export default function MuscleRatingPanel({ rating, snapshots = [] }: MuscleRatingPanelProps) {
+export default function MuscleRatingPanel({ rating, snapshots = [], sex }: MuscleRatingPanelProps) {
   const [view, setView] = useState<BodyView>("front"),
     [selected, setSelected] = useState<MuscleGroup | undefined>();
   const data = rating.muscles[selected as MuscleGroup],
@@ -75,7 +76,13 @@ export default function MuscleRatingPanel({ rating, snapshots = [] }: MuscleRati
           </button>
         </div>
         <div className="limit-grid relative z-10 mt-3 overflow-hidden rounded-[1.75rem] border border-border/50 bg-background/50">
-          <BodyMap rating={rating} view={view} selected={selected} onSelect={setSelected} />
+          <BodyMap
+            rating={rating}
+            view={view}
+            selected={selected}
+            onSelect={setSelected}
+            sex={sex}
+          />
           <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-2 text-[9px] font-bold uppercase tracking-widest text-muted-foreground backdrop-blur">
             <Activity className="h-3 w-3 text-primary" />
             Tap a muscle

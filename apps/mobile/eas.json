@@ -13,7 +13,8 @@
     },
     "production": {
       "env": {
-        "LIMIT_NATIVE_RELEASE": "true"
+        "LIMIT_NATIVE_RELEASE": "true",
+        "EXPO_PUBLIC_API_URL": "https://limit.limit-dylanlasensky.workers.dev"
       }
     }
   }

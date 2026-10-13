@@ -1,0 +1,7 @@
+# Owner operations view
+
+The read-only `/owner-ops` web page and `/api/owner-ops` endpoint show the deployed source and Worker version, LIMIT's own free-budget reservations, transactional-email readiness flags, and counts of server errors by date and fixed internal stage. They do not show member records, request bodies, addresses, tokens, or prompts. The endpoint requires a signed-in session whose user ID exactly matches the environment's `OWNER_USER_ID`; with that secret unset, it returns 404 for everyone. The page is intentionally absent from member navigation.
+
+The owner must first identify the intended signed-in LIMIT account and approve granting it this operational access. An authorized operator can then set `OWNER_USER_ID` as a Worker secret separately in testing and production; do not commit its value or derive it from the public support email. This is security-sensitive access and requires action-time owner approval before configuration. Rotate deliberately by changing the secret. No new account is created by the feature.
+
+The headroom meters show application reservations only. Cloudflare account-wide billing and R2 storage may include other buckets, retries, and delayed metrics, and must still be checked in the Cloudflare dashboard before uploads. The errors table is a privacy-safe aggregate of Worker 5xx outcomes in the last seven days. It does not replace Workers observability or reveal error payloads. The D1 migration adds only date, fixed stage, and count; failed aggregate writes never interrupt the user response.

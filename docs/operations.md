@@ -6,9 +6,19 @@ Inspect Workers observability and `/api/health` for errors, latency, environment
 
 ## Before migrations or rollback
 
-Migrations are additive and repeatable; seeds update the public catalog by stable key and do not create remote test users. Capture the current Worker version, source SHA and D1 Time Travel bookmark before any schema change. Export a protected local backup with `npx wrangler d1 export DB --remote --env production --output /private/path/limit-backup.sql`. This contains private account/health data: use owner-controlled encrypted storage, restrictive permissions and never Git/CI artifacts. LIMIT does not currently promise or configure indefinite backups.
+Migrations are additive and repeatable; seeds update the public catalog by stable key and do not create remote test users. Capture the current Worker version, source SHA and D1 Time Travel bookmark before any schema change (`npx wrangler d1 time-travel info DB --env production --json`, with the matching preview command). Time Travel is automatic and included; the Workers Free recovery window is seven days, not indefinite retention. See [current D1 recovery documentation](https://developers.cloudflare.com/d1/reference/time-travel/). Export a protected local backup with `npx wrangler d1 export DB --remote --env production --output /private/path/limit-backup.sql`. This contains private account/health data: use owner-controlled encrypted storage, restrictive permissions and never Git/CI artifacts. LIMIT does not currently promise or configure indefinite backups.
 
-Test recovery using a separate local empty database or isolated testing D1. Apply migrations/seed from scratch, restore the protected export in an isolated database, and verify counts, foreign keys, catalog and two-account access. Do not restore production data into a publicly reachable testing app. D1 Time Travel availability/retention follows the account plan; check the current dashboard before relying on a bookmark. No production restore was performed as part of this release.
+Test fresh migrations/seeding and snapshot restoration separately. A full snapshot already includes schema, migration records and catalog rows; import it into an empty isolated database, without seeding first. Wrangler can export child rows before their referenced parent tables exist. With Python 3, prepare a schema-first copy while preserving each complete SQL statement and foreign-key deferral:
+
+```sh
+python3 scripts/prepare-d1-restore.py /private/path/limit-backup.sql /private/path/limit-restore.sql
+npx wrangler d1 execute DB --local --persist-to /private/path/isolated-restore --file /private/path/limit-restore.sql
+```
+
+The helper never connects to a database, refuses existing output paths, writes with owner-only permissions and fails on an unsupported/incomplete export format. It does not disable foreign keys or remove failed rows. Use trusted operator exports only. Verify row counts, catalog, account login, sessions, ownership and foreign keys after import. Do not restore production data into a publicly reachable testing app. D1 Time Travel availability/retention follows the account plan; check the current dashboard before relying on a bookmark. No production restore was performed as part of this release.
+
+The October 12 local drill used two synthetic accounts, one profile, a seven-day plan and an active workout. The unprepared export failed on a missing parent table. Schema-first preparation preserved all 494 statements; the isolated restored Worker then passed login, existing sessions, plan/workout reads, 365 catalog entries, export and two-account isolation. Synthetic accounts were deleted from source and restored databases. Offline SQLite integrity and foreign-key checks passed. This verifies local D1 recovery only, not remote Time Travel or R2/Durable Object recovery. Four regression tests cover parent ordering, quoted semicolons, sequence state, retained foreign-key enforcement, fail-closed input handling and private/non-overwriting output.
+
 
 For an incident, stop promotion and preserve evidence without secrets. Record affected SHA and symptom, disable the affected optional feature if needed, then choose a compatible Worker version:
 
@@ -17,7 +27,7 @@ npx wrangler deployments list --env production
 npx wrangler rollback <previous-compatible-version-id> --env production
 ```
 
-Run hosted health/API/browser acceptance afterward and record the actual returned version/SHA. Code rollback does not undo D1 data or R2 writes. Do not restore a database automatically or cross an incompatible migration. For this release, the previous code version is `a811a8a8-edc3-432b-b471-4822ce8facd5` (source `65f3a7a2a9ac51bb7fb23ae8737b0a682ec17c1e`); its media parser will fall back to written guides for generated technical entries. No schema migration is introduced by finalization.
+Run hosted health/API/browser acceptance afterward and record the actual returned version/SHA. Code rollback does not undo D1 data or R2 writes. Do not restore a database automatically or cross an incompatible migration. Record the actual prior compatible version immediately before each promotion; never reuse an old runbook version ID. PR #89 adds meal-shortcut, operational-counter and date-specific schedule tables plus the meal operation-ID index. Fresh database migration and lifecycle tests cover these additive changes. Rolling back code leaves the added data in place; older clients cannot interpret new session-budget or schedule behavior, so assess active sessions and preserve drafts before rollback.
 
 ## R2 and account deletion
 
