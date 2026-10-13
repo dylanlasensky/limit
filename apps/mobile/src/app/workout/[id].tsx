@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Text, View } from "react-native";
 import { Redirect, router, useLocalSearchParams } from "expo-router";
 import * as Crypto from "expo-crypto";
@@ -34,7 +34,12 @@ export default function Workout() {
     saving = useRef(false),
     finishing = useRef(false),
     activeKey = useRef(key);
-  activeKey.current = key;
+  useLayoutEffect(() => {
+    activeKey.current = key;
+    return () => {
+      activeKey.current = "";
+    };
+  }, [key]);
   const persist = useCallback(
     (value: Draft) => {
       saveDraft(owner, key, value);

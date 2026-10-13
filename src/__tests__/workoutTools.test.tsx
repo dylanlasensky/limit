@@ -63,7 +63,7 @@ describe("copy previous set", () => {
       ["reps", "8"],
     ]);
     expect(toggle).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "Complete set" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Complete set 1" })).toBeInTheDocument();
   });
 
   it.each([{ completed: true }, { pending: true }, { savedId: "saved" }])(

@@ -33,6 +33,8 @@ export function clearPrivateState(userId?: string) {
           key.startsWith("limit-workout-ui:") ||
           key === "limit-offline-identity" ||
           (userId && key === "limit-exercise-favorites:" + userId) ||
+          (userId && key === "limit:pending-meal-shortcut:" + userId) ||
+          (userId && key.startsWith("limit:pending-meal-log:" + userId + ":")) ||
           (userId && key.startsWith("limit-workout-v2:" + userId + ":"))
         )
           storage.removeItem(key);

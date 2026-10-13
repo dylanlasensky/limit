@@ -31,4 +31,15 @@ describe("private state isolation", () => {
     expect(storageGet("sessionStorage", "x")).toBeNull();
     expect(() => storageSet("sessionStorage", "x", "y")).not.toThrow();
   });
+  it("removes the departing account's private meal drafts without touching another account", () => {
+    sessionStorage.setItem("limit:pending-meal-log:a:meal:date:Breakfast", "private foods");
+    sessionStorage.setItem("limit:pending-meal-shortcut:a", "private shortcut");
+    sessionStorage.setItem("limit:pending-meal-log:b:meal:date:Breakfast", "other foods");
+    clearPrivateState("a");
+    expect(sessionStorage.getItem("limit:pending-meal-log:a:meal:date:Breakfast")).toBeNull();
+    expect(sessionStorage.getItem("limit:pending-meal-shortcut:a")).toBeNull();
+    expect(sessionStorage.getItem("limit:pending-meal-log:b:meal:date:Breakfast")).toBe(
+      "other foods"
+    );
+  });
 });

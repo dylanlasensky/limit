@@ -1,6 +1,7 @@
 import ExerciseMedia from "./ExerciseMedia";
 import WorkoutHelp from "./WorkoutHelp";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import { storageGet, storageSet } from "@/lib/storage";
 import { Calculator, Trash2 } from "lucide-react";
 import SetRow from "@/components/workout/SetRow";
 import ExerciseOptions from "@/components/workout/ExerciseOptions";
@@ -44,7 +45,26 @@ export default function ExerciseCard({
   onReplace,
   onSkip,
 }: ExerciseCardProps) {
-  const [compact, setCompact] = useState(false);
+  const section = useRef<HTMLElement>(null);
+  const guideKey = `limit-workout-ui:${profile?.id || "session"}:guide:${workoutExercise.exerciseId}`;
+  const [guideMode, setGuideMode] = useState<{ key: string; compact: boolean } | null>(null);
+  const storedMode = storageGet("localStorage", guideKey);
+  const compact =
+    guideMode?.key === guideKey
+      ? guideMode.compact
+      : storedMode
+        ? storedMode === "compact"
+        : previousSets.length > 0 || rows.some((row) => row.completed);
+  const toggleGuide = () => {
+    setGuideMode({ key: guideKey, compact: !compact });
+    if (profile?.id) storageSet("localStorage", guideKey, compact ? "guide" : "compact");
+    if (!compact)
+      requestAnimationFrame(() =>
+        section.current
+          ?.querySelector<HTMLInputElement>("input[data-workout-weight]:not(:disabled)")
+          ?.focus()
+      );
+  };
   const [calculatorOpen, setCalculatorOpen] = useState(false);
   const [stepError, setStepError] = useState("");
   const [stepSaving, setStepSaving] = useState(false);
@@ -60,6 +80,7 @@ export default function ExerciseCard({
       : suggestProgression(previousSets, workoutExercise.repMin, workoutExercise.repMax, increment);
   return (
     <section
+      ref={section}
       className={`limit-surface mt-5 min-w-0 rounded-[1.5rem] p-3 sm:p-5 transition-opacity ${workoutExercise.skipped ? "opacity-55" : ""}`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -69,8 +90,10 @@ export default function ExerciseCard({
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
             {exercise?.primaryMuscle || workoutExercise.primaryMuscle || "Other"} ·{" "}
-            {exercise?.category || workoutExercise.category || "Exercise"} ·{" "}
-            {workoutExercise.repMin}–{workoutExercise.repMax} reps
+            {exercise?.category || workoutExercise.category || "Exercise"}
+            {workoutExercise.repMin && workoutExercise.repMax
+              ? ` · ${workoutExercise.repMin}–${workoutExercise.repMax} reps`
+              : ""}
           </p>
         </div>
         <ExerciseOptions
@@ -97,11 +120,12 @@ export default function ExerciseCard({
           <div className="mt-3 flex flex-wrap gap-2">
             <button
               type="button"
-              aria-pressed={compact}
-              onClick={() => setCompact(!compact)}
+              aria-expanded={!compact}
+              aria-controls={`movement-guide-${workoutExercise.id}`}
+              onClick={toggleGuide}
               className="min-h-11 rounded-xl bg-secondary px-3 text-xs font-semibold"
             >
-              {compact ? "Show movement guide" : "Compact logger"}
+              {compact ? "Show movement guide" : "Ready to log sets"}
             </button>
             <button
               type="button"
@@ -110,14 +134,14 @@ export default function ExerciseCard({
               }}
               className="min-h-11 rounded-xl px-3 text-xs font-semibold text-primary"
             >
-              Pain or discomfort? Skip this movement
+              Pain or discomfort? Skip
             </button>
           </div>
           {!compact && (
-            <>
+            <div id={`movement-guide-${workoutExercise.id}`}>
               <ExerciseMedia exercise={exercise || workoutExercise} />
               <WorkoutHelp />
-            </>
+            </div>
           )}
           {previousSets.length > 0 ? (
             <p className="mt-3 text-[11px] text-muted-foreground">
@@ -138,60 +162,14 @@ export default function ExerciseCard({
               <p className="mt-0.5 text-xs text-muted-foreground">{suggestion.note}</p>
             </div>
           )}
-          {!locked && onLoadIncrementChange && (
-            <label className="mt-3 block text-xs text-muted-foreground">
-              Available load increase for this exercise
-              <select
-                className="ml-2 min-h-11 rounded-xl border border-input bg-background px-2 text-foreground"
-                aria-label={`Load increase for ${workoutExercise.exerciseName}`}
-                value={increment}
-                disabled={stepSaving}
-                onChange={async (event) => {
-                  setStepError("");
-                  setStepSaving(true);
-                  try {
-                    await onLoadIncrementChange(Number(event.target.value));
-                  } catch {
-                    setStepError("Couldn’t save the load increase. Try again.");
-                  } finally {
-                    setStepSaving(false);
-                  }
-                }}
-              >
-                {[2.5, 5, 10, 15, 20].map((step) => (
-                  <option key={step} value={step}>
-                    +{step} lb
-                  </option>
-                ))}
-              </select>
-              <span className="mt-1 block">
-                Suggestions only. Set weight and reps remain yours to edit.
-              </span>
-              {stepError && (
-                <span role="alert" className="mt-1 block text-destructive">
-                  {stepError}
-                </span>
-              )}
-            </label>
-          )}
           <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3">
             {previousSets.length > 0 && (
               <p className="py-2 text-xs text-muted-foreground">
                 Select a previous set to copy its weight and reps.
               </p>
             )}
-            {usesPlates && (
-              <button
-                type="button"
-                onClick={() => setCalculatorOpen(true)}
-                className="flex min-h-11 items-center gap-2 rounded-xl px-2 text-xs font-semibold text-primary"
-              >
-                <Calculator aria-hidden className="h-4 w-4" />
-                Plate calculator
-              </button>
-            )}
           </div>
-          <div className="mt-4 grid grid-cols-[22px_48px_minmax(0,1fr)_minmax(0,1fr)_44px] gap-2 text-center text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+          <div className="mt-4 grid grid-cols-[44px_44px_minmax(0,1fr)_minmax(0,1fr)_44px] gap-1 text-center text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
             <span>Set</span>
             <span>Prev</span>
             <span>Lb</span>
@@ -211,9 +189,9 @@ export default function ExerciseCard({
                 <button
                   aria-label={`Delete set ${row.setNumber}`}
                   onClick={() => onRemoveSet(row.key)}
-                  className="absolute -right-2 -top-1 grid h-6 w-6 place-items-center rounded-full bg-secondary text-muted-foreground"
+                  className="ml-auto mt-1 flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs text-muted-foreground"
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash2 aria-hidden className="h-4 w-4" /> Remove set
                 </button>
               )}
             </div>
@@ -226,6 +204,59 @@ export default function ExerciseCard({
             >
               {timeBudget ? "+ ADD SET · EXTENDS TODAY" : "+ ADD SET"}
             </button>
+          )}
+          {((!locked && onLoadIncrementChange) || usesPlates) && (
+            <details className="mt-4 rounded-xl border border-border px-3">
+              <summary className="min-h-11 cursor-pointer py-3 text-xs font-semibold text-muted-foreground">
+                Weight tools
+              </summary>
+              {!locked && onLoadIncrementChange && (
+                <label className="mt-3 block text-xs text-muted-foreground">
+                  Available load increase for this exercise
+                  <select
+                    className="ml-2 min-h-11 rounded-xl border border-input bg-background px-2 text-foreground"
+                    aria-label={`Load increase for ${workoutExercise.exerciseName}`}
+                    value={increment}
+                    disabled={stepSaving}
+                    onChange={async (event) => {
+                      setStepError("");
+                      setStepSaving(true);
+                      try {
+                        await onLoadIncrementChange(Number(event.target.value));
+                      } catch {
+                        setStepError("Couldn’t save the load increase. Try again.");
+                      } finally {
+                        setStepSaving(false);
+                      }
+                    }}
+                  >
+                    {[2.5, 5, 10, 15, 20].map((step) => (
+                      <option key={step} value={step}>
+                        +{step} lb
+                      </option>
+                    ))}
+                  </select>
+                  <span className="mt-1 block">
+                    Suggestions only. Set weight and reps remain yours to edit.
+                  </span>
+                  {stepError && (
+                    <span role="alert" className="mt-1 block text-destructive">
+                      {stepError}
+                    </span>
+                  )}
+                </label>
+              )}
+              {usesPlates && (
+                <button
+                  type="button"
+                  onClick={() => setCalculatorOpen(true)}
+                  className="flex min-h-11 items-center gap-2 rounded-xl px-2 text-xs font-semibold text-primary"
+                >
+                  <Calculator aria-hidden className="h-4 w-4" />
+                  Plate calculator
+                </button>
+              )}
+            </details>
           )}
         </>
       )}

@@ -24,7 +24,7 @@ export default function SetRow({ row, previous, onEdit, onToggle, saving }: SetR
     Number(previous.reps) <= 100;
   const canCopy = validPrevious && !done && !saving && !row.pending && !row.savedId;
   return (
-    <div className="mt-2 grid grid-cols-[22px_48px_minmax(0,1fr)_minmax(0,1fr)_44px] items-center gap-2">
+    <div className="mt-2 grid grid-cols-[44px_44px_minmax(0,1fr)_minmax(0,1fr)_44px] items-center gap-1">
       <button
         type="button"
         aria-label={`Set ${row.setNumber} type: ${row.setType || "working"}. Tap to change`}
@@ -52,6 +52,7 @@ export default function SetRow({ row, previous, onEdit, onToggle, saving }: SetR
         <span className="text-center text-xs text-muted-foreground">—</span>
       )}
       <input
+        data-workout-weight
         aria-label={`Set ${row.setNumber} weight in pounds`}
         min="0"
         max="2500"
@@ -79,7 +80,7 @@ export default function SetRow({ row, previous, onEdit, onToggle, saving }: SetR
         whileTap={{ scale: 0.88 }}
         disabled={saving}
         onClick={onToggle}
-        aria-label={done ? "Uncheck set" : "Complete set"}
+        aria-label={`${done ? "Uncheck" : "Complete"} set ${row.setNumber}`}
         className={`grid h-12 place-items-center rounded-xl transition-all ${done ? "bg-primary text-primary-foreground shadow-[0_0_24px_hsl(var(--primary)/.4)]" : "border border-border/50 bg-secondary/70 text-muted-foreground"}`}
       >
         {row.pending && done ? (
