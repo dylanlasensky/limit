@@ -18,9 +18,12 @@ const link = (path) => [
   {
     runFlow: {
       when: { visible: "Open in.*LIMIT.*" },
-      // A reported tap did not close this system prompt in the verified native capture.
-      // Pinned Maestro permits one extra attempt only when its UI-change check fails.
-      commands: [{ tapOn: { text: "Open", retryTapIfNoChange: true } }],
+      // Select Open only after the named system sheet has had time to settle.
+      // A successful wait is not acceptance: the following assertion must see it gone.
+      commands: [
+        { waitForAnimationToEnd: { timeout: 5000 } },
+        { tapOn: { text: "Open", retryTapIfNoChange: true } },
+      ],
     },
   },
   { assertNotVisible: "Open in.*LIMIT.*" },

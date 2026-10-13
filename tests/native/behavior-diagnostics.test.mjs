@@ -498,6 +498,11 @@ test("pre-input image requires the exact first-flow prefix and proven empty init
         });
       },
       () => {
+        const wait = { waitForAnimationToEndCommand: { timeout: 5000 } };
+        commands[4].command.runFlowCommand.commands.unshift(wait);
+        commands.splice(5, 0, { command: wait, metadata: { status: "COMPLETED" } });
+      },
+      () => {
         commands[3].command.openLinkCommand.link = "https://private.example";
       },
       () => {

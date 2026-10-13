@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
-import { Text, View } from "react-native";
+import { Linking, Text, View } from "react-native";
 import { auth, origin } from "../lib/api";
 import { Page, Title, Copy, Input, Action, styles } from "../ui";
 export default function SignIn() {
@@ -13,7 +13,8 @@ export default function SignIn() {
     [name, setName] = useState(""),
     [signup, setSignup] = useState(false),
     [busy, setBusy] = useState(false),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [notice, setNotice] = useState("");
   const [requestStatus, setRequestStatus] = useState("idle");
   const destination =
     origin === "https://limit-preview.limit-dylanlasensky.workers.dev"
@@ -25,6 +26,7 @@ export default function SignIn() {
     if (busy) return;
     setBusy(true);
     setError("");
+    setNotice("");
     const fallback = signup
       ? "Could not create your account. Please try again."
       : "Could not sign in. Please try again.";
@@ -41,7 +43,18 @@ export default function SignIn() {
       const result = signup
         ? await auth.signUp.email({ email, password, name }, observation)
         : await auth.signIn.email({ email, password }, observation);
-      if (result.error) throw new Error(result.error.message || fallback);
+      if (result.error) {
+        if (result.error.code === "EMAIL_NOT_VERIFIED")
+          throw new Error(
+            "Check your email for a verification link, then return here to sign in. Signing in again requests a fresh link."
+          );
+        throw new Error(result.error.message || fallback);
+      }
+      if (signup && result.data && !result.data.token) {
+        setNotice("Check your email for a verification link, then return here to sign in.");
+        setPassword("");
+        setSignup(false);
+      }
     } catch (e) {
       setError(e instanceof Error && e.message ? e.message : fallback);
     } finally {
@@ -54,8 +67,20 @@ export default function SignIn() {
         <Title>{signup ? "Make your first move." : "Welcome back."}</Title>
       </View>
       <Copy>Your plan, one session at a time.</Copy>
+      {!!notice && (
+        <Text accessibilityLiveRegion="polite" style={styles.text}>
+          {notice}
+        </Text>
+      )}
       {signup && <Input label="Name" value={name} onChangeText={setName} />}
-      <Input label="Email" value={email} onChangeText={setEmail} />
+      <Input
+        label="Email"
+        value={email}
+        onChangeText={(value) => {
+          setEmail(value);
+          setNotice("");
+        }}
+      />
       <Input
         label="Password · at least 12 characters"
         secret
@@ -74,8 +99,24 @@ export default function SignIn() {
       />
       <Action
         label={signup ? "I already have an account" : "Create a new account"}
-        onPress={() => setSignup(!signup)}
+        disabled={busy}
+        onPress={() => {
+          setSignup(!signup);
+          setNotice("");
+          setError("");
+        }}
       />
+      {!signup && (
+        <Action
+          label="Forgot password? Open recovery on the web"
+          disabled={busy}
+          onPress={() => {
+            void Linking.openURL(origin + "/forgot-password").catch(() =>
+              setError("Could not open password recovery. Try again.")
+            );
+          }}
+        />
+      )}
     </Page>
   );
 }

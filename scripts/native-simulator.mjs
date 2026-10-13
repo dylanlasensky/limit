@@ -16,6 +16,13 @@ mkdirSync(evidenceDir, { recursive: true });
 const read = (command, args) => execFileSync(command, args, { encoding: "utf8" }).trim();
 const sourceRevision = read("git", ["rev-parse", "HEAD"]);
 const env = { ...process.env, LIMIT_SOURCE_REVISION: sourceRevision };
+const architecture = read("uname", ["-m"]);
+assert.ok(["arm64", "x86_64"].includes(architecture), "Unsupported simulator architecture");
+assert.equal(
+  process.arch,
+  architecture === "arm64" ? "arm64" : "x64",
+  "Runner architecture mismatch"
+);
 const evidence = {
   sourceRevision,
   scope:
@@ -24,8 +31,11 @@ const evidence = {
   status: "pending",
   xcode: read("xcodebuild", ["-version"]),
   apiOrigin: process.env.EXPO_PUBLIC_API_URL,
+  architecture,
 };
 const run = (command, args, cwd, name) => {
+  const started = performance.now();
+  console.log(JSON.stringify({ event: "native.build.started", stage: name }));
   const file = join(process.env.RUNNER_TEMP, `limit-${name}.log`);
   const fd = openSync(file, "w");
   const result = spawnSync(command, args, { cwd, env, stdio: ["ignore", fd, fd] });
@@ -36,6 +46,14 @@ const run = (command, args, cwd, name) => {
     writeFileSync(join(evidenceDir, `${name}.log.gz`), compressed);
   else writeFileSync(join(evidenceDir, `${name}-tail.log`), log.subarray(-1024 * 1024));
   if (result.status !== 0) console.error(log.toString().split("\n").slice(-100).join("\n"));
+  console.log(
+    JSON.stringify({
+      event: "native.build.completed",
+      stage: name,
+      elapsedMs: Math.round(performance.now() - started),
+      passed: result.status === 0,
+    })
+  );
   assert.equal(result.status, 0, `${name} failed`);
 };
 writeFileSync(join(evidenceDir, "result.json"), JSON.stringify(evidence, null, 2) + "\n");
@@ -74,6 +92,7 @@ try {
       derived,
       "-jobs",
       "2",
+      `ARCHS=${architecture}`,
       "CODE_SIGNING_ALLOWED=NO",
       "CODE_SIGNING_REQUIRED=NO",
       "CODE_SIGN_IDENTITY=",
@@ -93,6 +112,18 @@ try {
     join(app, "Info.plist"),
   ]);
   assert.equal(bundle, "com.example.limit.simulator");
+  const executable = read("/usr/libexec/PlistBuddy", [
+    "-c",
+    "Print :CFBundleExecutable",
+    join(app, "Info.plist"),
+  ]);
+  assert.match(executable, /^[A-Za-z0-9_-]+$/);
+  evidence.binaryArchitecture = read("xcrun", ["lipo", "-archs", join(app, executable)]);
+  assert.equal(
+    evidence.binaryArchitecture,
+    architecture,
+    "Built binary must match the simulator host"
+  );
   const inventory = JSON.parse(read("xcrun", ["simctl", "list", "devices", "available", "--json"]));
   device = Object.entries(inventory.devices)
     .filter(([runtime]) => runtime.includes("iOS"))
@@ -101,9 +132,14 @@ try {
       (entry) => entry.isAvailable && entry.name.startsWith("iPhone") && entry.state === "Shutdown"
     );
   assert.ok(device, "An installed iPhone simulator is required");
+  console.log(JSON.stringify({ event: "native.simulator.boot.started" }));
   read("xcrun", ["simctl", "boot", device.udid]);
   read("xcrun", ["simctl", "bootstatus", device.udid, "-b"]);
+  console.log(JSON.stringify({ event: "native.simulator.boot.completed" }));
+  console.log(JSON.stringify({ event: "native.simulator.install.started" }));
   read("xcrun", ["simctl", "install", device.udid, app]);
+  console.log(JSON.stringify({ event: "native.simulator.install.completed" }));
+  console.log(JSON.stringify({ event: "native.simulator.launch.started" }));
   const launch = read("xcrun", ["simctl", "launch", device.udid, bundle]);
   assert.match(launch, /:\s*\d+$/);
   await new Promise((resolve) => setTimeout(resolve, 10000));
@@ -114,8 +150,10 @@ try {
   );
   read("xcrun", ["simctl", "io", device.udid, "screenshot", join(evidenceDir, "launch.png")]);
   evidence.launched = true;
+  console.log(JSON.stringify({ event: "native.simulator.launch.completed" }));
   evidence.simulator = device.name;
   if (process.env.LIMIT_NATIVE_BEHAVIOR === "true") {
+    console.log(JSON.stringify({ event: "native.behavior.started" }));
     await runNativeBehavior(device, evidenceDir, { freshInstall: true });
     evidence.behavior = "passed";
     evidence.scope =

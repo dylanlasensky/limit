@@ -148,7 +148,10 @@ test("only the named LIMIT deep-link confirmation permits Maestro's bounded miss
         prompts += 1;
         assert.deepEqual(command.runFlow, {
           when: { visible: "Open in.*LIMIT.*" },
-          commands: [{ tapOn: { text: "Open", retryTapIfNoChange: true } }],
+          commands: [
+            { waitForAnimationToEnd: { timeout: 5000 } },
+            { tapOn: { text: "Open", retryTapIfNoChange: true } },
+          ],
         });
       } else {
         assert.doesNotMatch(
