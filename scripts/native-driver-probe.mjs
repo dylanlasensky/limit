@@ -26,6 +26,8 @@ const result = {
   sourceRevision: process.env.GITHUB_SHA,
   scope: "Stock simulator accessibility driver only; no LIMIT build, accounts or native acceptance",
   status: "pending",
+  driverStartupTimeoutMs: 180000,
+  driverRequestTimeoutMs: 360000,
   environment: summarizeProbeEnvironment(process.env, "", null, null),
   stages: [],
 };
@@ -34,6 +36,7 @@ const save = () =>
 let env = {
   ...process.env,
   MAESTRO_CLI_NO_ANALYTICS: "1",
+  MAESTRO_DRIVER_STARTUP_TIMEOUT: String(result.driverStartupTimeoutMs),
   MAESTRO_API_URL: "http://127.0.0.1:9",
   XDG_STATE_HOME: join(temporary, "maestro-state"),
 };
@@ -111,7 +114,13 @@ try {
   const maestro = join(process.env.RUNNER_TEMP, "maestro/bin/maestro");
   const version = run("maestro-version", maestro, ["--version"]).output.trim();
   if (version !== "2.11.0") throw new Error("unexpected-driver-version");
-  const cold = run("cold-hierarchy", maestro, ["--device", device.udid, "hierarchy"], 240000, true);
+  const cold = run(
+    "cold-hierarchy",
+    maestro,
+    ["--device", device.udid, "hierarchy"],
+    result.driverRequestTimeoutMs,
+    true
+  );
   if (!cold.stage.parsedHierarchy) throw new Error("invalid-hierarchy");
   // A separate warm invocation observes the stock screen, not a retry of a failed cold probe.
   run(
@@ -124,7 +133,7 @@ try {
     "warm-hierarchy",
     maestro,
     ["--device", device.udid, "hierarchy", "--no-reinstall-driver"],
-    240000,
+    result.driverRequestTimeoutMs,
     true
   );
   if (!warm.stage.parsedHierarchy || !warm.stage.stockSettingsVisible)
