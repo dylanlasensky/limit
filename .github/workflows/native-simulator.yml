@@ -1,10 +1,10 @@
 name: Unsigned native simulator
 on:
   pull_request:
-    paths: ["apps/mobile/**", "packages/**", "package*.json", "scripts/native-simulator.mjs", ".github/workflows/native-simulator.yml"]
+    paths: ["apps/mobile/**", "packages/**", "package*.json", "scripts/native-simulator.mjs", "scripts/patch-native-decoder.mjs", ".github/workflows/native-simulator.yml"]
   push:
     branches: [main]
-    paths: ["apps/mobile/**", "packages/**", "package*.json", "scripts/native-simulator.mjs", ".github/workflows/native-simulator.yml"]
+    paths: ["apps/mobile/**", "packages/**", "package*.json", "scripts/native-simulator.mjs", "scripts/patch-native-decoder.mjs", ".github/workflows/native-simulator.yml"]
   workflow_dispatch:
 permissions:
   contents: read

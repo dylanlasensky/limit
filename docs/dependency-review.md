@@ -1,5 +1,13 @@
 # Dependency decisions — 2026-10-02
 
+## 2026-10-12 release review
+
+PR #89 aligns Better Auth and its Expo integration at 1.7.7 across root, mobile and Worker, superseding the isolated Worker updates in #65 and #66 after integration merges. The inspected #68, #69 and #70 patches independently advance Worklets to 0.13.0, React Native to 0.87.1 and Screens to 4.28.0. Retain Expo 57's verified matrix (Worklets 0.10.1, RN 0.86.3, Screens ~4.26.0) instead; Doctor passes all 21 checks without exclusions. Installed expo-modules-core's Worklets peer range excludes 0.13.0.
+
+PR #71 changes only Tailwind's major version and lockfile. The app still uses the v3 PostCSS plugin and `@tailwind` directives; v4 needs an explicit plugin/CSS migration and visual acceptance, not a version-only merge. The mixed optional development-tool updates in #92 are deferred to separate compatibility work rather than made a prerequisite for this product release. These decisions do not bypass the unchanged security audit.
+
+Fresh registry/advisory review still finds node-forge 1.4.0 as latest with no published patched version. The four affected root nodes remain one narrow advisory exception; Worker has zero affected nodes. Its expiration is 2026-10-15 at 00:00 UTC, and signed native/OTA releases remain blocked. No exception was extended.
+
 ## 2026-10-07 maintenance
 
 Fresh PR #72 CI found new advisories in root transitive `sharp`, `postcss-selector-parser`, `shell-quote`, and `source-map-js`, plus Worker `@modelcontextprotocol/client`/`sdk`. Narrow overrides and regenerated lockfiles now pass the unchanged audit: Worker zero affected nodes; root only the existing four-node node-forge exception expiring October 15. The Worker lockfile needed all 15 optional Rolldown 1.2.11 platform binding records for reproducible Linux `npm ci`; they use the same integrity metadata as the verified root lockfile. Root and Worker both clean-install using CI's npm 11.19.0. The initial root Rolldown pin experiment was removed.
