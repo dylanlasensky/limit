@@ -1,4 +1,4 @@
-name: Unsigned native simulator
+name: Native simulator behavior
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
@@ -67,7 +67,7 @@ jobs:
           assert hashlib.sha256(archive.read_bytes()).hexdigest() == '5384593cb4e7a106489e75a821d157dd43f4e438df6bc308b72e82c685e1283a'
           PY
           unzip -q "$RUNNER_TEMP/maestro.zip" -d "$RUNNER_TEMP"
-      - name: Generate, compile and launch unsigned simulator app
+      - name: Generate, compile and launch simulator app
         run: node scripts/native-simulator.mjs
       - name: Delete synthetic accounts
         if: always()
@@ -75,7 +75,7 @@ jobs:
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
-          name: unsigned-native-${{ github.event.pull_request.head.sha || github.sha }}
+          name: native-simulator-${{ github.event.pull_request.head.sha || github.sha }}
           path: release-evidence/native-simulator/
           retention-days: 1
           if-no-files-found: error

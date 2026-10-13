@@ -1,14 +1,27 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, writeFileSync, readFileSync, readdirSync, openSync, closeSync } from "node:fs";
+import {
+  mkdirSync,
+  writeFileSync,
+  readFileSync,
+  readdirSync,
+  openSync,
+  closeSync,
+  existsSync,
+} from "node:fs";
 import { join, resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 import { runNativeBehavior } from "./native-behavior.mjs";
+import {
+  decodeSimulatorEntitlements,
+  validateSimulatorSignature,
+} from "./native-simulator-signature.mjs";
 
 assert.equal(process.platform, "darwin", "An Apple simulator runner is required");
 assert.equal(process.env.CI, "true", "Run only on the disposable CI runner");
 assert.equal(process.env.LIMIT_NATIVE_RELEASE, "false", "This is not a signed release");
 assert.equal(process.env.LIMIT_BUNDLE_IDENTIFIER, "com.example.limit.simulator");
+assert.ok(!process.env.LIMIT_APPLE_TEAM_ID, "A developer team is forbidden in this job");
 assert.ok(process.env.RUNNER_TEMP);
 const root = process.cwd();
 const evidenceDir = resolve("release-evidence/native-simulator");
@@ -26,7 +39,7 @@ assert.equal(
 const evidence = {
   sourceRevision,
   scope:
-    "Unsigned simulator compile and launch only; no account, device, signing or store acceptance",
+    "Locally ad hoc signed simulator only; no developer identity, physical device or store acceptance",
   startedAt: new Date().toISOString(),
   status: "pending",
   xcode: read("xcodebuild", ["-version"]),
@@ -93,9 +106,13 @@ try {
       "-jobs",
       "2",
       `ARCHS=${architecture}`,
-      "CODE_SIGNING_ALLOWED=NO",
-      "CODE_SIGNING_REQUIRED=NO",
-      "CODE_SIGN_IDENTITY=",
+      // Simulator Keychain requires Xcode's simulated application entitlement.
+      // The SDK's local ad hoc identity needs no account, certificate or profile.
+      "CODE_SIGNING_ALLOWED=YES",
+      "CODE_SIGNING_REQUIRED=YES",
+      "CODE_SIGN_IDENTITY=-",
+      "DEVELOPMENT_TEAM=",
+      "PROVISIONING_PROFILE_SPECIFIER=",
       "build",
     ],
     join(root, "apps/mobile/ios"),
@@ -118,6 +135,40 @@ try {
     join(app, "Info.plist"),
   ]);
   assert.match(executable, /^[A-Za-z0-9_-]+$/);
+  execFileSync("codesign", ["--verify", "--strict", app], { timeout: 15000, maxBuffer: 65536 });
+  const signature = spawnSync("codesign", ["--display", "--verbose=4", app], {
+    encoding: "utf8",
+    timeout: 15000,
+    maxBuffer: 65536,
+  });
+  assert.equal(signature.status, 0, "Could not inspect simulator signature");
+  const section = execFileSync(
+    "xcrun",
+    ["otool", "-X", "-s", "__TEXT", "__entitlements", join(app, executable)],
+    {
+      encoding: "utf8",
+      timeout: 15000,
+      maxBuffer: 65536,
+    }
+  );
+  const entitlements = JSON.parse(
+    execFileSync("plutil", ["-convert", "json", "-o", "-", "-"], {
+      input: decodeSimulatorEntitlements(section),
+      encoding: "utf8",
+      timeout: 15000,
+      maxBuffer: 65536,
+    })
+  );
+  evidence.signature = validateSimulatorSignature({
+    signature: signature.stdout + signature.stderr,
+    entitlements,
+    platform: read("/usr/libexec/PlistBuddy", [
+      "-c",
+      "Print :CFBundleSupportedPlatforms:0",
+      join(app, "Info.plist"),
+    ]),
+    hasProfile: existsSync(join(app, "embedded.mobileprovision")),
+  });
   evidence.binaryArchitecture = read("xcrun", ["lipo", "-archs", join(app, executable)]);
   assert.equal(
     evidence.binaryArchitecture,
