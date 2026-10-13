@@ -1355,6 +1355,24 @@ test("navigation adapts to the viewport and preserves tab and dialog interaction
   await noOverflow(page);
 });
 
+test("reduced-motion Coach opens without a sliding animation", async ({ page }) => {
+  await mockApp(page);
+  await page.goto("/home");
+  await page.getByRole("button", { name: "Open LIMIT Coach" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog.getByRole("button", { name: "Close coach" })).toBeFocused();
+  await expect(dialog).toHaveCSS("animation-name", "none");
+  const bounds = (await dialog.boundingBox())!;
+  expect(bounds.y).toBeGreaterThanOrEqual(0);
+  expect(bounds.y + bounds.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+  await test.info().attach("coach-reduced-motion", {
+    body: await page.screenshot(),
+    contentType: "image/png",
+  });
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+});
+
 test("desktop dialogs stay inside short windows", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "Desktop window resizing");
   await page.setViewportSize({ width: 1024, height: 600 });
