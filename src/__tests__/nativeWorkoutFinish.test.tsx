@@ -6,6 +6,7 @@ const api = vi.hoisted(() => ({
   command: vi.fn(),
   list: vi.fn(),
   remove: vi.fn(),
+  load: vi.fn(),
   save: vi.fn(),
   replace: vi.fn(),
 }));
@@ -72,7 +73,7 @@ vi.mock("../../apps/mobile/src/lib/api", () => ({
   list: api.list,
 }));
 vi.mock("../../apps/mobile/src/lib/drafts", () => ({
-  loadDraft: () => null,
+  loadDraft: api.load,
   saveDraft: api.save,
   removeDraft: api.remove,
 }));
@@ -110,6 +111,7 @@ function deferred<T>() {
 }
 beforeEach(() => {
   vi.clearAllMocks();
+  api.load.mockReturnValue(null);
   api.list.mockImplementation(async (name) =>
     name === "WorkoutExercise"
       ? [{ id: "lift", exerciseId: "squat", exerciseName: "Squat", sets: 2 }]
@@ -181,4 +183,63 @@ describe("native Finish preserves the submitted snapshot", () => {
     expect(api.command.mock.calls.some(([body]) => body.action === "finish")).toBe(false);
     expect(api.save.mock.calls.at(-1)?.[2].rows[1]).toMatchObject({ pending: true, weight: "25" });
   });
+});
+
+it("shows retained conflict values and requires explicit discard before finishing saved sets", async () => {
+  const local = {
+    workoutExerciseId: "lift",
+    exerciseId: "squat",
+    setNumber: 1,
+    weight: "0",
+    reps: "17",
+    rir: "3",
+    completed: true,
+    operationId: "local-op",
+    revision: "outdated-revision",
+    pending: true,
+  };
+  api.load.mockReturnValue({
+    session,
+    exercises: [{ id: "lift", exerciseId: "squat", exerciseName: "Squat", sets: 2 }],
+    catalog: [],
+    rows: [],
+    excludedRows: [local],
+    index: 0,
+    paused: false,
+    pausedAt: null,
+    pausedMs: 0,
+    restUntil: null,
+  });
+  api.command.mockImplementation(async (body) =>
+    body.action === "start" ? { session } : { ok: true }
+  );
+  render(<Workout />);
+  await waitFor(() =>
+    expect(api.save).toHaveBeenCalledWith(
+      "owner",
+      "owner:day",
+      expect.objectContaining({ excludedRows: [local] })
+    )
+  );
+  expect(screen.getByText("Review retained sets")).toBeVisible();
+  expect(screen.getByText(/Set 1: 17 reps.*0 lb.*3 reps left/)).toBeVisible();
+  expect(screen.getAllByLabelText("Repetitions")[0]).toHaveValue("8");
+  expect(screen.getByRole("button", { name: "Finish workout" })).toBeDisabled();
+  fireEvent.click(screen.getByRole("button", { name: "Discard retained local sets" }));
+  expect(screen.queryByText("Review retained sets")).not.toBeInTheDocument();
+  expect(api.save).toHaveBeenLastCalledWith(
+    "owner",
+    "owner:day",
+    expect.objectContaining({ excludedRows: [] })
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Finish workout" }));
+  await waitFor(() =>
+    expect(api.command).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "finish",
+        expectedSets: sets.map((set) => ({ id: set.id, revision: set.revision })),
+      })
+    )
+  );
+  expect(api.command.mock.calls.some(([body]) => body.action === "saveSet")).toBe(false);
 });

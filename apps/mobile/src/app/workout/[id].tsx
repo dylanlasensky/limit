@@ -165,7 +165,7 @@ export default function Workout() {
     if (current.current?.excludedRows?.length) {
       setError({
         key,
-        message: "Review excluded local sets before finishing this shorter workout.",
+        message: "Review retained local sets before finishing this workout.",
       });
       return;
     }
@@ -240,12 +240,20 @@ export default function Workout() {
       )}
       {!!draft.excludedRows?.length && (
         <Card>
+          <Title>Review retained sets</Title>
           <Copy>
-            {draft.excludedRows.length} unsynced local set(s) are outside today’s shorter workout.
-            They remain on this device until you explicitly discard them.
+            Your workout changed on another screen. These local entries do not fit the current
+            workout or conflict with a saved set. They stay on this device until you discard them.
           </Copy>
+          {draft.excludedRows.map((row) => (
+            <Copy key={row.operationId}>
+              {draft.catalog.find((item) => item.id === row.exerciseId)?.name || "Exercise"} · Set{" "}
+              {row.setNumber}: {row.reps || "—"} reps · {row.weight || "—"} lb · {row.rir || "—"}{" "}
+              reps left · {row.completed ? "Waiting to sync" : "Not completed"}
+            </Copy>
+          ))}
           <Action
-            label="Discard excluded local sets"
+            label="Discard retained local sets"
             disabled={busy}
             onPress={() => changeDraft({ ...draft, excludedRows: [] })}
           />

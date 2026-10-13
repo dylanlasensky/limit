@@ -19,7 +19,7 @@ The only app instrumentation is stable accessibility test identifiers on existin
 
 ## Reproduced draft fix
 
-Rehydration previously replaced uncompleted local weight, repetitions and reps-left values with blank server defaults because only completed pending rows were retained. A failing unit regression reproduced the loss. The merge now retains an uncompleted local row when no saved server set exists, without marking it complete or pending. A separate regression preserves server precedence when another client has already saved the set. The simulator candidate also reopens the unfinished Alpha draft before account isolation.
+Focused regressions reproduced three existing recovery losses: uncompleted input in an allowed slot, uncompleted input outside a shortened budget, and previously excluded input when another client expanded the workout. Recovery now considers both active and retained local rows. A saved server set stays authoritative when revisions conflict, while the local version remains visible in a review card and blocks Finish until explicitly discarded. Reallowed rows with no conflicting saved set return to the logger. Operations already acknowledged by the server are not retained again, and each active set slot remains unique. The simulator candidate reopens an unfinished Alpha draft before account isolation; budget/conflict cases also have deterministic unit coverage.
 
 ## Remaining boundaries
 
