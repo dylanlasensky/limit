@@ -1,10 +1,28 @@
 name: Unsigned native simulator
 on:
   pull_request:
-    paths: ["apps/mobile/**", "packages/**", "package*.json", "scripts/native-simulator.mjs", "scripts/patch-native-decoder.mjs", ".github/workflows/native-simulator.yml"]
+    paths:
+      [
+        "apps/mobile/**",
+        "packages/**",
+        "package*.json",
+        "scripts/native-*.mjs",
+        "tests/native/**",
+        "scripts/patch-native-decoder.mjs",
+        ".github/workflows/native-simulator.yml",
+      ]
   push:
     branches: [main]
-    paths: ["apps/mobile/**", "packages/**", "package*.json", "scripts/native-simulator.mjs", "scripts/patch-native-decoder.mjs", ".github/workflows/native-simulator.yml"]
+    paths:
+      [
+        "apps/mobile/**",
+        "packages/**",
+        "package*.json",
+        "scripts/native-*.mjs",
+        "tests/native/**",
+        "scripts/patch-native-decoder.mjs",
+        ".github/workflows/native-simulator.yml",
+      ]
   workflow_dispatch:
 permissions:
   contents: read
@@ -14,14 +32,15 @@ concurrency:
 jobs:
   unsigned-native-launch:
     # Standard hosted runners are free for public repositories. Never run this on a paid/private runner.
-    if: github.event.repository.private == false
+    if: github.event.repository.private == false && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: macos-26
-    timeout-minutes: 60
+    timeout-minutes: 75
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.4.1.app/Contents/Developer
       EXPO_PUBLIC_API_URL: https://limit-preview.limit-dylanlasensky.workers.dev
       LIMIT_BUNDLE_IDENTIFIER: com.example.limit.simulator
       LIMIT_NATIVE_RELEASE: "false"
+      LIMIT_NATIVE_BEHAVIOR: "true"
       EXPO_NO_TELEMETRY: "1"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -31,8 +50,20 @@ jobs:
         with:
           node-version: 24
       - run: npm ci
+      - name: Install pinned open-source Maestro CLI
+        run: |
+          curl --fail --location --retry 2 --output "$RUNNER_TEMP/maestro.zip" https://github.com/mobile-dev-inc/Maestro/releases/download/cli-2.11.0/maestro.zip
+          python3 - <<'PY'
+          import hashlib, os, pathlib
+          archive = pathlib.Path(os.environ['RUNNER_TEMP']) / 'maestro.zip'
+          assert hashlib.sha256(archive.read_bytes()).hexdigest() == '5384593cb4e7a106489e75a821d157dd43f4e438df6bc308b72e82c685e1283a'
+          PY
+          unzip -q "$RUNNER_TEMP/maestro.zip" -d "$RUNNER_TEMP"
       - name: Generate, compile and launch unsigned simulator app
         run: node scripts/native-simulator.mjs
+      - name: Restore runner networking and delete synthetic accounts
+        if: always()
+        run: node scripts/native-behavior.mjs --cleanup
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:

@@ -3,6 +3,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync, readFileSync, readdirSync, openSync, closeSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { gzipSync } from "node:zlib";
+import { runNativeBehavior } from "./native-behavior.mjs";
 
 assert.equal(process.platform, "darwin", "An Apple simulator runner is required");
 assert.equal(process.env.CI, "true", "Run only on the disposable CI runner");
@@ -17,7 +18,8 @@ const sourceRevision = read("git", ["rev-parse", "HEAD"]);
 const env = { ...process.env, LIMIT_SOURCE_REVISION: sourceRevision };
 const evidence = {
   sourceRevision,
-  scope: "Unsigned simulator compile and launch only; no account, device, signing or store acceptance",
+  scope:
+    "Unsigned simulator compile and launch only; no account, device, signing or store acceptance",
   startedAt: new Date().toISOString(),
   status: "pending",
   xcode: read("xcodebuild", ["-version"]),
@@ -39,27 +41,65 @@ const run = (command, args, cwd, name) => {
 writeFileSync(join(evidenceDir, "result.json"), JSON.stringify(evidence, null, 2) + "\n");
 let device;
 try {
-  run("npx", ["expo", "prebuild", "--platform", "ios", "--no-install", "--skip-dependency-update", "react-native,react"], join(root, "apps/mobile"), "prebuild");
+  run(
+    "npx",
+    [
+      "expo",
+      "prebuild",
+      "--platform",
+      "ios",
+      "--no-install",
+      "--skip-dependency-update",
+      "react-native,react",
+    ],
+    join(root, "apps/mobile"),
+    "prebuild"
+  );
   run("pod", ["install"], join(root, "apps/mobile/ios"), "pods");
   const derived = join(process.env.RUNNER_TEMP, "limit-native-derived");
-  run("xcodebuild", [
-    "-workspace", "LIMIT.xcworkspace", "-scheme", "LIMIT", "-configuration", "Release",
-    "-sdk", "iphonesimulator", "-destination", "generic/platform=iOS Simulator",
-    "-derivedDataPath", derived, "-jobs", "2", "CODE_SIGNING_ALLOWED=NO",
-    "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_IDENTITY=", "build",
-  ], join(root, "apps/mobile/ios"), "build");
+  run(
+    "xcodebuild",
+    [
+      "-workspace",
+      "LIMIT.xcworkspace",
+      "-scheme",
+      "LIMIT",
+      "-configuration",
+      "Release",
+      "-sdk",
+      "iphonesimulator",
+      "-destination",
+      "generic/platform=iOS Simulator",
+      "-derivedDataPath",
+      derived,
+      "-jobs",
+      "2",
+      "CODE_SIGNING_ALLOWED=NO",
+      "CODE_SIGNING_REQUIRED=NO",
+      "CODE_SIGN_IDENTITY=",
+      "build",
+    ],
+    join(root, "apps/mobile/ios"),
+    "build"
+  );
   evidence.compiled = true;
   const products = join(derived, "Build/Products/Release-iphonesimulator");
   const apps = readdirSync(products).filter((name) => name.endsWith(".app"));
   assert.equal(apps.length, 1, "Expected one simulator app");
   const app = join(products, apps[0]);
-  const bundle = read("/usr/libexec/PlistBuddy", ["-c", "Print :CFBundleIdentifier", join(app, "Info.plist")]);
+  const bundle = read("/usr/libexec/PlistBuddy", [
+    "-c",
+    "Print :CFBundleIdentifier",
+    join(app, "Info.plist"),
+  ]);
   assert.equal(bundle, "com.example.limit.simulator");
   const inventory = JSON.parse(read("xcrun", ["simctl", "list", "devices", "available", "--json"]));
   device = Object.entries(inventory.devices)
     .filter(([runtime]) => runtime.includes("iOS"))
     .flatMap(([, devices]) => devices)
-    .find((entry) => entry.isAvailable && entry.name.startsWith("iPhone") && entry.state === "Shutdown");
+    .find(
+      (entry) => entry.isAvailable && entry.name.startsWith("iPhone") && entry.state === "Shutdown"
+    );
   assert.ok(device, "An installed iPhone simulator is required");
   read("xcrun", ["simctl", "boot", device.udid]);
   read("xcrun", ["simctl", "bootstatus", device.udid, "-b"]);
@@ -68,10 +108,19 @@ try {
   assert.match(launch, /:\s*\d+$/);
   await new Promise((resolve) => setTimeout(resolve, 10000));
   const processes = read("xcrun", ["simctl", "spawn", device.udid, "launchctl", "list"]);
-  assert.ok(processes.split("\n").some((line) => /^\d+\s/.test(line) && line.includes(bundle)), "App must remain running after launch");
+  assert.ok(
+    processes.split("\n").some((line) => /^\d+\s/.test(line) && line.includes(bundle)),
+    "App must remain running after launch"
+  );
   read("xcrun", ["simctl", "io", device.udid, "screenshot", join(evidenceDir, "launch.png")]);
   evidence.launched = true;
   evidence.simulator = device.name;
+  if (process.env.LIMIT_NATIVE_BEHAVIOR === "true") {
+    await runNativeBehavior(device, evidenceDir);
+    evidence.behavior = "passed";
+    evidence.scope =
+      "Unsigned simulator compile, rendered launch and bounded synthetic-account behavior; no physical device, signing or store acceptance";
+  }
   evidence.status = "passed";
 } catch (error) {
   evidence.status = "failed";

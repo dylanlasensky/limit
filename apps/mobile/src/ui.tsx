@@ -81,6 +81,7 @@ export function Action({
 }) {
   return (
     <Pressable
+      testID={`action-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
       accessibilityRole="button"
       disabled={disabled}
       onPress={onPress}
@@ -109,6 +110,7 @@ export function Input({
     <View style={{ gap: 6 }}>
       <Text style={styles.muted}>{label}</Text>
       <TextInput
+        testID={`input-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
         accessibilityLabel={label}
         style={styles.input}
         value={value}
