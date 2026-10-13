@@ -524,6 +524,22 @@ test("pre-input image requires the exact first-flow prefix and proven empty init
       .emptyAuthInputs,
     null
   );
+  for (const duplicate of emptyFields) {
+    const initialInputsEmpty = summarizeHierarchy({
+      children: [...emptyFields, duplicate],
+    }).emptyAuthInputs;
+    assert.equal(initialInputsEmpty, null);
+    preInputImageFixture(({ temp, context }) => {
+      assert.equal(readPreInputFailureImage(temp, { ...context, initialInputsEmpty }), null);
+    });
+  }
+  for (const remaining of emptyFields) {
+    const initialInputsEmpty = summarizeHierarchy({ children: [remaining] }).emptyAuthInputs;
+    assert.equal(initialInputsEmpty, null);
+    preInputImageFixture(({ temp, context }) => {
+      assert.equal(readPreInputFailureImage(temp, { ...context, initialInputsEmpty }), null);
+    });
+  }
   emptyFields[0].children = [{ attributes: { value: "private-descendant" } }];
   assert.equal(summarizeHierarchy({ children: emptyFields }).emptyAuthInputs, null);
 });

@@ -140,8 +140,8 @@ export function summarizeHierarchy(root, expectedInputs) {
   result.emptyAuthInputs =
     !result.hierarchyCounts.truncated &&
     !nestedAuthInput &&
-    inputValues.email.length &&
-    inputValues.password.length &&
+    inputValues.email.length === 1 &&
+    inputValues.password.length === 1 &&
     fields.every((v) => typeof v === "string")
       ? fields.every((v) => v === "")
       : null;
