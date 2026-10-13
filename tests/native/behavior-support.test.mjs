@@ -1,0 +1,208 @@
+import test from "node:test";
+import { readFileSync } from "node:fs";
+import assert from "node:assert/strict";
+import {
+  assertPreview,
+  previewOrigin,
+  acceptedRevision,
+  redact,
+  assertOneSavedSet,
+} from "../../scripts/native-behavior-support.mjs";
+import { behaviorFlows } from "../../scripts/native-behavior-flows.mjs";
+test("native fixtures fail closed outside accepted email-disabled preview", () => {
+  const health = { environment: "preview", sourceRevision: acceptedRevision };
+  assertPreview(previewOrigin, health, { emailEnabled: false });
+  assert.throws(() =>
+    assertPreview("https://limit.limit-dylanlasensky.workers.dev", health, { emailEnabled: false })
+  );
+  assert.throws(() =>
+    assertPreview(previewOrigin, { ...health, sourceRevision: "changed" }, { emailEnabled: false })
+  );
+  assert.throws(() => assertPreview(previewOrigin, health, { emailEnabled: true }));
+});
+test("artifact redaction removes complete and overlapping synthetic credentials", () => {
+  assert.equal(
+    redact("abc abcdef cookie=secret abc", ["abc", "abcdef", "cookie=secret"]),
+    "[REDACTED] [REDACTED] [REDACTED] [REDACTED]"
+  );
+});
+test("backend acceptance rejects stale reps, duplicates and another owner's sets", () => {
+  const row = { ownerId: "A", workoutSessionId: "S", reps: 13, completed: true };
+  assertOneSavedSet([row], "A", "S", 13);
+  assert.throws(() => assertOneSavedSet([row, row], "A", "S", 13));
+  assert.throws(() => assertOneSavedSet([row], "B", "S", 13));
+  assert.throws(() => assertOneSavedSet([row], "A", "S", 12));
+});
+test("flows drive real input and do not replace unsupported iOS networking with a no-op", () => {
+  const flows = behaviorFlows();
+  assert.equal(Object.keys(flows).length, 5);
+  const commands = JSON.stringify(flows);
+  assert.ok(commands.includes("doubleTapOn"));
+  assert.ok(commands.includes("assertNotVisible"));
+  assert.ok(!commands.includes("setAirplaneMode"));
+  assert.ok(!commands.includes("clearState"));
+  assert.ok(!commands.includes("clearKeychain"));
+});
+test("fresh installed app is observed without reset and lifecycle launches deny permissions", () => {
+  const flows = behaviorFlows();
+  assert.deepEqual(flows["01-auth-and-save"][0], {
+    extendedWaitUntil: { visible: "Welcome back.", timeout: 30000 },
+  });
+  const launches = Object.values(flows)
+    .flat()
+    .filter((command) => {
+      assert.notEqual(command, "launchApp", "Bare launches implicitly grant permissions");
+      return typeof command === "object" && command.launchApp;
+    });
+  assert.equal(launches.length, 4);
+  for (const command of launches) {
+    assert.deepEqual(command.launchApp.permissions, { all: "deny" });
+  }
+});
+
+test("candidate cannot change host networking or simulator security settings", () => {
+  const harness = readFileSync(
+    new URL("../../scripts/native-behavior.mjs", import.meta.url),
+    "utf8"
+  );
+  assert.doesNotMatch(
+    harness,
+    /\/etc\/hosts|flushcache|mDNSResponder|plutil|PasswordAutoFill|sudo/
+  );
+  assert.match(
+    harness,
+    /Native network-loss\/API-unavailability recovery; no approved app-scoped fault method/
+  );
+  // Only the reviewed first-flow, pre-input diagnostic image is permitted.
+  // Populated or later-flow failure captures remain forbidden by the gate tests.
+  assert.deepEqual(harness.match(/[a-z-]*failure\.png/g), [
+    "pre-input-failure.png",
+    "pre-input-failure.png",
+  ]);
+  assert.match(harness, /const preInputImage = readPreInputFailureImage/);
+  assert.match(harness, /firstFlow: result.stages.length === 1/);
+  assert.match(harness, /freshInstall && process.env.RUNNER_ENVIRONMENT === "github-hosted"/);
+  assert.match(harness, /initialInputsEmpty: result.readiness.ui.emptyAuthInputs === true/);
+  assert.doesNotMatch(harness, /"screenshot"/);
+});
+test("isolation starts with an unfinished Alpha draft and excludes login screenshots", () => {
+  const flows = behaviorFlows();
+  const prepare = JSON.stringify(flows["04-prepare-private-draft"]);
+  const isolate = JSON.stringify(flows["05-account-isolation"]);
+  assert.match(prepare, /MAESTRO_ALPHA_DRAFT_DAY/);
+  assert.match(prepare, /"inputText":"17"/);
+  assert.doesNotMatch(prepare, /action-complete-set|action-finish-workout/);
+  assert.match(isolate, /MAESTRO_ALPHA_DRAFT_DAY/);
+  assert.match(isolate, /"assertNotVisible":\{"id":"input-repetitions","text":"17"\}/);
+  assert.doesNotMatch(isolate, /08-signed-out-route/);
+});
+
+test("checkpoint screenshots use unique relative names within Maestro's artifact folder", () => {
+  const shots = Object.values(behaviorFlows())
+    .flat()
+    .filter((command) => command.takeScreenshot)
+    .map((command) => command.takeScreenshot);
+  assert.equal(shots.length, 7);
+  assert.equal(new Set(shots).size, shots.length);
+  for (const shot of shots) assert.match(shot, /^\d{2}-[a-z-]+$/);
+  const harness = readFileSync(
+    new URL("../../scripts/native-behavior.mjs", import.meta.url),
+    "utf8"
+  );
+  assert.doesNotMatch(harness, /MAESTRO_EVIDENCE|--test-output-dir/);
+  assert.match(harness, /result.status === "passed" && result.cleanup === "passed"/);
+  assert.ok(
+    harness.indexOf("await cleanupNativeFixtures();", harness.indexOf("} finally {")) <
+      harness.indexOf("writeFileSync(join(checkpoints")
+  );
+});
+
+test("driver readiness precedes credentials and later invocations avoid reinstallation", () => {
+  const harness = readFileSync(
+    new URL("../../scripts/native-behavior.mjs", import.meta.url),
+    "utf8"
+  );
+  assert.ok(
+    harness.indexOf("result.readiness = readHierarchy()") <
+      harness.indexOf("accounts = await makeAccounts()")
+  );
+  assert.match(harness, /"--no-reinstall-driver"/);
+  assert.match(harness, /driverStartupTimeoutMs: 180000/);
+  assert.match(harness, /driverReadinessTimeoutMs: 360000/);
+  assert.match(harness, /MAESTRO_DRIVER_STARTUP_TIMEOUT: String\(result.driverStartupTimeoutMs\)/);
+  assert.match(harness, /timeout: result.driverReadinessTimeoutMs/);
+  assert.match(harness, /timeout: 240000/);
+  assert.match(harness, /stage.failureUI = readFailedStepHierarchy/);
+  assert.equal(harness.match(/readHierarchy\(\)/g).length, 1);
+  assert.doesNotMatch(harness, /console\.(log|error)\(run\.(stdout|stderr)/);
+});
+
+test("both sign-ins verify the complete email and enabled form before submission", () => {
+  for (const [flow, who] of [
+    ["01-auth-and-save", "ALPHA"],
+    ["05-account-isolation", "BETA"],
+  ]) {
+    const commands = behaviorFlows()[flow];
+    const emailInput = commands.findIndex((c) => c.inputText === "${MAESTRO_" + who + "_EMAIL}");
+    assert.ok(emailInput >= 0);
+    assert.deepEqual(commands[emailInput + 1], {
+      assertVisible: { id: "input-email", text: "\\Q${MAESTRO_" + who + "_EMAIL}\\E" },
+    });
+    const submit = commands.findIndex((c) => c.tapOn?.id === "action-sign-in");
+    assert.ok(submit > emailInput);
+    const passwordInput = commands.findIndex(
+      (c) => c.inputText === "${MAESTRO_" + who + "_PASSWORD}"
+    );
+    assert.ok(passwordInput > emailInput);
+    assert.deepEqual(commands.slice(passwordInput + 1, submit), [
+      { tapOn: "Welcome back." },
+      { assertVisible: { id: "action-sign-in", enabled: true } },
+    ]);
+    assert.deepEqual(commands[submit - 1], {
+      assertVisible: { id: "action-sign-in", enabled: true },
+    });
+    assert.equal(commands[submit].tapOn.enabled, true);
+  }
+  const email = "native-synthetic@example.invalid";
+  assert.equal(redact("\\Q" + email + "\\E", [email]), "\\Q[REDACTED]\\E");
+});
+
+test("only the named LIMIT deep-link confirmation permits Maestro's bounded missed-tap retry", () => {
+  const flows = behaviorFlows();
+  let prompts = 0;
+  const inspect = (commands) => {
+    for (const command of commands) {
+      if (command.runFlow) {
+        prompts += 1;
+        assert.deepEqual(command.runFlow, {
+          when: { visible: "Open in.*LIMIT.*" },
+          commands: [
+            { waitForAnimationToEnd: { timeout: 5000 } },
+            { tapOn: { text: "Open", retryTapIfNoChange: true } },
+          ],
+        });
+      } else {
+        assert.doesNotMatch(
+          JSON.stringify(command),
+          /"(?:retryTapIfNoChange|repeat|autoVerify|waitToSettleTimeoutMs)":/
+        );
+      }
+    }
+  };
+  for (const commands of Object.values(flows)) inspect(commands);
+  assert.ok(prompts > 0);
+});
+
+test("every deep link dismisses its modal and sign-in checks the destination before input", () => {
+  const flows = behaviorFlows();
+  for (const commands of Object.values(flows)) {
+    for (let index = 0; index < commands.length; index++) {
+      if (!commands[index].openLink) continue;
+      assert.ok(commands[index + 1].runFlow);
+      assert.deepEqual(commands[index + 2], { assertNotVisible: "Open in.*LIMIT.*" });
+    }
+  }
+  assert.deepEqual(flows["01-auth-and-save"][3], { assertNotVisible: "Open in.*LIMIT.*" });
+  assert.deepEqual(flows["01-auth-and-save"][4], { assertVisible: "Welcome back." });
+  assert.deepEqual(flows["01-auth-and-save"][5], { tapOn: { id: "input-email" } });
+});

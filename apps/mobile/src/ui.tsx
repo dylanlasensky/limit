@@ -46,7 +46,11 @@ export function Page({ children }: { children: React.ReactNode }) {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <View role="main" style={{ flex: 1 }}>
-          <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+          <ScrollView
+            contentContainerStyle={styles.body}
+            keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="handled"
+          >
             <Image
               source={require("../../../public/brand/limit-logo.png")}
               accessibilityLabel="LIMIT"
@@ -81,6 +85,7 @@ export function Action({
 }) {
   return (
     <Pressable
+      testID={`action-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
       accessibilityRole="button"
       disabled={disabled}
       onPress={onPress}
@@ -109,6 +114,7 @@ export function Input({
     <View style={{ gap: 6 }}>
       <Text style={styles.muted}>{label}</Text>
       <TextInput
+        testID={`input-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
         accessibilityLabel={label}
         style={styles.input}
         value={value}

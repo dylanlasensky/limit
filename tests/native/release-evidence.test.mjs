@@ -56,6 +56,12 @@ for (const [name, change] of [
     },
   ],
   [
+    "skipped draft native job",
+    (x) => {
+      x.checkRuns[0].conclusion = "skipped";
+    },
+  ],
+  [
     "stale check SHA",
     (x) => {
       x.checkRuns[0].head_sha = "b".repeat(40);
