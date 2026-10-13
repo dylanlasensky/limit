@@ -41,7 +41,9 @@ const login = (who) => [
   },
   tap("input-password-at-least-12-characters"),
   { inputText: "${MAESTRO_" + who + "_PASSWORD}" },
-  "hideKeyboard",
+  // Page's handled-tap ScrollView dismisses input on this noninteractive heading.
+  // Maestro's iOS hideKeyboard swipe failed before submission on the verified run.
+  { tapOn: "Welcome back." },
   { assertVisible: { id: "action-sign-in", enabled: true } },
   { tapOn: { id: "action-sign-in", enabled: true } },
   {

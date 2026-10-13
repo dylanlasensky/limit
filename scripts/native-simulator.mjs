@@ -208,7 +208,7 @@ try {
     await runNativeBehavior(device, evidenceDir, { freshInstall: true });
     evidence.behavior = "passed";
     evidence.scope =
-      "Unsigned simulator compile, rendered launch and bounded synthetic-account behavior; no physical device, signing or store acceptance";
+      "Locally ad hoc signed simulator compile, rendered launch and bounded synthetic-account behavior; no developer identity, physical device or store acceptance";
   }
   evidence.status = "passed";
 } catch (error) {

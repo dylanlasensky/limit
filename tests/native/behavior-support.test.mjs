@@ -130,6 +130,14 @@ test("both sign-ins verify the complete email and enabled form before submission
     });
     const submit = commands.findIndex((c) => c.tapOn?.id === "action-sign-in");
     assert.ok(submit > emailInput);
+    const passwordInput = commands.findIndex(
+      (c) => c.inputText === "${MAESTRO_" + who + "_PASSWORD}"
+    );
+    assert.ok(passwordInput > emailInput);
+    assert.deepEqual(commands.slice(passwordInput + 1, submit), [
+      { tapOn: "Welcome back." },
+      { assertVisible: { id: "action-sign-in", enabled: true } },
+    ]);
     assert.deepEqual(commands[submit - 1], {
       assertVisible: { id: "action-sign-in", enabled: true },
     });

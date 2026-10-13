@@ -146,7 +146,7 @@ export async function runNativeBehavior(device, evidenceDir, { freshInstall = fa
     sourceRevision: read("git", ["rev-parse", "HEAD"]),
     apiHealth: before,
     scope:
-      "Unsigned iOS simulator UI behavior against disposable preview accounts; no physical device, signing or store acceptance",
+      "Locally ad hoc signed iOS simulator UI behavior against disposable preview accounts; no developer identity, physical device or store acceptance",
     uncovered: [
       "Native network-loss/API-unavailability recovery; no approved app-scoped fault method",
       "Physical-device and signed/TestFlight acceptance",
