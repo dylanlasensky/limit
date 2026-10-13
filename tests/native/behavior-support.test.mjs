@@ -97,6 +97,10 @@ test("driver readiness precedes credentials and later invocations avoid reinstal
       harness.indexOf("accounts = await makeAccounts()")
   );
   assert.match(harness, /"--no-reinstall-driver"/);
+  assert.match(harness, /driverStartupTimeoutMs: 180000/);
+  assert.match(harness, /driverReadinessTimeoutMs: 360000/);
+  assert.match(harness, /MAESTRO_DRIVER_STARTUP_TIMEOUT: String\(result.driverStartupTimeoutMs\)/);
+  assert.match(harness, /timeout: result.driverReadinessTimeoutMs/);
   assert.match(harness, /timeout: 240000/);
   assert.match(harness, /stage.failureUI = readFailedStepHierarchy/);
   assert.equal(harness.match(/readHierarchy\(\)/g).length, 1);

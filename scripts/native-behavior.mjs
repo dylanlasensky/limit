@@ -152,6 +152,8 @@ export async function runNativeBehavior(device, evidenceDir) {
     ],
     startedAt: new Date().toISOString(),
     status: "pending",
+    driverStartupTimeoutMs: 180000,
+    driverReadinessTimeoutMs: 360000,
     stages: [],
     cleanup: "pending",
   };
@@ -170,6 +172,7 @@ export async function runNativeBehavior(device, evidenceDir) {
       ...process.env,
       JAVA_HOME: javaHome,
       MAESTRO_CLI_NO_ANALYTICS: "1",
+      MAESTRO_DRIVER_STARTUP_TIMEOUT: String(result.driverStartupTimeoutMs),
       MAESTRO_API_URL: "http://127.0.0.1:9",
       XDG_STATE_HOME: join(temp, "maestro-state"),
     };
@@ -182,7 +185,8 @@ export async function runNativeBehavior(device, evidenceDir) {
       const run = spawnSync(maestro, ["--device", device.udid, "hierarchy"], {
         env: commonEnv,
         encoding: "utf8",
-        timeout: 240000,
+        timeout: result.driverReadinessTimeoutMs,
+        killSignal: "SIGKILL",
         maxBuffer: 8 * 1024 * 1024,
       });
       const outcome = summarizeProcess(run, startedAt);
