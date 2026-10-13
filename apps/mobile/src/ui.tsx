@@ -46,7 +46,11 @@ export function Page({ children }: { children: React.ReactNode }) {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <View role="main" style={{ flex: 1 }}>
-          <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+          <ScrollView
+            contentContainerStyle={styles.body}
+            keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="handled"
+          >
             <Image
               source={require("../../../public/brand/limit-logo.png")}
               accessibilityLabel="LIMIT"

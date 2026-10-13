@@ -21,10 +21,18 @@ const login = (who) => [
   { assertVisible: "Welcome back." },
   tap("input-email"),
   { inputText: "${MAESTRO_" + who + "_EMAIL}" },
+  {
+    assertVisible: {
+      id: "input-email",
+      // Pinned Maestro uses Kotlin Regex; quote the full fixture for exact matching.
+      text: "\\Q${MAESTRO_" + who + "_EMAIL}\\E",
+    },
+  },
   tap("input-password-at-least-12-characters"),
   { inputText: "${MAESTRO_" + who + "_PASSWORD}" },
   "hideKeyboard",
-  tap("action-sign-in"),
+  { assertVisible: { id: "action-sign-in", enabled: true } },
+  { tapOn: { id: "action-sign-in", enabled: true } },
   {
     extendedWaitUntil: {
       visible: "Hi, Native" + (who === "ALPHA" ? "Alpha" : "Beta") + ".",

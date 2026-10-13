@@ -106,3 +106,25 @@ test("driver readiness precedes credentials and later invocations avoid reinstal
   assert.equal(harness.match(/readHierarchy\(\)/g).length, 1);
   assert.doesNotMatch(harness, /console\.(log|error)\(run\.(stdout|stderr)/);
 });
+
+test("both sign-ins verify the complete email and enabled form before submission", () => {
+  for (const [flow, who] of [
+    ["01-auth-and-save", "ALPHA"],
+    ["05-account-isolation", "BETA"],
+  ]) {
+    const commands = behaviorFlows()[flow];
+    const emailInput = commands.findIndex((c) => c.inputText === "${MAESTRO_" + who + "_EMAIL}");
+    assert.ok(emailInput >= 0);
+    assert.deepEqual(commands[emailInput + 1], {
+      assertVisible: { id: "input-email", text: "\\Q${MAESTRO_" + who + "_EMAIL}\\E" },
+    });
+    const submit = commands.findIndex((c) => c.tapOn?.id === "action-sign-in");
+    assert.ok(submit > emailInput);
+    assert.deepEqual(commands[submit - 1], {
+      assertVisible: { id: "action-sign-in", enabled: true },
+    });
+    assert.equal(commands[submit].tapOn.enabled, true);
+  }
+  const email = "native-synthetic@example.invalid";
+  assert.equal(redact("\\Q" + email + "\\E", [email]), "\\Q[REDACTED]\\E");
+});
