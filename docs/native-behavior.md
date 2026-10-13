@@ -4,6 +4,8 @@ This candidate preserves accepted web main `eb4cf12e2ca7500285058280ae62e0286f6d
 
 The public-repository-only standard `macos-26` runner compiles with Xcode 26.4.1. No Apple account, signing, EAS/Maestro Cloud account, API key, payment or legal agreement is used. Maestro CLI 2.11.0 is downloaded from its official release and checked against the published SHA-256. Java 17 is already provided by the runner. CLI analytics are disabled and its API/error-reporting endpoint is redirected to loopback; no AI analysis or cloud upload command is invoked.
 
+Draft pull requests run automatic source checks but defer native compilation while fixes are being reviewed. Freeze the candidate SHA, then dispatch this workflow explicitly for its branch, or mark the PR ready for review. The final exact-head native behavior run is mandatory before readiness/merge; a skipped draft job is not acceptance. Main pushes still run the native job.
+
 ## Planned acceptance
 
 1. Seed two disposable `example.invalid` preview accounts and clearly synthetic plans. Require the accepted preview source and email-disabled configuration; production is rejected.
@@ -19,7 +21,7 @@ The only app instrumentation is stable accessibility test identifiers on existin
 
 ## Reproduced draft fix
 
-Focused regressions reproduced three existing recovery losses: uncompleted input in an allowed slot, uncompleted input outside a shortened budget, and previously excluded input when another client expanded the workout. Recovery now considers both active and retained local rows. A saved server set stays authoritative when revisions conflict, while the local version remains visible in a review card and blocks Finish until explicitly discarded. Reallowed rows with no conflicting saved set return to the logger. Operations already acknowledged by the server are not retained again, and each active set slot remains unique. The simulator candidate reopens an unfinished Alpha draft before account isolation; budget/conflict cases also have deterministic unit coverage.
+Focused regressions reproduced three existing recovery losses: uncompleted input in an allowed slot, uncompleted input outside a shortened budget, and previously excluded input when another client expanded the workout. Recovery now considers both active and retained local rows. A saved server set stays authoritative when revisions conflict, while the local version remains visible in a review card and blocks Finish until explicitly discarded. Reallowed rows with no conflicting saved set return to the logger. Local edit intent is persisted separately from untouched server snapshots, including saved incomplete sets; unchanged snapshots do not create false conflicts on later hydration. Older drafts use conservative value comparison. Operations already acknowledged by the server are not retained again, and each active set slot remains unique. The simulator candidate reopens an unfinished Alpha draft before account isolation; budget/conflict cases also have deterministic unit coverage.
 
 ## Remaining boundaries
 

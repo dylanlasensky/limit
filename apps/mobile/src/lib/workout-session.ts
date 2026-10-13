@@ -12,6 +12,7 @@ export type WorkoutRow = {
   revision: string;
   savedId?: string;
   pending: boolean;
+  draftEdited?: boolean;
 };
 
 // The session's saved budget is authoritative. WorkoutExercise remains the reusable template.
@@ -29,9 +30,32 @@ export function scopeWorkoutSession(
   const exercises = template
     .filter((exercise) => !limits || limits.has(exercise.id))
     .sort((a, b) => (a.order || 0) - (b.order || 0));
+  const hasLocalInput = (row: WorkoutRow) => {
+    if (row.pending) return true;
+    if (row.completed) return false;
+    if (row.draftEdited !== undefined) return row.draftEdited;
+    if (![row.weight, row.reps, row.rir].some((value) => value !== "")) return false;
+    // Older drafts have no edit-intent marker. Recognize an unchanged saved snapshot,
+    // but conservatively retain values when their previous server state is unavailable.
+    const saved = savedSets.find(
+      (set) => set.workoutExerciseId === row.workoutExerciseId && set.setNumber === row.setNumber
+    );
+    return (
+      !saved ||
+      row.savedId !== saved.id ||
+      row.revision !== (saved.revision || "") ||
+      row.weight !== (saved.weight?.toString() || "") ||
+      row.reps !== (saved.reps?.toString() || "") ||
+      row.rir !== (saved.rir?.toString() || "") ||
+      row.exerciseId !==
+        (saved.exerciseId ||
+          template.find((item) => item.id === row.workoutExerciseId)?.exerciseId ||
+          "")
+    );
+  };
   const localRows = [...cachedRows, ...excludedRows].filter(
     (row, index, all) =>
-      (row.pending || (!row.completed && [row.weight, row.reps, row.rir].some((v) => v !== ""))) &&
+      hasLocalInput(row) &&
       all.findIndex((other) => other.operationId === row.operationId) === index
   );
   const selected = new Set<string>();
@@ -71,6 +95,7 @@ export function scopeWorkoutSession(
         revision: saved?.revision || "",
         savedId: saved?.id,
         pending: false,
+        draftEdited: false,
       } satisfies WorkoutRow;
     })
   );

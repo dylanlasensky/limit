@@ -246,4 +246,80 @@ describe("native resume of a web-shortened workout", () => {
     expect(resumed.rows.find((row) => row.setNumber === 2)).toEqual(local);
     expect(resumed.excludedRows).toEqual([]);
   });
+  it("does not invent retained conflicts when a saved incomplete set is hydrated repeatedly", () => {
+    const remote = { ...saved[0], completed: false };
+    const first = scopeWorkoutSession(session, template, [remote], [], [], () => "first-op");
+    const second = scopeWorkoutSession(
+      session,
+      template,
+      [remote],
+      first.rows,
+      first.excludedRows,
+      () => "second-op"
+    );
+    const third = scopeWorkoutSession(
+      session,
+      template,
+      [remote],
+      second.rows,
+      second.excludedRows,
+      () => "third-op"
+    );
+    expect(second.excludedRows).toEqual([]);
+    expect(third.excludedRows).toEqual([]);
+    expect(third.rows).toMatchObject([{ savedId: "saved-a", completed: false, reps: "8" }]);
+  });
+
+  it("refreshes an untouched incomplete server snapshot after a remote change", () => {
+    const remote = { ...saved[0], completed: false };
+    const first = scopeWorkoutSession(session, template, [remote], [], [], () => "first-op");
+    const updated = { ...remote, reps: 12, revision: "new-revision" };
+    const resumed = scopeWorkoutSession(
+      session,
+      template,
+      [updated],
+      first.rows,
+      [],
+      () => "new-op"
+    );
+    expect(resumed.rows).toMatchObject([{ reps: "12", draftEdited: false }]);
+    expect(resumed.excludedRows).toEqual([]);
+  });
+  it("retains explicitly edited incomplete input when a server set exists", () => {
+    const remote = { ...saved[0], completed: false };
+    const first = scopeWorkoutSession(session, template, [remote], [], [], () => "first-op");
+    const edited = { ...first.rows[0], reps: "17", draftEdited: true, operationId: "edit-op" };
+    const resumed = scopeWorkoutSession(session, template, [remote], [edited], [], () => "new-op");
+    expect(resumed.rows).toMatchObject([{ reps: "8", draftEdited: false }]);
+    expect(resumed.excludedRows).toEqual([edited]);
+  });
+  it("recognizes unchanged legacy incomplete snapshots but preserves their edited values", () => {
+    const remote = { ...saved[0], completed: false };
+    const first = scopeWorkoutSession(session, template, [remote], [], [], () => "first-op");
+    const legacy = { ...first.rows[0] };
+    delete legacy.draftEdited;
+    expect(
+      scopeWorkoutSession(session, template, [remote], [legacy], [], () => "new-op").excludedRows
+    ).toEqual([]);
+    const edited = { ...legacy, reps: "17" };
+    expect(
+      scopeWorkoutSession(session, template, [remote], [edited], [], () => "new-op").excludedRows
+    ).toEqual([edited]);
+  });
+  it("preserves deliberately cleared unfinished input as local edit intent", () => {
+    const remote = { ...saved[0], completed: false };
+    const first = scopeWorkoutSession(session, template, [remote], [], [], () => "first-op");
+    const cleared = {
+      ...first.rows[0],
+      weight: "",
+      reps: "",
+      rir: "",
+      draftEdited: true,
+      operationId: "clear-op",
+    };
+    const resumed = scopeWorkoutSession(session, template, [remote], [cleared], [], () => "new-op");
+    expect(resumed.excludedRows).toEqual([cleared]);
+    const localOnly = scopeWorkoutSession(session, template, [], [cleared], [], () => "new-op");
+    expect(localOnly.rows).toEqual([cleared]);
+  });
 });

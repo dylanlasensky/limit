@@ -145,7 +145,13 @@ export default function Workout() {
           ...current.current!,
           rows: current.current!.rows.map((r) =>
             r.operationId === row.operationId
-              ? { ...r, pending: false, revision: saved.revision || "", savedId: saved.id }
+              ? {
+                  ...r,
+                  pending: false,
+                  draftEdited: false,
+                  revision: saved.revision || "",
+                  savedId: saved.id,
+                }
               : r
           ),
         });
@@ -222,6 +228,7 @@ export default function Workout() {
               ...patch,
               operationId: Crypto.randomUUID(),
               pending: r.completed || !!patch.completed,
+              draftEdited: true,
             }
           : r
       ),

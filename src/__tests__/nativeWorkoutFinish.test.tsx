@@ -243,3 +243,32 @@ it("shows retained conflict values and requires explicit discard before finishin
   );
   expect(api.command.mock.calls.some(([body]) => body.action === "saveSet")).toBe(false);
 });
+
+it("marks edited incomplete inputs as local intent without automatically saving them", async () => {
+  api.list.mockImplementation(async (name) =>
+    name === "WorkoutExercise"
+      ? [{ id: "lift", exerciseId: "squat", exerciseName: "Squat", sets: 2 }]
+      : name === "ExerciseSet"
+        ? sets.map((set) => ({ ...set, completed: false }))
+        : []
+  );
+  api.command.mockResolvedValue({ session });
+  render(<Workout />);
+  const inputs = await screen.findAllByLabelText("Repetitions");
+  fireEvent.change(inputs[0], { target: { value: "17" } });
+  expect(api.save).toHaveBeenLastCalledWith(
+    "owner",
+    "owner:day",
+    expect.objectContaining({
+      rows: expect.arrayContaining([
+        expect.objectContaining({
+          reps: "17",
+          draftEdited: true,
+          pending: false,
+          completed: false,
+        }),
+      ]),
+    })
+  );
+  expect(api.command.mock.calls.some(([body]) => body.action === "saveSet")).toBe(false);
+});

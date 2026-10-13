@@ -1,6 +1,7 @@
 name: Unsigned native simulator
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       [
         "apps/mobile/**",
@@ -32,7 +33,7 @@ concurrency:
 jobs:
   unsigned-native-launch:
     # Standard hosted runners are free for public repositories. Never run this on a paid/private runner.
-    if: github.event.repository.private == false && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    if: github.event.repository.private == false && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.draft == false))
     runs-on: macos-26
     timeout-minutes: 75
     env:
