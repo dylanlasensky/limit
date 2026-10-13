@@ -213,6 +213,7 @@ for (const appearance of ["light", "dark"]) {
     await expect(page.getByLabel("Set 1 repetitions", { exact: true })).toHaveValue("8");
     await page.getByRole("button", { name: "Complete set 1", exact: true }).first().click();
     await expect(page.getByRole("button", { name: "Uncheck set 1", exact: true })).toBeVisible();
+    await expect(page.getByText("All completed sets synced", { exact: true })).toBeVisible();
     expect(writes.filter((item) => item.action === "saveSet")).toHaveLength(1);
     expect(writes.find((item) => item.action === "saveSet")?.row).toMatchObject({
       weight: "135",

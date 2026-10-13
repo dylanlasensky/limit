@@ -1,3 +1,4 @@
+import { withRequestDeadline } from "../../packages/domain/requestDeadline";
 import { functionResponseSchema } from "../../packages/contracts/functions";
 import { z } from "zod";
 import { createAuthClient } from "better-auth/react";
@@ -24,26 +25,29 @@ export async function apiRequest<T>(
   schema: z.ZodType<T>,
   options: RequestInit = {}
 ): Promise<T> {
-  const response = await fetch("/api" + path, {
-    ...options,
-    credentials: "include",
-    headers: {
-      ...(options.body && typeof options.body === "string"
-        ? { "Content-Type": "application/json" }
-        : {}),
-      ...options.headers,
-    },
-  });
-  const data = await response.json().catch(() => null);
-  if (!response.ok)
-    throw new ApiError(
-      data?.error || data?.message || "Could not complete this request.",
-      response.status
-    );
-  const parsed = schema.safeParse(data);
-  if (!parsed.success)
-    throw new ApiError("The server returned an invalid response. Please retry.", 502);
-  return parsed.data;
+  return withRequestDeadline(async (signal) => {
+    const response = await fetch("/api" + path, {
+      ...options,
+      signal,
+      credentials: "include",
+      headers: {
+        ...(options.body && typeof options.body === "string"
+          ? { "Content-Type": "application/json" }
+          : {}),
+        ...options.headers,
+      },
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok)
+      throw new ApiError(
+        data?.error || data?.message || "Could not complete this request.",
+        response.status
+      );
+    const parsed = schema.safeParse(data);
+    if (!parsed.success)
+      throw new ApiError("The server returned an invalid response. Please retry.", 502);
+    return parsed.data;
+  }, options.signal);
 }
 const resultSchema = z.object({
   success: z.boolean(),
@@ -82,7 +86,9 @@ function entity<N extends EntityName>(name: N) {
         body: JSON.stringify(data),
       }),
     delete: (id: string) =>
-      apiRequest(route + "/" + encodeURIComponent(id), resultSchema, { method: "DELETE" }),
+      apiRequest(route + "/" + encodeURIComponent(id), resultSchema, {
+        method: "DELETE",
+      }),
     bulkCreate: (data: object[]) =>
       apiRequest(route + "/bulkCreate", schema.array(), {
         method: "POST",
@@ -102,7 +108,10 @@ function entity<N extends EntityName>(name: N) {
 }
 type Entities = { [N in EntityName]: ReturnType<typeof entity<N>> };
 async function unwrap<T>(
-  promise: Promise<{ data: T; error: { message?: string; status?: number } | null }>
+  promise: Promise<{
+    data: T;
+    error: { message?: string; status?: number } | null;
+  }>
 ) {
   const result = await promise;
   if (result.error)
@@ -134,7 +143,12 @@ export const limitApi = {
         })
       ),
     resetPasswordRequest: (email: string) =>
-      unwrap(authClient.requestPasswordReset({ email, redirectTo: "/reset-password" })),
+      unwrap(
+        authClient.requestPasswordReset({
+          email,
+          redirectTo: "/reset-password",
+        })
+      ),
     resetPassword: ({ resetToken, newPassword }: { resetToken: string; newPassword: string }) =>
       unwrap(authClient.resetPassword({ token: resetToken, newPassword })),
     logout: async (redirect?: string) => {

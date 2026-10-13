@@ -13,6 +13,8 @@ No queue is required for bounded text imports or small exports. Larger imports/m
 
 Private queries always include the authenticated account ID. Client ownership fields are rejected. Public catalog writes and raw session/set writes are forbidden. All mutations reject foreign browser origins. Authentication and AI have D1-backed rate limits. Request logs include only request ID, method, status and duration. AI logs add model, feature, latency, bounded outcome, usage and estimated list-price cost when reported; neither log includes prompts, health data or credentials.
 
+Application API calls in the web and native clients have a shared 30-second deadline, including native cookie retrieval, response-body reading and validation. The deadline aborts the transport and releases waiting UI even if a transport ignores cancellation. A late cookie read cannot start a request after that deadline. Caller cancellation is preserved, timers/listeners are cleaned up, and this helper never retries a mutation. A timeout does not prove that the server cancelled or rolled back a write: workout drafts retain their operation IDs and reconcile server state on subsequent recovery. Slower text imports can time out and return control to the user without an automatic second AI call. Better Auth's own session/authentication transport remains managed by that library; the shared deadline covers the application API boundary.
+
 See the decisions in `docs/decisions`. No account migration is part of this system.
 
 ## Shared interface
