@@ -23,6 +23,7 @@ const link = (path) => [
       commands: [{ tapOn: { text: "Open", retryTapIfNoChange: true } }],
     },
   },
+  { assertNotVisible: "Open in.*LIMIT.*" },
 ];
 const login = (who) => [
   { assertVisible: "Welcome back." },

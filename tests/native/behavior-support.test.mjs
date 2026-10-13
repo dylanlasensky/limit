@@ -160,6 +160,18 @@ test("only the named LIMIT deep-link confirmation permits Maestro's bounded miss
   };
   for (const commands of Object.values(flows)) inspect(commands);
   assert.ok(prompts > 0);
-  // The existing post-link signed-out assertion remains mandatory before any input.
-  assert.deepEqual(flows["01-auth-and-save"][3], { assertVisible: "Welcome back." });
+});
+
+test("every deep link dismisses its modal and sign-in checks the destination before input", () => {
+  const flows = behaviorFlows();
+  for (const commands of Object.values(flows)) {
+    for (let index = 0; index < commands.length; index++) {
+      if (!commands[index].openLink) continue;
+      assert.ok(commands[index + 1].runFlow);
+      assert.deepEqual(commands[index + 2], { assertNotVisible: "Open in.*LIMIT.*" });
+    }
+  }
+  assert.deepEqual(flows["01-auth-and-save"][3], { assertNotVisible: "Open in.*LIMIT.*" });
+  assert.deepEqual(flows["01-auth-and-save"][4], { assertVisible: "Welcome back." });
+  assert.deepEqual(flows["01-auth-and-save"][5], { tapOn: { id: "input-email" } });
 });

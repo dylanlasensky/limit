@@ -483,6 +483,21 @@ test("pre-input image requires the exact first-flow prefix and proven empty init
         commands[6].metadata.status = "COMPLETED";
       },
       () => {
+        commands[6].command.assertConditionCommand.condition = {
+          notVisible: { textRegex: "Open in.*LIMIT.*" },
+        };
+      },
+      () => {
+        commands.splice(6, 0, {
+          command: {
+            assertConditionCommand: {
+              condition: { notVisible: { textRegex: "Open in.*LIMIT.*" } },
+            },
+          },
+          metadata: { status: "COMPLETED" },
+        });
+      },
+      () => {
         commands[3].command.openLinkCommand.link = "https://private.example";
       },
       () => {
