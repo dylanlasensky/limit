@@ -71,10 +71,18 @@ export function summarizeCommands(entries, processStartedAt) {
   };
 }
 
-// Only fixed form/dashboard states and known control IDs leave this boundary.
-// Text fields (and their descendants) are never inspected for text/value flags.
-export function summarizeHierarchy(root) {
-  const result = { status: "available", states: [], controls: [], errorCategories: [] };
+// Only fixed states/IDs and bounded fixture-comparison booleans leave this boundary.
+// Input values never become output; input descendants cannot supply state labels.
+export function summarizeHierarchy(root, expectedInputs) {
+  const result = {
+    status: "available",
+    states: [],
+    controls: [],
+    errorCategories: [],
+    authContexts: [],
+    authErrorPresent: false,
+  };
+  const inputValues = { email: [], password: [] };
   const queue = [root];
   let visited = 0;
   while (queue.length && visited++ < 10000) {
@@ -82,6 +90,14 @@ export function summarizeHierarchy(root) {
     if (!node || typeof node !== "object") continue;
     const attributes = node.attributes || {};
     const id = attributes["resource-id"];
+    const context =
+      typeof id === "string" &&
+      /^auth-context-(preview|production|other)-(idle|attempted|http-[1-5]xx|http-other)$/.exec(id);
+    if (context)
+      result.authContexts.push({ apiDestination: context[1], requestStatus: context[2] });
+    if (id === "auth-error") result.authErrorPresent = true;
+    if (id === "input-email") inputValues.email.push(attributes.value);
+    if (id === "input-password-at-least-12-characters") inputValues.password.push(attributes.value);
     if (controls.has(id))
       result.controls.push({
         id,
@@ -101,6 +117,35 @@ export function summarizeHierarchy(root) {
   }
   result.states = [...new Set(result.states)];
   result.errorCategories = [...new Set(result.errorCategories)];
+  result.authContexts = [
+    ...new Map(result.authContexts.map((context) => [JSON.stringify(context), context])).values(),
+  ];
+  if (
+    typeof expectedInputs?.email === "string" &&
+    expectedInputs.email.endsWith("@example.invalid") &&
+    expectedInputs.email.length <= 320 &&
+    typeof expectedInputs.password === "string" &&
+    expectedInputs.password.length >= 12 &&
+    expectedInputs.password.length <= 128
+  ) {
+    const email =
+      inputValues.email.length === 1 && typeof inputValues.email[0] === "string"
+        ? inputValues.email[0]
+        : null;
+    const password =
+      inputValues.password.length === 1 && typeof inputValues.password[0] === "string"
+        ? inputValues.password[0]
+        : null;
+    result.inputEvidence = {
+      emailMatchesFixture: email === null ? null : email === expectedInputs.email,
+      passwordFieldNonEmpty: password === null ? null : password.length > 0,
+      // Secure native fields may expose only bullets, which cannot prove the entered secret.
+      passwordMatchesFixture:
+        password === null || /^[•●*]+$/.test(password)
+          ? null
+          : password === expectedInputs.password,
+    };
+  }
   return result;
 }
 
@@ -140,7 +185,7 @@ export function readCommandDiagnostics(directory, startedAt) {
 
 // Pinned Maestro captures a failed visible leaf's hierarchy before closing its
 // driver. Consume that exact artifact in memory, never its screenshot or path.
-export function readFailedStepHierarchy(directory) {
+export function readFailedStepHierarchy(directory, expectedInputs) {
   try {
     const { path, entries } = readCommandFile(directory);
     if (!Array.isArray(entries) || entries.length > 500) throw new Error();
@@ -167,7 +212,7 @@ export function readFailedStepHierarchy(directory) {
     return {
       source: "failed-step-artifact",
       commandIndex: last.index,
-      ...summarizeHierarchy(tree),
+      ...summarizeHierarchy(tree, expectedInputs),
     };
   } catch {
     return { source: "failed-step-artifact", status: "unavailable" };

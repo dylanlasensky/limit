@@ -263,3 +263,73 @@ test("last captured failure is selected without exporting earlier records", () =
     assert.equal(readFailedStepHierarchy(temp).commandIndex, 1);
   });
 });
+
+test("auth observations emit fixed destinations and HTTP classes, never arbitrary errors", () => {
+  const result = summarizeHierarchy({
+    children: [
+      { attributes: { "resource-id": "auth-context-preview-http-4xx", value: "private-token" } },
+      { attributes: { "resource-id": "auth-context-private-host-private-status" } },
+      {
+        attributes: {
+          "resource-id": "auth-error",
+          accessibilityText: "Unknown private-account failure",
+        },
+      },
+    ],
+  });
+  assert.deepEqual(result.authContexts, [{ apiDestination: "preview", requestStatus: "http-4xx" }]);
+  assert.equal(result.authErrorPresent, true);
+  assert.deepEqual(result.errorCategories, []);
+  assert.doesNotMatch(JSON.stringify(result), /private-|Unknown/);
+});
+
+test("synthetic input comparison emits booleans only and masked passwords stay unknown", () => {
+  const expected = { email: "private-fixture@example.invalid", password: "private-password-123" };
+  const tree = (email, password) => ({
+    children: [
+      { attributes: { "resource-id": "input-email", value: email } },
+      { attributes: { "resource-id": "input-password-at-least-12-characters", value: password } },
+    ],
+  });
+  for (const [password, matches] of [
+    [expected.password, true],
+    ["different-private-password", false],
+    ["••••••••", null],
+    ["", false],
+  ]) {
+    const result = summarizeHierarchy(tree(expected.email, password), expected);
+    assert.deepEqual(result.inputEvidence, {
+      emailMatchesFixture: true,
+      passwordFieldNonEmpty: password.length > 0,
+      passwordMatchesFixture: matches,
+    });
+    assert.doesNotMatch(JSON.stringify(result), /private-|example.invalid|••/);
+  }
+  assert.equal(
+    summarizeHierarchy(tree("wrong", "••"), expected).inputEvidence.emailMatchesFixture,
+    false
+  );
+});
+
+test("input evidence fails closed for missing or duplicate nodes and non-fixture expectations", () => {
+  const expected = { email: "fixture@example.invalid", password: "private-password-123" };
+  const result = summarizeHierarchy(
+    {
+      children: [
+        { attributes: { "resource-id": "input-email", value: expected.email } },
+        { attributes: { "resource-id": "input-email", value: expected.email } },
+      ],
+    },
+    expected
+  );
+  assert.deepEqual(result.inputEvidence, {
+    emailMatchesFixture: null,
+    passwordFieldNonEmpty: null,
+    passwordMatchesFixture: null,
+  });
+  assert.equal(
+    summarizeHierarchy({}, { ...expected, email: "real@example.com" }).inputEvidence,
+    undefined
+  );
+  assert.equal(summarizeHierarchy({}, { ...expected, password: "short" }).inputEvidence, undefined);
+});

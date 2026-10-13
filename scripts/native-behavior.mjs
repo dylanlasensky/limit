@@ -206,6 +206,11 @@ export async function runNativeBehavior(device, evidenceDir) {
     save();
     assert.equal(result.readiness.status, "passed", "Native driver readiness failed");
     assert.ok(result.readiness.ui.states?.includes("signedOut"), "Signed-out screen unavailable");
+    assert.deepEqual(
+      result.readiness.ui.authContexts,
+      [{ apiDestination: "preview", requestStatus: "idle" }],
+      "Native authentication destination must be the accepted preview"
+    );
     for (const id of ["input-email", "input-password-at-least-12-characters", "action-sign-in"])
       assert.ok(
         result.readiness.ui.controls?.some((control) => control.id === id),
@@ -263,7 +268,11 @@ export async function runNativeBehavior(device, evidenceDir) {
       result.stages.push(stage);
       save();
       if (outcome.status !== "passed") {
-        stage.failureUI = readFailedStepHierarchy(join(temp, name + "-debug"));
+        const expected = name === "05-account-isolation" ? beta : alpha;
+        stage.failureUI = readFailedStepHierarchy(join(temp, name + "-debug"), {
+          email: expected.email,
+          password: expected.password,
+        });
         save();
       }
       assert.equal(outcome.status, "passed", name + " failed");
