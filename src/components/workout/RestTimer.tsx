@@ -27,7 +27,7 @@ export default function RestTimer({ endsAt, onAdjust, onSkip }: RestTimerProps) 
       animate={{ y: 0, opacity: 1 }}
       className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-[26rem] md:max-w-lg rounded-[1.75rem] border border-primary/30 bg-background/90 p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] shadow-[0_0_50px_hsl(var(--primary)/.16)] backdrop-blur-2xl"
     >
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/15 text-primary">
             <TimerReset className="h-5 w-5" />
@@ -39,20 +39,23 @@ export default function RestTimer({ endsAt, onAdjust, onSkip }: RestTimerProps) 
             </p>
           </div>
         </div>
-        <div className="flex gap-1.5">
+        <div className="ml-auto flex flex-wrap gap-1.5">
           <button
             onClick={() => onAdjust(-15)}
-            className="h-10 rounded-xl bg-secondary px-3 text-xs font-black"
+            className="min-h-11 rounded-xl bg-secondary px-3 text-xs font-black"
           >
             −15
           </button>
           <button
             onClick={() => onAdjust(15)}
-            className="h-10 rounded-xl bg-secondary px-3 text-xs font-black"
+            className="min-h-11 rounded-xl bg-secondary px-3 text-xs font-black"
           >
             +15
           </button>
-          <button onClick={onSkip} className="limit-button h-10 rounded-xl px-3 text-xs font-black">
+          <button
+            onClick={onSkip}
+            className="limit-button min-h-11 rounded-xl px-3 text-xs font-black"
+          >
             SKIP
           </button>
         </div>

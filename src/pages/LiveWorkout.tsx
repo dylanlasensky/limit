@@ -390,7 +390,7 @@ export default function LiveWorkout() {
       </fieldset>
       <nav
         aria-label="Workout exercises"
-        className="mx-auto mt-5 flex max-w-2xl items-center justify-between gap-3"
+        className="mx-auto mt-5 flex max-w-2xl flex-wrap items-center justify-between gap-3"
       >
         <button
           disabled={currentExercise === 0}
@@ -399,7 +399,7 @@ export default function LiveWorkout() {
         >
           Previous
         </button>
-        <div className="min-w-0 text-center text-xs text-muted-foreground">
+        <div className="order-first w-full min-w-0 text-center text-xs text-muted-foreground">
           {live.workoutExercises[currentExercise + 1] ? (
             <>
               Up next
@@ -409,18 +409,28 @@ export default function LiveWorkout() {
               </strong>
             </>
           ) : (
-            "Last movement · finish when ready"
+            "Last movement"
           )}
         </div>
-        <button
-          disabled={currentExercise >= live.workoutExercises.length - 1}
-          className="limit-button min-h-12 rounded-xl px-4 text-sm font-bold disabled:opacity-40"
-          onClick={() =>
-            setCurrentExercise((i) => Math.min(live.workoutExercises.length - 1, i + 1))
-          }
-        >
-          Next
-        </button>
+        {currentExercise >= live.workoutExercises.length - 1 ? (
+          <button
+            aria-label="Finish workout"
+            onClick={finish}
+            disabled={finishing || discarding || !live.rows.some((r) => r.completed)}
+            className="limit-button min-h-12 shrink-0 rounded-xl px-4 text-sm font-bold disabled:opacity-40"
+          >
+            {finishing ? "Saving…" : "Finish"}
+          </button>
+        ) : (
+          <button
+            className="limit-button min-h-12 rounded-xl px-4 text-sm font-bold"
+            onClick={() =>
+              setCurrentExercise((i) => Math.min(live.workoutExercises.length - 1, i + 1))
+            }
+          >
+            Next
+          </button>
+        )}
       </nav>
 
       {rest && !paused && (

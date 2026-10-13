@@ -29,3 +29,15 @@ Keep the old device's local storage until upgrading. The current Expo client ret
 The local Mac has Xcode 26.2. Expo SDK 57's current documentation requires Xcode 26.4 or newer. JavaScript exports and component tests do not establish native compilation, simulator launch, physical-device behavior or TestFlight acceptance. No paid build or toolchain upgrade was initiated by this follow-up.
 
 Local regression evidence after the layout/privacy follow-up: 545 unit tests across 70 files and 17 API assertions/tests including the parent lifecycle test. Logout also removes the departing account's private pending meal payloads. The first PR run caught an active-scope ref assignment during render; that guard now updates/cleans up in a layout effect, and uncached mobile lint/types and a clean-install native regression pass. Final exact-head CI and hosted acceptance remain required before release.
+
+## Final readability and recovery-state review
+
+Compact mode removes the redundant previous-session summary and copying instruction; each set retains its own one-tap previous values. Column labels are 12px at default text size. The logger reflows into labeled two-row sets when enlarged text leaves insufficient room, preserving full weight/repetition values. Rest and retry controls have 44px minimum height. The last exercise offers Finish directly.
+
+Twenty-five focused browser checks cover all five widths, both themes, first-use focus, pending save, failed save/retry using the same operation ID, completed/rest state, long names, large values, enlarged text and reduced viewport height. The initial screenshots exposed clipped values and overlapping navigation despite no page overflow; the corrected run adds text-width and button-overlap assertions. Reduced viewport height is browser evidence, not a physical keyboard/device test.
+
+- [Compact phone](evidence/workout-compact-final-390.png) and [desktop](evidence/workout-compact-final-1280.png).
+- [Failed save with retained values](evidence/workout-retry-final-320.png) and [saved/rest state](evidence/workout-rest-final-320.png).
+- [Enlarged text and large values at 320px](evidence/workout-large-text-final-320.png).
+
+These use disposable mocked fixtures and written media fallback. They do not establish live media or native device acceptance. Final CI and exact-version hosted acceptance are recorded in the release PR.

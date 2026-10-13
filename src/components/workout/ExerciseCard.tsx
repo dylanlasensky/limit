@@ -117,7 +117,7 @@ export default function ExerciseCard({
         </button>
       ) : (
         <>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 grid grid-cols-2 gap-2">
             <button
               type="button"
               aria-expanded={!compact}
@@ -143,59 +143,55 @@ export default function ExerciseCard({
               <WorkoutHelp />
             </div>
           )}
-          {previousSets.length > 0 ? (
-            <p className="mt-3 text-[11px] text-muted-foreground">
-              LAST TIME{" "}
-              <span className="ml-1 font-bold tabular-nums text-foreground">
-                {previousSets
-                  .slice(0, 4)
-                  .map((s) => `${s.weight} × ${s.reps}`)
-                  .join("  ·  ")}
-              </span>
-            </p>
-          ) : (
-            <p className="mt-3 text-[11px] text-muted-foreground">FIRST LOGGED SESSION</p>
-          )}
+          {!compact &&
+            (previousSets.length > 0 ? (
+              <p className="mt-3 text-[11px] text-muted-foreground">
+                LAST TIME{" "}
+                <span className="ml-1 font-bold tabular-nums text-foreground">
+                  {previousSets
+                    .slice(0, 4)
+                    .map((s) => `${s.weight} × ${s.reps}`)
+                    .join("  ·  ")}
+                </span>
+              </p>
+            ) : (
+              <p className="mt-3 text-[11px] text-muted-foreground">FIRST LOGGED SESSION</p>
+            ))}
           {suggestion && (
             <div className="mt-3 rounded-2xl border border-primary/20 bg-primary/[.06] p-3">
               <p className="limit-kicker">NEXT TARGET · {suggestion.weight} LB</p>
               <p className="mt-0.5 text-xs text-muted-foreground">{suggestion.note}</p>
             </div>
           )}
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3">
-            {previousSets.length > 0 && (
-              <p className="py-2 text-xs text-muted-foreground">
-                Select a previous set to copy its weight and reps.
-              </p>
-            )}
-          </div>
-          <div className="mt-4 grid grid-cols-[44px_44px_minmax(0,1fr)_minmax(0,1fr)_44px] gap-1 text-center text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-            <span>Set</span>
-            <span>Prev</span>
-            <span>Lb</span>
-            <span>Reps</span>
-            <span />
-          </div>
-          {rows.map((row, index) => (
-            <div key={row.key} className="relative">
-              <SetRow
-                row={row}
-                previous={previousSets[row.setNumber - 1] || previousSets.at(-1)}
-                saving={savingIds.has(row.key)}
-                onEdit={(k, v) => onEdit(row.key, k, v)}
-                onToggle={() => onToggle(row.key)}
-              />
-              {index >= workoutExercise.sets && !row.savedId && !row.pending && (
-                <button
-                  aria-label={`Delete set ${row.setNumber}`}
-                  onClick={() => onRemoveSet(row.key)}
-                  className="ml-auto mt-1 flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs text-muted-foreground"
-                >
-                  <Trash2 aria-hidden className="h-4 w-4" /> Remove set
-                </button>
-              )}
+          <div className="workout-log">
+            <div className="workout-set-heading mt-4 grid grid-cols-[44px_44px_minmax(0,1fr)_minmax(0,1fr)_44px] gap-1 text-center text-xs font-bold uppercase text-muted-foreground">
+              <span>Set</span>
+              <span>Prev</span>
+              <span>Lb</span>
+              <span>Reps</span>
+              <span />
             </div>
-          ))}
+            {rows.map((row, index) => (
+              <div key={row.key} className="relative">
+                <SetRow
+                  row={row}
+                  previous={previousSets[row.setNumber - 1] || previousSets.at(-1)}
+                  saving={savingIds.has(row.key)}
+                  onEdit={(k, v) => onEdit(row.key, k, v)}
+                  onToggle={() => onToggle(row.key)}
+                />
+                {index >= workoutExercise.sets && !row.savedId && !row.pending && (
+                  <button
+                    aria-label={`Delete set ${row.setNumber}`}
+                    onClick={() => onRemoveSet(row.key)}
+                    className="ml-auto mt-1 flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs text-muted-foreground"
+                  >
+                    <Trash2 aria-hidden className="h-4 w-4" /> Remove set
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
           {!locked && (
             <button
               onClick={onAddSet}

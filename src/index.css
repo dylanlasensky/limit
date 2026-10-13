@@ -305,3 +305,23 @@
     background-position-x: -200%;
   }
 }
+
+/* Reflow the logger when enlarged text leaves too little room for five columns. */
+.workout-log { container: workout-log / inline-size; }
+.workout-stacked-label { display: none; }
+@container workout-log (max-width: 14rem) {
+  .workout-set-heading { display: none; }
+  .workout-set-row {
+    grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr) 44px;
+    grid-template-areas: "set previous previous done" "weight weight reps reps";
+    gap: .5rem;
+    padding-block: .5rem;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  .workout-set-type { grid-area: set; }
+  .workout-set-previous { grid-area: previous; }
+  .workout-set-weight { grid-area: weight; }
+  .workout-set-reps { grid-area: reps; }
+  .workout-set-done { grid-area: done; }
+  .workout-stacked-label { display: block; }
+}
