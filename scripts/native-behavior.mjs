@@ -190,6 +190,7 @@ export async function runNativeBehavior(device, evidenceDir) {
         { mode: 0o600 }
       );
       console.log("Native behavior stage: " + name);
+      const startedAt = Date.now();
       const run = spawnSync(
         maestro,
         ["--device", device.udid, "test", "--debug-output", join(temp, name + "-debug"), path],
@@ -200,9 +201,17 @@ export async function runNativeBehavior(device, evidenceDir) {
       if (run.status !== 0) {
         console.error(log.split("\n").slice(-60).join("\n"));
       }
-      assert.equal(run.status, 0, name + " failed");
-      result.stages.push({ name, status: "passed", completedAt: new Date().toISOString() });
+      result.stages.push({
+        name,
+        status: run.status === 0 ? "passed" : "failed",
+        elapsedMs: Date.now() - startedAt,
+        exitCode: run.status,
+        signal: run.signal,
+        errorCode: run.error?.code ?? null,
+        completedAt: new Date().toISOString(),
+      });
       save();
+      assert.equal(run.status, 0, name + " failed");
     };
     runFlow("01-auth-and-save");
     const { value: sessions } = await api(alpha, query("WorkoutSession", { status: "active" }));

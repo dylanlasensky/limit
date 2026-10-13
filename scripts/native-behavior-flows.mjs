@@ -41,7 +41,7 @@ const loggedReps = (value) => [
 export function behaviorFlows() {
   return {
     "01-auth-and-save": [
-      { launchApp: { clearState: true, clearKeychain: true, permissions: { all: "deny" } } },
+      { extendedWaitUntil: { visible: "Welcome back.", timeout: 30000 } },
       ...alphaWorkout(),
       ...login("ALPHA"),
       { assertVisible: "NativeAlpha plan" },
@@ -59,16 +59,16 @@ export function behaviorFlows() {
     "02-background-relaunch": [
       ...edit("input-repetitions", "11"),
       { pressKey: "home" },
-      { launchApp: { stopApp: false } },
+      { launchApp: { stopApp: false, permissions: { all: "deny" } } },
       ...loggedReps("11"),
       "stopApp",
-      "launchApp",
+      { launchApp: { permissions: { all: "deny" } } },
       ...alphaWorkout(),
       ...loggedReps("11"),
       scroll("action-pause-workout", "UP"),
       tap("action-pause-workout"),
       { pressKey: "home" },
-      { launchApp: { stopApp: false } },
+      { launchApp: { stopApp: false, permissions: { all: "deny" } } },
       { assertVisible: id("action-resume-workout") },
       tap("action-resume-workout"),
       ...loggedReps("11"),
@@ -103,7 +103,7 @@ export function behaviorFlows() {
       ...edit("input-repetitions", "17"),
       ...loggedReps("17"),
       "stopApp",
-      "launchApp",
+      { launchApp: { permissions: { all: "deny" } } },
       ...link("workout/${MAESTRO_ALPHA_DRAFT_DAY}"),
       ...loggedReps("17"),
       scroll("input-weight", "UP"),

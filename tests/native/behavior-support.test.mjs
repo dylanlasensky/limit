@@ -40,7 +40,24 @@ test("flows drive real input and do not replace unsupported iOS networking with 
   assert.ok(commands.includes("doubleTapOn"));
   assert.ok(commands.includes("assertNotVisible"));
   assert.ok(!commands.includes("setAirplaneMode"));
-  assert.ok(!commands.includes("clearState", commands.indexOf("02-background-relaunch")));
+  assert.ok(!commands.includes("clearState"));
+  assert.ok(!commands.includes("clearKeychain"));
+});
+test("fresh installed app is observed without reset and lifecycle launches deny permissions", () => {
+  const flows = behaviorFlows();
+  assert.deepEqual(flows["01-auth-and-save"][0], {
+    extendedWaitUntil: { visible: "Welcome back.", timeout: 30000 },
+  });
+  const launches = Object.values(flows)
+    .flat()
+    .filter((command) => {
+      assert.notEqual(command, "launchApp", "Bare launches implicitly grant permissions");
+      return typeof command === "object" && command.launchApp;
+    });
+  assert.equal(launches.length, 4);
+  for (const command of launches) {
+    assert.deepEqual(command.launchApp.permissions, { all: "deny" });
+  }
 });
 
 test("candidate cannot change host networking or simulator security settings", () => {
