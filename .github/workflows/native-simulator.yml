@@ -82,7 +82,7 @@ jobs:
   driver-probe:
     if: github.event.repository.private == false && github.event_name == 'workflow_dispatch' && inputs.mode == 'driver-probe'
     runs-on: macos-26
-    timeout-minutes: 40
+    timeout-minutes: 50
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.4.1.app/Contents/Developer
       LIMIT_DRIVER_PROBE: "true"
@@ -101,7 +101,7 @@ jobs:
           PY
           unzip -q "$RUNNER_TEMP/maestro.zip" -d "$RUNNER_TEMP"
       - name: Observe stock simulator accessibility
-        timeout-minutes: 30
+        timeout-minutes: 43
         run: node scripts/native-driver-probe.mjs
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()

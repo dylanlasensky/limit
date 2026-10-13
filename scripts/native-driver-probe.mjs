@@ -39,12 +39,13 @@ let env = {
 };
 let device;
 const coldServiceTimeoutMs = 180000;
-const run = (name, command, args, timeout = 30000, hierarchy = false) => {
+const run = (name, command, args, timeout = 120000, hierarchy = false) => {
   const startedAt = Date.now();
   const child = spawnSync(command, args, {
     env,
     encoding: "utf8",
     timeout,
+    killSignal: "SIGKILL",
     maxBuffer: 8 * 1024 * 1024,
   });
   const stage = {
@@ -101,14 +102,24 @@ try {
   result.stages.push({ name: "simulator-boot-ready", ...bootStage });
   save();
   if (boot.status !== "passed") throw new Error("probe-stage-failed");
-  run("stock-app-launch", "xcrun", ["simctl", "launch", device.udid, "com.apple.Preferences"]);
+  run(
+    "stock-app-launch",
+    "xcrun",
+    ["simctl", "launch", device.udid, "com.apple.Preferences"],
+    coldServiceTimeoutMs
+  );
   const maestro = join(process.env.RUNNER_TEMP, "maestro/bin/maestro");
   const version = run("maestro-version", maestro, ["--version"]).output.trim();
   if (version !== "2.11.0") throw new Error("unexpected-driver-version");
   const cold = run("cold-hierarchy", maestro, ["--device", device.udid, "hierarchy"], 240000, true);
   if (!cold.stage.parsedHierarchy) throw new Error("invalid-hierarchy");
   // A separate warm invocation observes the stock screen, not a retry of a failed cold probe.
-  run("stock-app-relaunch", "xcrun", ["simctl", "launch", device.udid, "com.apple.Preferences"]);
+  run(
+    "stock-app-relaunch",
+    "xcrun",
+    ["simctl", "launch", device.udid, "com.apple.Preferences"],
+    coldServiceTimeoutMs
+  );
   const warm = run(
     "warm-hierarchy",
     maestro,
@@ -144,7 +155,7 @@ try {
     }
     save();
     try {
-      run("simulator-shutdown", "xcrun", ["simctl", "shutdown", device.udid], 30000);
+      run("simulator-shutdown", "xcrun", ["simctl", "shutdown", device.udid]);
     } catch {
       result.status = "failed";
       process.exitCode = 1;
