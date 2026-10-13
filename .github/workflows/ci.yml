@@ -28,6 +28,7 @@ jobs:
         working-directory: apps/mobile
         run: npx --yes expo-doctor@1.20.4
       - run: npm run test:native
+      - run: python3 -m unittest discover -s tests/operations -p 'test_*.py'
       - name: Native JavaScript bundles
         working-directory: apps/mobile
         run: npx expo export --platform ios --platform android --platform web --output-dir /tmp/limit-native-export
