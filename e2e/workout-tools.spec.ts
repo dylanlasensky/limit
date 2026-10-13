@@ -288,6 +288,32 @@ test("workout save states remain clear and retry preserves the set", async ({ pa
   expect(fixture.errors).toEqual([]);
 });
 
+test("a timed-out save keeps the workout draft and retries the same operation", async ({ page }) => {
+  await page.clock.install();
+  const fixture = await mockWorkout(page);
+  await page.goto("/live-workout/day");
+  await page.getByLabel("Set 1 weight in pounds", { exact: true }).fill("135");
+  await page.getByLabel("Set 1 repetitions", { exact: true }).fill("8");
+  fixture.hold();
+  await page.getByRole("button", { name: "Complete set 1", exact: true }).click();
+  await expect(page.getByText("Syncing your sets…", { exact: true })).toBeVisible();
+  await expect.poll(() => fixture.writes.filter((row) => row.action === "saveSet").length).toBe(1);
+  await page.clock.fastForward(30_001);
+  const retry = page.getByRole("button", { name: "Retry", exact: true });
+  await expect(retry).toBeVisible();
+  await expect(page.getByLabel("Set 1 weight in pounds", { exact: true })).toHaveValue("135");
+  await expect(page.getByLabel("Set 1 repetitions", { exact: true })).toHaveValue("8");
+  await expect(page.getByRole("button", { name: "Uncheck set 1", exact: true })).toBeVisible();
+  fixture.release();
+  await retry.click();
+  await expect(page.getByText("All completed sets synced", { exact: true })).toBeVisible();
+  const saves = fixture.writes.filter((row) => row.action === "saveSet");
+  expect(saves).toHaveLength(2);
+  expect(saves[1].row.operationId).toBe(saves[0].row.operationId);
+  expect(saves[1].row).toMatchObject({ weight: "135", reps: "8", completed: true });
+  expect(fixture.errors).toEqual([]);
+});
+
 test("long names and large previous values fit with enlarged text and reduced viewport height", async ({
   page,
 }, testInfo) => {
