@@ -1,12 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   summarizeCommands,
   summarizeHierarchy,
   readCommandDiagnostics,
+  readFailedStepHierarchy,
   summarizeProcess,
 } from "../../scripts/native-behavior-diagnostics.mjs";
 
@@ -146,4 +147,119 @@ test("process timeout cannot be reported as success even if shutdown returns zer
     }
   );
   assert.equal(summarizeProcess({ status: 0 }, 1000, 1010).status, "passed");
+});
+
+function withFailedHierarchy(run) {
+  const temp = mkdtempSync(join(tmpdir(), "limit-native-failed-tree-"));
+  const folder = join(temp, "flow", "screen-hierarchy");
+  const relative = "screen-hierarchy/step-007-assertCondition-private-record.json";
+  const commandPath = join(temp, "flow", "commands.json");
+  const treePath = join(temp, "flow", relative);
+  const commands = [
+    { metadata: { status: "COMPLETED", artifacts: [] } },
+    {
+      command: { assertConditionCommand: { text: "private-record" } },
+      metadata: {
+        status: "FAILED",
+        error: { message: "private-error" },
+        artifacts: [
+          { type: "SCREENSHOT", path: "private-screenshot.png" },
+          { type: "SCREEN_HIERARCHY", path: relative },
+        ],
+      },
+    },
+  ];
+  try {
+    mkdirSync(folder, { recursive: true });
+    writeFileSync(commandPath, JSON.stringify(commands));
+    writeFileSync(
+      treePath,
+      JSON.stringify({
+        children: [
+          { attributes: { accessibilityText: "Unmatched Route" } },
+          { attributes: { accessibilityText: "limit://private-record" } },
+          {
+            attributes: {
+              "resource-id": "input-email",
+              accessibilityText: "Welcome back.",
+              value: "private-email",
+            },
+            children: [{ attributes: { accessibilityText: "Loading your saved session…" } }],
+          },
+        ],
+      })
+    );
+    run({ temp, folder, commandPath, treePath, commands });
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
+test("failed-step artifact exposes only fixed route state without another driver invocation", () => {
+  withFailedHierarchy(({ temp }) => {
+    const result = readFailedStepHierarchy(temp);
+    assert.equal(result.status, "available");
+    assert.equal(result.source, "failed-step-artifact");
+    assert.equal(result.commandIndex, 1);
+    assert.deepEqual(result.states, ["unmatchedRoute"]);
+    assert.doesNotMatch(JSON.stringify(result), /private-|screen-hierarchy|limit:\/\//);
+  });
+});
+
+test("failed-step reader rejects traversal, absolute paths, ambiguous and passing artifacts", () => {
+  withFailedHierarchy(({ temp, commands, commandPath }) => {
+    const metadata = commands[1].metadata;
+    for (const path of [
+      "../private.json",
+      "/tmp/private.json",
+      "screen-hierarchy/../private.json",
+    ]) {
+      metadata.artifacts = [{ type: "SCREEN_HIERARCHY", path }];
+      writeFileSync(commandPath, JSON.stringify(commands));
+      assert.equal(readFailedStepHierarchy(temp).status, "unavailable");
+    }
+    metadata.artifacts = Array(2).fill({
+      type: "SCREEN_HIERARCHY",
+      path: "screen-hierarchy/step-007-assertCondition-private-record.json",
+    });
+    writeFileSync(commandPath, JSON.stringify(commands));
+    assert.equal(readFailedStepHierarchy(temp).status, "unavailable");
+    metadata.artifacts.pop();
+    metadata.status = "COMPLETED";
+    writeFileSync(commandPath, JSON.stringify(commands));
+    assert.equal(readFailedStepHierarchy(temp).status, "unavailable");
+  });
+});
+
+test("failed-step reader refuses symbolic link files and directories", () => {
+  withFailedHierarchy(({ temp, treePath, folder }) => {
+    const outside = join(temp, "private.json");
+    writeFileSync(outside, '{"attributes":{"accessibilityText":"Welcome back."}}');
+    rmSync(treePath);
+    symlinkSync(outside, treePath);
+    assert.equal(readFailedStepHierarchy(temp).status, "unavailable");
+    rmSync(folder, { recursive: true });
+    symlinkSync(temp, folder);
+    assert.equal(readFailedStepHierarchy(temp).status, "unavailable");
+  });
+});
+
+test("failed-step reader fails closed on oversized, malformed and missing captured hierarchy", () => {
+  withFailedHierarchy(({ temp, treePath }) => {
+    for (const value of ["private-invalid-json", "null", "[]", " ".repeat(8 * 1024 * 1024 + 1)]) {
+      writeFileSync(treePath, value);
+      const result = readFailedStepHierarchy(temp);
+      assert.deepEqual(result, { source: "failed-step-artifact", status: "unavailable" });
+    }
+    rmSync(treePath);
+    assert.equal(readFailedStepHierarchy(temp).status, "unavailable");
+  });
+});
+
+test("last captured failure is selected without exporting earlier records", () => {
+  withFailedHierarchy(({ temp, commands, commandPath }) => {
+    commands.push({ metadata: { status: "FAILED", artifacts: [] } });
+    writeFileSync(commandPath, JSON.stringify(commands));
+    assert.equal(readFailedStepHierarchy(temp).commandIndex, 1);
+  });
 });

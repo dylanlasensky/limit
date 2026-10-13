@@ -93,11 +93,12 @@ test("driver readiness precedes credentials and later invocations avoid reinstal
     "utf8"
   );
   assert.ok(
-    harness.indexOf("result.readiness = readHierarchy(true)") <
+    harness.indexOf("result.readiness = readHierarchy()") <
       harness.indexOf("accounts = await makeAccounts()")
   );
   assert.match(harness, /"--no-reinstall-driver"/);
   assert.match(harness, /timeout: 240000/);
-  assert.match(harness, /coldStart \? 240000 : 45000/);
+  assert.match(harness, /stage.failureUI = readFailedStepHierarchy/);
+  assert.equal(harness.match(/readHierarchy\(\)/g).length, 1);
   assert.doesNotMatch(harness, /console\.(log|error)\(run\.(stdout|stderr)/);
 });

@@ -1,5 +1,5 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { lstatSync, readdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 
 const kinds = new Set([
   "applyConfigurationCommand",
@@ -31,6 +31,9 @@ const controls = new Set([
 const states = new Map([
   ["Welcome back.", "signedOut"],
   ["Loading your account…", "sessionLoading"],
+  ["Loading your saved session…", "workoutLoading"],
+  ["Unmatched Route", "unmatchedRoute"],
+  ["Page could not be found.", "unmatchedRoute"],
   ["Hi, NativeAlpha.", "alphaDashboard"],
   ["Hi, NativeBeta.", "betaDashboard"],
 ]);
@@ -101,7 +104,7 @@ export function summarizeHierarchy(root) {
   return result;
 }
 
-export function readCommandDiagnostics(directory, startedAt) {
+function readCommandFile(directory) {
   const paths = [];
   const walk = (path, depth = 0) => {
     if (depth > 8 || paths.length > 10) return;
@@ -111,16 +114,63 @@ export function readCommandDiagnostics(directory, startedAt) {
         paths.push(join(path, entry.name));
     }
   };
+  if (!lstatSync(directory).isDirectory()) throw new Error("unreadable");
+  walk(directory);
+  if (paths.length !== 1) throw new Error("command-file-count");
+  return { path: paths[0], entries: readBoundedJSON(paths[0]) };
+}
+
+function readBoundedJSON(path) {
+  const stat = lstatSync(path);
+  if (!stat.isFile()) throw new Error("unreadable");
+  if (stat.size > 8 * 1024 * 1024) throw new Error("size-limit");
+  return JSON.parse(readFileSync(path, "utf8"));
+}
+
+export function readCommandDiagnostics(directory, startedAt) {
   try {
-    walk(directory);
-    if (paths.length !== 1)
-      return { status: "unavailable", reason: "command-file-count", commands: [] };
-    const raw = readFileSync(paths[0]);
-    if (raw.length > 8 * 1024 * 1024)
-      return { status: "unavailable", reason: "size-limit", commands: [] };
-    return summarizeCommands(JSON.parse(raw.toString("utf8")), startedAt);
+    return summarizeCommands(readCommandFile(directory).entries, startedAt);
+  } catch (error) {
+    const reason = ["command-file-count", "size-limit"].includes(error.message)
+      ? error.message
+      : "unreadable";
+    return { status: "unavailable", reason, commands: [] };
+  }
+}
+
+// Pinned Maestro captures a failed visible leaf's hierarchy before closing its
+// driver. Consume that exact artifact in memory, never its screenshot or path.
+export function readFailedStepHierarchy(directory) {
+  try {
+    const { path, entries } = readCommandFile(directory);
+    if (!Array.isArray(entries) || entries.length > 500) throw new Error();
+    const candidates = entries.flatMap((entry, index) => {
+      if (entry?.metadata?.status !== "FAILED") return [];
+      const artifacts = entry.metadata.artifacts;
+      if (!Array.isArray(artifacts)) return [];
+      const trees = artifacts.filter((artifact) => artifact?.type === "SCREEN_HIERARCHY");
+      return trees.length ? [{ index, trees }] : [];
+    });
+    const last = candidates.at(-1);
+    if (!last || last.trees.length !== 1) throw new Error();
+    const relative = last.trees[0].path;
+    if (
+      typeof relative !== "string" ||
+      [...relative].some((character) => character.charCodeAt(0) < 32) ||
+      !/^screen-hierarchy\/step-\d{3,}(?:-[^/\\]+)?\.json$/.test(relative)
+    )
+      throw new Error();
+    const folder = join(dirname(path), "screen-hierarchy");
+    if (!lstatSync(folder).isDirectory()) throw new Error();
+    const tree = readBoundedJSON(join(dirname(path), relative));
+    if (!tree || typeof tree !== "object" || Array.isArray(tree)) throw new Error();
+    return {
+      source: "failed-step-artifact",
+      commandIndex: last.index,
+      ...summarizeHierarchy(tree),
+    };
   } catch {
-    return { status: "unavailable", reason: "unreadable", commands: [] };
+    return { source: "failed-step-artifact", status: "unavailable" };
   }
 }
 

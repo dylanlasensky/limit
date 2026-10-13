@@ -12,6 +12,7 @@ import {
 import { behaviorFlows } from "./native-behavior-flows.mjs";
 import {
   readCommandDiagnostics,
+  readFailedStepHierarchy,
   summarizeHierarchy,
   summarizeProcess,
 } from "./native-behavior-diagnostics.mjs";
@@ -176,18 +177,14 @@ export async function runNativeBehavior(device, evidenceDir) {
       encoding: "utf8",
       env: commonEnv,
     }).trim();
-    const readHierarchy = (coldStart) => {
+    const readHierarchy = () => {
       const startedAt = Date.now();
-      const run = spawnSync(
-        maestro,
-        ["--device", device.udid, "hierarchy", ...(coldStart ? [] : ["--no-reinstall-driver"])],
-        {
-          env: commonEnv,
-          encoding: "utf8",
-          timeout: coldStart ? 240000 : 45000,
-          maxBuffer: 8 * 1024 * 1024,
-        }
-      );
+      const run = spawnSync(maestro, ["--device", device.udid, "hierarchy"], {
+        env: commonEnv,
+        encoding: "utf8",
+        timeout: 240000,
+        maxBuffer: 8 * 1024 * 1024,
+      });
       const outcome = summarizeProcess(run, startedAt);
       let ui = { status: "unavailable" };
       if (outcome.status === "passed") {
@@ -201,7 +198,7 @@ export async function runNativeBehavior(device, evidenceDir) {
     };
     // Initialize/observe the pinned driver before creating any test credentials.
     // Raw hierarchy and driver logs never enter the upload directory.
-    result.readiness = readHierarchy(true);
+    result.readiness = readHierarchy();
     save();
     assert.equal(result.readiness.status, "passed", "Native driver readiness failed");
     assert.ok(result.readiness.ui.states?.includes("signedOut"), "Signed-out screen unavailable");
@@ -262,7 +259,7 @@ export async function runNativeBehavior(device, evidenceDir) {
       result.stages.push(stage);
       save();
       if (outcome.status !== "passed") {
-        stage.failureUI = readHierarchy(false);
+        stage.failureUI = readFailedStepHierarchy(join(temp, name + "-debug"));
         save();
       }
       assert.equal(outcome.status, "passed", name + " failed");
