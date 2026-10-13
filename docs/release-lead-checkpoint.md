@@ -1,8 +1,8 @@
 # Release lead checkpoint — October 12, 2026
 
-Fresh GitHub and live health reads confirmed main `bd9306ecb252e6d879d3dfd2ea540980a49eb4bf`, testing Worker `dbdee017-2c1e-4a91-83f6-6bf3d90a1edf`, and production Worker `d44e4c5c-42c1-4418-a9e4-587168a43733`. These are inspected identities, not a new full acceptance result.
+The initial October 12 GitHub and live health snapshot confirmed main `bd9306ecb252e6d879d3dfd2ea540980a49eb4bf`, testing Worker `dbdee017-2c1e-4a91-83f6-6bf3d90a1edf`, and production Worker `d44e4c5c-42c1-4418-a9e4-587168a43733`. These are inspected identities, not a new full acceptance result.
 
-PR #89 remains a separate draft at `706bab78284e7ba745b4449c7b8e91ec8d7fd788`. Its prior green CI does not resolve the older-client shortened-session recovery or native compile/launch evidence gaps described in its review comment. Existing worktrees and uncommitted native-history work are preserved.
+The integrated product release is tracked in [PR #89](https://github.com/dylanlasensky/limit/pull/89). Its final release comment is the authority for merged source, exact preview/production versions and hosted acceptance; the earlier baseline below is historical evidence. Recovery corrections and the supported unsigned simulator workflow are included, while real prior-binary upgrade and physical-device acceptance remain separate. Existing worktrees and unrelated uncommitted native-history work are preserved.
 
 ## Immediate release work
 
