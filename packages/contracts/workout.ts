@@ -5,6 +5,11 @@ export const workoutCommandSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("check"), timezone: z.string().min(1).max(100) }),
   z.object({ action: z.literal("activatePlan"), planId: id }),
   z.object({
+    action: z.literal("setLoadIncrement"),
+    exerciseId: id,
+    increment: z.number().finite().min(0.5).max(50),
+  }),
+  z.object({
     action: z.literal("changeSchedule"),
     planId: id,
     fromDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),

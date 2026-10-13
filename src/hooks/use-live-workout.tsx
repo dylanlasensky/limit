@@ -254,12 +254,17 @@ export default function useLiveWorkout(workoutDayId: string | undefined) {
       throw new Error("Save your profile before setting load steps.");
     await incrementQueue.current.save(
       user.id,
-      profile,
       exerciseId,
       increment,
       (ownerId) => ownerRef.current === ownerId,
-      (profileId, loadIncrements) =>
-        limitApi.entities.UserProfile.update(profileId, { loadIncrements }),
+      async (exerciseId, increment) => {
+        const { data } = await limitApi.functions.invoke("workoutCommand", {
+          action: "setLoadIncrement",
+          exerciseId,
+          increment,
+        });
+        return data.profile.loadIncrements || {};
+      },
       (loadIncrements) => {
         setState((s) =>
           s.profile?.id === profile.id ? { ...s, profile: { ...s.profile, loadIncrements } } : s

@@ -31,6 +31,7 @@ const commands = {
   finish: z.object({ summary }),
   discard: z.object({ ok: z.literal(true) }),
   activatePlan: z.object({ plan: recordSchema("WorkoutPlan") }),
+  setLoadIncrement: z.object({ profile: recordSchema("UserProfile") }),
   changeSchedule: z.object({ change: recordSchema("WorkoutScheduleChange") }),
   undoScheduleChange: z.object({ change: recordSchema("WorkoutScheduleChange") }),
 };
@@ -92,6 +93,7 @@ export function functionResponseSchema(
           "finish",
           "discard",
           "activatePlan",
+          "setLoadIncrement",
           "changeSchedule",
           "undoScheduleChange",
         ]),

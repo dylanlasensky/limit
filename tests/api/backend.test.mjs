@@ -84,6 +84,22 @@ test('real Worker / D1 lifecycle and adversarial ownership checks',async t=>{
   assert.equal(saved.data.equipmentProfileId,'home');
   assert.equal((await call('/functions/workoutCommand',{cookie:b.cookie,method:'POST',body:{action:'selectEquipmentProfile',sessionId:session.id,equipmentProfileId:'home'}})).status,404);
  });
+ await t.test('merges independent load-step commands across clients and retries without overwriting other preferences',async()=>{
+  const catalog=(await call('/entities/Exercise?limit=2')).data;
+  const save=(exerciseId,increment,authCookie=cookie)=>call('/functions/workoutCommand',{cookie:authCookie,method:'POST',body:{action:'setLoadIncrement',exerciseId,increment}});
+  const results=await Promise.all([save(catalog[0].id,2.5),save(catalog[1].id,1.25)]);
+  for(const result of results)assert.equal(result.status,200,JSON.stringify(result.data));
+  const retry=await save(catalog[0].id,2.5);
+  assert.equal(retry.status,200);
+  assert.deepEqual(retry.data.profile.loadIncrements,{[catalog[0].id]:2.5,[catalog[1].id]:1.25});
+  assert.equal((await save(catalog[0].id,0)).status,400);
+  assert.equal((await save('missing-catalog-key',5)).status,404);
+  const other=await save(catalog[0].id,5,b.cookie);
+  assert.equal(other.status,200);
+  assert.equal(other.data.profile.ownerId,b.data.user.id);
+  const unchanged=(await call('/entities/UserProfile/'+profile.id,{cookie})).data;
+  assert.deepEqual(unchanged.loadIncrements,retry.data.profile.loadIncrements);
+ });
  await t.test('replays set operation IDs, rejects stale revisions and completes once',async()=>{
   const rows=(await call('/entities/WorkoutExercise?filter='+encodeURIComponent(JSON.stringify({workoutDayId:days[0].id})),{cookie})).data;
   const body={action:'saveSet',sessionId:session.id,row:{workoutExerciseId:rows[0].id,exerciseId:exercise.id,setNumber:1,operationId:crypto.randomUUID(),revision:'',weight:'0',reps:'10',rir:'3',completed:true}};
