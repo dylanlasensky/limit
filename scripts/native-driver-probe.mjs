@@ -3,7 +3,13 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { summarizeProcess } from "./native-behavior-diagnostics.mjs";
-import { classifyDriverOutput, summarizeStockHierarchy } from "./native-driver-probe-support.mjs";
+import { observeBoot } from "./native-boot-observation.mjs";
+import {
+  classifyDriverOutput,
+  summarizeStockHierarchy,
+  summarizeProbeEnvironment,
+  summarizeDeviceState,
+} from "./native-driver-probe-support.mjs";
 
 assert.equal(process.platform, "darwin");
 assert.equal(process.env.GITHUB_ACTIONS, "true");
@@ -31,7 +37,7 @@ let env = {
   XDG_STATE_HOME: join(temporary, "maestro-state"),
 };
 let device;
-const run = (name, command, args, timeout = 120000, hierarchy = false) => {
+const run = (name, command, args, timeout = 30000, hierarchy = false) => {
   const startedAt = Date.now();
   const child = spawnSync(command, args, {
     env,
@@ -57,18 +63,35 @@ save();
 try {
   const java = run("java-home", "/usr/libexec/java_home", ["-v", "17"]).output.trim();
   env = { ...env, JAVA_HOME: java };
+  const xcode = run("xcode-version", "xcodebuild", ["-version"]).output;
   const inventory = JSON.parse(
     run("simulator-inventory", "xcrun", ["simctl", "list", "devices", "available", "--json"]).output
   );
   device = Object.entries(inventory.devices)
     .filter(([runtime]) => runtime.includes("iOS"))
-    .flatMap(([, devices]) => devices)
+    .flatMap(([runtime, devices]) => devices.map((entry) => ({ ...entry, runtime })))
     .find(
       (entry) => entry.isAvailable && entry.name.startsWith("iPhone") && entry.state === "Shutdown"
     );
   if (!device) throw new Error("simulator-unavailable");
+  result.environment = summarizeProbeEnvironment(process.env, xcode, device, device.runtime);
+  save();
   run("simulator-boot", "xcrun", ["simctl", "boot", device.udid]);
-  run("simulator-boot-ready", "xcrun", ["simctl", "bootstatus", device.udid, "-b"]);
+  const boot = await observeBoot(
+    "xcrun",
+    ["simctl", "bootstatus", device.udid, "-b"],
+    env,
+    600000,
+    (progress) => {
+      result.bootProgress = progress;
+      save();
+    }
+  );
+  const { progress, ...bootStage } = boot;
+  result.bootProgress = progress;
+  result.stages.push({ name: "simulator-boot-ready", ...bootStage });
+  save();
+  if (boot.status !== "passed") throw new Error("probe-stage-failed");
   run("stock-app-launch", "xcrun", ["simctl", "launch", device.udid, "com.apple.Preferences"]);
   const maestro = join(process.env.RUNNER_TEMP, "maestro/bin/maestro");
   const version = run("maestro-version", maestro, ["--version"]).output.trim();
@@ -100,6 +123,17 @@ try {
   process.exitCode = 1;
 } finally {
   if (device) {
+    result.deviceStateBeforeCleanup = "unavailable";
+    try {
+      const inventory = JSON.parse(
+        run("simulator-final-state", "xcrun", ["simctl", "list", "devices", "--json"]).output
+      );
+      result.deviceStateBeforeCleanup = summarizeDeviceState(inventory, device.udid);
+    } catch {
+      result.status = "failed";
+      process.exitCode = 1;
+    }
+    save();
     try {
       run("simulator-shutdown", "xcrun", ["simctl", "shutdown", device.udid], 30000);
     } catch {
