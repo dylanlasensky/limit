@@ -1,5 +1,48 @@
 import assert from "node:assert/strict";
 
+export async function playAndPauseVideo(video, catalogKey, timeoutMs = 20000) {
+  try {
+    assert.equal(await video.evaluate((v) => v.paused && !v.autoplay), true, "unexpected autoplay");
+    await video.evaluate(async (v, timeoutMs) => {
+      const diagnostic = () =>
+        JSON.stringify({
+          code: v.error?.code ?? null,
+          message: v.error?.message ?? null,
+          networkState: v.networkState,
+          readyState: v.readyState,
+          currentTime: v.currentTime,
+        });
+      let timer;
+      let onProgress;
+      let onError;
+      try {
+        await new Promise((resolve, reject) => {
+          timer = setTimeout(
+            () => reject(new Error(`Playback timeout: ${diagnostic()}`)),
+            timeoutMs
+          );
+          onProgress = () => {
+            if (v.currentTime > 0) resolve();
+          };
+          onError = () => reject(new Error(`Media error: ${diagnostic()}`));
+          v.addEventListener("timeupdate", onProgress);
+          v.addEventListener("error", onError);
+          v.play().catch((error) =>
+            reject(new Error(`${error.name}: ${error.message}; ${diagnostic()}`))
+          );
+        });
+      } finally {
+        clearTimeout(timer);
+        v.removeEventListener("timeupdate", onProgress);
+        v.removeEventListener("error", onError);
+        v.pause();
+      }
+    }, timeoutMs);
+  } catch (error) {
+    throw new Error(`${catalogKey}: library playback failed: ${error.message}`, { cause: error });
+  }
+}
+
 export async function playCompleteVideo(page, row, url, timeoutMs = 20000) {
   try {
     const result = await page.evaluate(

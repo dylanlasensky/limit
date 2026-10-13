@@ -12,6 +12,8 @@ Each invocation creates a unique append-only `release-evidence/media-<timestamp>
 
 Production replay is pending; record the finished run and its file hash in the release PR before treating it as accepted. Preserve the October 8 failure and recovered testing provenance.
 
+PR #90's first CI run stopped at Expo compatibility before API/browser checks. The five SDK 57 patch updates recommended by Expo are now aligned through `expo install --fix`; a clean install, Expo Doctor 21/21, mobile lint/types, web/Worker types, formatting/lint, 487 unit tests, two native bridge tests, security gate and production build pass locally. The library's initial play/pause check now also has a bounded timeout and media-state diagnostics, with browser regressions for valid, stalled and unexpected-autoplay states. The test server is cleaned up even if Chromium launch fails. These are local results; fresh exact-head CI remains required.
+
 ## Security assessment
 
 On October 12 the registry still reports node-forge 1.4.0 and the [GitHub advisory](https://github.com/advisories/GHSA-86w9-cpqp-85rv) lists no patched release. Fresh audit found the same four root dependency nodes under this one advisory and zero Worker findings. Keep the existing October 15 expiry and signed/OTA native release restriction. The npm suggestion to downgrade Expo to 44 is not a compatible remedy. No exception was broadened or extended.

@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import assert from "node:assert/strict";
 import { createHash, randomUUID } from "node:crypto";
 import { chromium } from "@playwright/test";
-import { playCompleteVideo } from "./playback.mjs";
+import { playAndPauseVideo, playCompleteVideo } from "./playback.mjs";
 
 const origin = process.env.LIMIT_API_URL;
 assert.ok(origin?.startsWith("https://"));
@@ -108,10 +108,7 @@ try {
   await page.getByRole("button", { name: /^Bodyweight Squat / }).click();
   const video = page.locator("video");
   await video.waitFor();
-  assert.equal(await video.evaluate((v) => v.paused && !v.autoplay), true);
-  await video.evaluate((v) => v.play());
-  await page.waitForFunction(() => document.querySelector("video")?.currentTime > 0);
-  await video.evaluate((v) => v.pause());
+  await playAndPauseVideo(video, current.catalogKey);
   for (const [index, row] of rows.entries()) {
     current = { stage: "full-playback", catalogKey: row.catalogKey };
     record({ event: "playback-started", index: index + 1, total: rows.length, ...current });

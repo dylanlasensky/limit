@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { readFileSync } from "node:fs";
 import { chromium } from "@playwright/test";
-import { playCompleteVideo } from "./playback.mjs";
+import { playAndPauseVideo, playCompleteVideo } from "./playback.mjs";
 
 test("hosted playback completes valid media and identifies broken, mismatched and stalled clips", async () => {
   const bytes = readFileSync("tests/fixtures/generated-squat.mp4");
@@ -18,8 +18,9 @@ test("hosted playback completes valid media and identifies broken, mismatched an
   });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const origin = `http://127.0.0.1:${server.address().port}`;
-  const browser = await chromium.launch({ headless: true });
+  let browser;
   try {
+    browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
     const row = { catalogKey: "bodyweight-squat", duration: 8, width: 960, height: 540 };
     const result = await playCompleteVideo(page, row, origin + "/valid.mp4");
@@ -42,8 +43,24 @@ test("hosted playback completes valid media and identifies broken, mismatched an
       /bodyweight-squat: full playback failed.*width/
     );
     assert.equal(await page.locator("video").count(), 0);
+    await page.setContent(`<video muted playsinline src="${origin}/valid.mp4"></video>`);
+    const video = page.locator("video");
+    await playAndPauseVideo(video, "library-squat");
+    assert.equal(await video.evaluate((v) => v.paused && v.currentTime > 0), true);
+    await video.evaluate((v, url) => {
+      v.src = url;
+    }, origin + "/stalled.mp4");
+    await assert.rejects(
+      playAndPauseVideo(video, "library-stalled", 100),
+      /library-stalled: library playback failed.*Playback timeout.*networkState/
+    );
+    assert.equal(await video.evaluate((v) => v.paused), true);
+    await video.evaluate((v) => {
+      v.autoplay = true;
+    });
+    await assert.rejects(playAndPauseVideo(video, "library-autoplay"), /unexpected autoplay/);
   } finally {
-    await browser.close();
+    await browser?.close();
     server.closeAllConnections();
     await new Promise((resolve) => server.close(resolve));
   }
