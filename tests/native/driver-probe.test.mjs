@@ -95,7 +95,8 @@ test("manual default is a separately scoped driver probe, never full app accepta
   const probe = workflow.slice(workflow.indexOf("  driver-probe:"));
   assert.match(probe, /github.event.repository.private == false/);
   assert.match(probe, /github.event_name == 'workflow_dispatch' && inputs.mode == 'driver-probe'/);
-  assert.match(probe, /timeout-minutes: 35/);
+  assert.match(probe, /timeout-minutes: 40/);
+  assert.match(probe, /timeout-minutes: 30/);
   assert.match(probe, /path: release-evidence\/native-driver-probe\/result.json/);
   assert.doesNotMatch(probe, /npm ci|native-simulator.mjs|EXPO_PUBLIC_API_URL|secrets\./);
 });

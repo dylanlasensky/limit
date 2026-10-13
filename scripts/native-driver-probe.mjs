@@ -26,6 +26,7 @@ const result = {
   sourceRevision: process.env.GITHUB_SHA,
   scope: "Stock simulator accessibility driver only; no LIMIT build, accounts or native acceptance",
   status: "pending",
+  environment: summarizeProbeEnvironment(process.env, "", null, null),
   stages: [],
 };
 const save = () =>
@@ -37,6 +38,7 @@ let env = {
   XDG_STATE_HOME: join(temporary, "maestro-state"),
 };
 let device;
+const coldServiceTimeoutMs = 180000;
 const run = (name, command, args, timeout = 30000, hierarchy = false) => {
   const startedAt = Date.now();
   const child = spawnSync(command, args, {
@@ -64,8 +66,15 @@ try {
   const java = run("java-home", "/usr/libexec/java_home", ["-v", "17"]).output.trim();
   env = { ...env, JAVA_HOME: java };
   const xcode = run("xcode-version", "xcodebuild", ["-version"]).output;
+  result.environment = summarizeProbeEnvironment(process.env, xcode, null, null);
+  save();
   const inventory = JSON.parse(
-    run("simulator-inventory", "xcrun", ["simctl", "list", "devices", "available", "--json"]).output
+    run(
+      "simulator-inventory",
+      "xcrun",
+      ["simctl", "list", "devices", "available", "--json"],
+      coldServiceTimeoutMs
+    ).output
   );
   device = Object.entries(inventory.devices)
     .filter(([runtime]) => runtime.includes("iOS"))
@@ -76,7 +85,7 @@ try {
   if (!device) throw new Error("simulator-unavailable");
   result.environment = summarizeProbeEnvironment(process.env, xcode, device, device.runtime);
   save();
-  run("simulator-boot", "xcrun", ["simctl", "boot", device.udid]);
+  run("simulator-boot", "xcrun", ["simctl", "boot", device.udid], coldServiceTimeoutMs);
   const boot = await observeBoot(
     "xcrun",
     ["simctl", "bootstatus", device.udid, "-b"],
